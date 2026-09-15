@@ -96,7 +96,7 @@
       "time": "7:05 PM - 7:30 PM",
       "title": "Anomalies: Isolation Forest & Homework #5",
       "duration": "25 minutes",
-      "description": "Random trees isolate outliers in a few splits and normal points in many; the average path length is the anomaly score. On a simulated card-transaction stream with 1% fraud, Isolation Forest ranks the fraud into the top 5% of scores with no labels at all. Then HW5: your choice of forecasting or segmentation.",
+      "description": "Random trees isolate outliers in a few splits and normal points in many; the average path length is the anomaly score. On a simulated card-transaction stream with 1% fraud, Isolation Forest puts roughly a third of the fraud into the top 5% of scores with no labels at all — a starting point for the review queue, not a finished detector. Then HW5: your choice of forecasting or segmentation.",
       "bulletPoints": [
         "contamination sets the alert rate; the business sets contamination — how many alerts can the fraud team review per day?",
         "HW5 due Mon Dec 7: segment the retail customers (tonight) or forecast bike demand (next week)"

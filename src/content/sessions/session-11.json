@@ -44,7 +44,7 @@
       "time": "5:20 PM - 5:40 PM",
       "title": "Baselines You Must Beat",
       "duration": "20 minutes",
-      "description": "Naive (last value), seasonal naive (same hour last week), and a moving average. On the bike data seasonal naive lands at MAE ≈ 60 rides per hour. Everything we build tonight is judged against that number.",
+      "description": "Naive (last value), seasonal naive (same hour last week), and a moving average. On the bike data seasonal naive lands at MAE ≈ 70 rides per hour over the last eight weeks. Everything we build tonight is judged against that number.",
       "bulletPoints": [
         "Seasonal naive is embarrassingly hard to beat on strongly periodic data — which is most business data",
         "Report MAE and RMSE; report MAPE only if the series never approaches zero (bikes at 4 AM do)"
