@@ -1,0 +1,117 @@
+---
+import '../assets/styles/global.css';
+import BaseHead from '../components/BaseHead.astro';
+import Navbar from '../components/Navbar.astro';
+import MobileMenu from '../components/MobileMenu.astro';
+import SearchDialog from '../components/SearchDialog.astro';
+import Footer from '../components/Footer.astro';
+import NeuralBackground from '../components/NeuralBackground.astro';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  title: string;
+  description?: string;
+  navBrand?: string;
+}
+
+const { title, description, navBrand } = Astro.props;
+
+const siteLinks: { label: string; href: string; accent?: 'graduate' }[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Sessions', href: '/sessions' },
+  { label: 'Syllabus', href: '/syllabus' },
+  { label: 'Resources', href: '/resources' },
+  { label: 'Explorers', href: '/explorers' },
+  { label: 'Project', href: '/project' },
+  { label: 'Practice', href: '/practice' },
+];
+
+// Build search index
+const sessions = await getCollection('sessions');
+const sorted = sessions.sort((a, b) => a.data.number - b.data.number);
+
+const searchIndex: { type: string; title: string; subtitle?: string; url: string; tags?: string[]; sessionTitle?: string }[] = [];
+
+for (const session of sorted) {
+  const d = session.data;
+  const url = `/sessions/${d.slug}`;
+  const numStr = String(d.number).padStart(2, '0');
+  const sessionLabel = `Session ${numStr}`;
+
+  searchIndex.push({
+    type: 'session',
+    title: `${sessionLabel}: ${d.title}`,
+    subtitle: d.subtitle,
+    url,
+    tags: d.tags,
+  });
+
+  for (const obj of d.objectives || []) {
+    searchIndex.push({
+      type: 'objective',
+      title: obj.title,
+      subtitle: obj.description,
+      url: `${url}#objectives`,
+      sessionTitle: sessionLabel,
+    });
+  }
+
+  for (const res of d.resources || []) {
+    searchIndex.push({
+      type: 'resource',
+      title: res.title,
+      subtitle: res.description,
+      url: res.url,
+      sessionTitle: sessionLabel,
+    });
+  }
+}
+
+searchIndex.push({
+  type: 'explorer',
+  title: 'Explorers — interactive machine learning',
+  subtitle: 'Overfitting, threshold & profit, k-means',
+  url: '/explorers',
+});
+
+searchIndex.push({
+  type: 'practice',
+  title: 'Practice — Predictive analytics question bank',
+  subtitle: '36 exam-style questions with misconception-tagged answers',
+  url: '/practice',
+});
+
+searchIndex.push({
+  type: 'project',
+  title: 'Your Prediction Story — Final Project',
+  subtitle: 'Pick a real prediction problem. Model it. Decide with it. Present Dec 14.',
+  url: '/project',
+});
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <BaseHead title={title} description={description} />
+</head>
+<body>
+  <NeuralBackground />
+  <Navbar brand={navBrand} links={siteLinks} />
+  <MobileMenu links={siteLinks} />
+  <SearchDialog searchIndex={searchIndex} />
+  <main class="pt-[72px]">
+    <slot />
+  </main>
+  <Footer />
+
+  <script is:inline>
+    // Fade-in observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

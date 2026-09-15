@@ -1,0 +1,35 @@
+---
+interface Props {
+  time: string;
+  title: string;
+  duration: string;
+  description: string;
+  bulletPoints?: string[];
+  isBreak?: boolean;
+}
+
+const { time, title, duration, description, bulletPoints = [], isBreak = false } = Astro.props;
+---
+
+<div class:list={[
+  'relative mb-12 p-8 border rounded-2xl transition-all duration-300 hover:translate-x-2 fade-in',
+  'before:content-[""] before:absolute before:-left-12 before:top-8 before:w-3 before:h-3 before:rounded-full before:bg-accent-cyan before:border-[3px] before:border-bg-primary before:-translate-x-[5px]',
+  'max-md:before:-left-8',
+  isBreak
+    ? 'bg-gradient-to-br from-accent-orange/10 to-accent-magenta/10 border-accent-orange/30 hover:border-accent-orange/50'
+    : 'bg-bg-card border-border-subtle hover:border-accent-purple/30'
+]}>
+  <div class="font-mono text-[0.8rem] text-accent-cyan mb-2">{time}</div>
+  <h3 class="text-[1.3rem] font-semibold mb-2">{title}</h3>
+  <span class="inline-block px-3 py-1 bg-accent-purple/20 rounded-full text-[0.75rem] text-accent-purple mb-4">{duration}</span>
+  <div class="text-text-secondary text-[0.95rem]">
+    <p>{description}</p>
+    {bulletPoints.length > 0 && (
+      <ul class="mt-4 ml-6 list-disc">
+        {bulletPoints.map((point) => (
+          <li class="mb-2">{point}</li>
+        ))}
+      </ul>
+    )}
+  </div>
+</div>

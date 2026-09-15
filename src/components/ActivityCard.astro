@@ -1,0 +1,26 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  number: number;
+  icon: string;
+  title: string;
+  description: string;
+}
+
+const { number, icon, title, description } = Astro.props;
+---
+
+<div class="bg-gradient-to-br from-accent-purple/10 to-accent-cyan/10 border border-accent-purple/30 rounded-[20px] p-10 my-8 relative overflow-hidden fade-in before:content-[''] before:absolute before:-top-1/2 before:-right-1/2 before:w-full before:h-full before:bg-[radial-gradient(circle,rgba(224,142,60,0.1)_0%,transparent_70%)] before:pointer-events-none">
+  <div class="relative z-10">
+    <div class="inline-flex items-center gap-2 px-4 py-2 bg-accent-purple/20 rounded-full text-[0.75rem] font-semibold text-accent-purple uppercase tracking-wider mb-6">
+      <Icon name={icon} class="w-4 h-4" />
+      Activity {number}
+    </div>
+    <h3 class="text-2xl font-bold mb-4">{title}</h3>
+    <p class="text-text-secondary mb-6" set:html={description} />
+    <div class="grid gap-4">
+      <slot />
+    </div>
+  </div>
+</div>

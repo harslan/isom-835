@@ -1,0 +1,17 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  icon: string;
+  text: string;
+}
+
+const { icon, text } = Astro.props;
+---
+
+<div class="flex gap-4 items-start p-6 bg-bg-card rounded-xl border border-border-subtle">
+  <div class="shrink-0 w-12 h-12 bg-gradient-to-br from-accent-cyan to-accent-purple rounded-xl flex items-center justify-center">
+    <Icon name={icon} class="w-6 h-6 text-white" />
+  </div>
+  <p class="text-[0.95rem]" set:html={text} />
+</div>

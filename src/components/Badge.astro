@@ -1,0 +1,22 @@
+---
+interface Props {
+  type?: 'interactive' | 'video' | 'tool' | 'reference' | 'code';
+  class?: string;
+}
+
+const { type = 'interactive', class: className = '' } = Astro.props;
+
+const colorMap: Record<string, string> = {
+  interactive: 'text-accent-cyan',
+  video: 'text-accent-magenta',
+  tool: 'text-accent-green',
+  reference: 'text-accent-orange',
+  code: 'text-accent-green',
+};
+
+const color = colorMap[type] || colorMap.interactive;
+---
+
+<span class={`inline-block px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded-full text-[0.7rem] font-semibold uppercase tracking-wider ${color} ${className}`}>
+  <slot />
+</span>

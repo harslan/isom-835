@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Overfitting Explorer · ISOM 835</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/explore/_shared.css">
+<style>
+  .lg-train::before { color: var(--teal); } .lg-test::before { color: var(--coral); }
+  .lg-fit::before { color: var(--peri); } .lg-true::before { color: var(--lime); }
+  .lg-tr::before { color: var(--teal); } .lg-te::before { color: var(--coral); }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text2); margin-top: 6px; cursor: pointer; }
+  .toggle input { accent-color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/sessions/session-01">← ISOM 835 · Session 1</a>
+  <div style="height:14px"></div>
+  <div class="kicker">Interactive · Bias, Variance &amp; Noise, Live</div>
+  <h1>The Overfitting <span class="grad">Explorer</span></h1>
+  <p class="sub">
+    A hidden demand curve — price on the x-axis, weekly units sold on the y-axis — seen only through noisy weekly observations.
+    Fit a polynomial of growing complexity and watch <b>training error fall forever</b> while
+    <b>test error turns back up</b>. The gap between the two curves is the noise your model memorized.
+  </p>
+
+  <div class="presets" id="presets">
+    <button data-p="1,0.18,28,1">Underfit (degree 1)</button>
+    <button data-p="3,0.18,28,1">Sweet spot</button>
+    <button data-p="15,0.18,28,1">Memorizing the noise (degree 15)</button>
+    <button data-p="15,0.18,120,1">More data helps</button>
+    <button data-p="15,0.04,28,1">Less noise</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <canvas id="cv" width="820" height="480"></canvas>
+        <div class="legend">
+          <span class="lg-train">Training weeks</span><span class="lg-test">Held-out weeks</span>
+          <span class="lg-fit">Fitted model</span><span class="lg-true">True demand curve</span>
+        </div>
+        <div class="hoverbox" id="hoverbox">hover over the chart to read the model's prediction at a price…</div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="panel">
+        <div class="kicker" style="margin-bottom:6px">Error vs. complexity — the bias–variance curve</div>
+        <canvas id="cv2" width="820" height="260"></canvas>
+        <div class="legend"><span class="lg-tr">Train RMSE</span><span class="lg-te">Test RMSE</span><span style="color:var(--amber)">▮ the gap = memorized noise</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel controls">
+        <div class="row">
+          <label>Model complexity (polynomial degree) <b id="v-deg">3</b></label>
+          <input type="range" id="deg" min="1" max="15" step="1" value="3">
+        </div>
+        <div class="row">
+          <label>Noise in the data <b id="v-noise">0.18</b></label>
+          <input type="range" id="noise" min="0.02" max="0.40" step="0.02" value="0.18">
+        </div>
+        <div class="row">
+          <label>Training weeks <b id="v-n">28</b></label>
+          <input type="range" id="n" min="8" max="160" step="4" value="28">
+        </div>
+        <label class="toggle"><input type="checkbox" id="showtrue" checked> Show the true demand curve</label>
+        <div class="btnrow"><button class="btn" id="resample">Resample the weeks</button></div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="panel readout">
+        <div class="kicker" style="margin-bottom:6px">Honest scorecard</div>
+        <div class="stat"><span>Train RMSE</span><b id="ro-train">—</b></div>
+        <div class="stat"><span>Test RMSE</span><b id="ro-test">—</b></div>
+        <div class="stat"><span>Gap (test − train)</span><b id="ro-gap">—</b></div>
+        <div class="stat"><span>Best degree on test data</span><b id="ro-best">—</b></div>
+        <div id="ro-badges" style="margin-top:8px"></div>
+        <div class="note" id="ro-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sub" style="margin-top:26px">
+    <b>The model:</b> units = β₀ + β₁·price + β₂·price² + … + β_d·price^d, fit by least squares on the training weeks only.
+    The test weeks never touch the fit — that is why their error is the only number the business should believe.
+  </p>
+</div>
+<script>
+// ---------- data & model ----------
+let seed = 835;
+function rng() { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }
+function gauss() { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+// true demand curve on x in [0,1] (price normalized): smooth, non-polynomial
+const truth = x => 0.55 + 0.25 * Math.sin(2.6 * x + 0.4) - 0.35 * (x - 0.5) + 0.12 * Math.cos(6 * x);
+
+const state = { deg: 3, noise: 0.18, n: 28, showTrue: true, draw: 1 };
+let train = [], test = [];
+const N_TEST = 40;
+
+function sample() {
+  seed = 835 + state.draw * 7919;
+  train = []; test = [];
+  for (let i = 0; i < state.n; i++) { const x = rng(); train.push([x, truth(x) + state.noise * gauss()]); }
+  for (let i = 0; i < N_TEST; i++) { const x = rng(); test.push([x, truth(x) + state.noise * gauss()]); }
+  train.sort((a, b) => a[0] - b[0]);
+}
+
+// Legendre-ish scaling: map x to [-1,1] before powers keeps the normal equations sane
+const z = x => 2 * x - 1;
+function fitPoly(pts, d) {
+  const m = d + 1;
+  const A = Array.from({ length: m }, () => new Array(m).fill(0));
+  const b = new Array(m).fill(0);
+  for (const [x, y] of pts) {
+    const zx = z(x), pw = [1];
+    for (let k = 1; k < m; k++) pw.push(pw[k - 1] * zx);
+    for (let i = 0; i < m; i++) { b[i] += pw[i] * y; for (let j = 0; j < m; j++) A[i][j] += pw[i] * pw[j]; }
+  }
+  const lam = 1e-9 * pts.length;            // ridge shim only for numerical stability
+  for (let i = 1; i < m; i++) A[i][i] += lam;
+  return solveLinear(A, b);
+}
+function solveLinear(A, b) {                // Gaussian elimination with partial pivoting
+  const n = b.length, M = A.map((r, i) => [...r, b[i]]);
+  for (let c = 0; c < n; c++) {
+    let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+    [M[c], M[p]] = [M[p], M[c]];
+    if (Math.abs(M[c][c]) < 1e-14) continue;
+    for (let r = 0; r < n; r++) if (r !== c) { const f = M[r][c] / M[c][c]; for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; }
+  }
+  return M.map((r, i) => Math.abs(r[i]) < 1e-14 ? 0 : r[n] / r[i]);
+}
+function predict(coef, x) { let zx = z(x), s = 0, p = 1; for (const c of coef) { s += c * p; p *= zx; } return s; }
+function rmse(coef, pts) { let s = 0; for (const [x, y] of pts) { const e = predict(coef, x) - y; s += e * e; } return Math.sqrt(s / pts.length); }
+
+function curveAllDegrees() {                // train/test RMSE for every degree 1..15
+  const out = [];
+  for (let d = 1; d <= 15; d++) { const c = fitPoly(train, d); out.push({ d, tr: rmse(c, train), te: rmse(c, test) }); }
+  return out;
+}
+
+// ---------- drawing ----------
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const cv2 = document.getElementById('cv2'), ctx2 = cv2.getContext('2d');
+function setupHiDPI(c, w, h) { const dpr = Math.min(window.devicePixelRatio || 1, 2); c.width = w * dpr; c.height = h * dpr; c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0); return { w, h }; }
+const S1 = setupHiDPI(cv, 820, 480), S2 = setupHiDPI(cv2, 820, 260);
+const PAD = { l: 54, r: 18, t: 18, b: 40 };
+const Y0 = -0.1, Y1 = 1.2;
+const px = x => PAD.l + x * (S1.w - PAD.l - PAD.r);
+const py = y => S1.h - PAD.b - (y - Y0) / (Y1 - Y0) * (S1.h - PAD.t - PAD.b);
+let coef = [], curve = [], hoverX = null;
+
+function drawMain() {
+  ctx.clearRect(0, 0, S1.w, S1.h);
+  ctx.strokeStyle = 'rgba(200,220,255,0.08)'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) { const y = py(Y0 + (Y1 - Y0) * i / 4); ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(S1.w - PAD.r, y); ctx.stroke(); }
+  ctx.fillStyle = '#5f6a7d'; ctx.font = '11px IBM Plex Mono, monospace';
+  ctx.fillText('price →', S1.w - PAD.r - 52, S1.h - 12);
+  ctx.save(); ctx.translate(14, 120); ctx.rotate(-Math.PI / 2); ctx.fillText('weekly units →', 0, 0); ctx.restore();
+  if (state.showTrue) { ctx.strokeStyle = 'rgba(126,231,135,0.55)'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath();
+    for (let i = 0; i <= 200; i++) { const x = i / 200; const p = [px(x), py(truth(x))]; i ? ctx.lineTo(...p) : ctx.moveTo(...p); } ctx.stroke(); ctx.setLineDash([]); }
+  ctx.strokeStyle = '#7c8cff'; ctx.lineWidth = 2.5; ctx.beginPath();
+  for (let i = 0; i <= 300; i++) { const x = i / 300; const y = Math.max(Y0 - 0.5, Math.min(Y1 + 0.5, predict(coef, x))); const p = [px(x), py(y)]; i ? ctx.lineTo(...p) : ctx.moveTo(...p); } ctx.stroke();
+  for (const [x, y] of test) { ctx.fillStyle = 'rgba(255,107,139,0.85)'; ctx.beginPath(); ctx.arc(px(x), py(y), 3.5, 0, 7); ctx.fill(); }
+  for (const [x, y] of train) { ctx.fillStyle = '#2ee6c5'; ctx.beginPath(); ctx.arc(px(x), py(y), 4, 0, 7); ctx.fill(); }
+  if (hoverX !== null) { const yh = predict(coef, hoverX); ctx.strokeStyle = 'rgba(245,165,36,0.6)'; ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(px(hoverX), PAD.t); ctx.lineTo(px(hoverX), S1.h - PAD.b); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = '#f5a524'; ctx.beginPath(); ctx.arc(px(hoverX), py(yh), 5, 0, 7); ctx.fill(); }
+}
+function drawCurve() {
+  ctx2.clearRect(0, 0, S2.w, S2.h);
+  const L = 54, R = 18, T = 14, B = 34, W = S2.w - L - R, H = S2.h - T - B;
+  const maxE = Math.max(0.05, Math.min(1.0, Math.max(...curve.map(c => Math.max(c.tr, c.te))) * 1.1));
+  const qx = d => L + (d - 1) / 14 * W, qy = e => T + H - Math.min(e, maxE) / maxE * H;
+  ctx2.fillStyle = 'rgba(245,165,36,0.12)'; ctx2.beginPath(); ctx2.moveTo(qx(1), qy(curve[0].tr));
+  for (const c of curve) ctx2.lineTo(qx(c.d), qy(c.te)); for (let i = curve.length - 1; i >= 0; i--) ctx2.lineTo(qx(curve[i].d), qy(curve[i].tr)); ctx2.closePath(); ctx2.fill();
+  const line = (key, color) => { ctx2.strokeStyle = color; ctx2.lineWidth = 2.5; ctx2.beginPath(); curve.forEach((c, i) => i ? ctx2.lineTo(qx(c.d), qy(c[key])) : ctx2.moveTo(qx(c.d), qy(c[key]))); ctx2.stroke(); };
+  line('tr', '#2ee6c5'); line('te', '#ff6b8b');
+  ctx2.strokeStyle = 'rgba(238,242,247,0.5)'; ctx2.setLineDash([4, 4]); ctx2.beginPath(); ctx2.moveTo(qx(state.deg), T); ctx2.lineTo(qx(state.deg), T + H); ctx2.stroke(); ctx2.setLineDash([]);
+  const best = curve.reduce((a, c) => c.te < a.te ? c : a);
+  ctx2.fillStyle = '#f5a524'; ctx2.beginPath(); ctx2.arc(qx(best.d), qy(best.te), 5, 0, 7); ctx2.fill();
+  ctx2.fillStyle = '#5f6a7d'; ctx2.font = '11px IBM Plex Mono, monospace';
+  for (let d = 1; d <= 15; d += 2) ctx2.fillText(d, qx(d) - 3, S2.h - 12);
+  ctx2.fillText('degree →', S2.w - R - 60, S2.h - 12);
+  ctx2.fillText(maxE.toFixed(2), 10, T + 10); ctx2.fillText('0', 10, T + H);
+  ctx2.fillText('RMSE', 10, T + H / 2);
+}
+
+// ---------- controls ----------
+const $ = id => document.getElementById(id);
+function fmt(v) { return v.toFixed(3); }
+function update() {
+  coef = fitPoly(train, state.deg); curve = curveAllDegrees();
+  const tr = rmse(coef, train), te = rmse(coef, test), gap = te - tr;
+  const best = curve.reduce((a, c) => c.te < a.te ? c : a);
+  $('ro-train').textContent = fmt(tr); $('ro-test').textContent = fmt(te); $('ro-gap').textContent = (gap >= 0 ? '+' : '') + fmt(gap);
+  $('ro-best').textContent = 'degree ' + best.d + ' (test RMSE ' + fmt(best.te) + ')';
+  const badges = [];
+  if (state.deg < best.d - 1) badges.push('<span class="badge warn">UNDERFIT · high bias</span>');
+  else if (state.deg > best.d + 2 && gap > state.noise * 0.35) badges.push('<span class="badge bad">OVERFIT · high variance</span>');
+  else badges.push('<span class="badge good">NEAR THE SWEET SPOT</span>');
+  if (gap > state.noise) badges.push('<span class="badge bad">gap &gt; noise: memorizing</span>');
+  if (state.n >= 100) badges.push('<span class="badge dim">large sample</span>');
+  $('ro-badges').innerHTML = badges.join(' ');
+  let note;
+  if (state.deg === 1) note = '<b>A straight line can\'t bend.</b> Train and test error are both high and almost equal — the model is too simple to capture the curve. Adding data will not help; adding flexibility will.';
+  else if (state.deg >= 10) note = '<b>Train error is near zero, test error is climbing.</b> The polynomial is threading through every noisy week, including the noise. The business would ship a pricing rule that predicts last year\'s accidents.' + (state.n >= 100 ? ' With this much data even a wiggly model is tamed — <b>more data is the cheapest regularizer.</b>' : '');
+  else note = '<b>Flexible enough to follow the curve, rigid enough to ignore the noise.</b> Test error is close to its minimum; the gap is roughly the noise floor. This is the degree a validation set would pick.';
+  $('ro-note').innerHTML = note;
+  drawMain(); drawCurve();
+}
+function syncLabels() { $('v-deg').textContent = state.deg; $('v-noise').textContent = state.noise.toFixed(2); $('v-n').textContent = state.n; $('deg').value = state.deg; $('noise').value = state.noise; $('n').value = state.n; $('showtrue').checked = state.showTrue; }
+function clearActive() { document.querySelectorAll('#presets button').forEach(b => b.classList.remove('active')); }
+$('deg').addEventListener('input', e => { state.deg = +e.target.value; clearActive(); syncLabels(); update(); });
+$('noise').addEventListener('input', e => { state.noise = +e.target.value; clearActive(); syncLabels(); sample(); update(); });
+$('n').addEventListener('input', e => { state.n = +e.target.value; clearActive(); syncLabels(); sample(); update(); });
+$('showtrue').addEventListener('change', e => { state.showTrue = e.target.checked; drawMain(); });
+$('resample').addEventListener('click', () => { state.draw += 1; sample(); update(); });
+document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => {
+  const [d, nz, n, draw] = b.dataset.p.split(',').map(Number); state.deg = d; state.noise = nz; state.n = n; state.draw = draw;
+  clearActive(); b.classList.add('active'); syncLabels(); sample(); update();
+}));
+cv.addEventListener('mousemove', e => { const r = cv.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width * S1.w; hoverX = Math.max(0, Math.min(1, (x - PAD.l) / (S1.w - PAD.l - PAD.r)));
+  $('hoverbox').textContent = 'price ' + hoverX.toFixed(2) + ' → model predicts ' + predict(coef, hoverX).toFixed(3) + ' · true curve ' + truth(hoverX).toFixed(3) + ' · error ' + (predict(coef, hoverX) - truth(hoverX)).toFixed(3); drawMain(); });
+cv.addEventListener('mouseleave', () => { hoverX = null; $('hoverbox').textContent = 'hover over the chart to read the model\'s prediction at a price…'; drawMain(); });
+sample(); syncLabels(); update();
+</script>
+</body>
+</html>

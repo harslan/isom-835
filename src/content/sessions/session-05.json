@@ -1,0 +1,242 @@
+{
+  "number": 5,
+  "slug": "session-05",
+  "title": "Classification: Predicting Yes/No",
+  "subtitle": "Logistic regression as odds, kNN and Naive Bayes as contrasts, the confusion matrix in depth, precision vs. recall, ROC vs. PR — on 30,000 credit-card customers, 22% of whom default",
+  "duration": "150 Minutes",
+  "icon": "crosshair",
+  "tags": [
+    "Classification",
+    "Logistic Regression",
+    "ROC & PR"
+  ],
+  "objectives": [
+    {
+      "title": "Read Logistic Regression as Odds",
+      "description": "The sigmoid turns a linear score into a probability; each coefficient is a log-odds change. e^0.69 ≈ 2 means 'doubles the odds' — the sentence a credit officer can repeat."
+    },
+    {
+      "title": "Contrast Three Classifiers",
+      "description": "Logistic regression draws a line, kNN votes among neighbors, Naive Bayes multiplies likelihoods. Same data, three decision boundaries, three sets of strengths."
+    },
+    {
+      "title": "Master the Confusion Matrix",
+      "description": "Four cells, four business meanings. Precision, recall, F1, specificity — computed by hand once, so you never again trust a single accuracy number."
+    },
+    {
+      "title": "Choose ROC-AUC or PR-AUC",
+      "description": "ROC for balanced problems and ranking quality; precision–recall when the positive class is rare and false alarms cost money. Fraud at 0.2% makes the difference brutal."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "HW2 Debrief & Meet the Data: Credit-Card Default",
+      "duration": "20 minutes",
+      "description": "Three residual plots from your Ames submissions, then a new dataset: 30,000 credit-card customers in Taiwan, six months of bill and payment history, and a label for whether they defaulted the following month. 22.1% did.",
+      "bulletPoints": [
+        "Baseline: 'nobody defaults' is 77.9% accurate and would bankrupt the bank",
+        "Features: credit limit, age, six months of payment status, bill amounts, payment amounts"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:40 PM",
+      "title": "Logistic Regression: A Line in Log-Odds",
+      "duration": "20 minutes",
+      "description": "Why linear regression fails on a 0/1 target, the sigmoid that fixes it, and coefficients as log-odds. Payment status last month has the biggest coefficient — and exponentiating it tells you exactly how much a late payment multiplies the odds of default.",
+      "bulletPoints": [
+        "predict_proba gives the probability; predict just applies a 0.5 cutoff you never chose",
+        "C is inverse regularization strength: it's ridge/lasso for classification"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:40 PM - 6:05 PM",
+      "title": "kNN & Naive Bayes: Two Other Ways to Draw a Boundary",
+      "duration": "25 minutes",
+      "description": "kNN: no training, just voting among the k nearest customers — and a decision boundary that follows the data everywhere. Naive Bayes: multiply likelihoods, fast and surprisingly good on text. Decision-boundary plots on two features make the three models' personalities visible.",
+      "bulletPoints": [
+        "kNN needs scaling and gets slow at scale; k controls bias–variance exactly like polynomial degree",
+        "Naive Bayes assumes independence it doesn't have — and often works anyway"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, pick a competition teammate — the midterm launches next week.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:45 PM",
+      "title": "The Confusion Matrix, Cell by Cell",
+      "duration": "30 minutes",
+      "description": "True positive: a defaulter we flagged. False negative: a defaulter we approved — the expensive cell. False positive: a good customer we declined — the cell that loses revenue and trust. Precision, recall, F1, specificity computed by hand, then classification_report.",
+      "bulletPoints": [
+        "Precision: of those we flagged, how many defaulted? Recall: of those who defaulted, how many did we flag?",
+        "F1 is the harmonic mean — useful, but it assumes both mistakes cost the same. They never do"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 7:15 PM",
+      "title": "ROC vs. Precision–Recall & Class Imbalance",
+      "duration": "30 minutes",
+      "description": "The ROC curve sweeps every threshold and plots recall against false-positive rate; AUC is the probability a random defaulter scores above a random good customer. Then the PR curve — and why at 22% default ROC is fine, but at 0.2% fraud only PR tells the truth. class_weight='balanced' as the first fix for imbalance; why SMOTE is usually unnecessary.",
+      "bulletPoints": [
+        "Logistic regression on this data: AUC ≈ 0.72 with raw features, ≈ 0.77 with the payment-status columns treated as categories",
+        "Imbalance fixes in order: choose the right metric, reweight, tune the threshold (next week), then and only then resample"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:15 PM - 7:30 PM",
+      "title": "Wrap-Up: The Cliffhanger",
+      "duration": "15 minutes",
+      "description": "We now have a probability for every customer. We have not decided what to do with it. predict() used 0.5 — who chose that? Next week: costs, thresholds, calibration, and profit curves. HW3 launches.",
+      "bulletPoints": [
+        "HW3 (due Nov 2): a credit-default classifier with a threshold you can defend — Session 6 gives you the tools",
+        "Reading: ISLP Chapter 4 (Classification), 4.1–4.4"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 5 Notebook — Classification on Credit-Card Default",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-05/ISOM835_Session5_Classification.ipynb",
+      "description": "Logistic regression with odds ratios, kNN and Naive Bayes with decision-boundary plots, the confusion matrix by hand, classification_report, ROC and PR curves, and class_weight='balanced'.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "The Threshold & Profit Explorer — Preview",
+      "url": "/explore/threshold/",
+      "description": "Next week's explorer, available now: drag the threshold across the two score distributions and watch precision, recall, and the confusion matrix move. Ignore the profit panel until Session 6 — or don't.",
+      "icon": "zap",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the explorer"
+    },
+    {
+      "title": "ISLP, Chapter 4 — Classification",
+      "url": "https://www.statlearning.com/",
+      "description": "Logistic regression, why not linear regression, multiple logistic regression, and generative classifiers (LDA, QDA, Naive Bayes). Sections 4.1–4.4 are tonight; 4.5 compares them.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read Chapter 4 (free PDF)"
+    },
+    {
+      "title": "scikit-learn User Guide — Classification Metrics",
+      "url": "https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics",
+      "description": "Every metric from tonight with its formula: precision, recall, F1, ROC-AUC, average precision, and the confusion matrix. The section on multiclass averaging will save you later.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "Default of Credit Card Clients — the dataset",
+      "url": "https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients",
+      "description": "Yeh & Lien's 2009 dataset from a Taiwanese bank: 30,000 clients, April–September 2005. The documentation explains the payment-status codes (−1 = paid duly, 1 = one month late …) that make the strongest features.",
+      "icon": "credit-card",
+      "badge": "Data",
+      "badgeType": "reference",
+      "linkText": "Read the documentation"
+    },
+    {
+      "title": "Story: AI Credit Models — More Approvals at the Same Risk (vendor-reported)",
+      "url": "https://www.zest.ai/learn/blog/top-five-ways-lenders-are-embracing-machine-learning/",
+      "description": "Lenders using ML underwriting report approving materially more applicants at constant default rates — Upstart has claimed ~43% more approvals at the same loss rate. Vendor numbers, so read them as claims; the mechanism (better ranking than a scorecard) is exactly tonight's AUC.",
+      "icon": "award",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the claims"
+    },
+    {
+      "title": "StatQuest — Logistic Regression & ROC/AUC, Clearly Explained",
+      "url": "https://statquest.org/video_index.html",
+      "description": "Search the index for 'Logistic Regression' and 'ROC and AUC'. The ROC video in particular is the best 16 minutes you can spend before next week.",
+      "icon": "video",
+      "badge": "Video",
+      "badgeType": "video",
+      "linkText": "Open the index"
+    },
+    {
+      "title": "Refresher: Naive Bayes Classification (ISOM 730 notebook)",
+      "url": "https://colab.research.google.com/drive/1Ff6uFZ-HhZm1e78D7ueh_AlID7aZ-E4A",
+      "description": "Prof. Arslan's earlier notebook on Gaussian and multinomial Naive Bayes, including the text-classification example. Pairs with the SVM refresher if you want a fourth boundary shape.",
+      "icon": "target",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "crosshair",
+      "title": "Who Defaults Next Month? Three Classifiers, One Confusion Matrix",
+      "description": "30,000 credit-card customers, 22% default rate. Fit logistic regression, kNN, and Gaussian Naive Bayes in the same pipeline, compare ROC-AUC and PR-AUC, and then read the logistic model's confusion matrix cell by cell in the bank's language.",
+      "steps": [
+        {
+          "title": "Frame it",
+          "description": "Unit: one cardholder. Target: default next month. Horizon: one month. Decision: reduce the credit line / call / do nothing. Baseline: 77.9% accuracy by predicting 'no default' for everyone."
+        },
+        {
+          "title": "Fit three models in one pipeline",
+          "description": "Same preprocessing, swap the last step: LogisticRegression, KNeighborsClassifier(k=25), GaussianNB. Record ROC-AUC and average precision for each."
+        },
+        {
+          "title": "Read the odds",
+          "description": "np.exp(coef_) for the logistic model. Find the feature with the largest odds ratio and say it in a sentence a credit officer would understand."
+        },
+        {
+          "title": "Read the matrix",
+          "description": "Confusion matrix at the default threshold. Name each cell in business terms. Compute precision and recall by hand, then confirm with classification_report."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import numpy as np\nfrom sklearn.datasets import fetch_openml\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.naive_bayes import GaussianNB\nfrom sklearn.metrics import roc_auc_score, average_precision_score, confusion_matrix\n\ncredit = fetch_openml(data_id=42477, as_frame=True)\nX, y = credit.data, (credit.target == '1').astype(int)      # 1 = defaulted next month\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)\n\nmodels = {\n    'logistic': LogisticRegression(max_iter=2000),\n    'knn-25':   KNeighborsClassifier(n_neighbors=25),\n    'naive bayes': GaussianNB(),\n}\nfor name, clf in models.items():\n    pipe = make_pipeline(StandardScaler(), clf).fit(X_tr, y_tr)\n    p = pipe.predict_proba(X_te)[:, 1]\n    print(f'{name:12s} ROC-AUC {roc_auc_score(y_te, p):.3f}   PR-AUC {average_precision_score(y_te, p):.3f}')\n\nlogit = make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000)).fit(X_tr, y_tr)\nprint(confusion_matrix(y_te, logit.predict(X_te)))   # rows: actual, cols: predicted"
+      },
+      "discussionNote": "The three models rank customers similarly (AUC within a few points) — but look at the confusion matrix: at the default threshold, logistic regression flags only a fraction of the defaulters. That is not a modeling failure. It is a <em>decision</em> nobody made: <code>predict()</code> silently assumes a missed default costs the same as a wrongly declined customer. Next week we price the two mistakes and let the price choose the threshold."
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "sigma",
+      "text": "Logistic regression is <strong>linear in log-odds</strong>: exponentiate a coefficient to get an odds ratio, and say it in words — 'a late payment last month roughly doubles the odds of default.'"
+    },
+    {
+      "icon": "crosshair",
+      "text": "The confusion matrix has <strong>four cells with four business meanings</strong>. Precision asks 'of those we flagged…', recall asks 'of those who actually…'. Accuracy averages over both mistakes and hides which one you are making."
+    },
+    {
+      "icon": "chart-line",
+      "text": "<strong>ROC-AUC measures ranking; PR-AUC measures usefulness on rare positives.</strong> At 22% default either works; at 0.2% fraud only precision–recall tells the truth. And predict()'s 0.5 threshold is a decision you have not yet made."
+    }
+  ],
+  "homework": [
+    {
+      "label": "Homework #3 (launches tonight)",
+      "text": "Due Mon Nov 2. Build a credit-default classifier on the Taiwan data in a leak-proof pipeline (logistic regression required; a second model of your choice optional). Report ROC-AUC and PR-AUC on a stratified test set, show the confusion matrix, and interpret the three largest odds ratios in plain English. Part 2, using next week's Session 6 material: assume a missed default costs $1,000 and a wrongly declined good customer costs $150 in lost revenue; find the threshold that minimizes expected cost and report the confusion matrix and cost at that threshold versus 0.5. Reading before Session 6: ISLP 4.1–4.4."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 6: From Scores to Decisions — Thresholds, Costs & Calibration",
+    "description": "The expected-value framework, profit curves, TunedThresholdClassifierCV, calibration plots, lift and gain charts, and targeting under a budget. Plus: the Midterm Model Competition launches.",
+    "tags": [
+      "Decision Thresholds",
+      "Calibration",
+      "Competition Launch"
+    ],
+    "slug": "session-06"
+  }
+}

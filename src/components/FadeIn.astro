@@ -1,0 +1,38 @@
+---
+interface Props {
+  class?: string;
+  tag?: string;
+}
+
+const { class: className = '', tag = 'div' } = Astro.props;
+const Tag = tag as any;
+---
+
+<Tag class={`fade-in ${className}`}>
+  <slot />
+</Tag>
+
+<script is:inline>
+  if (!window.__fadeInObserverInit) {
+    window.__fadeInObserverInit = true;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    function observeAll() {
+      document.querySelectorAll('.fade-in').forEach(el => {
+        if (!el.dataset.observed) {
+          el.dataset.observed = 'true';
+          observer.observe(el);
+        }
+      });
+    }
+    observeAll();
+    // Re-observe after navigation
+    document.addEventListener('astro:page-load', observeAll);
+  }
+</script>

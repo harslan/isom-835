@@ -1,0 +1,242 @@
+{
+  "number": 8,
+  "slug": "session-08",
+  "title": "Gradient Boosting & the Tabular Frontier",
+  "subtitle": "Fit the residuals, again and again: HistGradientBoosting, LightGBM, XGBoost, early stopping — and the tabular foundation models that, since 2025, beat tuned boosting on small data with zero tuning. Plus: the competition reveal",
+  "duration": "150 Minutes",
+  "icon": "trending-up",
+  "tags": [
+    "Gradient Boosting",
+    "Tabular Foundation Models",
+    "Competition Reveal"
+  ],
+  "objectives": [
+    {
+      "title": "Explain Boosting in One Sentence",
+      "description": "Start with a weak model, fit a small tree to its residuals, add it with a small learning rate, repeat. Bias falls step by step — and so, eventually, does generalization unless you stop early."
+    },
+    {
+      "title": "Drive the Three Big Libraries",
+      "description": "scikit-learn's HistGradientBoosting with native categorical support, LightGBM, and XGBoost — same idea, different defaults. Learning rate, number of trees, depth, and regularization as the four knobs that matter."
+    },
+    {
+      "title": "Use Early Stopping Like a Professional",
+      "description": "A validation set, a patience parameter, and the iteration where validation loss bottomed out. The single most important habit in boosting."
+    },
+    {
+      "title": "Place GBDTs on the 2026 Map",
+      "description": "Tree ensembles beat neural networks on tabular data (Grinsztajn 2022). Tabular foundation models — TabPFN-2.5, TabICLv2 — now match or beat tuned boosting on small and medium tables. When to use which, and what licensing means for production."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:25 PM",
+      "title": "Competition Reveal & 'What Worked' Talks",
+      "duration": "25 minutes",
+      "description": "The private leaderboard, unveiled. Each team gets three minutes: what you tried, what worked, what leaked. The pattern is always the same — clean pipelines beat clever models, and early-stopped boosting sits at the top.",
+      "bulletPoints": [
+        "Public vs. private leaderboard shifts: the teams that overfit the public half fall; the teams that trusted cross-validation hold",
+        "Memos due on Canvas tonight at 11:59 PM"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:25 PM - 5:45 PM",
+      "title": "Boosting: Fit the Residuals",
+      "duration": "20 minutes",
+      "description": "Bagging averages independent deep trees to cut variance. Boosting does the opposite: a sequence of shallow trees, each fit to what the ensemble so far got wrong, each added with a small learning rate. Bias falls with every tree. The picture: a regression curve improving one stump at a time.",
+      "bulletPoints": [
+        "learning_rate × n_estimators: lower rate, more trees, smoother fit — 0.05 and 1,000 beats 0.5 and 100",
+        "Depth 3–8 trees, not depth-None: boosting wants weak learners"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:45 PM - 6:05 PM",
+      "title": "HistGradientBoosting, LightGBM, XGBoost",
+      "duration": "20 minutes",
+      "description": "scikit-learn's HistGradientBoostingClassifier: histogram binning, native missing values, categorical_features='from_dtype'. LightGBM: the same idea, leaf-wise growth, blazing fast. XGBoost 3.x: the Kaggle veteran with the deepest regularization options. Same pipeline, three last steps.",
+      "bulletPoints": [
+        "On hotel bookings all three land at AUC ≈ 0.95–0.96 out of the box — the differences are speed and knobs, not accuracy",
+        "CatBoost when categoricals dominate: ordered target statistics built in"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, congratulate the winners.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:45 PM",
+      "title": "Early Stopping & the Knobs That Matter",
+      "duration": "30 minutes",
+      "description": "Plot training and validation log-loss against the number of trees. Training keeps falling; validation bottoms out and rises. early_stopping=True with a validation fraction and n_iter_no_change picks the bottom automatically. Then a quick tour of the regularizers: max_leaf_nodes, min_samples_leaf, l2_regularization, subsample.",
+      "bulletPoints": [
+        "Early stopping is the boosting equivalent of the Overfitting Explorer's sweet spot — found automatically",
+        "Tune learning rate and tree count first; everything else is second-order"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 7:15 PM",
+      "title": "The Tabular Frontier: GBDT vs. Foundation Models",
+      "duration": "30 minutes",
+      "description": "2022: Grinsztajn et al. show tree ensembles beat deep learning on tabular data. 2025: TabPFN-2.5 — a transformer pretrained on millions of synthetic tables — wins against default XGBoost on nearly every dataset under 10k rows, with zero tuning, in seconds. 2026: TabICLv2 from Inria does it open-source at up to 500k rows. We run TabICL on a 5,000-row slice and compare.",
+      "bulletPoints": [
+        "TFMs win small/medium data with no tuning; GBDTs win on scale, latency, and licensing (TabPFN-3 weights are non-commercial)",
+        "TabArena is the living leaderboard — check it before you pick a model for the final project"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:15 PM - 7:30 PM",
+      "title": "Wrap-Up & Homework #4",
+      "duration": "15 minutes",
+      "description": "The 2026 default for tabular business data: a clean pipeline, early-stopped gradient boosting, and a tabular foundation model as the sanity check. Next week we learn to trust it: tuning, SHAP, conformal intervals, fairness.",
+      "bulletPoints": [
+        "HW4 (due Nov 23): hotel bookings with boosting + SHAP — assigned in full next week",
+        "Reading: ISLP 8.2.3; Grinsztajn et al. (2022) abstract and Figure 1"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 8 Notebook — Gradient Boosting & the Tabular Frontier",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-08/ISOM835_Session8_Gradient_Boosting.ipynb",
+      "description": "Residual-fitting animation, HistGradientBoosting vs. LightGBM vs. XGBoost on hotel bookings, early-stopping curves, the four knobs, and an optional TabICL cell for the foundation-model comparison.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "scikit-learn User Guide — Histogram-Based Gradient Boosting",
+      "url": "https://scikit-learn.org/stable/modules/ensemble.html#histogram-based-gradient-boosting",
+      "description": "Categorical support, missing values, early stopping, and monotonic constraints — the section that makes HistGradientBoosting the right first boosting model in 2026.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "Grinsztajn, Oyallon & Varoquaux (2022) — Why Do Tree-Based Models Still Outperform Deep Learning on Tabular Data?",
+      "url": "https://arxiv.org/abs/2207.08815",
+      "description": "The benchmark paper that settled the argument for three years: on 45 tabular datasets, tuned tree ensembles beat neural networks, and the paper explains why (uninformative features, irregular functions, rotation invariance).",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the abstract"
+    },
+    {
+      "title": "TabPFN-2.5 (Nov 2025) — Advancing the State of the Art in Tabular Foundation Models",
+      "url": "https://arxiv.org/abs/2511.08667",
+      "description": "Up to 50k rows and 2k features; reports a 100% win rate against default XGBoost on classification datasets up to 10k rows and parity with AutoGluon's four-hour ensembles. The paper that made 'zero-shot tabular' a serious option.",
+      "icon": "sparkles",
+      "badge": "Frontier",
+      "badgeType": "reference",
+      "linkText": "Read the paper"
+    },
+    {
+      "title": "TabICL (Inria) — Open-Source Tabular Foundation Model",
+      "url": "https://github.com/soda-inria/tabicl",
+      "description": "pip install tabicl. scikit-learn-compatible, scales to ~500k rows, fully open source, and competitive with tuned gradient boosting on most of TabArena. The one we run in class.",
+      "icon": "cpu",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the repo"
+    },
+    {
+      "title": "TabArena — the Living Tabular Benchmark",
+      "url": "https://huggingface.co/spaces/TabArena/leaderboard",
+      "description": "A continuously updated leaderboard of GBDTs, neural nets, foundation models, and AutoML on curated tabular datasets. Check it before choosing a model — and read the licensing column.",
+      "icon": "trophy",
+      "badge": "Reference",
+      "badgeType": "reference",
+      "linkText": "Open the leaderboard"
+    },
+    {
+      "title": "XGBoost Documentation — Introduction to Boosted Trees",
+      "url": "https://xgboost.readthedocs.io/en/stable/tutorials/model.html",
+      "description": "The clearest short derivation of gradient boosting with trees, from the library's own docs. Read it once and the objective function stops being scary.",
+      "icon": "book-open",
+      "badge": "Go Deeper",
+      "badgeType": "reference",
+      "linkText": "Read the tutorial"
+    },
+    {
+      "title": "StatQuest — Gradient Boost Parts 1–4 & XGBoost",
+      "url": "https://statquest.org/video_index.html",
+      "description": "Search the index for 'Gradient Boost'. Part 1 (regression main ideas) and Part 3 (classification) are the ones to watch before HW4.",
+      "icon": "video",
+      "badge": "Video",
+      "badgeType": "video",
+      "linkText": "Open the index"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "trending-up",
+      "title": "Early-Stopped Boosting on Hotel Bookings — Then a Foundation Model",
+      "description": "Fit HistGradientBoostingClassifier with early stopping on the hotel data, plot the validation curve, read the iteration it stopped at, and compare to last week's forest. Then, on a 5,000-row slice, run TabICL with no tuning and see where it lands.",
+      "steps": [
+        {
+          "title": "Same pipeline, new last step",
+          "description": "Session 7's leak-free hotel features. HistGradientBoostingClassifier(learning_rate=0.05, max_iter=2000, early_stopping=True, validation_fraction=0.15, n_iter_no_change=50)."
+        },
+        {
+          "title": "Read the stopping point",
+          "description": "model.n_iter_ tells you how many trees were kept. Plot model.validation_score_ to see the curve bottom out."
+        },
+        {
+          "title": "Compare honestly",
+          "description": "Test AUC vs. the random forest from Session 7 and vs. logistic regression from Session 3's pipeline. Same split, same metric."
+        },
+        {
+          "title": "Zero-shot challenger",
+          "description": "pip install tabicl; TabICLClassifier().fit(X_small, y_small) on 5,000 rows. No tuning. Compare AUC with the boosted model trained on the same 5,000 rows."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import HistGradientBoostingClassifier\nfrom sklearn.metrics import roc_auc_score\n\nurl = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/hotel_bookings.csv'\ndf = pd.read_csv(url)\nleaks = ['reservation_status', 'reservation_status_date', 'assigned_room_type']\nX = df.drop(columns=['is_canceled'] + leaks)\nfor c in X.select_dtypes(object): X[c] = X[c].astype('category')   # native categorical support\ny = df['is_canceled']\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)\n\ngbm = HistGradientBoostingClassifier(\n    learning_rate=0.05, max_iter=2000, max_leaf_nodes=31,\n    early_stopping=True, validation_fraction=0.15, n_iter_no_change=50,\n    categorical_features='from_dtype', random_state=835)\ngbm.fit(X_tr, y_tr)\nprint(f'trees kept: {gbm.n_iter_}   test AUC: {roc_auc_score(y_te, gbm.predict_proba(X_te)[:, 1]):.3f}')\n\n# Optional (Colab): the open-source tabular foundation model, zero tuning, small slice\n# !pip install -q tabicl\n# from tabicl import TabICLClassifier\n# Xs, ys = X_tr.sample(5000, random_state=835), y_tr.loc[X_tr.sample(5000, random_state=835).index]\n# print('TabICL AUC:', roc_auc_score(y_te, TabICLClassifier().fit(Xs, ys).predict_proba(X_te)[:, 1]))"
+      },
+      "discussionNote": "Early stopping is doing the work the Overfitting Explorer made you do by hand. And the foundation-model cell is the 2026 twist: on 5,000 rows a pretrained transformer with <em>zero</em> hyperparameters will typically match the boosted model you just tuned — in seconds. On 95,000 rows the GBDT pulls ahead again and runs in production without a license question. <em>The right answer is now 'both': GBDT as the workhorse, a TFM as the fast baseline and the sanity check.</em>"
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "trending-up",
+      "text": "<strong>Boosting fits the residuals sequentially</strong> with shallow trees and a small learning rate; it reduces bias where bagging reduces variance. Lower rate + more trees + early stopping is the recipe."
+    },
+    {
+      "icon": "timer",
+      "text": "<strong>Early stopping on a validation set</strong> is the one habit that separates a boosting model that generalizes from one that memorized — and every major library has it built in."
+    },
+    {
+      "icon": "cpu",
+      "text": "On tabular business data <strong>tree ensembles still beat neural networks</strong>; since 2025 <strong>tabular foundation models</strong> (TabPFN, TabICL) match tuned boosting on small and medium tables with zero tuning. Use a GBDT for scale, latency, and licensing; use a TFM as the instant baseline."
+    }
+  ],
+  "homework": [
+    {
+      "label": "Competition Memo + Project Proposal",
+      "text": "Tonight, 11:59 PM: the one-page competition memo on Canvas (what you tried, what worked, what leaked, your private-leaderboard AUC, and one thing you would do with two more weeks). Mon Nov 9 (tonight) also closes final-project proposals — one paragraph naming the prediction, the unit, the horizon, the decision it changes, and the data plan. HW4 (hotel bookings: early-stopped boosting + SHAP explanation of ten bookings + a calibration check) is assigned in full next week and due Mon Nov 23."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 9: Trust, but Verify — Tuning, Explaining & Uncertainty",
+    "description": "Cross-validation strategies that don't lie (grouped, time-ordered), Optuna, SHAP for one customer and for the whole book, partial dependence, conformal prediction with MAPIE, fairness slices, and the one-page model card.",
+    "tags": [
+      "Cross-Validation",
+      "SHAP",
+      "Conformal Prediction"
+    ],
+    "slug": "session-09"
+  }
+}

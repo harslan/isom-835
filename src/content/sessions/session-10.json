@@ -1,0 +1,251 @@
+{
+  "number": 10,
+  "slug": "session-10",
+  "title": "Segments, Structure & Anomalies",
+  "subtitle": "Learning without labels: RFM customer segmentation with k-means, choosing k honestly, hierarchical clustering and DBSCAN, PCA and UMAP for seeing high-dimensional data, and Isolation Forest for the transactions that don't belong",
+  "duration": "150 Minutes",
+  "icon": "boxes",
+  "tags": [
+    "Clustering",
+    "PCA",
+    "Anomaly Detection"
+  ],
+  "objectives": [
+    {
+      "title": "Segment Customers With RFM + k-Means",
+      "description": "Recency, Frequency, Monetary from a million retail transactions, scaled and clustered — then named: Champions, Loyal, At Risk, Hibernating. A segmentation a marketing team can act on Monday."
+    },
+    {
+      "title": "Choose k Without Fooling Yourself",
+      "description": "The elbow on inertia, the silhouette score, and the truth: k is a business decision informed by the data, not decided by it."
+    },
+    {
+      "title": "See High-Dimensional Data",
+      "description": "PCA as the linear projection that keeps the most variance; UMAP as the nonlinear map that keeps neighborhoods. What each is for and what each distorts."
+    },
+    {
+      "title": "Find What Doesn't Belong",
+      "description": "Isolation Forest scores every point by how easy it is to isolate. Fraud, sensor faults, data-entry errors — anomaly detection when labels are rare or absent."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "HW4 Debrief & Learning Without a Target",
+      "duration": "20 minutes",
+      "description": "The best SHAP explanations from HW4, then a shift: nine sessions with a y column, and now none. Unsupervised learning finds structure — groups, directions, outliers — and the business supplies the meaning. Meet the data: Online Retail II, 1,067,371 transactions from a UK gift retailer, 2009–2011.",
+      "bulletPoints": [
+        "No target means no accuracy — evaluation is about usefulness, stability, and whether the segments make sense to the people who own them",
+        "From transactions to customers: one groupby turns a million rows into ~5,900 RFM profiles"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:45 PM",
+      "title": "k-Means, Step by Step",
+      "duration": "25 minutes",
+      "description": "Pick k centroids, assign every customer to the nearest, move each centroid to the mean of its members, repeat until nothing moves. The k-Means Explorer runs it one step at a time. Then the two things that go wrong: bad initialization (k-means++ fixes it) and unscaled features (StandardScaler and a log on the dollar column fix that).",
+      "bulletPoints": [
+        "k-means finds compact, roughly spherical clusters of similar size — it will find them even when they aren't there",
+        "Log-transform Monetary and Frequency before scaling: a $50,000 customer should not be a cluster of one"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:45 PM - 6:05 PM",
+      "title": "How Many Segments? Elbow, Silhouette, and Judgment",
+      "duration": "20 minutes",
+      "description": "Inertia falls with every extra k; the elbow is where it stops falling fast. Silhouette measures how much closer each point is to its own cluster than the next one. On the retail data both point to 4–5 — and the marketing team can staff campaigns for four. That settles it.",
+      "bulletPoints": [
+        "Silhouette above 0.5 is clean structure; 0.25–0.5 is typical business data; below that you are slicing a continuum",
+        "Profile every cluster (mean R, F, M, size) and name it — a cluster without a name is not a segment"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, name your favorite cluster.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:40 PM",
+      "title": "Other Shapes: Hierarchical, DBSCAN, Gaussian Mixtures",
+      "duration": "25 minutes",
+      "description": "Agglomerative clustering builds a dendrogram you can cut at any height — no k up front. DBSCAN finds dense regions of any shape and labels the rest noise. Gaussian mixtures give soft memberships: a customer can be 70% Loyal and 30% At Risk. Same RFM data, three different stories.",
+      "bulletPoints": [
+        "DBSCAN's eps and min_samples replace k — and its 'noise' label is a free anomaly detector",
+        "Use the dendrogram to explain to a manager why 4 clusters and not 7"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:40 PM - 7:05 PM",
+      "title": "Seeing High Dimensions: PCA and UMAP",
+      "duration": "25 minutes",
+      "description": "PCA rotates the data to the directions of greatest variance; the first two components are the best flat picture of a 20-column table and the explained-variance curve tells you how much you lost. UMAP bends space to keep neighbors together — better pictures, less trustworthy distances. Both make a cluster plot possible.",
+      "bulletPoints": [
+        "PCA loadings tell you what each component means: PC1 on RFM is 'overall value', PC2 is 'recency vs. frequency'",
+        "Never cluster on a UMAP embedding and call the distances real — cluster on the scaled features, plot on the embedding"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:05 PM - 7:30 PM",
+      "title": "Anomalies: Isolation Forest & Homework #5",
+      "duration": "25 minutes",
+      "description": "Random trees isolate outliers in a few splits and normal points in many; the average path length is the anomaly score. On a simulated card-transaction stream with 1% fraud, Isolation Forest ranks the fraud into the top 5% of scores with no labels at all. Then HW5: your choice of forecasting or segmentation.",
+      "bulletPoints": [
+        "contamination sets the alert rate; the business sets contamination — how many alerts can the fraud team review per day?",
+        "HW5 due Mon Dec 7: segment the retail customers (tonight) or forecast bike demand (next week)"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 10 Notebook — Segments, Structure & Anomalies",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-10/ISOM835_Session10_Segments_Anomalies.ipynb",
+      "description": "RFM from Online Retail II, k-means with elbow and silhouette, cluster profiles and names, agglomerative and DBSCAN, PCA loadings and UMAP, and Isolation Forest on a synthetic fraud stream.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "The k-Means Explorer",
+      "url": "/explore/kmeans/",
+      "description": "Customers on a recency × frequency plane. Step the algorithm one assignment at a time, re-initialize, change k, and watch the elbow chart and the segment table update — including the case where k-means confidently finds clusters that aren't there.",
+      "icon": "zap",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the explorer"
+    },
+    {
+      "title": "Online Retail II — the dataset (UCI)",
+      "url": "https://archive.ics.uci.edu/dataset/502/online+retail+ii",
+      "description": "1,067,371 transactions from a UK-based online gift retailer, Dec 2009 – Dec 2011, with customer IDs, quantities, prices, and countries. Cancellations are the invoices starting with 'C'.",
+      "icon": "shopping-cart",
+      "badge": "Data",
+      "badgeType": "reference",
+      "linkText": "Open the dataset page"
+    },
+    {
+      "title": "ISLP, Chapter 12 — Unsupervised Learning",
+      "url": "https://www.statlearning.com/",
+      "description": "PCA (12.2), k-means and hierarchical clustering (12.4), with the honest section on how unstable clusters can be. Read 12.2 and 12.4.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read Chapter 12 (free PDF)"
+    },
+    {
+      "title": "scikit-learn User Guide — Clustering",
+      "url": "https://scikit-learn.org/stable/modules/clustering.html",
+      "description": "The comparison table at the top — which algorithm for which shape, scale, and use case — is the single most useful page in the clustering literature.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "scikit-learn User Guide — Novelty and Outlier Detection",
+      "url": "https://scikit-learn.org/stable/modules/outlier_detection.html",
+      "description": "Isolation Forest, Local Outlier Factor, One-Class SVM, and the elliptic envelope compared on the same toy data. Read it before you pick a method for a real fraud problem.",
+      "icon": "book-open",
+      "badge": "Go Deeper",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "Story: Mastercard Decision Intelligence — Scoring 150 Billion Transactions",
+      "url": "https://www.idaireland.com/latest-news/insights/how-ai-in-fraud-detection-is-revolutionising-banking-and-payments",
+      "description": "Industry reporting on Mastercard's real-time fraud scoring: higher detection and materially fewer false declines, each decision in under 50 milliseconds. Anomaly scores plus supervised models plus a threshold the business chose — tonight and Session 6 combined.",
+      "icon": "award",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the report"
+    },
+    {
+      "title": "StatQuest — K-means Clustering & PCA Main Ideas",
+      "url": "https://statquest.org/video_index.html",
+      "description": "Search the index for 'K-means' and 'PCA main ideas'. Eight and five minutes respectively.",
+      "icon": "video",
+      "badge": "Video",
+      "badgeType": "video",
+      "linkText": "Open the index"
+    },
+    {
+      "title": "Refresher: Principal Component Analysis (ISOM 730 notebook)",
+      "url": "https://colab.research.google.com/drive/1n70pf6LtHuWFiTvR4Oh9q9WR3Jhz1tSt",
+      "description": "Prof. Arslan's earlier notebook: PCA on digits and faces, choosing the number of components, and PCA as noise filtering. The picture-heavy version of tonight's PCA segment.",
+      "icon": "target",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "boxes",
+      "title": "From a Million Transactions to Four Segments",
+      "description": "Build RFM features for every customer in Online Retail II, scale them properly, choose k with the elbow and silhouette, profile the clusters, and give each one a name and a marketing action.",
+      "steps": [
+        {
+          "title": "Transactions → customers",
+          "description": "Drop cancellations (invoice starts with 'C') and rows without a customer ID. Group by customer: Recency = days since last invoice, Frequency = number of invoices, Monetary = total spend."
+        },
+        {
+          "title": "Scale like you mean it",
+          "description": "log1p on Frequency and Monetary (right-skewed), then StandardScaler on all three. Look at the histograms before and after."
+        },
+        {
+          "title": "Choose k",
+          "description": "KMeans(n_init=10) for k = 2…10; plot inertia and silhouette_score. Pick k where both agree and marketing can act."
+        },
+        {
+          "title": "Profile and name",
+          "description": "groupby cluster: mean R, F, M in original units, plus size. Name each (Champions, Loyal, At Risk, Hibernating…) and write one action per segment."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import pandas as pd, numpy as np\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\n\nraw = pd.read_excel('online_retail_II.xlsx', sheet_name=None)          # UCI zip → xlsx, two sheets\ndf = pd.concat(raw.values()).dropna(subset=['Customer ID'])\ndf = df[~df['Invoice'].astype(str).str.startswith('C') & (df['Quantity'] > 0)]\ndf['Amount'] = df['Quantity'] * df['Price']\nsnapshot = df['InvoiceDate'].max() + pd.Timedelta(days=1)\n\nrfm = df.groupby('Customer ID').agg(\n    Recency=('InvoiceDate', lambda d: (snapshot - d.max()).days),\n    Frequency=('Invoice', 'nunique'),\n    Monetary=('Amount', 'sum'))\nZ = StandardScaler().fit_transform(np.column_stack([rfm['Recency'], np.log1p(rfm['Frequency']), np.log1p(rfm['Monetary'])]))\n\nfor k in range(2, 9):\n    labels = KMeans(n_clusters=k, n_init=10, random_state=835).fit_predict(Z)\n    print(f'k={k}: silhouette {silhouette_score(Z, labels, sample_size=3000, random_state=835):.3f}')\n\nkm = KMeans(n_clusters=4, n_init=10, random_state=835).fit(Z)\nrfm['segment'] = km.labels_\nprint(rfm.groupby('segment').agg(n=('Recency', 'size'), Recency=('Recency', 'mean'), Frequency=('Frequency', 'mean'), Monetary=('Monetary', 'mean')).round(1))"
+      },
+      "discussionNote": "Look at the profile table and the names write themselves: a small cluster with low recency, high frequency, high spend — <em>Champions</em>; a large cluster that bought once, long ago — <em>Hibernating</em>. Now the question that makes this a business deliverable rather than a plot: what do you <em>do</em> differently for each? Champions get early access; At Risk get a win-back offer; Hibernating get nothing (the offer costs more than they are worth). A segmentation is only as good as the four sentences that follow it."
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "boxes",
+      "text": "<strong>k-means finds compact clusters of similar size and finds them whether or not they exist.</strong> Scale (and log) first, use k-means++, and use the elbow and silhouette to inform k — then let the business decide."
+    },
+    {
+      "icon": "eye",
+      "text": "<strong>PCA keeps variance; UMAP keeps neighborhoods.</strong> Cluster on the scaled features, plot on the embedding, and read PCA loadings to name the axes."
+    },
+    {
+      "icon": "search",
+      "text": "<strong>Isolation Forest scores by how easy a point is to isolate</strong> — anomaly detection with no labels. The alert rate is a business choice: how many cases can the fraud team review tomorrow?"
+    }
+  ],
+  "homework": [
+    {
+      "label": "Homework #5 (choose one track)",
+      "text": "Due Mon Dec 7. Track A — Segmentation: RFM on Online Retail II, a defended choice of k (elbow + silhouette + business reasoning), a profile table with a name and a one-sentence marketing action per segment, a PCA scatter colored by segment, and a paragraph on how you would measure whether the segmentation worked. Track B — Forecasting (after Session 11): hourly bike demand with a seasonal-naive baseline, a lag-feature gradient-boosting model evaluated with TimeSeriesSplit, MAE by hour-of-day, and one paragraph on what the model gets wrong on holidays. Either track: notebook on Canvas."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 11: Forecasting — Time Series With ML & Foundation Models",
+    "description": "Why random splits lie on time series, lag and rolling features, gradient boosting as a forecaster, classical baselines with StatsForecast, and zero-shot forecasting with Chronos-2 and TimesFM.",
+    "tags": [
+      "Time Series",
+      "Forecasting",
+      "Foundation Models"
+    ],
+    "slug": "session-11"
+  }
+}

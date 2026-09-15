@@ -1,0 +1,11 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<span class={`bg-gradient-to-br from-accent-cyan to-accent-purple bg-clip-text text-transparent ${className}`}>
+  <slot />
+</span>

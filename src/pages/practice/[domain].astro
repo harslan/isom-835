@@ -1,0 +1,136 @@
+---
+import PracticeLayout from '../../layouts/PracticeLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { domains, getDomain, getDomainQuestions } from '../../data/questions';
+import { teaserFor } from '../../data/practice-content';
+
+export function getStaticPaths() {
+  return domains.map((d) => ({ params: { domain: d.id } }));
+}
+
+const { domain: domainId } = Astro.params;
+const domain = getDomain(domainId as any);
+if (!domain) {
+  return Astro.redirect('/practice');
+}
+
+const domainQuestions = getDomainQuestions(domain.id);
+const questionIds = domainQuestions.map((q) => q.id);
+
+const questionRows = domainQuestions.map((q) => ({
+  id: q.id,
+  question: q.question,
+  teaser: teaserFor(q.id),
+}));
+---
+
+<PracticeLayout
+  title={`${domain.title} | ISOM 835 Practice`}
+  description={domain.description}
+>
+  <section class="max-w-[900px] mx-auto px-8 pt-16 pb-12">
+    <a
+      href="/practice"
+      class="inline-flex items-center gap-2 text-text-muted text-sm no-underline hover:text-accent-cyan transition-colors mb-8"
+    >
+      <Icon name="chevron-right" class="w-4 h-4 rotate-180" />
+      All domains
+    </a>
+
+    <div class="flex items-start gap-5 mb-6">
+      <div class="font-mono text-3xl font-bold bg-gradient-to-br from-accent-cyan to-accent-purple bg-clip-text text-transparent shrink-0">
+        {domain.number}
+      </div>
+      <Icon name={domain.icon} class="w-8 h-8 text-accent-purple mt-1 shrink-0" />
+      <div class="flex-1">
+        <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-2">
+          Domain {domain.number}
+        </div>
+        <h1 class="text-[clamp(1.75rem,4vw,2.5rem)] font-bold leading-tight">
+          {domain.title}
+        </h1>
+      </div>
+    </div>
+
+    <p class="prose-practice text-text-secondary text-lg max-w-[700px]">
+      {domain.description}
+    </p>
+  </section>
+
+  <section class="max-w-[900px] mx-auto px-8 pb-24" data-question-ids={questionIds.join(',')}>
+    <div class="font-mono text-[0.75rem] text-text-muted tracking-[2px] uppercase mb-4">
+      <span id="domain-progress-label">{domainQuestions.length} questions</span>
+    </div>
+
+    <ul class="space-y-3">
+      {questionRows.map((q) => (
+        <li>
+          <a
+            href={`/practice/q/${q.id}`}
+            data-question-id={q.id}
+            class="question-row group flex items-start gap-5 bg-bg-card border border-border-subtle rounded-xl p-5 no-underline text-inherit transition-all duration-300 hover:border-accent-cyan/30 hover:-translate-y-0.5"
+          >
+            <div class="font-mono text-lg text-text-muted group-hover:text-accent-cyan transition-colors shrink-0 w-12">
+              {q.id}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-[0.95rem] font-medium mb-1 group-hover:text-accent-cyan transition-colors">
+                {q.question}
+              </div>
+              <div class="text-text-muted text-[0.8rem] italic leading-relaxed">
+                {q.teaser}
+              </div>
+            </div>
+            <div class="status-indicator shrink-0 self-center">
+              <span class="status-dot inline-block w-2.5 h-2.5 rounded-full bg-bg-tertiary border border-border-subtle" data-state="unseen"></span>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const rows = document.querySelectorAll('.question-row');
+      const data = window.PracticeStore.get();
+      let attempted = 0, correct = 0;
+      rows.forEach((row) => {
+        const id = row.getAttribute('data-question-id');
+        const q = data.questions[id];
+        const dot = row.querySelector('.status-dot');
+        if (!q) {
+          if (dot) dot.title = 'Unseen';
+          return;
+        }
+        attempted += 1;
+        if (q.correct) {
+          correct += 1;
+          if (dot) {
+            dot.classList.remove('bg-bg-tertiary', 'border-border-subtle');
+            dot.classList.add('bg-accent-green');
+            dot.setAttribute('data-state', 'correct');
+            dot.title = 'Correct';
+          }
+        } else {
+          if (dot) {
+            dot.classList.remove('bg-bg-tertiary', 'border-border-subtle');
+            dot.classList.add('bg-accent-orange');
+            dot.setAttribute('data-state', 'incorrect');
+            dot.title = 'Attempted — review the explanation';
+          }
+        }
+      });
+
+      const label = document.getElementById('domain-progress-label');
+      const total = rows.length;
+      if (label) {
+        if (attempted === 0) {
+          label.textContent = `${total} questions · none attempted yet`;
+        } else {
+          label.textContent = `${total} questions · ${attempted} attempted · ${correct} correct`;
+        }
+      }
+    });
+  </script>
+</PracticeLayout>

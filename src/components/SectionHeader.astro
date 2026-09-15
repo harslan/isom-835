@@ -1,0 +1,18 @@
+---
+interface Props {
+  number: string;
+  label: string;
+  title: string;
+  description?: string;
+}
+
+const { number, label, title, description } = Astro.props;
+---
+
+<div class="mb-16 fade-in">
+  <div class="font-mono text-[0.8rem] text-accent-cyan tracking-[3px] mb-4">
+    {number} // {label.toUpperCase()}
+  </div>
+  <h2 class="text-[clamp(2rem,5vw,3rem)] font-bold mb-4">{title}</h2>
+  {description && <p class="text-text-secondary text-lg max-w-[700px]">{description}</p>}
+</div>

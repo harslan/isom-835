@@ -1,0 +1,44 @@
+---
+interface Props {
+  language?: string;
+  code: string;
+}
+
+const { language = 'Text', code } = Astro.props;
+
+const copySvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+const checkSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+---
+
+<div class="bg-bg-tertiary border border-border-subtle rounded-xl overflow-hidden my-8">
+  <div class="flex justify-between items-center px-5 py-3 bg-black/30 border-b border-border-subtle">
+    <span class="font-mono text-[0.75rem] text-accent-cyan">{language}</span>
+    <button
+      class="code-copy-btn bg-transparent border-none text-text-muted cursor-pointer p-1 transition-colors duration-300 hover:text-accent-cyan"
+      aria-label="Copy code"
+      data-copy-svg={copySvg}
+      data-check-svg={checkSvg}
+    >
+      <Fragment set:html={copySvg} />
+    </button>
+  </div>
+  <div class="p-6 overflow-x-auto">
+    <pre class="font-mono text-[0.85rem] leading-relaxed text-text-secondary whitespace-pre-wrap">{code}</pre>
+  </div>
+</div>
+
+<script is:inline>
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.code-copy-btn');
+    if (!btn) return;
+    const codeBlock = btn.closest('.bg-bg-tertiary');
+    const code = codeBlock?.querySelector('pre')?.textContent;
+    if (code) {
+      navigator.clipboard.writeText(code);
+      btn.innerHTML = btn.dataset.checkSvg;
+      setTimeout(() => {
+        btn.innerHTML = btn.dataset.copySvg;
+      }, 2000);
+    }
+  });
+</script>

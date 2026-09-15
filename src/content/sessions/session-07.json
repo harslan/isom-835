@@ -1,0 +1,233 @@
+{
+  "number": 7,
+  "slug": "session-07",
+  "title": "Decision Trees & Random Forests",
+  "subtitle": "How a tree asks questions, why it memorizes, and how averaging hundreds of decorrelated trees turns a fragile model into the most reliable workhorse in tabular ML",
+  "duration": "150 Minutes",
+  "icon": "trees",
+  "tags": [
+    "Decision Trees",
+    "Random Forests",
+    "Feature Importance"
+  ],
+  "objectives": [
+    {
+      "title": "Grow and Read a Decision Tree",
+      "description": "Gini impurity in plain English, greedy binary splits, and plot_tree — a model you can print on one page and hand to a manager."
+    },
+    {
+      "title": "See Overfitting in a Tree",
+      "description": "An unlimited tree reaches 99% training accuracy by carving a leaf for every quirky booking. max_depth and min_samples_leaf are its regularization knobs."
+    },
+    {
+      "title": "Build a Random Forest and Explain Why It Works",
+      "description": "Bootstrap rows, sample features at every split, average the votes. Decorrelated trees cancel each other's errors — variance reduction you can watch happen."
+    },
+    {
+      "title": "Measure Importance Honestly",
+      "description": "Impurity importance is biased toward high-cardinality columns; permutation importance on held-out data is not. Partial dependence shows the shape of the effect."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "HW3 Debrief & Meet the Data: Hotel Bookings",
+      "duration": "20 minutes",
+      "description": "Threshold choices from your HW3 submissions — the range was 0.18 to 0.42, and the best memo explained why. Then the competition dataset in full: 119,390 hotel reservations from a city and a resort hotel in Portugal, 37% canceled, 32 columns — two of which are leaks.",
+      "bulletPoints": [
+        "reservation_status and reservation_status_date are the outcome in disguise: drop them or your leaderboard score is fiction",
+        "assigned_room_type vs. reserved_room_type: a mismatch is known only at check-in — think about whether that's leakage too"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:40 PM",
+      "title": "How a Tree Asks Questions",
+      "duration": "20 minutes",
+      "description": "'Is lead_time > 90 days?' 'Is deposit_type non-refundable?' A tree is a flowchart learned from data: at each node it picks the question that most reduces impurity. Gini = probability that two random guests from this node disagree on cancellation.",
+      "bulletPoints": [
+        "Greedy: the best split now, not the best tree overall",
+        "plot_tree on a depth-3 model: the whole cancellation story on one screen"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:40 PM - 6:05 PM",
+      "title": "Watching a Tree Overfit",
+      "duration": "25 minutes",
+      "description": "Depth 1 → 3 → 6 → unlimited. Training accuracy climbs to 99%; test accuracy peaks around depth 8–10 and then falls. The tree has memorized the training bookings. A validation curve over max_depth makes the sweet spot visible.",
+      "bulletPoints": [
+        "Trees need no scaling and handle mixed types — but a single tree is high-variance: change 5% of the data and the tree changes shape",
+        "min_samples_leaf=50 is often a better knob than max_depth for business data"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, compare competition baselines.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:45 PM",
+      "title": "From One Tree to a Forest",
+      "duration": "30 minutes",
+      "description": "Bagging: fit 500 trees, each on a bootstrap sample, average their votes — variance drops. Random forest adds the twist: at every split, only a random subset of features is eligible, so the trees disagree more and the average improves more. Out-of-bag score: a free validation set built from the rows each tree never saw.",
+      "bulletPoints": [
+        "Forests are hard to overfit by adding trees; n_estimators=500 is rarely worse than 100, just slower",
+        "Hotel bookings: a depth-limited single tree reaches ~0.90 AUC; the forest reaches ~0.95 with no tuning"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 7:15 PM",
+      "title": "Which Features Matter — and How",
+      "duration": "30 minutes",
+      "description": "feature_importances_ (impurity) vs. permutation_importance on the test set — and the high-cardinality trap: a hashed ID column ranks #1 by impurity and dead last by permutation. Then PartialDependenceDisplay: how cancellation probability actually moves with lead time.",
+      "bulletPoints": [
+        "Permutation importance answers 'if I scrambled this column, how much would the model get worse?' — the honest question",
+        "Partial dependence for lead_time on hotel data rises steeply to ~100 days and flattens: a curve a revenue manager can price"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:15 PM - 7:30 PM",
+      "title": "Wrap-Up & Competition Check-In",
+      "duration": "15 minutes",
+      "description": "Every team should have a leak-free pipeline and a forest submission by tonight. Next week, gradient boosting — the model that will probably win — and the tabular foundation models that might beat it.",
+      "bulletPoints": [
+        "Leaderboard closes Sun Nov 8, 11:59 PM; final-project proposals due Mon Nov 9 on Canvas",
+        "Reading: ISLP Chapter 8 (Tree-Based Methods), 8.1–8.2"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 7 Notebook — Trees & Random Forests on Hotel Bookings",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-07/ISOM835_Session7_Trees_Random_Forests.ipynb",
+      "description": "plot_tree, the depth validation curve, bagging vs. random forest, out-of-bag score, impurity vs. permutation importance (with the ID-column trap), and partial dependence plots.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "Hotel Booking Demand — the dataset",
+      "url": "https://github.com/harslan/isom-835/blob/master/public/data/hotel_bookings.csv",
+      "description": "Antonio, de Almeida & Nunes (2019): 119,390 bookings, 32 columns, 37% canceled. Hosted in the course repo for no-login loading. The competition's hidden test set is a stratified slice of the same source.",
+      "icon": "hotel",
+      "badge": "Data",
+      "badgeType": "reference",
+      "linkText": "View the data"
+    },
+    {
+      "title": "ISLP, Chapter 8 — Tree-Based Methods",
+      "url": "https://www.statlearning.com/",
+      "description": "8.1 covers trees for regression and classification with the pruning story; 8.2 covers bagging, random forests, and boosting. Read 8.1–8.2.2 tonight, 8.2.3 next week.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read Chapter 8 (free PDF)"
+    },
+    {
+      "title": "scikit-learn User Guide — Permutation Feature Importance",
+      "url": "https://scikit-learn.org/stable/modules/permutation_importance.html",
+      "description": "Why impurity importance misleads and how permutation importance fixes it — with the exact random-column example we reproduce in class.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "Story: Booking.com — 150+ Models and the Cancellation Problem",
+      "url": "https://www.kdd.org/kdd2019/accepted-papers/view/150-successful-machine-learning-models-6-lessons-learned-at-booking.com",
+      "description": "Bernardi, Mavridis & Estevez (KDD 2019): what Booking.com learned deploying 150 production models, including that offline gains often don't translate to business value. Required reading for anyone who thinks the leaderboard is the goal.",
+      "icon": "award",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the paper page"
+    },
+    {
+      "title": "StatQuest — Decision Trees & Random Forests",
+      "url": "https://statquest.org/video_index.html",
+      "description": "Search the index for 'Decision and Classification Trees' and 'Random Forests Part 1'. The Gini walk-through is the clearest on the internet.",
+      "icon": "video",
+      "badge": "Video",
+      "badgeType": "video",
+      "linkText": "Open the index"
+    },
+    {
+      "title": "Refresher: Decision Trees & Random Forests (ISOM 730 notebook)",
+      "url": "https://colab.research.google.com/drive/13HdM6eZktrZlrbOTFJb6TOSktezPq2sd",
+      "description": "Prof. Arslan's earlier notebook: a tree on synthetic blobs, the overfitting picture, bagging with 100 trees, and random-forest regression. The intuition, at a gentler pace.",
+      "icon": "target",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "trees",
+      "title": "One Tree, Then Five Hundred: Predicting Hotel Cancellations",
+      "description": "Predict which bookings will cancel. Fit a single tree at several depths to watch overfitting, then a random forest, then ask the forest which features matter — twice, and notice the two answers disagree.",
+      "steps": [
+        {
+          "title": "Drop the leaks",
+          "description": "reservation_status, reservation_status_date, and (defensibly) assigned_room_type. Encode categoricals with OrdinalEncoder — trees don't need one-hot."
+        },
+        {
+          "title": "Validation curve over depth",
+          "description": "DecisionTreeClassifier at max_depth 2, 4, 6, 8, 12, None. Train vs. test AUC. Find the peak and the gap."
+        },
+        {
+          "title": "Grow the forest",
+          "description": "RandomForestClassifier(n_estimators=300, min_samples_leaf=5, oob_score=True, n_jobs=-1). Compare oob_score_ with the test score."
+        },
+        {
+          "title": "Two importances",
+          "description": "feature_importances_ vs. permutation_importance on the test set. Add a random noise column first and watch where each method ranks it."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import pandas as pd, numpy as np\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.inspection import permutation_importance\nfrom sklearn.metrics import roc_auc_score\n\nurl = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/hotel_bookings.csv'\ndf = pd.read_csv(url).sample(30_000, random_state=835)          # subsample for speed in class\nleaks = ['reservation_status', 'reservation_status_date', 'assigned_room_type']\nX = df.drop(columns=['is_canceled'] + leaks)\nX = X.apply(lambda c: c.astype('category').cat.codes if c.dtype == object else c).fillna(-1)\nX['noise'] = np.random.default_rng(835).normal(size=len(X))       # a column with zero signal\ny = df['is_canceled']\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)\n\nrf = RandomForestClassifier(n_estimators=300, min_samples_leaf=5, oob_score=True, n_jobs=-1, random_state=835)\nrf.fit(X_tr, y_tr)\nprint(f'OOB AUC-ish (accuracy): {rf.oob_score_:.3f}   test AUC: {roc_auc_score(y_te, rf.predict_proba(X_te)[:, 1]):.3f}')\n\nimp = pd.DataFrame({'impurity': rf.feature_importances_}, index=X.columns)\nimp['permutation'] = permutation_importance(rf, X_te, y_te, scoring='roc_auc', n_repeats=5, random_state=835, n_jobs=-1).importances_mean\nprint(imp.sort_values('permutation', ascending=False).head(8).round(4))\nprint('noise column rank by impurity:', int((imp['impurity'] > imp.loc['noise', 'impurity']).sum()) + 1)"
+      },
+      "discussionNote": "The forest reaches an AUC around 0.94 on a 30k-row slice with no tuning and no scaling — that is why it is the first serious model most practitioners reach for. But look at the importance table: <code>deposit_type</code>, <code>lead_time</code>, and <code>country</code> lead by permutation, while the pure-noise column sits surprisingly high by impurity. <em>Impurity importance rewards columns that offer many split points, not columns that predict.</em> If you report feature importance to a manager, report the permutation version."
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "trees",
+      "text": "A decision tree is a <strong>flowchart learned greedily from data</strong>: interpretable, scale-free, and high-variance. Depth and min_samples_leaf are its brakes; a single tree rarely ships."
+    },
+    {
+      "icon": "boxes",
+      "text": "A random forest is <strong>variance reduction by averaging decorrelated trees</strong> — bootstrap rows, sample features at every split. Hard to overfit by adding trees; the out-of-bag score is a free validation set."
+    },
+    {
+      "icon": "eye",
+      "text": "<strong>Impurity importance lies about high-cardinality columns; permutation importance on held-out data does not.</strong> Partial dependence shows the shape of an effect, which is what a manager actually asks for."
+    }
+  ],
+  "homework": [
+    {
+      "label": "Competition Sprint + Reading",
+      "text": "No graded homework this week — the Midterm Model Competition is the assignment. By Mon Nov 9: at least one random-forest submission from your team, and a running list in your memo draft of every feature you dropped as leakage and why. Leaderboard closes Sun Nov 8, 11:59 PM. Final-project proposals (one paragraph: the prediction, the unit, the horizon, the decision, the data plan) are due Mon Nov 9 on Canvas. Read ISLP 8.2.3 (Boosting) before next class."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 8: Gradient Boosting & the Tabular Frontier",
+    "description": "Fit the residuals, again and again: HistGradientBoosting, LightGBM, XGBoost, early stopping — and the 2025–26 challengers, TabPFN and TabICL, that beat tuned boosting on small data with zero tuning. Plus the competition reveal.",
+    "tags": [
+      "Gradient Boosting",
+      "Tabular Foundation Models",
+      "Competition Reveal"
+    ],
+    "slug": "session-08"
+  }
+}

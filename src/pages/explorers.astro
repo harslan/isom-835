@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GradientText from '../components/GradientText.astro';
+import Icon from '../components/Icon.astro';
+
+const explorers = [
+  {
+    title: 'The Overfitting Explorer',
+    tagline: 'Bias, variance & noise · the sweet spot, live',
+    href: '/explore/',
+    icon: 'sliders-horizontal',
+    session: 'Sessions 1 & 4 · Sep 14 & Oct 5',
+    slug: 'session-01',
+    description: 'A hidden demand curve seen through noisy weeks. Drag the polynomial degree and watch training error fall forever while test error turns back up — then add data, cut noise, and resample to see which cures work.',
+    concepts: ['Train vs. test error', 'Bias–variance trade-off', 'Overfitting', 'More data as regularizer'],
+  },
+  {
+    title: 'The Threshold & Profit Explorer',
+    tagline: 'From scores to decisions · price the mistakes',
+    href: '/explore/threshold/',
+    icon: 'coins',
+    session: 'Session 6 · Oct 26',
+    slug: 'session-06',
+    description: 'Two overlapping score distributions, a draggable cutoff, a live confusion matrix, ROC curve, and profit curve. Change the offer cost, the value of a save, or the contact budget and watch the best threshold walk away from 0.5.',
+    concepts: ['Confusion matrix', 'Precision & recall', 'Expected value', 'Profit vs. accuracy'],
+  },
+  {
+    title: 'The K-Means Explorer',
+    tagline: 'Learning without labels · step the algorithm',
+    href: '/explore/kmeans/',
+    icon: 'boxes',
+    session: 'Session 10 · Nov 23',
+    slug: 'session-10',
+    description: 'Customers on a recency × frequency plane. Place centroids, step assignment and update one iteration at a time, compare k-means++ to random starts, read the elbow and silhouette — and catch k-means inventing segments in a single blob.',
+    concepts: ['Centroids & assignment', 'Inertia & elbow', 'Silhouette', 'Choosing k'],
+  },
+];
+
+const comingSoon = [
+  { title: 'The Gradient Boosting Explorer', session: 'Session 8', description: 'Watch residuals shrink tree by tree — and validation loss turn up when you keep going.' },
+  { title: 'The Conformal Explorer', session: 'Session 9', description: 'Intervals that keep their promise: set a coverage level and watch the calibration residuals size the band.' },
+];
+---
+
+<BaseLayout title="ISOM 835 | Explorers — Interactive Machine Learning">
+  <section class="py-24 px-8 max-w-[1200px] mx-auto">
+    <div class="text-center mb-16">
+      <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">
+        Touch the theory
+      </div>
+      <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold mb-4">
+        The <GradientText>Explorers</GradientText>
+      </h1>
+      <p class="text-text-secondary text-lg max-w-[680px] mx-auto">
+        Every big idea in this course gets a living, draggable version. No installation, no login —
+        open one on your phone during class or at midnight before the project is due. If you can predict what
+        the picture will do before you drag, you understand the concept.
+      </p>
+    </div>
+
+    <div class="grid gap-8 md:grid-cols-2">
+      {explorers.map((e) => (
+        <a href={e.href} class="group block bg-bg-card border border-border-subtle rounded-2xl p-8 no-underline text-inherit transition-all duration-300 hover:-translate-y-1 hover:border-accent-cyan/40 hover:shadow-[0_0_60px_rgba(242,177,53,0.15)] fade-in">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-cyan/20 to-accent-purple/20 flex items-center justify-center">
+              <Icon name={e.icon} class="w-6 h-6 text-accent-cyan" />
+            </div>
+            <div>
+              <h2 class="text-xl font-bold transition-colors duration-300 group-hover:text-accent-cyan">{e.title}</h2>
+              <div class="font-mono text-[0.7rem] text-text-muted tracking-wide">{e.tagline}</div>
+            </div>
+          </div>
+          <p class="text-text-secondary text-sm leading-relaxed mb-5">{e.description}</p>
+          <div class="flex gap-2 flex-wrap mb-5">
+            {e.concepts.map((c) => (
+              <span class="px-3 py-1 bg-accent-purple/10 rounded-full text-[0.7rem] text-accent-purple">{c}</span>
+            ))}
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[0.72rem] text-text-muted">{e.session}</span>
+            <span class="font-mono text-[0.8rem] text-accent-cyan transition-transform duration-300 group-hover:translate-x-1">
+              Open →
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <div class="mt-12 grid gap-6 md:grid-cols-2">
+      {comingSoon.map((e) => (
+        <div class="bg-bg-card/50 border border-dashed border-border-subtle rounded-2xl p-7 fade-in">
+          <div class="font-mono text-[0.65rem] text-text-muted tracking-[2px] uppercase mb-2">Coming · {e.session}</div>
+          <h3 class="text-lg font-semibold text-text-secondary mb-1">{e.title}</h3>
+          <p class="text-text-muted text-sm">{e.description}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

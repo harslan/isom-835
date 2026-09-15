@@ -1,0 +1,46 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  links?: { label: string; href: string; accent?: 'graduate' }[];
+}
+
+const { links = [] } = Astro.props;
+---
+
+<div id="mobile-menu" class="fixed inset-0 z-[999] bg-bg-primary/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 hidden">
+  <button id="mobile-menu-close" class="absolute top-6 right-6 bg-transparent border-none text-text-secondary cursor-pointer p-1" aria-label="Close menu">
+    <Icon name="x" class="w-8 h-8" />
+  </button>
+  {links.map((link) => (
+    <a
+      href={link.href}
+      class:list={[
+        'no-underline text-2xl font-semibold transition-colors duration-300',
+        link.accent === 'graduate'
+          ? 'text-grad-violet hover:text-grad-violet/80'
+          : 'text-text-primary hover:text-accent-cyan',
+      ]}
+    >
+      {link.label}
+    </a>
+  ))}
+</div>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    const closeBtn = document.getElementById('mobile-menu-close');
+    if (btn && menu) {
+      btn.addEventListener('click', () => menu.classList.remove('hidden'));
+    }
+    if (closeBtn && menu) {
+      closeBtn.addEventListener('click', () => menu.classList.add('hidden'));
+    }
+    // Close on link click
+    menu?.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => menu.classList.add('hidden'));
+    });
+  });
+</script>

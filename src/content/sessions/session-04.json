@@ -1,0 +1,242 @@
+{
+  "number": 4,
+  "slug": "session-04",
+  "title": "Regression: Predicting Numbers",
+  "subtitle": "What is a house worth? Linear regression as the interpretable baseline, coefficients in dollars, log targets, ridge and lasso, and the residual plot that tells you what the model is missing",
+  "duration": "150 Minutes",
+  "icon": "chart-line",
+  "tags": [
+    "Regression",
+    "Regularization",
+    "Model Evaluation"
+  ],
+  "objectives": [
+    {
+      "title": "Fit and Read a Linear Regression",
+      "description": "Coefficients are slopes in business units: $112 per square foot, $9,800 per garage bay. You'll learn to state them, to standardize them before comparing them, and to stop reading them as causes."
+    },
+    {
+      "title": "Pick the Right Error Metric",
+      "description": "RMSE punishes big misses, MAE reports the typical miss, MAPE explodes near zero, R² tells you how much of the variance you explained. Which one you report depends on who is asking."
+    },
+    {
+      "title": "Regularize With Ridge, Lasso & Elastic Net",
+      "description": "Eighty features, one thousand houses: the recipe for overfitting. Penalized regression shrinks coefficients — and lasso sets most of them to exactly zero, which is feature selection for free."
+    },
+    {
+      "title": "Diagnose With Residuals",
+      "description": "Predicted vs. actual, residuals vs. fitted, and the fan shape that says 'take the log of the target.' The plots that separate a model that works from one that merely runs."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "From Yes/No to How Much",
+      "duration": "20 minutes",
+      "description": "Classification predicts a label; regression predicts a number — a price, a demand, a delivery time, a lifetime value. Same lifecycle, different target, different metrics. The Ames housing data: 1,460 sales, 79 features, a median price of $163,000.",
+      "bulletPoints": [
+        "The baseline is the mean: predict $181K for every house, RMSE ≈ $74K. Every model must beat that",
+        "Sale price is right-skewed: a few $500K+ homes will dominate squared error unless we take the log"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:40 PM",
+      "title": "One Feature, One Line",
+      "duration": "20 minutes",
+      "description": "Price against living area. The least-squares line, the intercept, the slope, and what 'holding everything else fixed' means once we add a second feature. The whole of linear regression in one picture.",
+      "bulletPoints": [
+        "Slope: roughly $110 per square foot on this data — a number a realtor can use",
+        "R² ≈ 0.50 with one feature: half the variance explained by size alone"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:40 PM - 6:05 PM",
+      "title": "Many Features, Many Units",
+      "duration": "25 minutes",
+      "description": "Pipeline from Session 3, target = log(price), LinearRegression at the end. Coefficients now live on the log scale — a coefficient of 0.10 means roughly +10% price. Standardize to compare importance; never compare a per-square-foot slope to a per-garage-bay slope raw.",
+      "bulletPoints": [
+        "log target: errors become percentage errors, so a 5% miss on a $100K house counts the same as on a $500K house",
+        "Predict, then np.expm1 to get back to dollars before you report RMSE"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, argue about what a garage is worth.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:45 PM",
+      "title": "Overfitting & Regularization",
+      "duration": "30 minutes",
+      "description": "Add polynomial terms and watch train R² climb while test R² collapses — the Overfitting Explorer, now with real houses. Then RidgeCV, LassoCV, ElasticNetCV: one alpha, chosen by cross-validation, and the coefficient path that shows lasso switching features off one by one.",
+      "bulletPoints": [
+        "Ridge shrinks; lasso selects. Elastic net does both. Scale features first or the penalty is unfair",
+        "LassoCV keeps ~25 of 200+ one-hot columns on Ames: a model a client can read"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 7:15 PM",
+      "title": "Residual Diagnostics & the Metric Menu",
+      "duration": "30 minutes",
+      "description": "Residuals vs. fitted: a fan means heteroscedasticity, a curve means a missing nonlinearity, a cluster of big misses means a segment the model doesn't understand. Then the metric menu — RMSE, MAE, MAPE, R² — and a one-line rule for which to report to whom.",
+      "bulletPoints": [
+        "Report MAE to operations (typical miss), RMSE to risk (big misses matter), R² to statisticians, never MAPE near zero",
+        "Preview: HistGradientBoostingRegressor on the same pipeline drops RMSE by another 20% — Session 8"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:15 PM - 7:30 PM",
+      "title": "Wrap-Up & Homework #2",
+      "duration": "15 minutes",
+      "description": "The regression template: pipeline → log target → regularized linear model → residual plots → metrics in business units. HW2 is the Ames competition in miniature.",
+      "bulletPoints": [
+        "HW2: a leak-proof Ames pipeline with ridge or lasso, due Mon Oct 19 (no class Oct 12)",
+        "Next: classification proper — logistic regression, kNN, and the confusion matrix in depth"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 4 Notebook — Regression on Ames Housing",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-04/ISOM835_Session4_Regression.ipynb",
+      "description": "One-feature line, full pipeline with log target, RidgeCV / LassoCV / ElasticNetCV with coefficient paths, residual diagnostics, and every metric on the menu in dollars.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "The Overfitting Explorer — Bias, Variance, and Noise",
+      "url": "/explore/",
+      "description": "Tonight's polynomial demo as a living picture: drag the degree, watch test error turn back up, then add data and watch the wiggles get tamed.",
+      "icon": "zap",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the explorer"
+    },
+    {
+      "title": "ISLP, Chapter 3 — Linear Regression (and 6.2 — Shrinkage Methods)",
+      "url": "https://www.statlearning.com/",
+      "description": "The definitive free chapter on simple and multiple regression, plus the ridge and lasso section. Skip the math you don't need; read every figure caption.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the chapters (free PDF)"
+    },
+    {
+      "title": "Kaggle — House Prices: Advanced Regression Techniques",
+      "url": "https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques",
+      "description": "The Ames data as a permanent Kaggle competition. Submit your HW2 predictions and see where a well-built linear model lands on the leaderboard — a warm-up for the midterm competition.",
+      "icon": "trophy",
+      "badge": "Go Deeper",
+      "badgeType": "code",
+      "linkText": "Open the competition"
+    },
+    {
+      "title": "scikit-learn User Guide — Linear Models",
+      "url": "https://scikit-learn.org/stable/modules/linear_model.html",
+      "description": "OLS, Ridge, Lasso, ElasticNet, and their CV variants, with the cost functions written out. The place to check what alpha actually multiplies.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "Story: Zillow's $500M Lesson in Prediction Error",
+      "url": "https://www.cnn.com/2021/11/02/homes/zillow-exit-ibuying-home-business/index.html",
+      "description": "In 2021 Zillow shut its home-flipping unit after its pricing models overpaid at scale, writing down more than $500 million. The residual plot nobody looked at — and a reminder that a point prediction without an error bar is a bet.",
+      "icon": "trending-down",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the story"
+    },
+    {
+      "title": "StatQuest — Ridge, Lasso & Elastic Net Regression",
+      "url": "https://statquest.org/video_index.html",
+      "description": "Search the index for 'Ridge', 'Lasso', and 'Elastic Net' — three short videos that make the penalty geometry obvious.",
+      "icon": "video",
+      "badge": "Video",
+      "badgeType": "video",
+      "linkText": "Open the index"
+    },
+    {
+      "title": "Refresher: Linear Regression, Basis Functions, Ridge & Lasso (ISOM 730 notebook)",
+      "url": "https://colab.research.google.com/drive/1D_mocQY0w41t0bsB0UYzpykDH_g5jn7W",
+      "description": "Prof. Arslan's earlier notebook: simple regression, polynomial basis functions, and the ridge/lasso intuition on a small example. The slow version of tonight's middle hour.",
+      "icon": "target",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "chart-line",
+      "title": "What Is a House Worth? Regularized Regression on Ames",
+      "description": "1,460 house sales in Ames, Iowa, with 79 features. Build a leak-proof pipeline that predicts log(price), let LassoCV choose the penalty, and report the error in dollars a buyer would understand.",
+      "steps": [
+        {
+          "title": "Frame it",
+          "description": "Unit: one house. Target: sale price (modeled as log). Horizon: at listing. Decision: list price / offer price. Baseline: the mean price, RMSE ≈ $74K."
+        },
+        {
+          "title": "Reuse the pipeline",
+          "description": "Session 3's ColumnTransformer, unchanged. Log-transform the target with np.log1p before fitting."
+        },
+        {
+          "title": "Let CV pick alpha",
+          "description": "LassoCV(cv=5) at the end of the pipeline. Inspect how many coefficients survived and which features they are."
+        },
+        {
+          "title": "Report in dollars",
+          "description": "Predict on the test set, np.expm1 the predictions, then RMSE and MAE in dollars. Plot residuals vs. fitted and describe the shape in one sentence."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import numpy as np\nfrom sklearn.datasets import fetch_openml\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LassoCV\nfrom sklearn.metrics import mean_absolute_error, root_mean_squared_error\n\names = fetch_openml('house_prices', as_frame=True)\nX, y = ames.data.drop(columns=['Id']), ames.target\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=835)\n\n# prep = the Session 3 ColumnTransformer (impute+scale numeric, one-hot categorical)\nmodel = Pipeline([('prep', prep), ('lasso', LassoCV(cv=5, random_state=835))])\nmodel.fit(X_tr, np.log1p(y_tr))\n\npred = np.expm1(model.predict(X_te))\nprint(f'Baseline RMSE (predict the mean): ${root_mean_squared_error(y_te, np.full(len(y_te), y_tr.mean())):,.0f}')\nprint(f'Lasso RMSE: ${root_mean_squared_error(y_te, pred):,.0f}   MAE: ${mean_absolute_error(y_te, pred):,.0f}')\n\ncoef = model.named_steps['lasso'].coef_\nprint(f'alpha chosen: {model.named_steps[\"lasso\"].alpha_:.4f}, non-zero coefficients: {(coef != 0).sum()} of {len(coef)}')"
+      },
+      "discussionNote": "Look at which features lasso kept. Overall quality, living area, neighborhood dummies, year built — the list reads like a realtor's checklist, which is the point: <em>a regularized linear model is the most explainable strong model you will ever ship.</em> Then look at the residual plot: the biggest misses are the most expensive houses. The model knows less about a $450K house because it has seen fewer of them — and that is exactly the segment where a mistake costs the most."
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "chart-line",
+      "text": "A linear coefficient is a <strong>slope in business units, holding other features fixed</strong> — not a cause, and not comparable across features until you standardize."
+    },
+    {
+      "icon": "sliders-horizontal",
+      "text": "<strong>Ridge shrinks, lasso selects.</strong> Choose alpha by cross-validation, scale features first, and remember that a lasso model with 25 surviving features is one a client can read."
+    },
+    {
+      "icon": "eye",
+      "text": "<strong>Metrics are for audiences:</strong> MAE for operations, RMSE when big misses hurt, R² for fit, MAPE never near zero. And always look at the residual plot — the fan shape is the log transform asking to be applied."
+    }
+  ],
+  "homework": [
+    {
+      "label": "Homework #2",
+      "text": "Due Mon Oct 19 (no class Oct 12 — October Break). Build a leak-proof Ames pipeline in Colab: ColumnTransformer preprocessing, log(price) target, and your choice of RidgeCV, LassoCV, or ElasticNetCV. Report test RMSE and MAE in dollars against the mean baseline, plot residuals vs. fitted, and write one paragraph naming the segment of houses your model gets most wrong and why. Bonus (+5%): submit your predictions to the Kaggle House Prices competition and include your public leaderboard score. Submit the notebook on Canvas."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 5: Classification — Predicting Yes/No",
+    "description": "Logistic regression as odds, kNN and Naive Bayes as contrasts, the confusion matrix in depth, precision vs. recall, ROC vs. PR curves, and what to do when only 22% of your credit-card customers default.",
+    "tags": [
+      "Classification",
+      "Logistic Regression",
+      "ROC & PR"
+    ],
+    "slug": "session-05"
+  }
+}

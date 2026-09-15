@@ -1,0 +1,207 @@
+---
+interface SearchItem {
+  type: 'session' | 'objective' | 'resource';
+  title: string;
+  subtitle?: string;
+  url: string;
+  tags?: string[];
+  sessionTitle?: string;
+}
+
+interface Props {
+  searchIndex: SearchItem[];
+}
+
+const { searchIndex } = Astro.props;
+---
+
+<div id="search-dialog" class="fixed inset-0 z-[2000] hidden" role="dialog" aria-modal="true" aria-label="Search">
+  <div id="search-overlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+  <div class="relative max-w-[640px] mx-auto mt-[15vh] px-4">
+    <div class="bg-bg-secondary border border-border-subtle rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.5)] overflow-hidden" style="animation: searchSlideIn 0.15s ease-out">
+      <div class="flex items-center gap-3 px-5 py-4 border-b border-border-subtle">
+        <svg class="w-5 h-5 text-text-muted shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search sessions, objectives, resources..."
+          class="flex-1 bg-transparent border-none outline-none text-text-primary text-[0.95rem] placeholder:text-text-muted"
+          autocomplete="off"
+        />
+        <kbd class="px-2 py-1 bg-bg-tertiary rounded text-[0.7rem] font-mono text-text-muted border border-border-subtle">ESC</kbd>
+      </div>
+      <div id="search-results" class="max-h-[400px] overflow-y-auto p-2">
+      </div>
+      <div class="flex items-center gap-4 px-5 py-3 border-t border-border-subtle text-[0.7rem] text-text-muted">
+        <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-bg-tertiary rounded font-mono border border-border-subtle">↑</kbd><kbd class="px-1.5 py-0.5 bg-bg-tertiary rounded font-mono border border-border-subtle">↓</kbd> Navigate</span>
+        <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-bg-tertiary rounded font-mono border border-border-subtle">↵</kbd> Open</span>
+        <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 bg-bg-tertiary rounded font-mono border border-border-subtle">esc</kbd> Close</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="search-index-data" set:html={JSON.stringify(searchIndex)} />
+
+<script is:inline>
+(function() {
+  const dialog = document.getElementById('search-dialog');
+  const overlay = document.getElementById('search-overlay');
+  const input = document.getElementById('search-input');
+  const resultsContainer = document.getElementById('search-results');
+  const dataEl = document.getElementById('search-index-data');
+  if (!dialog || !input || !resultsContainer || !dataEl) return;
+
+  let searchIndex = [];
+  try { searchIndex = JSON.parse(dataEl.textContent || '[]'); } catch(e) {}
+
+  let selectedIndex = -1;
+  let currentResults = [];
+
+  function open() {
+    dialog.classList.remove('hidden');
+    input.value = '';
+    selectedIndex = -1;
+    renderDefault();
+    requestAnimationFrame(() => input.focus());
+  }
+
+  function close() {
+    dialog.classList.add('hidden');
+    input.value = '';
+  }
+
+  function renderDefault() {
+    const sessions = searchIndex.filter(item => item.type === 'session');
+    currentResults = sessions;
+    selectedIndex = -1;
+    let html = '<div class="px-3 py-2 text-[0.7rem] font-mono text-text-muted uppercase tracking-wider">All Sessions</div>';
+    sessions.forEach((item, i) => {
+      html += resultItemHtml(item, i, '');
+    });
+    resultsContainer.innerHTML = html;
+  }
+
+  function search(query) {
+    if (!query.trim()) { renderDefault(); return; }
+    const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    const matches = searchIndex.filter(item => {
+      const haystack = [item.title, item.subtitle || '', (item.tags || []).join(' '), item.sessionTitle || ''].join(' ').toLowerCase();
+      return terms.every(t => haystack.includes(t));
+    });
+
+    currentResults = matches;
+    selectedIndex = -1;
+
+    if (matches.length === 0) {
+      resultsContainer.innerHTML = '<div class="px-5 py-8 text-center text-text-muted text-sm">No results found</div>';
+      return;
+    }
+
+    const grouped = { session: [], objective: [], resource: [] };
+    matches.forEach(m => { if (grouped[m.type]) grouped[m.type].push(m); });
+    const labels = { session: 'Sessions', objective: 'Objectives', resource: 'Resources' };
+
+    let html = '';
+    let globalIdx = 0;
+    for (const type of ['session', 'objective', 'resource']) {
+      const items = grouped[type];
+      if (items.length === 0) continue;
+      html += `<div class="px-3 py-2 text-[0.7rem] font-mono text-text-muted uppercase tracking-wider">${labels[type]}</div>`;
+      items.forEach(item => {
+        html += resultItemHtml(item, globalIdx, query);
+        globalIdx++;
+      });
+    }
+    resultsContainer.innerHTML = html;
+  }
+
+  function resultItemHtml(item, idx, query) {
+    const title = query ? highlight(item.title, query) : item.title;
+    const subtitle = item.subtitle ? (query ? highlight(item.subtitle, query) : item.subtitle) : '';
+    const sessionTag = item.sessionTitle ? `<span class="text-[0.7rem] text-accent-purple">${item.sessionTitle}</span>` : '';
+    const typeIcon = item.type === 'session' ? '📚' : item.type === 'objective' ? '🎯' : '🔗';
+
+    return `<a href="${item.url}" class="search-result flex items-center gap-3 px-3 py-2.5 rounded-lg no-underline text-inherit transition-colors duration-100 hover:bg-bg-tertiary cursor-pointer" data-index="${idx}" role="option">
+      <span class="text-base shrink-0">${typeIcon}</span>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-medium truncate">${title}</div>
+        ${subtitle ? `<div class="text-[0.75rem] text-text-muted truncate">${subtitle}</div>` : ''}
+      </div>
+      ${sessionTag}
+    </a>`;
+  }
+
+  function highlight(text, query) {
+    if (!query.trim()) return text;
+    const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    let result = text;
+    terms.forEach(term => {
+      const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      result = result.replace(regex, '<mark class="bg-accent-cyan/20 text-accent-cyan rounded px-0.5">$1</mark>');
+    });
+    return result;
+  }
+
+  function updateSelection() {
+    const items = resultsContainer.querySelectorAll('.search-result');
+    items.forEach((el, i) => {
+      if (i === selectedIndex) {
+        el.classList.add('bg-bg-tertiary');
+        el.setAttribute('aria-selected', 'true');
+        el.scrollIntoView({ block: 'nearest' });
+      } else {
+        el.classList.remove('bg-bg-tertiary');
+        el.removeAttribute('aria-selected');
+      }
+    });
+  }
+
+  // Keyboard shortcut to open
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      if (dialog.classList.contains('hidden')) {
+        open();
+      } else {
+        close();
+      }
+    }
+  });
+
+  // Search trigger button
+  const trigger = document.getElementById('search-trigger');
+  if (trigger) trigger.addEventListener('click', open);
+
+  // Close on overlay click
+  overlay.addEventListener('click', close);
+
+  // Input handling
+  input.addEventListener('input', () => search(input.value));
+
+  // Keyboard navigation inside dialog
+  input.addEventListener('keydown', (e) => {
+    const count = currentResults.length;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIndex = count > 0 ? (selectedIndex + 1) % count : -1;
+      updateSelection();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIndex = count > 0 ? (selectedIndex - 1 + count) % count : -1;
+      updateSelection();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex < count) {
+        const items = resultsContainer.querySelectorAll('.search-result');
+        if (items[selectedIndex]) {
+          window.location.href = items[selectedIndex].getAttribute('href');
+        }
+      }
+    }
+  });
+})();
+</script>

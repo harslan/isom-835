@@ -1,0 +1,395 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GradientText from '../components/GradientText.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Icon from '../components/Icon.astro';
+
+const problemIdeas = [
+  {
+    domain: 'Customer Churn & Retention',
+    examples: [
+      'Who cancels next month at a subscription business you know — with a retention offer priced into the threshold',
+      'Which gym members, students, or app users go dormant in 60 days, and what a win-back message is worth',
+    ],
+  },
+  {
+    domain: 'Credit & Risk',
+    examples: [
+      'Loan default on Lending Club or Home Credit data: a scorecard, a boosted model, and the expected-loss threshold that separates them',
+      'Invoice non-payment for a small business: who to call first this week',
+    ],
+  },
+  {
+    domain: 'Demand & Forecasting',
+    examples: [
+      'Daily sales for a store, restaurant, or product line (Favorita, M5, or your own data), validated in time order',
+      'Hourly demand for a service — bikes, ER visits, support tickets — with staffing as the decision',
+    ],
+  },
+  {
+    domain: 'Pricing & Revenue',
+    examples: [
+      'What is this listing worth? A pricing model for homes, used cars, or short-term rentals with honest error bars',
+      'Which hotel or airline bookings will cancel, and how much to overbook',
+    ],
+  },
+  {
+    domain: 'Fraud & Anomalies',
+    examples: [
+      'Transaction fraud with a 0.2% base rate: PR-AUC, a cost matrix, and an alert budget the review team can handle',
+      'Anomalies in sensor, expense, or claims data with Isolation Forest — and a triage rule for the top 1%',
+    ],
+  },
+  {
+    domain: 'Healthcare Operations',
+    examples: [
+      '30-day readmission or appointment no-shows: a leak-proof model and the outreach list it produces',
+      'Emergency-department volume by hour for staffing, with holidays and weather',
+    ],
+  },
+  {
+    domain: 'Marketing & Targeting',
+    examples: [
+      'Who responds to a campaign (Bank Marketing, Olist, or your CRM export) with a gain chart and a contact budget',
+      'Customer segments from RFM on real transactions, with one action per segment and a plan to measure it',
+    ],
+  },
+  {
+    domain: 'People & Operations',
+    examples: [
+      'Employee attrition or late deliveries — with error rates sliced by group and a fairness note in the model card',
+      'Which support tickets will escalate, with GroupKFold by customer and a routing decision',
+    ],
+  },
+];
+
+const deliverables = [
+  {
+    icon: 'code',
+    title: 'Working notebook',
+    description: 'A Colab notebook that runs top to bottom: data in, leak-proof pipeline, honest validation, a tuned decision threshold or interval, and a short model card at the end.',
+  },
+  {
+    icon: 'file-text',
+    title: 'Decision memo',
+    description: 'Two pages to a named decision-maker: the question, the model in plain English, what it predicts, the decision and the dollars, and the trust story. No code, no math notation.',
+  },
+  {
+    icon: 'presentation',
+    title: 'Final presentation',
+    description: 'Eight minutes plus two for questions on Mon Dec 14: your prediction story, told the way a data science lead tells it to an executive — question, data, model, evaluation, decision, trust.',
+  },
+];
+
+const briefPrompts = [
+  {
+    label: 'The question',
+    description: 'One or two sentences: what is being predicted (unit, target, horizon), who owns the decision it changes, and what they do today without it.',
+  },
+  {
+    label: 'The data & the model',
+    description: 'Where the data came from, what you had to fix, what you dropped as leakage, and which model won — described in business English, with the pipeline in the notebook.',
+  },
+  {
+    label: 'The honest evaluation',
+    description: 'The metric that matches the decision, on a held-out set that matches production, against the obvious baseline. State the number and what it means in plain words.',
+  },
+  {
+    label: 'The decision & the money',
+    description: 'What the model tells the decision-maker to do differently — the threshold, the top-k list, the reorder point — and what it is worth: dollars saved, revenue gained, hours freed. Estimated honestly.',
+  },
+  {
+    label: 'The trust story',
+    description: 'Why the model says what it says (SHAP for one case), how sure it is (calibration or a conformal interval), where it fails (sliced error rates), and what you would monitor after launch.',
+  },
+];
+
+const startResources = [
+  {
+    icon: 'target',
+    title: 'Session 1 — Frame it',
+    description: 'Unit, target, horizon, decision. Write these four lines before anything else; they are the first paragraph of the memo.',
+    href: '/sessions/session-01',
+  },
+  {
+    icon: 'layers',
+    title: 'Sessions 2–3 — Data & leak-proof features',
+    description: 'Joins, missing values, the leakage checklist, and the ColumnTransformer + Pipeline template every project reuses.',
+    href: '/sessions/session-03',
+  },
+  {
+    icon: 'coins',
+    title: 'Session 6 — From scores to decisions',
+    description: 'The cost matrix, the profit curve, TunedThresholdClassifierCV, lift and gain — the section of the memo that names the dollars.',
+    href: '/sessions/session-06',
+  },
+  {
+    icon: 'trending-up',
+    title: 'Session 8 — Gradient boosting & TFMs',
+    description: 'Early-stopped boosting as the workhorse and a tabular foundation model as the instant baseline.',
+    href: '/sessions/session-08',
+  },
+  {
+    icon: 'shield',
+    title: 'Session 9 — Trust, but verify',
+    description: 'The right cross-validation, SHAP, conformal intervals, fairness slices, and the model-card template.',
+    href: '/sessions/session-09',
+  },
+  {
+    icon: 'activity',
+    title: 'Sessions 10–11 — Segments & forecasts',
+    description: 'If your project has no label (segmentation) or has a clock (forecasting), start from these notebooks.',
+    href: '/sessions/session-11',
+  },
+];
+
+const rubric = [
+  { part: 'Framing & data', weight: 15, text: 'A real question with a real owner; data honestly described; leakage found and removed.' },
+  { part: 'Modeling & validation', weight: 25, text: 'Leak-proof pipeline, a baseline beaten, a validation scheme that matches production, sensible model choice and tuning.' },
+  { part: 'Decision & value', weight: 25, text: 'Scores turned into a decision with a threshold or list; value quantified with stated assumptions.' },
+  { part: 'Trust story', weight: 15, text: 'Explanation, uncertainty, sliced error rates, and a model card that names failure modes.' },
+  { part: 'Memo & presentation', weight: 20, text: 'Clear, business-first writing; an 8-minute story a non-technical executive would act on; every question answered without the AI.' },
+];
+
+const faqs = [
+  {
+    question: 'Does my project need real data?',
+    answer: 'Real or realistic. Your employer\'s data (anonymized), a public dataset, or a Kaggle competition are all fine. If you construct data, say so in the memo and make it realistic — the framing, the pipeline, the validation, and the decision are what is graded, and a well-built project on a public dataset beats a shallow one on proprietary data.',
+  },
+  {
+    question: 'Can I use a Kaggle dataset or competition?',
+    answer: 'Yes — but the leaderboard metric is not your deliverable. You must frame the decision the prediction changes, pick the metric that matches it, set a threshold or produce a list, and put a number on the value. A Kaggle notebook with a memo bolted on will not score well; a Kaggle dataset used to answer a real business question will.',
+  },
+  {
+    question: 'How big does the model have to be?',
+    answer: 'Big enough that the baseline is not trivially beaten and small enough that you understand every step. Thousands of rows and a dozen features is plenty. A tight logistic regression with a defended threshold and a trust story beats a sprawling ensemble you cannot explain.',
+  },
+  {
+    question: 'Can I use AI tools like Claude, ChatGPT, or Colab\'s Data Science Agent?',
+    answer: 'Yes, and you should — the way professionals do. Disclose what you used in the notebook, and verify the four things that matter: the split, the leakage, the metric, the baseline. In the presentation you will be asked "why did the model say that?" and "what happens if you remove that feature?" — the AI will not be standing next to you.',
+  },
+  {
+    question: 'Team or solo?',
+    answer: 'Teams of 2–3 preferred, solo allowed. Teams are expected to show correspondingly more depth — a richer trust story, a second model family, a stronger validation design, or a working Gradio demo.',
+  },
+  {
+    question: 'What makes an A project?',
+    answer: 'A question someone actually owns, a dataset handled honestly, a model that beats the obvious baseline on a validation set that mirrors production, a decision with a number attached, and a trust story — why, how sure, where it fails — that would survive a skeptical executive. Told in eight minutes without reading from slides.',
+  },
+  {
+    question: 'When are things due?',
+    answer: 'Proposal (one paragraph: the prediction, the unit, the horizon, the decision, the data plan) due Mon Nov 9 on Canvas. Notebook and memo due Sun Dec 13 at 11:59 PM. Presentations Mon Dec 14, 5:00 PM, in the exam-week slot.',
+  },
+];
+---
+
+<BaseLayout title="ISOM 835 | Final Project — Your Prediction Story">
+  <!-- Hero -->
+  <section class="py-24 px-8 max-w-[1100px] mx-auto">
+    <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">
+      ISOM 835 &middot; Final Project
+    </div>
+    <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold leading-tight mb-6">
+      Your <GradientText>Prediction Story</GradientText>
+    </h1>
+    <p class="text-text-secondary text-xl max-w-[800px] mb-10 leading-relaxed">
+      Pick a real question about the future. Model it honestly. Turn the prediction into a decision with a number on it. Present <strong class="text-text-primary">Mon Dec 14 in class</strong>.
+    </p>
+
+    <!-- Quick facts -->
+    <div class="grid md:grid-cols-4 gap-4 mb-12">
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-5">
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Format</div>
+        <div class="text-sm text-text-primary leading-snug">Team of 2-3 (solo allowed)</div>
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-5">
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Deliverables</div>
+        <div class="text-sm text-text-primary leading-snug">Notebook + 2-page memo + 8-min talk</div>
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-5">
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Proposal Due</div>
+        <div class="text-sm text-text-primary leading-snug">Mon Nov 9 &middot; Canvas</div>
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-5">
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Presentations</div>
+        <div class="text-sm text-text-primary leading-snug">Mon Dec 14 &middot; 5:00 PM &middot; in class</div>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-accent-cyan/10 to-accent-purple/10 border border-accent-cyan/30 rounded-2xl p-8">
+      <div class="flex items-start gap-4">
+        <Icon name="rocket" class="w-8 h-8 text-accent-cyan shrink-0 mt-1" />
+        <div>
+          <h2 class="text-xl font-bold mb-3">The brief, in one paragraph</h2>
+          <p class="text-text-secondary leading-relaxed">
+            Find <strong class="text-text-primary">one question about the future</strong> that an organization — your employer, a business you know, a nonprofit, a team — answers today by guesswork or a spreadsheet: who churns, who defaults, how many, how much, which ones. Build <strong class="text-text-primary">one predictive model</strong> in Python that answers it: a leak-proof pipeline, an honest validation, a baseline beaten. Then do the part most projects skip — turn the scores into <strong class="text-text-primary">a decision with a number on it</strong>, and show why the decision-maker should trust it: why the model says what it says, how sure it is, and where it fails. That last translation — from probability to decision to trust — is the skill this course exists to teach.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The shape of a great project -->
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="01" label="The Standard" title="Five Beats of a Prediction Story" description="Every good predictive analytics story has the same five beats. Your project hits all five, in miniature." />
+    <div class="grid md:grid-cols-5 gap-4 fade-in">
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-6">
+        <Icon name="target" class="w-6 h-6 text-accent-cyan mb-3" />
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Beat 1</div>
+        <div class="font-bold mb-2">A real question</div>
+        <p class="text-text-secondary text-sm leading-relaxed">Unit, target, horizon, and a decision someone actually owns and makes badly today.</p>
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-6">
+        <Icon name="layers" class="w-6 h-6 text-accent-cyan mb-3" />
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Beat 2</div>
+        <div class="font-bold mb-2">Honest data</div>
+        <p class="text-text-secondary text-sm leading-relaxed">Wrangled, understood, leaks removed — with the split before any fitted transformer.</p>
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-6">
+        <Icon name="gauge" class="w-6 h-6 text-accent-cyan mb-3" />
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Beat 3</div>
+        <div class="font-bold mb-2">A validated model</div>
+        <p class="text-text-secondary text-sm leading-relaxed">The right metric on a held-out set that mirrors production, beating the obvious baseline.</p>
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-6">
+        <Icon name="coins" class="w-6 h-6 text-accent-cyan mb-3" />
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Beat 4</div>
+        <div class="font-bold mb-2">A decision with a number</div>
+        <p class="text-text-secondary text-sm leading-relaxed">A threshold, a list, or a reorder point — and what it is worth, estimated honestly.</p>
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-6">
+        <Icon name="shield" class="w-6 h-6 text-accent-cyan mb-3" />
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Beat 5</div>
+        <div class="font-bold mb-2">A trust story</div>
+        <p class="text-text-secondary text-sm leading-relaxed">Why (SHAP), how sure (calibration, conformal), where it fails (slices), and what to monitor.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deliverables -->
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="02" label="Deliverables" title="What to Submit" description="Three things: notebook and memo on Canvas by Sun Dec 13 at 11:59 PM, presentation in class Mon Dec 14." />
+    <div class="grid md:grid-cols-3 gap-6 mb-10">
+      {deliverables.map((d) => (
+        <div class="bg-bg-card border border-border-subtle rounded-2xl p-8 fade-in">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-cyan/20 to-accent-purple/20 flex items-center justify-center mb-4">
+            <Icon name={d.icon} class="w-6 h-6 text-accent-cyan" />
+          </div>
+          <h3 class="font-bold text-lg mb-3">{d.title}</h3>
+          <p class="text-text-secondary text-sm leading-relaxed">{d.description}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Memo structure callout -->
+    <div class="bg-bg-card border border-border-subtle rounded-2xl p-8 fade-in">
+      <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+        <Icon name="file-text" class="w-5 h-5 text-accent-purple" />
+        The decision memo, structured
+      </h3>
+      <p class="text-text-secondary text-sm mb-6 leading-relaxed">
+        Five labeled sections, about a paragraph each, written to a named decision-maker. Plain business English — the code lives in the notebook.
+      </p>
+      <ul class="space-y-4">
+        {briefPrompts.map((p) => (
+          <li class="flex gap-4 pl-2 border-l-2 border-accent-cyan/40">
+            <div class="flex-1">
+              <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-1">{p.label}</div>
+              <div class="text-sm text-text-secondary leading-relaxed">{p.description}</div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Rubric -->
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="03" label="Rubric" title="How It Is Graded" description="Forty percent of the course grade, split five ways. Modeling is a quarter of it; the decision is another quarter." />
+    <div class="grid gap-3 fade-in">
+      {rubric.map((r) => (
+        <div class="flex items-center gap-6 px-6 py-4 bg-bg-card border border-border-subtle rounded-xl">
+          <span class="font-mono text-accent-cyan font-bold text-lg w-12 shrink-0">{r.weight}%</span>
+          <div class="min-w-0">
+            <div class="font-semibold">{r.part}</div>
+            <div class="text-text-secondary text-sm">{r.text}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Suggested Problems -->
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="04" label="Project Ideas" title="Eight Domains to Adapt" description="Starting points, not assignments — the best projects come from questions you have actually watched someone guess at." />
+    <div class="grid md:grid-cols-2 gap-6">
+      {problemIdeas.map((cat) => (
+        <div class="bg-bg-card border border-border-subtle rounded-2xl p-6 fade-in">
+          <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-3">{cat.domain}</div>
+          <ul class="space-y-3">
+            {cat.examples.map((ex) => (
+              <li class="flex gap-3 text-sm text-text-secondary leading-relaxed">
+                <Icon name="sparkles" class="w-4 h-4 text-accent-purple shrink-0 mt-0.5" />
+                <span>{ex}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <p class="text-text-muted text-sm mt-6 leading-relaxed">
+      Public datasets that work well: Telco churn and Hotel bookings (in the course repo), Lending Club, Home Credit, Credit-Card Fraud, Ames and Kaggle House Prices, Olist e-commerce, Instacart, Favorita and M5 forecasting, UCI Bank Marketing, Online Retail II, Bike Sharing. Projects touching credit, hiring, insurance, or health must include sliced error rates and a fairness note in the model card.
+    </p>
+  </section>
+
+  <!-- Starter Resources -->
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="05" label="Starter Resources" title="Where to Begin" description="Each session gives you a reusable notebook pattern. Match your project to its session and start from that notebook." />
+    <div class="grid md:grid-cols-2 gap-4">
+      {startResources.map((r) => (
+        <a href={r.href} class="flex gap-4 bg-bg-card border border-border-subtle rounded-xl p-6 transition-all duration-300 no-underline hover:border-accent-cyan/30 hover:translate-x-1 fade-in">
+          <div class="w-10 h-10 rounded-lg bg-bg-tertiary/50 flex items-center justify-center shrink-0">
+            <Icon name={r.icon} class="w-5 h-5 text-accent-cyan" />
+          </div>
+          <div class="flex-1">
+            <div class="font-semibold mb-1 text-text-primary">{r.title}</div>
+            <div class="text-sm text-text-secondary leading-relaxed">{r.description}</div>
+          </div>
+          <Icon name="chevron-right" class="w-4 h-4 text-text-muted shrink-0 self-center" />
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="py-12 px-8 max-w-[900px] mx-auto">
+    <SectionHeader number="06" label="FAQ" title="Common Questions" />
+    <div class="space-y-4">
+      {faqs.map((faq) => (
+        <details class="group bg-bg-card border border-border-subtle rounded-xl overflow-hidden fade-in">
+          <summary class="flex items-center justify-between gap-4 p-6 cursor-pointer list-none hover:bg-bg-tertiary/30 transition-colors">
+            <span class="font-semibold text-text-primary">{faq.question}</span>
+            <Icon name="chevron-right" class="w-5 h-5 text-accent-cyan transition-transform duration-300 group-open:rotate-90 shrink-0" />
+          </summary>
+          <div class="px-6 pb-6 text-text-secondary leading-relaxed">
+            {faq.answer}
+          </div>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <!-- Final reminder -->
+  <section class="py-24 px-8 max-w-[900px] mx-auto">
+    <div class="bg-gradient-to-br from-accent-cyan/5 to-accent-purple/5 border border-border-subtle rounded-2xl p-10 text-center">
+      <Icon name="award" class="w-12 h-12 text-accent-cyan mx-auto mb-6" />
+      <h2 class="text-2xl font-bold mb-4">The Signal Award</h2>
+      <p class="text-text-secondary leading-relaxed max-w-[600px] mx-auto mb-8">
+        On the last night, after all presentations, the class votes for the project that best found the signal: a real question, an honest model, a decision that changed because of it, and a number attached. Netflix credits its models with a billion dollars a year in retained subscribers; Stripe with a third less fraud. Your project is your first entry in that tradition.
+      </p>
+      <div class="font-mono text-sm text-accent-cyan tracking-[2px]">
+        Proposal Nov 9 &middot; Notebook + Memo Dec 13 &middot; Presentations Dec 14
+      </div>
+    </div>
+  </section>
+</BaseLayout>

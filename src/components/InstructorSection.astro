@@ -1,0 +1,40 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  name: string;
+  title: string;
+  email: string;
+  bio: string;
+  github?: string;
+}
+
+const { name, title, email, bio, github } = Astro.props;
+---
+
+<section class="py-24 px-8 max-w-[1200px] mx-auto">
+  <div class="mb-16 fade-in">
+    <div class="font-mono text-[0.8rem] text-accent-cyan tracking-[3px] mb-4">INSTRUCTOR</div>
+    <h2 class="text-[clamp(2rem,5vw,3rem)] font-bold">Meet Your Professor</h2>
+  </div>
+  <div class="bg-bg-card border border-border-subtle rounded-2xl p-10 flex gap-10 items-center flex-wrap fade-in">
+    <div class="w-28 h-28 rounded-2xl bg-gradient-to-br from-accent-cyan to-accent-purple flex items-center justify-center shrink-0">
+      <Icon name="user" class="w-14 h-14 text-white" />
+    </div>
+    <div class="flex-1 min-w-[250px]">
+      <h3 class="text-2xl font-bold mb-1">{name}</h3>
+      <p class="text-accent-cyan text-sm mb-4">{title}</p>
+      <p class="text-text-secondary mb-4">{bio}</p>
+      <div class="flex gap-6 flex-wrap">
+        <a href={`mailto:${email}`} class="inline-flex items-center gap-2 text-text-muted text-sm no-underline transition-colors hover:text-accent-cyan">
+          <Icon name="mail" class="w-4 h-4" /> {email}
+        </a>
+        {github && (
+          <a href={`https://github.com/${github}`} target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-text-muted text-sm no-underline transition-colors hover:text-accent-cyan">
+            <Icon name="github" class="w-4 h-4" /> {github}
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+</section>

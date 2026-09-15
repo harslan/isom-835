@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The K-Means Explorer · ISOM 835</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/explore/_shared.css">
+<style>
+  table.seg { width: 100%; border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; margin-top: 8px; }
+  table.seg th, table.seg td { padding: 5px 6px; text-align: right; border-bottom: 1px dashed var(--border); }
+  table.seg th { color: var(--muted); font-weight: 400; }
+  table.seg td:first-child, table.seg th:first-child { text-align: left; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text2); margin-top: 6px; cursor: pointer; }
+  .toggle input { accent-color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/sessions/session-10">← ISOM 835 · Session 10</a>
+  <div style="height:14px"></div>
+  <div class="kicker">Interactive · Learning Without Labels</div>
+  <h1>The K-Means <span class="grad">Explorer</span></h1>
+  <p class="sub">
+    300 customers on a recency × frequency plane (scaled). There are no labels — only structure. Choose <b>k</b>, drop the centroids, and
+    <b>step</b> the algorithm: assign every customer to the nearest centroid, move each centroid to the mean of its members, repeat.
+    Then check the elbow and silhouette — and notice k-means will confidently find clusters whether or not they exist.
+  </p>
+
+  <div class="presets" id="presets">
+    <button data-p="4,0.55,4,1">Well separated</button>
+    <button data-p="4,1.3,4,1">Overlapping</button>
+    <button data-p="7,0.55,4,1">Wrong k (7 for 4 segments)</button>
+    <button data-p="2,0.55,4,1">Wrong k (2 for 4 segments)</button>
+    <button data-p="4,0.55,4,2">Outliers</button>
+    <button data-p="3,1.0,1,1">No real clusters (one blob)</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <canvas id="cv" width="820" height="520"></canvas>
+        <div class="legend"><span style="color:var(--amber)">◆ centroids</span><span style="color:var(--muted)">● customers, colored by current assignment</span></div>
+        <div class="hoverbox" id="hoverbox">iteration 0 — press Step or Run</div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="panel">
+        <div class="kicker" style="margin-bottom:6px">Elbow chart — inertia vs. k (each k run to convergence, k-means++, best of 5)</div>
+        <canvas id="cv2" width="820" height="220"></canvas>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel controls">
+        <div class="row"><label>k (number of segments) <b id="v-k">4</b></label><input type="range" id="k" min="1" max="8" step="1" value="4"></div>
+        <div class="row"><label>Spread of the true segments <b id="v-spread">0.55</b></label><input type="range" id="spread" min="0.25" max="1.6" step="0.05" value="0.55"></div>
+        <label class="toggle"><input type="checkbox" id="pp" checked> k-means++ initialization (off = random points)</label>
+        <div class="btnrow">
+          <button class="btn primary" id="step">Step</button>
+          <button class="btn" id="run">Run to convergence</button>
+          <button class="btn" id="reinit">Re-initialize</button>
+          <button class="btn" id="resample">New customers</button>
+        </div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="panel readout">
+        <div class="kicker" style="margin-bottom:6px">Fit quality</div>
+        <div class="stat"><span>Iteration</span><b id="ro-iter">0</b></div>
+        <div class="stat"><span>Inertia (within-cluster SS)</span><b id="ro-inertia">—</b></div>
+        <div class="stat"><span>Silhouette</span><b id="ro-sil">—</b></div>
+        <div class="stat"><span>Converged</span><b id="ro-conv">no</b></div>
+        <div id="ro-badges" style="margin-top:8px"></div>
+        <div class="kicker" style="margin:14px 0 2px">Segment profiles</div>
+        <table class="seg" id="segtable"></table>
+        <div class="note" id="ro-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sub" style="margin-top:26px">
+    <b>What k-means assumes:</b> clusters are compact, roughly spherical, and similar in size, and distance means the same thing in every direction —
+    which is why you scale (and log) RFM features first. <b>What it never tells you:</b> whether clusters exist at all, or how many the business can act on.
+    The elbow and silhouette inform k; the marketing calendar decides it.
+  </p>
+</div>
+<script>
+// ---------- data ----------
+let seed = 835;
+function rng() { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }
+function gauss() { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const N = 300;
+const state = { k: 4, spread: 0.55, nTrue: 4, outliers: 1, pp: true, draw: 1, initDraw: 1 };
+// true segment centers in (recency, frequency) standardized space; names are suggestions for the profile table
+const TRUE = [
+  { c: [-1.2, 1.3], w: 0.22 },   // recent + frequent  → Champions
+  { c: [-0.6, -0.2], w: 0.33 },  // recent, occasional → Loyal / Potential
+  { c: [1.0, 0.6], w: 0.2 },     // lapsed but used to be frequent → At Risk
+  { c: [1.3, -1.2], w: 0.25 },   // long ago, rarely → Hibernating
+];
+let pts = [], cents = [], assign = [], iter = 0, converged = false;
+function sample() {
+  seed = 835 + state.draw * 7919; pts = [];
+  for (let i = 0; i < N; i++) {
+    let g;
+    if (state.nTrue === 1) g = { c: [0, 0], w: 1 };
+    else { const r = rng(); let acc = 0; g = TRUE[TRUE.length - 1]; for (const t of TRUE) { acc += t.w; if (r < acc) { g = t; break; } } }
+    const sp = state.nTrue === 1 ? state.spread * 1.6 : state.spread;
+    let p = [g.c[0] + gauss() * sp, g.c[1] + gauss() * sp * 0.85, 0];
+    if (state.outliers === 2 && i % 25 === 0) p = [2.4 + rng() * 0.8, 2.2 + rng() * 0.8, 1];
+    pts.push(p);
+  }
+}
+const d2 = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2;
+function init(k, pp, rseed) {
+  seed = rseed; const c = [];
+  if (!pp) { for (let j = 0; j < k; j++) { const p = pts[Math.floor(rng() * N)]; c.push([p[0], p[1]]); } return c; }
+  const p0 = pts[Math.floor(rng() * N)]; c.push([p0[0], p0[1]]);
+  while (c.length < k) {
+    const D = pts.map(p => Math.min(...c.map(q => d2(p, q)))); const tot = D.reduce((a, b) => a + b, 0);
+    let r = rng() * tot, idx = 0; for (let i = 0; i < N; i++) { r -= D[i]; if (r <= 0) { idx = i; break; } }
+    c.push([pts[idx][0], pts[idx][1]]);
+  }
+  return c;
+}
+function assignStep(c) { return pts.map(p => { let b = 0, bd = Infinity; c.forEach((q, j) => { const d = d2(p, q); if (d < bd) { bd = d; b = j; } }); return b; }); }
+function updateStep(c, a) { const s = c.map(() => [0, 0, 0]); pts.forEach((p, i) => { s[a[i]][0] += p[0]; s[a[i]][1] += p[1]; s[a[i]][2]++; }); return c.map((q, j) => s[j][2] ? [s[j][0] / s[j][2], s[j][1] / s[j][2]] : q); }
+function inertia(c, a) { let s = 0; pts.forEach((p, i) => s += d2(p, c[a[i]])); return s; }
+function runFull(k, pp, rseed) { let c = init(k, pp, rseed), a = assignStep(c); for (let t = 0; t < 100; t++) { const nc = updateStep(c, a); const na = assignStep(nc); const moved = nc.some((q, j) => d2(q, c[j]) > 1e-10); c = nc; a = na; if (!moved) break; } return { c, a, I: inertia(c, a) }; }
+function bestOf(k, n) { let best = null; for (let r = 0; r < n; r++) { const res = runFull(k, true, 1000 + r * 31 + state.draw); if (!best || res.I < best.I) best = res; } return best; }
+function silhouette(a, k) {
+  if (k < 2) return NaN; let tot = 0;
+  for (let i = 0; i < N; i++) {
+    const sums = new Array(k).fill(0), cnt = new Array(k).fill(0);
+    for (let j = 0; j < N; j++) if (j !== i) { sums[a[j]] += Math.sqrt(d2(pts[i], pts[j])); cnt[a[j]]++; }
+    const own = a[i]; if (cnt[own] === 0) continue;
+    const ai = sums[own] / cnt[own]; let bi = Infinity; for (let j = 0; j < k; j++) if (j !== own && cnt[j]) bi = Math.min(bi, sums[j] / cnt[j]);
+    if (bi === Infinity) continue; tot += (bi - ai) / Math.max(ai, bi);
+  }
+  return tot / N;
+}
+// ---------- drawing ----------
+const COLORS = ['#2ee6c5', '#7c8cff', '#ff6b8b', '#7ee787', '#f5a524', '#b8f5ea', '#e0a3ff', '#ffd166'];
+function hidpi(id, w, h) { const c = document.getElementById(id), dpr = Math.min(window.devicePixelRatio || 1, 2); c.width = w * dpr; c.height = h * dpr; const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); return { c, x, w, h }; }
+const A = hidpi('cv', 820, 520), B = hidpi('cv2', 820, 220);
+const XR = [-3, 3.6], YR = [-3, 3.4];
+const px = v => 44 + (v - XR[0]) / (XR[1] - XR[0]) * (A.w - 58), py = v => A.h - 34 - (v - YR[0]) / (YR[1] - YR[0]) * (A.h - 48);
+function drawMain() {
+  const { x, w, h } = A; x.clearRect(0, 0, w, h);
+  x.strokeStyle = 'rgba(200,220,255,0.08)'; x.beginPath(); x.moveTo(px(0), 14); x.lineTo(px(0), h - 34); x.moveTo(44, py(0)); x.lineTo(w - 14, py(0)); x.stroke();
+  x.fillStyle = '#5f6a7d'; x.font = '11px IBM Plex Mono, monospace'; x.fillText('recency (days since last order, scaled) →', w - 300, h - 12);
+  x.save(); x.translate(14, h / 2 + 90); x.rotate(-Math.PI / 2); x.fillText('frequency (orders, log-scaled) →', 0, 0); x.restore();
+  pts.forEach((p, i) => { x.fillStyle = assign.length ? COLORS[assign[i] % COLORS.length] : 'rgba(163,173,189,0.6)'; x.globalAlpha = 0.85; x.beginPath(); x.arc(px(p[0]), py(p[1]), p[2] ? 4.5 : 3.5, 0, 7); x.fill(); x.globalAlpha = 1; });
+  cents.forEach((c, j) => { x.fillStyle = '#f5a524'; x.strokeStyle = '#07090f'; x.lineWidth = 2; x.beginPath(); x.moveTo(px(c[0]), py(c[1]) - 9); x.lineTo(px(c[0]) + 9, py(c[1])); x.lineTo(px(c[0]), py(c[1]) + 9); x.lineTo(px(c[0]) - 9, py(c[1])); x.closePath(); x.fill(); x.stroke();
+    x.fillStyle = COLORS[j % COLORS.length]; x.font = 'bold 11px IBM Plex Mono, monospace'; x.fillText('C' + (j + 1), px(c[0]) + 11, py(c[1]) - 8); });
+}
+let elbow = [];
+function drawElbow() {
+  const { x, w, h } = B; x.clearRect(0, 0, w, h);
+  const L = 60, R = 16, T = 14, Bt = 30, W = w - L - R, H = h - T - Bt;
+  const mx = Math.max(...elbow.map(e => e.I)) * 1.05;
+  const qx = k => L + (k - 1) / 7 * W, qy = I => T + H - I / mx * H;
+  x.strokeStyle = '#2ee6c5'; x.lineWidth = 2.5; x.beginPath(); elbow.forEach((e, i) => i ? x.lineTo(qx(e.k), qy(e.I)) : x.moveTo(qx(e.k), qy(e.I))); x.stroke();
+  elbow.forEach(e => { x.fillStyle = e.k === state.k ? '#f5a524' : '#2ee6c5'; x.beginPath(); x.arc(qx(e.k), qy(e.I), e.k === state.k ? 6 : 4, 0, 7); x.fill();
+    x.fillStyle = '#a3adbd'; x.font = '10px IBM Plex Mono, monospace'; x.fillText('sil ' + (isNaN(e.s) ? '—' : e.s.toFixed(2)), qx(e.k) - 18, qy(e.I) - 12); });
+  x.fillStyle = '#5f6a7d'; x.font = '11px IBM Plex Mono, monospace'; for (let k = 1; k <= 8; k++) x.fillText('k=' + k, qx(k) - 10, h - 10); x.fillText('inertia', 6, T + 10);
+}
+// ---------- controls ----------
+const $ = id => document.getElementById(id);
+const NAMES = (r, f) => f > 0.6 && r < 0 ? 'Champions' : f > 0.2 && r > 0.5 ? 'At risk' : r > 0.7 ? 'Hibernating' : f < 0 && r < 0 ? 'New / occasional' : 'Loyal';
+function readout() {
+  const I = cents.length ? inertia(cents, assign) : NaN, s = cents.length ? silhouette(assign, state.k) : NaN;
+  $('ro-iter').textContent = iter; $('ro-inertia').textContent = isNaN(I) ? '—' : I.toFixed(1); $('ro-sil').textContent = isNaN(s) ? '—' : s.toFixed(3); $('ro-conv').textContent = converged ? 'yes' : 'no';
+  const badges = [];
+  if (!isNaN(s)) badges.push(s > 0.5 ? '<span class="badge good">clear structure</span>' : s > 0.3 ? '<span class="badge warn">typical business data</span>' : '<span class="badge bad">slicing a continuum</span>');
+  if (state.nTrue === 4 && state.k !== 4 && converged) badges.push('<span class="badge dim">true segments: 4</span>');
+  $('ro-badges').innerHTML = badges.join(' ');
+  let rows = '<tr><th>segment</th><th>n</th><th>recency</th><th>frequency</th><th>suggested name</th></tr>';
+  cents.forEach((c, j) => { const n = assign.filter(a => a === j).length; rows += `<tr><td><span class="sw" style="background:${COLORS[j % COLORS.length]}"></span>C${j + 1}</td><td>${n}</td><td>${c[0].toFixed(2)}</td><td>${c[1].toFixed(2)}</td><td>${n ? NAMES(c[0], c[1]) : 'empty'}</td></tr>`; });
+  $('segtable').innerHTML = rows;
+  let note;
+  if (state.nTrue === 1) note = '<b>There are no clusters here</b> — one blob — yet k-means split it into ' + state.k + ' tidy regions and would happily report them as segments. Low silhouette is the tell. Always ask whether the structure is real before you name it.';
+  else if (state.outliers === 2) note = '<b>Twelve outliers pulled a centroid off the real segments.</b> k-means uses means, and means chase outliers. Log-scale the dollar column, cap extremes, or use DBSCAN to label them noise first.';
+  else if (state.k > state.nTrue) note = '<b>Too many segments:</b> k-means carved real clusters in half. Inertia keeps falling as k grows — it always does — but the elbow bends at 4 and silhouette drops. Marketing cannot staff ' + state.k + ' campaigns anyway.';
+  else if (state.k < state.nTrue) note = '<b>Too few segments:</b> distinct groups have been merged, and the profile table describes an average customer who does not exist. The elbow chart shows the big drop you are leaving on the table.';
+  else if (state.spread > 1.0) note = '<b>Overlapping segments</b> are the normal case in business data: silhouette in the 0.2–0.4 range, boundaries that move with initialization. Run it several times (n_init) and keep the best inertia — scikit-learn does this by default.';
+  else note = '<b>Four clean segments, four names.</b> Now the deliverable: one action per segment. Champions get early access; At risk get a win-back offer; Hibernating get nothing — the offer costs more than they are worth.';
+  $('ro-note').innerHTML = note;
+}
+function reinit() { state.initDraw++; cents = init(state.k, state.pp, 4242 + state.initDraw * 17 + state.draw); assign = assignStep(cents); iter = 0; converged = false; $('hoverbox').textContent = 'iteration 0 — centroids placed (' + (state.pp ? 'k-means++' : 'random') + '); customers assigned to nearest'; }
+function step() { if (converged) return; const nc = updateStep(cents, assign); const na = assignStep(nc); const moved = nc.some((q, j) => d2(q, cents[j]) > 1e-10); cents = nc; assign = na; iter++; if (!moved) converged = true; $('hoverbox').textContent = 'iteration ' + iter + ': centroids moved to member means, customers reassigned' + (converged ? ' — converged, nothing moved' : ''); }
+function computeElbow() { elbow = []; for (let k = 1; k <= 8; k++) { const r = bestOf(k, 5); elbow.push({ k, I: r.I, s: silhouette(r.a, k) }); } }
+function redraw() { drawMain(); drawElbow(); readout(); }
+function sync() { $('v-k').textContent = state.k; $('v-spread').textContent = state.spread.toFixed(2); $('k').value = state.k; $('spread').value = state.spread; $('pp').checked = state.pp; }
+function clearActive() { document.querySelectorAll('#presets button').forEach(b => b.classList.remove('active')); }
+$('k').addEventListener('input', e => { state.k = +e.target.value; clearActive(); sync(); reinit(); redraw(); });
+$('spread').addEventListener('input', e => { state.spread = +e.target.value; clearActive(); sync(); sample(); computeElbow(); reinit(); redraw(); });
+$('pp').addEventListener('change', e => { state.pp = e.target.checked; reinit(); redraw(); });
+$('step').addEventListener('click', () => { step(); redraw(); });
+let runTimer = null;
+$('run').addEventListener('click', () => { if (runTimer) return; runTimer = setInterval(() => { step(); redraw(); if (converged) { clearInterval(runTimer); runTimer = null; } }, 350); });
+$('reinit').addEventListener('click', () => { reinit(); redraw(); });
+$('resample').addEventListener('click', () => { state.draw++; sample(); computeElbow(); reinit(); redraw(); });
+document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => {
+  const [k, sp, nt, ol] = b.dataset.p.split(',').map(Number); state.k = k; state.spread = sp; state.nTrue = nt; state.outliers = ol;
+  clearActive(); b.classList.add('active'); sync(); sample(); computeElbow(); reinit(); redraw();
+}));
+sample(); computeElbow(); sync(); reinit(); redraw();
+</script>
+</body>
+</html>

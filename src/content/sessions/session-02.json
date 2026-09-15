@@ -1,0 +1,225 @@
+{
+  "number": 2,
+  "slug": "session-02",
+  "title": "Data Wrangling & EDA for Prediction",
+  "subtitle": "Real data arrives in eight tables, three date formats, and a thousand blanks. pandas joins, groupbys, and datetime features on Olist e-commerce — and how to spot the leak that makes a model look brilliant and ship useless",
+  "duration": "150 Minutes",
+  "icon": "table",
+  "tags": ["pandas", "EDA", "Data Leakage"],
+  "objectives": [
+    {
+      "title": "Assemble a Modeling Table from Many",
+      "description": "Olist ships as eight CSVs: orders, items, payments, reviews, customers, sellers, products, geolocation. One row per order with the right columns is the deliverable — and a join that silently triples your rows is the trap."
+    },
+    {
+      "title": "Ask Questions with groupby",
+      "description": "Late-delivery rate by state, review score by delivery delay, subscription rate by past outcome. EDA is not making charts — it is interrogating the data before the model does."
+    },
+    {
+      "title": "Name the Missingness",
+      "description": "Missing completely at random, missing at random, missing not at random — three patterns in plain English, and why the third one is a feature rather than a problem."
+    },
+    {
+      "title": "Spot Target Leakage Before It Ships",
+      "description": "Call duration predicts a bank deposit with AUC 0.91 — and is useless, because you only know it after the call ends. Three real leaks, and the one question that catches all of them."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "Homework #0 Debrief & The Data Problem",
+      "duration": "20 minutes",
+      "description": "Your prediction problems from Canvas, read aloud. Then the uncomfortable truth: in Session 1 the data came as one clean table. It never does. Tonight is about the 80% of the job that happens before fit().",
+      "bulletPoints": [
+        "Kaggle 2022 survey: data scientists still report spending most of their time cleaning and organizing data",
+        "The modeling table: one row per prediction unit, features known at prediction time, one target column"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:40 PM",
+      "title": "Meet Olist: Eight Tables, One Question",
+      "duration": "20 minutes",
+      "description": "About 100,000 Brazilian e-commerce orders from 2016–2018 across orders, items, payments, reviews, customers, sellers, products and geolocation. Business question: which orders will arrive late — and will the customer leave a one-star review?",
+      "bulletPoints": [
+        "Read the schema first: which column links which table, and what is the grain of each",
+        "Frame it: unit = one order · target = delivered after the estimated date · horizon = at purchase · decision = proactive apology or upgraded shipping"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:40 PM - 6:05 PM",
+      "title": "Joins That Lie: merge, validate, count",
+      "duration": "25 minutes",
+      "description": "Orders join to items one-to-many: an order with three items becomes three rows, and your late-delivery rate is now weighted by basket size. The fix is a habit: print the row count before and after every merge, and use validate='one_to_one' to make pandas refuse a bad join.",
+      "bulletPoints": [
+        "merge(how='left', validate='one_to_one') — the argument nobody uses and everyone should",
+        "Aggregate the many side first (items → total price, item count), then join at the order grain"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, compare row counts with a neighbor.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:45 PM",
+      "title": "EDA That Asks Questions",
+      "duration": "30 minutes",
+      "description": "groupby, agg, and pivot_table as interview tools. Late-delivery rate by customer state, review score by days late, and datetime features pulled from the purchase timestamp: weekday, hour, month, and days-to-estimate. Every chart ends with a sentence a manager could act on.",
+      "bulletPoints": [
+        "pd.to_datetime, then .dt.dayofweek, .dt.hour, and date arithmetic — three lines that create ten features",
+        "Missing values: TotalCharges is blank for exactly the 11 Telco customers with tenure 0 — that is a pattern, not noise"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 7:15 PM",
+      "title": "The Anatomy of a Leak",
+      "duration": "30 minutes",
+      "description": "Bank Marketing: predicting whether a customer subscribes to a term deposit. Add call duration and AUC jumps from 0.76 to 0.91 — and the model is worthless, because duration is only known after the call in which the customer said yes. Three real leaks, one test: would you know this value at the moment you have to predict?",
+      "bulletPoints": [
+        "Leak types: features recorded after the outcome, target proxies (refund amount for 'was refunded'), and test data bleeding into preprocessing",
+        "The prediction-time test: freeze the clock at the moment of decision and delete every column the clock hasn't reached"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:15 PM - 7:30 PM",
+      "title": "Wrap-Up & Homework #1",
+      "duration": "15 minutes",
+      "description": "The wrangling checklist: grain, join, validate, aggregate, datetime, missingness, leakage. Homework #1 applies it end to end on Telco with a baseline model.",
+      "bulletPoints": [
+        "Next week: turning the modeling table into a leak-proof scikit-learn Pipeline",
+        "Homework #1 due Mon Sep 28 on Canvas"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 2 Notebook — Data Wrangling & EDA (Olist + Telco)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-02/ISOM835_Session2_Data_Wrangling_EDA.ipynb",
+      "description": "The notebook we build in class: load Olist via kagglehub (or the no-login Telco fallback), validate every merge, aggregate items to the order grain, pull datetime features, interrogate missingness, and reproduce the call-duration leak on Bank Marketing.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "Olist Brazilian E-Commerce — the dataset",
+      "url": "https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce",
+      "description": "Roughly 100,000 real orders from a Brazilian marketplace, 2016–2018, in eight linked tables with a published schema diagram. Requires a free Kaggle account — the one you created for Homework #0.",
+      "icon": "shopping-cart",
+      "badge": "Data",
+      "badgeType": "reference",
+      "linkText": "Open on Kaggle"
+    },
+    {
+      "title": "pandas User Guide — Merge, Join, Concatenate and Compare",
+      "url": "https://pandas.pydata.org/docs/user_guide/merging.html",
+      "description": "The official reference for merge(), including the validate argument that turns a silent row explosion into a loud error. Read the 'Checking for duplicate keys' section twice.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the guide"
+    },
+    {
+      "title": "Python for Data Analysis, 3rd ed. — Ch. 7 Data Cleaning & Ch. 8 Wrangling",
+      "url": "https://wesmckinney.com/book/",
+      "description": "Wes McKinney wrote pandas; this is his free online book. Chapters 7 and 8 are the definitive treatment of missing data, joins, reshaping, and groupby.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read online (free)"
+    },
+    {
+      "title": "Story: The Pneumonia Model That Learned Asthma Was Safe",
+      "url": "https://www.microsoft.com/en-us/research/publication/intelligible-models-healthcare-predicting-pneumonia-risk-hospital-30-day-readmission/",
+      "description": "Caruana et al. (KDD 2015): a model trained on hospital data concluded asthma patients had a lower risk of dying from pneumonia — because asthma patients were rushed to intensive care. The data was right, the model was right, and deploying it would have killed people. The classic story of a signal that is really a leak.",
+      "icon": "shield-alert",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the paper"
+    },
+    {
+      "title": "scikit-learn — Common Pitfalls: Data Leakage",
+      "url": "https://scikit-learn.org/stable/common_pitfalls.html",
+      "description": "The library's own page on leakage during preprocessing and how Pipelines prevent it. The bridge from tonight's warning to next week's fix.",
+      "icon": "shield",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the page"
+    },
+    {
+      "title": "Kaggle Learn — Data Leakage (Intermediate ML)",
+      "url": "https://www.kaggle.com/code/alexisbcook/data-leakage",
+      "description": "A short, free tutorial with two worked examples of target leakage and train-test contamination. Twenty minutes, and you will never look at a suspiciously high score the same way.",
+      "icon": "play-circle",
+      "badge": "Go Deeper",
+      "badgeType": "interactive",
+      "linkText": "Open the tutorial"
+    },
+    {
+      "title": "Refresher: Exploratory Data Analysis with pandas (ISOM 730 notebook)",
+      "url": "https://colab.research.google.com/drive/1fw1j5NDYhhmU95d8s7xiiEjHj8C9ObUA",
+      "description": "Prof. Arslan's earlier notebook on matplotlib and seaborn — histograms, pair plots, bar plots. If tonight's charts went fast, this is the slow version.",
+      "icon": "chart-bar",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "table",
+      "title": "From Eight Tables to One Modeling Table",
+      "description": "Build the Olist modeling table at the order grain: one row per order, total basket value, item count, customer state, purchase weekday and hour, and the target — delivered after the estimated date. Every merge is validated and counted.",
+      "steps": [
+        { "title": "Know the grain", "description": "orders is one row per order; order_items is one row per item. Print both shapes and the number of unique order_id in each. That difference is the trap." },
+        { "title": "Aggregate the many side first", "description": "groupby('order_id') on items to get item_count and basket_value. Now items is one row per order and the join is safe." },
+        { "title": "Merge with validate", "description": "orders.merge(items_agg, on='order_id', how='left', validate='one_to_one'). Print the row count before and after. They must match." },
+        { "title": "Build the target and the time features", "description": "late = delivered_date > estimated_date. Then weekday, hour, and month from the purchase timestamp. Check the late rate overall and by customer state." }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import pandas as pd, kagglehub, os\n\npath = kagglehub.dataset_download('olistbr/brazilian-ecommerce')\norders = pd.read_csv(os.path.join(path, 'olist_orders_dataset.csv'), parse_dates=[\n    'order_purchase_timestamp', 'order_delivered_customer_date', 'order_estimated_delivery_date'])\nitems = pd.read_csv(os.path.join(path, 'olist_order_items_dataset.csv'))\n\nprint(len(orders), orders.order_id.nunique())   # one row per order\nprint(len(items),  items.order_id.nunique())    # many rows per order!\n\nitems_agg = (items.groupby('order_id')\n                  .agg(item_count=('order_item_id', 'size'), basket_value=('price', 'sum'))\n                  .reset_index())\n\ndf = orders.merge(items_agg, on='order_id', how='left', validate='one_to_one')\nassert len(df) == len(orders)\n\ndf['late'] = (df.order_delivered_customer_date > df.order_estimated_delivery_date).astype(int)\ndf['weekday'] = df.order_purchase_timestamp.dt.dayofweek\ndf['hour'] = df.order_purchase_timestamp.dt.hour\nprint(df['late'].mean())"
+      },
+      "discussionNote": "Notice which columns you are <em>not</em> allowed to use: the actual delivery date builds the target, so anything derived from it — days late, carrier hand-off date — is a leak. The clock stops at <em>order_purchase_timestamp</em>. Everything the model sees must exist at that moment."
+    },
+    {
+      "number": 2,
+      "icon": "shield-alert",
+      "title": "Reproduce the Leak: Bank Marketing and Call Duration",
+      "description": "45,211 phone calls from a Portuguese bank's deposit campaign; 11.7% said yes. Fit the same logistic regression twice — once with call duration, once without — and watch a worthless feature produce a spectacular score.",
+      "steps": [
+        { "title": "Fit without duration", "description": "Age, balance, job, prior-campaign outcome and the rest. Cross-validated AUC lands around 0.76." },
+        { "title": "Fit with duration", "description": "Add the length of the call. AUC jumps to about 0.91. A manager would be thrilled." },
+        { "title": "Apply the prediction-time test", "description": "When do we need the prediction? Before dialing, to choose whom to call. Is call duration known then? No. Delete it, and explain why the 0.91 was a lie." }
+      ],
+      "discussionNote": "The UCI documentation for this dataset says it outright: duration 'highly affects the output target' and 'should be discarded if the intention is to have a realistic predictive model.' Most datasets don't come with that warning. Your job is to write it yourself."
+    }
+  ],
+  "takeaways": [
+    { "icon": "table", "text": "The deliverable of wrangling is a <strong>modeling table</strong>: one row per prediction unit, features known at prediction time, one target column. Get the grain right and everything downstream gets easier." },
+    { "icon": "git-branch", "text": "<strong>Joins lie silently.</strong> Aggregate the many side first, merge with validate=, and print the row count before and after. A model trained on tripled rows is a model trained on a different population." },
+    { "icon": "shield-alert", "text": "<strong>Leakage is the #1 way smart people build useless models.</strong> Freeze the clock at the moment of decision and delete every column the clock hasn't reached — call duration, refund amount, days late." }
+  ],
+  "homework": [
+    {
+      "label": "Homework #1",
+      "text": "Due Mon Sep 28, before class, on Canvas. Using the Telco churn data from the Session 1 notebook: (1) fix the TotalCharges column (it is stored as text and is blank for the 11 customers with tenure 0 — decide what to do and justify it in one sentence); (2) produce three groupby tables that each answer a business question about who churns (contract, internet service, payment method are good starts), with one sentence of interpretation each; (3) engineer at least two new features (for example number of add-on services, or average monthly charge over tenure) and explain why they might carry signal; (4) list every column you would have to drop if the prediction were made at sign-up rather than today, and why; (5) refit the Session 1 logistic regression with your new features and report accuracy, the confusion matrix, and the baseline. Submit the notebook with outputs visible."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 3: Feature Engineering & Leak-Proof Pipelines",
+    "description": "Encoding, scaling, imputation and feature engineering as one scikit-learn Pipeline that fits on training data only — so leakage becomes structurally impossible. Plus skrub's TableVectorizer, the 2025 shortcut.",
+    "tags": ["Pipelines", "Encoding", "Feature Engineering"],
+    "slug": "session-03"
+  }
+}

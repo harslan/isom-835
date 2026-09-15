@@ -1,0 +1,251 @@
+{
+  "number": 12,
+  "slug": "session-12",
+  "title": "Neural Networks, Embeddings & LLMs as Features",
+  "subtitle": "A multilayer perceptron on tabular data (and why it usually loses to boosting), text as features — TF-IDF, sentence embeddings, zero-shot LLM labels — and the AI-assisted analyst's workflow: generate, verify, own",
+  "duration": "150 Minutes",
+  "icon": "brain",
+  "tags": [
+    "Neural Networks",
+    "Embeddings",
+    "LLMs"
+  ],
+  "objectives": [
+    {
+      "title": "Train a Neural Network and Know When Not To",
+      "description": "MLPClassifier on Telco: layers, activations, epochs, and the honest result — on a 7,000-row table it ties logistic regression and loses to boosting. Neural nets earn their keep on text, images, and sequences."
+    },
+    {
+      "title": "Turn Text Into Features Three Ways",
+      "description": "TF-IDF (counts), sentence embeddings (meaning), and zero-shot LLM labels (judgment). Same reviews, three feature sets, three price points — and a clear winner for each budget."
+    },
+    {
+      "title": "Use LLM Embeddings Inside a Tabular Model",
+      "description": "Embed the free-text column, append it to the structured features, and let gradient boosting use both. The 2025 evidence: biggest gains on small, imbalanced, or text-rich problems."
+    },
+    {
+      "title": "Work With an AI Coding Assistant Without Losing the Plot",
+      "description": "Colab's Data Science Agent, Jupyter AI, Claude Code: generate the boilerplate, then verify the split, the leakage, and the metric yourself. The analyst who can't explain the cell didn't write it."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "HW5 Debrief & What a Neural Network Is",
+      "duration": "20 minutes",
+      "description": "Segments and forecasts from HW5, then the model everyone has heard of: layers of weighted sums and nonlinear activations, trained by gradient descent on a loss. A logistic regression is a neural network with no hidden layer. MLPClassifier makes it three lines.",
+      "bulletPoints": [
+        "Scale the inputs — a neural net is more sensitive to scale than kNN",
+        "Hidden layers, learning rate, epochs, early stopping: the same overfitting story, new vocabulary"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:40 PM",
+      "title": "MLP vs. Boosting on Tabular Data — The Honest Result",
+      "duration": "20 minutes",
+      "description": "MLPClassifier on the Telco pipeline: AUC within a point of logistic regression, below the boosted model, three times slower to tune. This is the Grinsztajn result on a business table. Then where neural nets win: text, images, audio, sequences — anything without a fixed set of columns.",
+      "bulletPoints": [
+        "On tabular business data, reach for boosting first and a TFM second; a plain MLP is rarely the answer",
+        "Deep learning's real gift to tabular work is embeddings — dense vectors for text and categories"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:40 PM - 6:05 PM",
+      "title": "Text as Features I: TF-IDF and Sentence Embeddings",
+      "duration": "25 minutes",
+      "description": "Meet the data: Amazon product reviews, binary sentiment. TfidfVectorizer + logistic regression is a 30-second baseline that reaches ~88% accuracy. A sentence-transformer (all-MiniLM-L6-v2) turns each review into a 384-number vector that captures meaning, not just words — and a logistic regression on those vectors does about as well with a fraction of the features.",
+      "bulletPoints": [
+        "TF-IDF: sparse, fast, interpretable (read the coefficients); embeddings: dense, semantic, transferable",
+        "Embeddings are the bridge between deep learning and every model you already know"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, last project questions.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:45 PM",
+      "title": "Text as Features II: Zero-Shot LLM Labels & Embeddings Inside Boosting",
+      "duration": "30 minutes",
+      "description": "Ask an LLM to label 200 reviews with no training data: accuracy near the trained models, at a cost per call. Then the practical pattern: embed the free-text 'reason for contact' column in a churn table, append it to the structured features, and let boosting use both. The evidence says this helps most when the table is small or the text carries what the columns don't.",
+      "bulletPoints": [
+        "LLMs are competitive zero-shot on small, simple classification and fall behind tuned models as complexity grows (LLMTabBench, 2026)",
+        "Cost, latency, and privacy decide: embeddings once, LLM calls sparingly, boosting for the decision"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 7:15 PM",
+      "title": "The AI-Assisted Analyst: Generate, Verify, Own",
+      "duration": "30 minutes",
+      "description": "Live: Colab's Data Science Agent builds a churn notebook from a prompt in two minutes. We read it together and find what it got wrong — the split after the scaler, the leaked column, the metric it chose. Then the workflow that works: let the assistant draft, verify the four things that matter, and be able to explain every cell in the presentation.",
+      "bulletPoints": [
+        "The four things to verify in any AI-written notebook: the split, the leakage, the metric, the baseline",
+        "Claude Code and Jupyter AI can edit notebooks directly — the analyst's job shifts from typing to judging"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:15 PM - 7:30 PM",
+      "title": "Wrap-Up & Final Week",
+      "duration": "15 minutes",
+      "description": "The map is complete: tabular → boosting and TFMs; text → embeddings and LLMs; time → lags and foundation models; everything → honest validation and a decision. Next Monday: ship it, then present.",
+      "bulletPoints": [
+        "Project notebook + 2-page decision memo due Sun Dec 13, 11:59 PM on Canvas",
+        "Presentations Mon Dec 14, 8 minutes + 2 minutes Q&A per team, order posted Friday"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 12 Notebook — Neural Nets, Embeddings & LLMs as Features",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-12/ISOM835_Session12_NeuralNets_Embeddings_LLMs.ipynb",
+      "description": "MLPClassifier vs. boosting on Telco, TF-IDF vs. sentence embeddings on Amazon reviews, an optional zero-shot Claude cell, embeddings appended to a tabular model, and a checklist for verifying AI-generated notebooks.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "3Blue1Brown — Neural Networks (video series)",
+      "url": "https://www.youtube.com/playlist?list=PLLMP7TazTxHrgVk7w1EKpLBIDoC50QrPS",
+      "description": "The best visual explanation of what a neural network computes and how gradient descent trains it. Watch the first two before class; the transformer episodes explain what powers the embedding models.",
+      "icon": "video",
+      "badge": "Video",
+      "badgeType": "video",
+      "linkText": "Open the playlist"
+    },
+    {
+      "title": "Sentence-Transformers Documentation",
+      "url": "https://www.sbert.net/",
+      "description": "SentenceTransformer('all-MiniLM-L6-v2').encode(texts) — one line from text to a 384-dimensional meaning vector. The pretrained models page lists the speed/quality trade-offs.",
+      "icon": "wrench",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the docs"
+    },
+    {
+      "title": "Amazon Polarity — the dataset (Hugging Face)",
+      "url": "https://huggingface.co/datasets/fancyzhx/amazon_polarity",
+      "description": "3.6 million Amazon reviews labeled positive/negative. We use a 5,000-review slice; the datasets library streams it with no login.",
+      "icon": "message-square-text",
+      "badge": "Data",
+      "badgeType": "reference",
+      "linkText": "Open the dataset card"
+    },
+    {
+      "title": "Grinsztajn et al. (2022) & LLMTabBench (2026) — When Not to Use Deep Learning",
+      "url": "https://arxiv.org/abs/2605.24417",
+      "description": "LLMTabBench: LLMs are competitive zero-shot on low-data binary tasks but degrade past a complexity threshold, and few-shot examples can hurt. Pair with the 2022 tree-vs-NN benchmark for the full picture.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the abstract"
+    },
+    {
+      "title": "LLM Embeddings as Features for Tabular Models (2024–25 evidence)",
+      "url": "https://arxiv.org/abs/2411.01645",
+      "description": "Embedding text fields and feeding them to XGBoost/CatBoost helps most on small, imbalanced, or text-rich datasets, and embedding-derived features often rank high in importance. The pattern we implement in class.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the paper"
+    },
+    {
+      "title": "Google Colab — Data Science Agent",
+      "url": "https://developers.googleblog.com/en/data-science-agent-in-colab-with-gemini/",
+      "description": "Upload a CSV, describe the goal, get a full notebook. Free in Colab. We use it live and then audit what it produced — the exercise that defines the AI-assisted analyst.",
+      "icon": "bot",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Read the announcement"
+    },
+    {
+      "title": "Claude Code for Data Scientists — Getting Started",
+      "url": "https://www.dataquest.io/blog/getting-started-with-claude-code-for-data-scientists/",
+      "description": "A practical walkthrough of using an agentic coding assistant on notebooks and data pipelines, including the verification habits that keep it honest.",
+      "icon": "terminal",
+      "badge": "Go Deeper",
+      "badgeType": "reference",
+      "linkText": "Read the guide"
+    },
+    {
+      "title": "Géron — Hands-On ML With Scikit-Learn & PyTorch (notebooks)",
+      "url": "https://github.com/ageron/handson-mlp",
+      "description": "The PyTorch edition of the practitioner's classic. Chapters 10–11 (introduction to neural networks, training deep nets) are the natural continuation if you want to go deeper than MLPClassifier.",
+      "icon": "book-open",
+      "badge": "Go Deeper",
+      "badgeType": "reference",
+      "linkText": "Open the notebooks"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "brain",
+      "title": "Three Ways to Read a Review",
+      "description": "5,000 Amazon reviews, positive or negative. Build TF-IDF + logistic regression, then sentence-embeddings + logistic regression, compare accuracy and feature counts, and (optionally) ask an LLM to label 100 of them zero-shot.",
+      "steps": [
+        {
+          "title": "Load a slice",
+          "description": "datasets.load_dataset('fancyzhx/amazon_polarity', split='train[:5000]'). Stratified 80/20 split on the label."
+        },
+        {
+          "title": "Counts: TF-IDF",
+          "description": "TfidfVectorizer(ngram_range=(1,2), min_df=3) → LogisticRegression. Accuracy, and the ten most positive and negative n-grams from the coefficients."
+        },
+        {
+          "title": "Meaning: embeddings",
+          "description": "SentenceTransformer('all-MiniLM-L6-v2').encode() on the same texts → 384 features → LogisticRegression. Accuracy vs. TF-IDF; note the feature count."
+        },
+        {
+          "title": "Judgment: zero-shot (optional)",
+          "description": "With an API key, ask Claude to label 100 test reviews 'positive' or 'negative'. Accuracy vs. the two trained models, and the cost per 1,000 reviews."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "from datasets import load_dataset\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score\nfrom sentence_transformers import SentenceTransformer\n\nds = load_dataset('fancyzhx/amazon_polarity', split='train[:5000]')\ntexts, labels = ds['content'], ds['label']\nX_tr, X_te, y_tr, y_te = train_test_split(texts, labels, test_size=0.2, stratify=labels, random_state=835)\n\n# 1) Counts: TF-IDF\ntfidf = TfidfVectorizer(ngram_range=(1, 2), min_df=3, sublinear_tf=True)\nclf = LogisticRegression(max_iter=2000, C=3).fit(tfidf.fit_transform(X_tr), y_tr)\nprint(f'TF-IDF + logistic: {accuracy_score(y_te, clf.predict(tfidf.transform(X_te))):.3f}  ({len(tfidf.vocabulary_):,} features)')\n\n# 2) Meaning: sentence embeddings (downloads a 90MB model once)\nenc = SentenceTransformer('all-MiniLM-L6-v2')\nE_tr, E_te = enc.encode(X_tr, batch_size=128, show_progress_bar=False), enc.encode(X_te, batch_size=128, show_progress_bar=False)\nclf2 = LogisticRegression(max_iter=2000).fit(E_tr, y_tr)\nprint(f'embeddings + logistic: {accuracy_score(y_te, clf2.predict(E_te)):.3f}  ({E_tr.shape[1]} features)')\n\n# 3) Judgment: zero-shot LLM labels — optional, needs ANTHROPIC_API_KEY; see the notebook"
+      },
+      "discussionNote": "Three feature sets, three price points. TF-IDF is free and you can read its coefficients — 'waste of money' and 'highly recommend' sit at the two extremes. Embeddings cost one model download and capture meaning TF-IDF cannot ('not bad at all'). The LLM costs a call per review and needs no training data at all — the right tool for the first week of a project, the wrong tool for scoring a million reviews a day. <em>The 2026 analyst picks by budget and volume, and usually ends up with embeddings feeding a model they can validate.</em>"
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "brain",
+      "text": "A neural network is <strong>stacked weighted sums with nonlinearities, trained by gradient descent</strong>. On a business table it rarely beats boosting; it wins on text, images, and sequences — anything without fixed columns."
+    },
+    {
+      "icon": "message-square-text",
+      "text": "<strong>Text becomes features three ways:</strong> TF-IDF (counts, interpretable), sentence embeddings (meaning, transferable), zero-shot LLM labels (judgment, per-call cost). Embeddings appended to a tabular model are the practical 2026 pattern."
+    },
+    {
+      "icon": "bot",
+      "text": "<strong>Generate, verify, own.</strong> Let an AI assistant draft the notebook, then check the split, the leakage, the metric, and the baseline yourself — and be able to explain every cell without it."
+    }
+  ],
+  "homework": [
+    {
+      "label": "Project Final Stretch",
+      "text": "No new homework. Final project notebook and 2-page decision memo are due Sun Dec 13, 11:59 PM on Canvas; presentations are Mon Dec 14 in the exam-week slot. Before you submit, run the Session 12 verification checklist on your own notebook: is the split before every fitted transformer, is any feature recorded after the outcome, is the metric the one the decision needs, and does the model beat the obvious baseline? Bring your slides on a laptop; 8 minutes plus 2 for questions."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 13: Ship It — Deployment, Monitoring & Your Prediction Story",
+    "description": "Persist the pipeline, track experiments with MLflow, put a Gradio front end on a model in ten lines, watch for drift with Evidently, and the one-slide guide to the EU AI Act — then your presentations and the Signal Award.",
+    "tags": [
+      "Deployment",
+      "Monitoring",
+      "Final Presentations"
+    ],
+    "slug": "session-13"
+  }
+}

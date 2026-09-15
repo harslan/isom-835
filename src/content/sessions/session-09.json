@@ -1,0 +1,242 @@
+{
+  "number": 9,
+  "slug": "session-09",
+  "title": "Trust, but Verify: Tuning, Explaining & Uncertainty",
+  "subtitle": "Cross-validation that doesn't lie, hyperparameter search with Optuna, SHAP for one customer and the whole book, conformal intervals that keep their promise, fairness slices, and the one-page model card",
+  "duration": "150 Minutes",
+  "icon": "shield",
+  "tags": [
+    "Cross-Validation",
+    "SHAP",
+    "Conformal Prediction"
+  ],
+  "objectives": [
+    {
+      "title": "Choose a Cross-Validation Scheme That Matches Production",
+      "description": "StratifiedKFold for rare labels, GroupKFold when the same customer appears many times, TimeSeriesSplit when tomorrow must be predicted from yesterday. The wrong splitter is the most common way a great offline score becomes a bad live one."
+    },
+    {
+      "title": "Tune Without Fooling Yourself",
+      "description": "RandomizedSearchCV, HalvingRandomSearchCV, and a ten-line Optuna study — tuned on training folds, judged once on a test set you never touched."
+    },
+    {
+      "title": "Explain a Prediction With SHAP",
+      "description": "TreeExplainer on the boosted hotel model: a waterfall for one booking, a beeswarm for the whole book, and the sentence you say to an executive about each."
+    },
+    {
+      "title": "Attach Honest Uncertainty and Check Fairness",
+      "description": "Conformal prediction with MAPIE turns any model into one with 90% intervals — a promise you can keep. Then slice every metric by group, and write the model card that says what the model is for and where it fails."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "Why Great Offline Scores Go Bad",
+      "duration": "20 minutes",
+      "description": "Three true stories: a support-ticket model that memorized customers (plain KFold on repeated customers), a demand forecast that saw the future (random split on time series), and a competition team that tuned on the public leaderboard. All three had the same disease — the validation didn't match production.",
+      "bulletPoints": [
+        "The unit the model faces in production must be the unit that is held out: a new customer, a future week",
+        "GroupKFold, StratifiedGroupKFold, TimeSeriesSplit — pick the splitter before the model"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:45 PM",
+      "title": "Hyperparameter Search: Random, Halving, Optuna",
+      "duration": "25 minutes",
+      "description": "Grid search is exhaustive and slow; random search finds a near-best point in a tenth of the budget; successive halving spends the budget on promising configurations; Optuna learns from each trial. A ten-line Optuna objective on the hotel GBM, with the CV inside and the test set outside.",
+      "bulletPoints": [
+        "Tune the two or three knobs that matter (learning rate, leaves, min_samples_leaf); the rest is noise",
+        "Nested CV is the honest answer when the dataset is small; a single held-out test set is the practical one when it isn't"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:45 PM - 6:05 PM",
+      "title": "SHAP I: One Booking, Explained",
+      "duration": "20 minutes",
+      "description": "Shapley values split a prediction fairly among the features. TreeExplainer computes them exactly for boosted trees in milliseconds. A waterfall plot for booking #4,117: base rate 37% → non-refundable deposit +28 points → 200-day lead time +9 → repeat guest −6 → 68% cancellation probability.",
+      "bulletPoints": [
+        "Local explanation: 'why this booking?' — the sentence a hotel manager, a loan officer, or a regulator asks",
+        "SHAP explains the model, not the world: it attributes, it does not intervene"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, project teams meet.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:40 PM",
+      "title": "SHAP II: The Whole Book & Partial Dependence",
+      "duration": "25 minutes",
+      "description": "The beeswarm: every booking, every feature, colored by value — the global picture in one plot. Mean |SHAP| as the honest importance ranking. Then PartialDependenceDisplay with ICE lines: the shape of lead time's effect, and where individual bookings deviate from the average.",
+      "bulletPoints": [
+        "Beeswarm reading: long tails to the right are the features that push cancellations up; color tells you which direction of the feature does it",
+        "Dependence plots reveal interactions: lead time hurts far more for non-refundable deposits"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:40 PM - 7:10 PM",
+      "title": "Conformal Prediction: Intervals That Keep Their Promise",
+      "duration": "30 minutes",
+      "description": "A point forecast is a bet. Conformal prediction uses a calibration set's residuals to wrap any model in intervals with guaranteed coverage — 90% means 90%, no distributional assumptions. MAPIE's SplitConformalRegressor on Ames prices, SplitConformalClassifier on hotel cancellations (prediction sets: {cancel}, {stay}, or {both} when the model is unsure).",
+      "bulletPoints": [
+        "Coverage is a promise about the long run, valid for GBDTs, neural nets, anything — given exchangeable data",
+        "A set-valued prediction of {both} is the model saying 'send this one to a human'"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:10 PM - 7:30 PM",
+      "title": "Fairness Slices, the Model Card & Homework #4",
+      "duration": "20 minutes",
+      "description": "Equal accuracy can hide unequal harm: compute false-negative and false-positive rates by group (customer type, market segment, country) and look for gaps. Then the one-page model card — intended use, data, metrics by slice, known failure modes, owner. HW4 is assigned in full.",
+      "bulletPoints": [
+        "Credit scoring and hiring are 'high-risk' uses under the EU AI Act; explanation and human review are the direction of travel everywhere",
+        "HW4 due Mon Nov 23: boosting + SHAP + calibration + conformal on hotel bookings"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 9 Notebook — Tuning, Explaining & Uncertainty",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-09/ISOM835_Session9_Tuning_Explaining_Uncertainty.ipynb",
+      "description": "GroupKFold and TimeSeriesSplit demos, an Optuna study on the hotel GBM, SHAP waterfall and beeswarm, partial dependence with ICE, MAPIE conformal intervals and prediction sets, fairness slices, and a model-card template.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "scikit-learn User Guide — Cross-Validation: Evaluating Estimator Performance",
+      "url": "https://scikit-learn.org/stable/modules/cross_validation.html",
+      "description": "Every splitter with a picture: KFold, StratifiedKFold, GroupKFold, StratifiedGroupKFold, TimeSeriesSplit. The visualization section alone is worth the visit.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "SHAP Documentation — An Introduction to Explainable AI With Shapley Values",
+      "url": "https://shap.readthedocs.io/en/latest/example_notebooks/overviews/An%20introduction%20to%20explainable%20AI%20with%20Shapley%20values.html",
+      "description": "The canonical walkthrough from the library's authors: what Shapley values are, why they are the fair attribution, and how to read every plot type we use tonight.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the introduction"
+    },
+    {
+      "title": "MAPIE — Model-Agnostic Prediction Interval Estimator",
+      "url": "https://mapie.readthedocs.io/",
+      "description": "scikit-learn-contrib's conformal prediction library. The 1.x API (SplitConformalRegressor, CrossConformalRegressor, SplitConformalClassifier) is what we use; the theory pages are short and readable.",
+      "icon": "wrench",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the docs"
+    },
+    {
+      "title": "Optuna — Hyperparameter Optimization Framework",
+      "url": "https://optuna.org/",
+      "description": "Define an objective, call study.optimize, read study.best_params. The tutorial's first example is the ten lines we write in class.",
+      "icon": "sliders-horizontal",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the site"
+    },
+    {
+      "title": "Kaggle Learn — Machine Learning Explainability",
+      "url": "https://www.kaggle.com/learn/machine-learning-explainability",
+      "description": "Permutation importance, partial dependence, and SHAP values in four short lessons with exercises. The fastest path to fluency before HW4.",
+      "icon": "wand",
+      "badge": "Go Deeper",
+      "badgeType": "code",
+      "linkText": "Start the course"
+    },
+    {
+      "title": "Story: A Readmission Model Rebuilt for Equity at ZSFG",
+      "url": "https://www.ajmc.com/view/reducing-readmissions-in-the-safety-net-through-ai-and-automation",
+      "description": "Zuckerberg San Francisco General replaced a vendor readmission model with an in-house gradient-boosted tree that includes social-determinants data — and reports lower readmissions and narrower equity gaps. Explanation, slicing, and monitoring in a real hospital.",
+      "icon": "award",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the story"
+    },
+    {
+      "title": "Mitchell et al. (2019) — Model Cards for Model Reporting",
+      "url": "https://arxiv.org/abs/1810.03993",
+      "description": "The paper that defined the one-page model card: intended use, factors, metrics, evaluation data, ethical considerations, caveats. Your final project includes one.",
+      "icon": "file-text",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the paper"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "shield",
+      "title": "Explain It, Bound It, Slice It",
+      "description": "Take the early-stopped hotel GBM from Session 8. Explain ten bookings with SHAP, wrap the model in 90% conformal prediction sets, and check whether the error rates differ between city and resort guests.",
+      "steps": [
+        {
+          "title": "Explain",
+          "description": "shap.TreeExplainer(gbm) → shap_values on the test set. Waterfall for one booking, beeswarm for all. Write one sentence for each."
+        },
+        {
+          "title": "Bound",
+          "description": "Split the training data into fit and calibration halves. MAPIE SplitConformalClassifier with confidence_level=0.9. Count how many test bookings get a two-label set — those are the ones to route to a human."
+        },
+        {
+          "title": "Slice",
+          "description": "False-negative rate and false-positive rate at your chosen threshold, by hotel type and by customer_type. Any gap above 5 points gets a sentence in the model card."
+        },
+        {
+          "title": "Document",
+          "description": "Fill the model-card template: intended use, training data, metrics overall and by slice, known failure modes, owner, review date."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import shap, numpy as np, pandas as pd\nfrom mapie.classification import SplitConformalClassifier\nfrom sklearn.model_selection import train_test_split\n\n# gbm, X_tr, X_te, y_tr, y_te: the early-stopped HistGradientBoosting model and split from Session 8\nexplainer = shap.TreeExplainer(gbm)\nsv = explainer(X_te.iloc[:2000])\nshap.plots.waterfall(sv[0])          # one booking: base rate → each feature's push → prediction\nshap.plots.beeswarm(sv, max_display=12)   # the whole book\n\n# Conformal prediction sets: fit on one half, calibrate on the other, 90% coverage\nX_fit, X_cal, y_fit, y_cal = train_test_split(X_tr, y_tr, test_size=0.3, stratify=y_tr, random_state=835)\ncp = SplitConformalClassifier(estimator=gbm, confidence_level=0.9, prefit=True)\ncp.conformalize(X_cal, y_cal)\ny_pred, y_sets = cp.predict_set(X_te)\nn_labels = y_sets[:, :, 0].sum(axis=1)\nprint(f'coverage: {np.mean(y_sets[np.arange(len(y_te)), y_te.values, 0]):.3f}   '\n      f'singletons: {np.mean(n_labels == 1):.1%}   ambiguous {{both}}: {np.mean(n_labels == 2):.1%}')\n\n# Fairness slice: error rates by hotel type at threshold 0.5\npred = gbm.predict(X_te)\nfor grp, idx in X_te.groupby('hotel', observed=True).groups.items():\n    yt, yp = y_te.loc[idx], pd.Series(pred, index=X_te.index).loc[idx]\n    fnr = ((yt == 1) & (yp == 0)).sum() / (yt == 1).sum(); fpr = ((yt == 0) & (yp == 1)).sum() / (yt == 0).sum()\n    print(f'{grp:13s} FNR {fnr:.3f}   FPR {fpr:.3f}')"
+      },
+      "discussionNote": "Three questions an executive will ask, three tools. <em>Why did it say that?</em> — the SHAP waterfall. <em>How sure is it?</em> — the conformal set; the bookings labeled {both} are exactly the ones a human should look at. <em>Is it fair?</em> — the sliced error rates. A model that can answer all three is one you can defend in front of a regulator, a customer, or a board. The model card is where the answers live."
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "split",
+      "text": "<strong>Match the splitter to production:</strong> GroupKFold when units repeat, TimeSeriesSplit when time matters, stratify when labels are rare. Tune on the training folds; touch the test set once."
+    },
+    {
+      "icon": "eye",
+      "text": "<strong>SHAP answers 'why this prediction?'</strong> locally and 'what drives the model?' globally. It attributes the model's output; it does not tell you what happens if you change the input."
+    },
+    {
+      "icon": "shield",
+      "text": "<strong>Conformal prediction turns any model into one with guaranteed coverage</strong>, and sliced error rates turn 'is it fair?' into a table. Together with a model card, that is what 'trustworthy' means in practice."
+    }
+  ],
+  "homework": [
+    {
+      "label": "Homework #4",
+      "text": "Due Mon Nov 23. On the hotel bookings data (leaks removed): (1) an early-stopped gradient-boosting model with two or three hyperparameters tuned by Optuna or RandomizedSearchCV inside cross-validation; (2) a calibration plot and, if needed, CalibratedClassifierCV; (3) SHAP waterfall plots for three bookings — one confident cancel, one confident stay, one ambiguous — each with a two-sentence explanation a hotel manager would accept; (4) a beeswarm and your three-sentence reading of it; (5) MAPIE prediction sets at 90% with the share of ambiguous bookings; (6) false-negative and false-positive rates by hotel type and by market segment; (7) a half-page model card. Submit the notebook on Canvas."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 10: Segments, Structure & Anomalies",
+    "description": "Learning without labels: RFM segmentation with k-means, choosing k, hierarchical clustering and DBSCAN, PCA and UMAP for seeing high-dimensional data, and Isolation Forest for finding the transactions that don't belong.",
+    "tags": [
+      "Clustering",
+      "PCA",
+      "Anomaly Detection"
+    ],
+    "slug": "session-10"
+  }
+}

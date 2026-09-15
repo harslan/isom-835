@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GradientText from '../components/GradientText.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Icon from '../components/Icon.astro';
+import { getCollection } from 'astro:content';
+import { grading, policies } from '../data/syllabus';
+import { course } from '../data/course';
+import { sessionMeta, WEEKDAY } from '../data/schedule';
+
+const sessions = await getCollection('sessions');
+const sorted = sessions.sort((a, b) => a.data.number - b.data.number);
+---
+
+<BaseLayout title="ISOM 835 | Syllabus">
+  <section class="py-24 px-8 max-w-[1200px] mx-auto">
+    <div class="text-center mb-16">
+      <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold mb-4">
+        Course <GradientText>Syllabus</GradientText>
+      </h1>
+      <p class="text-text-secondary text-lg max-w-[600px] mx-auto">
+        {course.code}: {course.title} &bull; {course.semester}
+      </p>
+      <p class="text-text-muted text-sm mt-4 max-w-[600px] mx-auto font-mono">
+        {course.meeting} &bull; {course.credits} Credits &bull; Prerequisite: {course.prerequisite}
+      </p>
+      <p class="text-text-muted text-sm mt-2 max-w-[600px] mx-auto">
+        No class Mon Oct 12 (October Break). Session 13 and final presentations meet in the exam-week slot, Mon Dec 14. No written final exam: the project is the final.
+      </p>
+    </div>
+  </section>
+
+  <!-- Schedule -->
+  <section class="py-12 px-8 max-w-[1200px] mx-auto">
+    <SectionHeader number="01" label="Schedule" title="Session Schedule" description="13 Monday evenings: from your first predictive model to the tabular and LLM frontier." />
+    <div class="grid gap-4">
+      {sorted.map((session) => (
+        <a href={`/sessions/${session.data.slug}`} class="flex items-center gap-6 px-6 py-5 bg-bg-card border border-border-subtle rounded-xl transition-all duration-300 no-underline text-inherit hover:border-accent-cyan/30 hover:translate-x-2 fade-in">
+          <div class="font-mono text-2xl font-bold bg-gradient-to-br from-accent-cyan to-accent-purple bg-clip-text text-transparent shrink-0 w-10">
+            {String(session.data.number).padStart(2, '0')}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold">{session.data.title}</div>
+            <div class="text-text-secondary text-sm truncate">{session.data.subtitle}</div>
+          </div>
+          <span class="font-mono text-[0.75rem] text-text-muted whitespace-nowrap shrink-0 max-sm:hidden">
+            {WEEKDAY} · {sessionMeta[session.data.number]?.date}
+          </span>
+          <Icon name="chevron-right" class="w-5 h-5 text-text-muted shrink-0" />
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Grading -->
+  <section class="py-12 px-8 max-w-[1200px] mx-auto">
+    <SectionHeader number="02" label="Grading" title="Grade Breakdown" />
+    <div class="grid gap-4 fade-in">
+      {grading.map((item) => (
+        <div class="flex items-center justify-between px-6 py-5 bg-bg-card border border-border-subtle rounded-xl">
+          <span class="font-medium">{item.component}</span>
+          <span class="font-mono text-accent-cyan font-bold text-lg">{item.weight}%</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Policies -->
+  <section class="py-12 px-8 max-w-[1200px] mx-auto">
+    <SectionHeader number="03" label="Policies" title="Course Policies" />
+    <div class="grid gap-6 md:grid-cols-2 fade-in">
+      {policies.map((policy) => (
+        <div class="bg-bg-card border border-border-subtle rounded-2xl p-8">
+          <h3 class="text-lg font-semibold mb-3 text-accent-cyan">{policy.title}</h3>
+          <p class="text-text-secondary text-sm leading-relaxed">{policy.description}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+</BaseLayout>

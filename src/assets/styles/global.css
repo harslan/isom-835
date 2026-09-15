@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+/*
+ * ISOM 835 — "Find the signal"
+ * Deep ink-navy base · signal teal = the prediction · periwinkle = the model
+ * · coral = the residual / error · lime = validated.
+ * Token NAMES are inherited from the sibling course scaffolds (accent-cyan is
+ * the primary accent role); VALUES define this course's own identity.
+ */
+@theme {
+  --color-bg-primary: #07090f;
+  --color-bg-secondary: #0c0f17;
+  --color-bg-tertiary: #141926;
+  --color-bg-card: #0f131c;
+  --color-text-primary: #eef2f7;
+  --color-text-secondary: #a3adbd;
+  --color-text-muted: #5f6a7d;
+  --color-accent-cyan: #2ee6c5;    /* signal teal — the prediction, primary accent */
+  --color-accent-magenta: #ff6b8b; /* residual coral — breaks, video badges, error */
+  --color-accent-purple: #7c8cff;  /* periwinkle — the model, secondary accent, gradients */
+  --color-accent-green: #7ee787;   /* lime — validated, success */
+  --color-accent-orange: #f5a524;  /* amber — caution, reference badges */
+  --color-grad-violet: #b8f5ea;    /* light teal */
+  --color-border-subtle: rgba(200, 220, 255, 0.09);
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+/* Base */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: #1f8f7c;
+  border-radius: 4px;
+}
+
+::selection {
+  background: rgba(46, 230, 197, 0.25);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+  40% { transform: translateX(-50%) translateY(-10px); }
+  60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+@keyframes searchSlideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade-in on scroll */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Print Styles */
+@media print {
+  nav, .presenter-btn, .neural-bg, .progress-bar, .scroll-indicator {
+    display: none !important;
+  }
+  body {
+    background: white;
+    color: black;
+  }
+}

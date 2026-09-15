@@ -1,0 +1,222 @@
+---
+import '../assets/styles/global.css';
+import BaseHead from '../components/BaseHead.astro';
+import Navbar from '../components/Navbar.astro';
+import MobileMenu from '../components/MobileMenu.astro';
+import SearchDialog from '../components/SearchDialog.astro';
+import Footer from '../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+
+const siteLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Sessions', href: '/sessions' },
+  { label: 'Syllabus', href: '/syllabus' },
+  { label: 'Resources', href: '/resources' },
+  { label: 'Practice', href: '/practice' },
+];
+
+// Build search index (mirrors BaseLayout for consistent ⌘K behavior)
+const sessions = await getCollection('sessions');
+const sorted = sessions.sort((a, b) => a.data.number - b.data.number);
+
+const searchIndex: { type: string; title: string; subtitle?: string; url: string; tags?: string[]; sessionTitle?: string }[] = [];
+
+for (const session of sorted) {
+  const d = session.data;
+  const url = `/sessions/${d.slug}`;
+  const numStr = String(d.number).padStart(2, '0');
+  const sessionLabel = `Session ${numStr}`;
+
+  searchIndex.push({
+    type: 'session',
+    title: `${sessionLabel}: ${d.title}`,
+    subtitle: d.subtitle,
+    url,
+    tags: d.tags,
+  });
+}
+
+searchIndex.push({
+  type: 'practice',
+  title: 'Practice — Predictive analytics question bank',
+  subtitle: 'Sharpen modeling judgment one question at a time',
+  url: '/practice',
+});
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <BaseHead title={title} description={description} />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,500;8..60,600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    .practice-surface {
+      background:
+        radial-gradient(ellipse at top, rgba(224, 142, 60, 0.04), transparent 60%),
+        radial-gradient(ellipse at bottom, rgba(242, 177, 53, 0.03), transparent 50%),
+        var(--color-bg-primary);
+      min-height: 100vh;
+    }
+    .prose-practice {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      color: var(--color-text-primary);
+    }
+    .prose-practice p { margin-bottom: 1rem; }
+    .prose-practice p:last-child { margin-bottom: 0; }
+    .prose-practice strong {
+      color: var(--color-accent-cyan);
+      font-weight: 600;
+    }
+    .prose-practice em {
+      color: var(--color-text-secondary);
+      font-style: italic;
+    }
+    .prose-practice code {
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+      background: var(--color-bg-tertiary);
+      color: var(--color-accent-cyan);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+      border: 1px solid var(--color-border-subtle);
+    }
+    .prose-practice pre {
+      font-family: var(--font-mono);
+      background: var(--color-bg-tertiary);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      font-size: 0.875rem;
+    }
+    .prose-practice pre code {
+      background: transparent;
+      border: none;
+      padding: 0;
+      color: var(--color-text-primary);
+    }
+    .prose-practice ul, .prose-practice ol {
+      margin: 0.75rem 0 1rem 1.5rem;
+    }
+    .prose-practice li { margin-bottom: 0.4rem; }
+  </style>
+</head>
+<body>
+  <Navbar links={siteLinks} />
+  <MobileMenu links={siteLinks} />
+  <SearchDialog searchIndex={searchIndex} />
+  <main class="pt-[72px] practice-surface">
+    <slot />
+  </main>
+  <Footer />
+
+  <script is:inline>
+    // Fade-in observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Practice progress store — single source of truth for client-side state.
+    // Schema:
+    //   { questions: { Q01: { attempted, correct, selectedAnswer, reasoning, timestamp } },
+    //     misconceptions: { "name": count } }
+    window.PracticeStore = (function () {
+      const KEY = 'isom260-practice-v1';
+      function read() {
+        try {
+          const raw = localStorage.getItem(KEY);
+          if (!raw) return { questions: {}, misconceptions: {} };
+          const parsed = JSON.parse(raw);
+          return {
+            questions: parsed.questions || {},
+            misconceptions: parsed.misconceptions || {},
+          };
+        } catch (e) {
+          return { questions: {}, misconceptions: {} };
+        }
+      }
+      function write(data) {
+        try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { /* quota */ }
+      }
+      return {
+        get: read,
+        getQuestion(id) { return read().questions[id] || null; },
+        record(questionId, payload) {
+          // payload: { selectedAnswer, correctAnswer, reasoning, misconception (optional) }
+          const data = read();
+          const prev = data.questions[questionId];
+          // Decrement any misconception count attached to a prior incorrect attempt
+          // so retries don't double-count.
+          if (prev && !prev.correct && prev.misconception) {
+            const c = (data.misconceptions[prev.misconception] || 0) - 1;
+            if (c <= 0) delete data.misconceptions[prev.misconception];
+            else data.misconceptions[prev.misconception] = c;
+          }
+          const isCorrect = payload.selectedAnswer === payload.correctAnswer;
+          data.questions[questionId] = {
+            attempted: true,
+            correct: isCorrect,
+            selectedAnswer: payload.selectedAnswer,
+            reasoning: payload.reasoning || '',
+            misconception: !isCorrect ? (payload.misconception || null) : null,
+            timestamp: Date.now(),
+          };
+          if (!isCorrect && payload.misconception) {
+            data.misconceptions[payload.misconception] =
+              (data.misconceptions[payload.misconception] || 0) + 1;
+          }
+          write(data);
+          return { wasAttempted: !!prev };
+        },
+        clearQuestion(questionId) {
+          const data = read();
+          const prev = data.questions[questionId];
+          if (!prev) return;
+          if (!prev.correct && prev.misconception) {
+            const c = (data.misconceptions[prev.misconception] || 0) - 1;
+            if (c <= 0) delete data.misconceptions[prev.misconception];
+            else data.misconceptions[prev.misconception] = c;
+          }
+          delete data.questions[questionId];
+          write(data);
+        },
+        domainStats(questionIds) {
+          const data = read();
+          let attempted = 0, correct = 0;
+          for (const id of questionIds) {
+            const q = data.questions[id];
+            if (q && q.attempted) {
+              attempted += 1;
+              if (q.correct) correct += 1;
+            }
+          }
+          return { attempted, correct, total: questionIds.length };
+        },
+        wrongQuestionIds() {
+          const data = read();
+          return Object.entries(data.questions)
+            .filter(([_, q]) => q.attempted && !q.correct)
+            .map(([id]) => id);
+        },
+        reset() { write({ questions: {}, misconceptions: {} }); },
+      };
+    })();
+  </script>
+</body>
+</html>

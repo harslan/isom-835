@@ -1,0 +1,255 @@
+---
+import '../assets/styles/global.css';
+import BaseHead from '../components/BaseHead.astro';
+import Navbar from '../components/Navbar.astro';
+import MobileMenu from '../components/MobileMenu.astro';
+import SearchDialog from '../components/SearchDialog.astro';
+import Footer from '../components/Footer.astro';
+import NeuralBackground from '../components/NeuralBackground.astro';
+import ProgressBar from '../components/ProgressBar.astro';
+import PresenterToggle from '../components/PresenterToggle.astro';
+import SessionHero from '../components/SessionHero.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import ObjectiveCard from '../components/ObjectiveCard.astro';
+import Timeline from '../components/Timeline.astro';
+import TimelineItem from '../components/TimelineItem.astro';
+import ResourceCard from '../components/ResourceCard.astro';
+import ResourceGrid from '../components/ResourceGrid.astro';
+import ActivityCard from '../components/ActivityCard.astro';
+import ActivityStep from '../components/ActivityStep.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import VideoEmbed from '../components/VideoEmbed.astro';
+import TakeawayItem from '../components/TakeawayItem.astro';
+import HomeworkItem from '../components/HomeworkItem.astro';
+import NextSessionPreview from '../components/NextSessionPreview.astro';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  session: any;
+}
+
+const { session } = Astro.props;
+const data = session.data || session;
+
+const siteLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Sessions', href: '/sessions' },
+  { label: 'Syllabus', href: '/syllabus' },
+  { label: 'Resources', href: '/resources' },
+];
+
+const sessionNavLinks = [
+  ...(data.objectives?.length ? [{ label: 'Objectives', href: '#objectives' }] : []),
+  ...(data.agenda?.length ? [{ label: 'Agenda', href: '#agenda' }] : []),
+  ...(data.resources?.length ? [{ label: 'Resources', href: '#resources' }] : []),
+  ...(data.activities?.length ? [{ label: 'Activities', href: '#activities' }] : []),
+  ...(data.homework?.length ? [{ label: 'Homework', href: '#homework' }] : []),
+];
+
+const numStr = String(data.number).padStart(2, '0');
+
+// Build search index
+const allSessions = await getCollection('sessions');
+const sortedSessions = allSessions.sort((a, b) => a.data.number - b.data.number);
+
+const searchIndex: { type: string; title: string; subtitle?: string; url: string; tags?: string[]; sessionTitle?: string }[] = [];
+
+for (const s of sortedSessions) {
+  const d = s.data;
+  const sUrl = `/sessions/${d.slug}`;
+  const sNumStr = String(d.number).padStart(2, '0');
+  const sLabel = `Session ${sNumStr}`;
+
+  searchIndex.push({
+    type: 'session',
+    title: `${sLabel}: ${d.title}`,
+    subtitle: d.subtitle,
+    url: sUrl,
+    tags: d.tags,
+  });
+
+  for (const obj of d.objectives || []) {
+    searchIndex.push({
+      type: 'objective',
+      title: obj.title,
+      subtitle: obj.description,
+      url: `${sUrl}#objectives`,
+      sessionTitle: sLabel,
+    });
+  }
+
+  for (const res of d.resources || []) {
+    searchIndex.push({
+      type: 'resource',
+      title: res.title,
+      subtitle: res.description,
+      url: res.url,
+      sessionTitle: sLabel,
+    });
+  }
+}
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <BaseHead
+    title={`ISOM 835 | Session ${data.number}: ${data.title}`}
+    description={data.subtitle}
+  />
+</head>
+<body>
+  <ProgressBar />
+  <NeuralBackground />
+  <Navbar brand={`ISOM 835 // SESSION ${numStr}`} links={sessionNavLinks} />
+  <MobileMenu links={[...siteLinks, ...sessionNavLinks]} />
+  <SearchDialog searchIndex={searchIndex} />
+
+  <SessionHero
+    number={data.number}
+    title={data.heroTitle || data.title}
+    subtitle={data.subtitle}
+    duration={data.duration}
+    icon={data.icon}
+  />
+
+  {data.objectives?.length > 0 && (
+    <section id="objectives" class="py-24 px-8 max-w-[1200px] mx-auto">
+      <SectionHeader number={numStr.slice(-2) === '01' ? '01' : '01'} label="Learning Objectives" title="What You'll Learn Today" description="By the end of tonight you'll have both the concept and the working code — every objective maps to a cell you run yourself." />
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {data.objectives.map((obj: any, i: number) => (
+          <ObjectiveCard number={i + 1} title={obj.title} description={obj.description} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  {data.agenda?.length > 0 && (
+    <section id="agenda" class="py-24 px-8 max-w-[1200px] mx-auto">
+      <SectionHeader number="02" label="Session Agenda" title="Today's Journey" description="A business question, a dataset, a model — and the judgment to evaluate it." />
+      <Timeline>
+        {data.agenda.map((item: any) => (
+          <TimelineItem
+            time={item.time}
+            title={item.title}
+            duration={item.duration}
+            description={item.description}
+            bulletPoints={item.bulletPoints}
+            isBreak={item.isBreak}
+          />
+        ))}
+      </Timeline>
+    </section>
+  )}
+
+  {data.videos?.length > 0 && (
+    <section class="py-12 px-8 max-w-[1200px] mx-auto">
+      {data.videos.map((video: any) => (
+        <VideoEmbed
+          youtubeId={video.youtubeId}
+          title={video.title}
+          description={video.description}
+        />
+      ))}
+    </section>
+  )}
+
+  {data.resources?.length > 0 && (
+    <section id="resources" class="py-24 px-8 max-w-[1200px] mx-auto">
+      <SectionHeader number="03" label="Interactive Resources" title="Tools & Learning Materials" description="Notebooks, readings, explorers, and the stories behind the methods." />
+      <ResourceGrid>
+        {data.resources.map((res: any) => (
+          <ResourceCard
+            title={res.title}
+            url={res.url}
+            description={res.description}
+            icon={res.icon}
+            badge={res.badge}
+            badgeType={res.badgeType}
+            linkText={res.linkText}
+          />
+        ))}
+      </ResourceGrid>
+    </section>
+  )}
+
+  {data.activities?.length > 0 && (
+    <section id="activities" class="py-24 px-8 max-w-[1200px] mx-auto">
+      <SectionHeader number="04" label="Hands-On Activities" title="Learning by Doing" description="Open the notebook and build it with us." />
+      {data.activities.map((activity: any) => (
+        <ActivityCard
+          number={activity.number}
+          icon={activity.icon}
+          title={activity.title}
+          description={activity.description}
+        >
+          {activity.steps?.map((step: any, i: number) => (
+            <ActivityStep number={i + 1} title={step.title} description={step.description} />
+          ))}
+          {activity.codeBlock && (
+            <CodeBlock language={activity.codeBlock.language} code={activity.codeBlock.code} />
+          )}
+          {activity.discussionNote && (
+            <p class="text-text-secondary mt-4" set:html={activity.discussionNote} />
+          )}
+        </ActivityCard>
+      ))}
+    </section>
+  )}
+
+  {data.takeaways?.length > 0 && (
+    <section class="py-24 px-8 max-w-[1200px] mx-auto">
+      <SectionHeader number="05" label="Key Takeaways" title="What to Remember" />
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 fade-in">
+        {data.takeaways.map((item: any) => (
+          <TakeawayItem icon={item.icon} text={item.text} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  {data.homework?.length > 0 && (
+    <section id="homework" class="py-24 px-8 max-w-[1200px] mx-auto">
+      <SectionHeader number="06" label="Homework" title="Before Next Session" description="Complete these before next Monday — they are the practice that makes the next session land." />
+      <div class="grid gap-4 fade-in">
+        {data.homework.map((item: any) => (
+          <HomeworkItem label={item.label} text={item.text} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  {data.nextSession && (
+    <section class="py-12 px-8 max-w-[1200px] mx-auto">
+      <NextSessionPreview
+        title={data.nextSession.title}
+        description={data.nextSession.description}
+        tags={data.nextSession.tags}
+        slug={data.nextSession.slug}
+      />
+    </section>
+  )}
+
+  <Footer />
+  <PresenterToggle />
+
+  <script is:inline>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Fade-in observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

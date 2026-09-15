@@ -1,0 +1,52 @@
+---
+import ScrollIndicator from './ScrollIndicator.astro';
+import GradientText from './GradientText.astro';
+import Icon from './Icon.astro';
+import { sessionMeta, WEEKDAY, WEEKDAY_LONG } from '../data/schedule';
+
+interface Props {
+  number: number;
+  title: string;
+  subtitle: string;
+  duration: string;
+  icon?: string;
+}
+
+const { number, title, subtitle, duration, icon } = Astro.props;
+const meta = sessionMeta[number];
+---
+
+<section class="min-h-screen flex flex-col justify-center items-center text-center px-8 pt-24 pb-16 relative">
+  <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[4px] uppercase mb-6 px-6 py-2 border border-accent-cyan rounded-full animate-[fadeInUp_0.8s_ease_0.2s_both]">
+    Suffolk University &bull; Sawyer Business School
+  </div>
+  <h1 class="text-[clamp(2.5rem,8vw,5rem)] font-extrabold leading-[1.1] mb-6 animate-[fadeInUp_0.8s_ease_0.4s_both]">
+    <Fragment set:html={title} />
+  </h1>
+  <p class="text-[clamp(1.1rem,2.5vw,1.4rem)] text-text-secondary max-w-[600px] mb-10 animate-[fadeInUp_0.8s_ease_0.6s_both]">{subtitle}</p>
+  <div class="flex gap-12 flex-wrap justify-center animate-[fadeInUp_0.8s_ease_0.8s_both]">
+    <div class="flex items-center gap-3 text-text-muted text-[0.9rem]">
+      <Icon name="calendar" class="text-accent-purple w-5 h-5" />
+      <span>Session {number} of 13{meta ? ` · ${WEEKDAY} ${meta.date}` : ''}</span>
+    </div>
+    {meta && (
+      <div class="flex items-center gap-3 text-text-muted text-[0.9rem]">
+        <Icon name="layout" class="text-accent-purple w-5 h-5" />
+        <span>Module: {meta.module}</span>
+      </div>
+    )}
+    <div class="flex items-center gap-3 text-text-muted text-[0.9rem]">
+      <Icon name="clock" class="text-accent-purple w-5 h-5" />
+      <span>{duration}</span>
+    </div>
+    <div class="flex items-center gap-3 text-text-muted text-[0.9rem]">
+      <Icon name="users" class="text-accent-purple w-5 h-5" />
+      <span>{WEEKDAY_LONG}s 5:00 PM</span>
+    </div>
+    <div class="flex items-center gap-3 text-text-muted text-[0.9rem]">
+      <Icon name="zap" class="text-accent-purple w-5 h-5" />
+      <span>Hands-On Learning</span>
+    </div>
+  </div>
+  <ScrollIndicator />
+</section>

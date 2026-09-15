@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Threshold &amp; Profit Explorer · ISOM 835</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/explore/_shared.css">
+<style>
+  .lg-churn::before { color: var(--coral); } .lg-loyal::before { color: var(--teal); } .lg-thr::before { color: var(--amber); }
+  .lg-profit::before { color: var(--lime); } .lg-acc::before { color: var(--peri); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+  .num { width: 100%; background: var(--bg2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 8px; font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; }
+  .cm { display: grid; grid-template-columns: auto 1fr 1fr; gap: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; margin: 8px 0 4px; }
+  .cm div { padding: 6px 8px; border-radius: 8px; background: var(--bg2); text-align: center; }
+  .cm .h { background: transparent; color: var(--muted); }
+  .cm .tp { border: 1px solid rgba(126,231,135,0.4); } .cm .fn { border: 1px solid rgba(255,107,139,0.5); }
+  .cm .fp { border: 1px solid rgba(245,165,36,0.5); } .cm .tn { border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/sessions/session-06">← ISOM 835 · Session 6</a>
+  <div style="height:14px"></div>
+  <div class="kicker">Interactive · From Scores to Decisions</div>
+  <h1>The Threshold &amp; Profit <span class="grad">Explorer</span></h1>
+  <p class="sub">
+    2,000 customers, each with a churn score from a model. Churners (coral) tend to score high, loyal customers (teal) low — but the two overlap.
+    Drag the <b>threshold</b> and watch the confusion matrix, precision, recall, and <b>profit</b> move.
+    Then change what a mistake costs, and watch the best threshold walk away from 0.5.
+  </p>
+
+  <div class="presets" id="presets">
+    <button data-p="0.5,1.6,0.26,50,450,0">Default 0.5</button>
+    <button data-p="opt,1.6,0.26,50,450,0">Profit-optimal</button>
+    <button data-p="acc,1.6,0.26,50,450,0">Accuracy-optimal</button>
+    <button data-p="opt,1.6,0.26,10,450,0">Cheap offer ($10)</button>
+    <button data-p="opt,1.6,0.26,200,450,0">Expensive offer ($200)</button>
+    <button data-p="opt,1.6,0.26,50,450,300">Budget: top 300 only</button>
+    <button data-p="opt,0.6,0.26,50,450,0">Weak model (AUC ≈ 0.66)</button>
+    <button data-p="opt,2.6,0.26,50,450,0">Strong model (AUC ≈ 0.97)</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="kicker" style="margin-bottom:6px">Score distributions &amp; the threshold</div>
+        <canvas id="cv" width="820" height="300"></canvas>
+        <div class="legend"><span class="lg-churn">Churners</span><span class="lg-loyal">Loyal customers</span><span class="lg-thr">Threshold</span></div>
+        <div class="hoverbox" id="hoverbox">drag the threshold slider, or hover the chart</div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="kicker" style="margin-bottom:6px">Profit vs. threshold</div>
+          <canvas id="cv2" width="400" height="260"></canvas>
+          <div class="legend"><span class="lg-profit">Profit</span><span class="lg-acc">Accuracy (scaled)</span><span style="color:var(--amber)">◆ best profit</span></div>
+        </div>
+        <div class="panel">
+          <div class="kicker" style="margin-bottom:6px">ROC curve &amp; operating point</div>
+          <canvas id="cv3" width="400" height="260"></canvas>
+          <div class="legend"><span class="lg-loyal">ROC</span><span style="color:var(--amber)">● current threshold</span><span id="auc-lg" style="color:var(--muted)"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel controls">
+        <div class="row">
+          <label>Threshold <b id="v-thr">0.50</b></label>
+          <input type="range" id="thr" min="0.01" max="0.99" step="0.01" value="0.5">
+        </div>
+        <div class="row">
+          <label>Model quality (separation) <b id="v-sep">1.6</b></label>
+          <input type="range" id="sep" min="0.3" max="3.0" step="0.1" value="1.6">
+        </div>
+        <div class="row">
+          <label>Churn base rate <b id="v-base">26%</b></label>
+          <input type="range" id="base" min="0.05" max="0.50" step="0.01" value="0.26">
+        </div>
+        <div class="grid2">
+          <div class="row"><label>Offer cost ($)</label><input class="num" type="number" id="cost" value="50" min="0" step="5"></div>
+          <div class="row"><label>Value of a caught churner ($)</label><input class="num" type="number" id="save" value="450" min="0" step="10"></div>
+        </div>
+        <div class="row"><label>Contact budget (0 = unlimited) <b id="v-budget">unlimited</b></label><input type="range" id="budget" min="0" max="1000" step="25" value="0"></div>
+        <div class="btnrow"><button class="btn" id="resample">Resample customers</button><button class="btn primary" id="goopt">Jump to profit-optimal</button></div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="panel readout">
+        <div class="kicker" style="margin-bottom:6px">At this threshold</div>
+        <div class="big" id="ro-profit">—</div>
+        <div class="cm">
+          <div class="h"></div><div class="h">pred: churn</div><div class="h">pred: stay</div>
+          <div class="h">actual churn</div><div class="tp" id="c-tp">—</div><div class="fn" id="c-fn">—</div>
+          <div class="h">actual stay</div><div class="fp" id="c-fp">—</div><div class="tn" id="c-tn">—</div>
+        </div>
+        <div class="stat"><span>Contacted</span><b id="ro-n">—</b></div>
+        <div class="stat"><span>Precision</span><b id="ro-prec">—</b></div>
+        <div class="stat"><span>Recall</span><b id="ro-rec">—</b></div>
+        <div class="stat"><span>Accuracy</span><b id="ro-acc">—</b></div>
+        <div class="stat"><span>Break-even threshold (cost ÷ (cost + value))</span><b id="ro-be">—</b></div>
+        <div class="stat"><span>Profit-optimal threshold</span><b id="ro-opt">—</b></div>
+        <div class="stat"><span>Accuracy-optimal threshold</span><b id="ro-accopt">—</b></div>
+        <div id="ro-badges" style="margin-top:8px"></div>
+        <div class="note" id="ro-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sub" style="margin-top:26px">
+    <b>The arithmetic:</b> profit = value × (churners caught) − cost × (everyone contacted). Contacting a customer with churn probability p pays when
+    p × value &gt; cost, i.e. p &gt; cost ÷ (cost + value). With a $50 offer and a $450 save that is p &gt; 0.10 — nowhere near the 0.5 that <code>predict()</code> silently assumes.
+    AUC tells you how well the model <i>ranks</i>; it never tells you where to cut.
+  </p>
+</div>
+<script>
+// ---------- data ----------
+let seed = 835;
+function rng() { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }
+function gauss() { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const sigmoid = z => 1 / (1 + Math.exp(-z));
+const N = 2000;
+const state = { thr: 0.5, sep: 1.6, base: 0.26, cost: 50, save: 450, budget: 0, draw: 1 };
+let cust = [];           // {y, s} sorted by score desc
+function sample() {
+  seed = 835 + state.draw * 104729; cust = [];
+  for (let i = 0; i < N; i++) { const y = rng() < state.base ? 1 : 0; const z = (y ? state.sep / 2 : -state.sep / 2) + gauss() * 1.0 - 0.9; cust.push({ y, s: sigmoid(z) }); }
+  cust.sort((a, b) => b.s - a.s);
+}
+// confusion at threshold, with optional budget cap (contact top-k only, among those above threshold)
+function confusion(thr, budget) {
+  let tp = 0, fp = 0, fn = 0, tn = 0, k = 0;
+  for (const c of cust) {
+    const contact = c.s >= thr && (budget === 0 || k < budget);
+    if (contact) { k++; if (c.y) tp++; else fp++; } else { if (c.y) fn++; else tn++; }
+  }
+  return { tp, fp, fn, tn };
+}
+const profitOf = m => state.save * m.tp - state.cost * (m.tp + m.fp);
+function sweep() { const out = []; for (let t = 0.01; t <= 0.99; t += 0.01) { const m = confusion(t, state.budget); out.push({ t, p: profitOf(m), acc: (m.tp + m.tn) / N }); } return out; }
+function auc() { // rank-based
+  let pos = 0, neg = 0, sum = 0; for (const c of cust) if (c.y) pos++; else neg++;
+  let seenNeg = 0; for (let i = cust.length - 1; i >= 0; i--) { if (cust[i].y) sum += seenNeg; else seenNeg++; } return sum / (pos * neg);
+}
+function roc() { const pts = [[0, 0]]; let tp = 0, fp = 0, P = 0, Nn = 0; for (const c of cust) if (c.y) P++; else Nn++; for (const c of cust) { if (c.y) tp++; else fp++; pts.push([fp / Nn, tp / P]); } return pts; }
+
+// ---------- drawing ----------
+function hidpi(id, w, h) { const c = document.getElementById(id), dpr = Math.min(window.devicePixelRatio || 1, 2); c.width = w * dpr; c.height = h * dpr; const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); return { c, x, w, h }; }
+const A = hidpi('cv', 820, 300), B = hidpi('cv2', 400, 260), C = hidpi('cv3', 400, 260);
+const BINS = 40;
+function drawHist() {
+  const { x, w, h } = A; x.clearRect(0, 0, w, h);
+  const L = 40, R = 14, T = 14, Bt = 34, W = w - L - R, H = h - T - Bt;
+  const hc = new Array(BINS).fill(0), hl = new Array(BINS).fill(0);
+  for (const c of cust) { const b = Math.min(BINS - 1, Math.floor(c.s * BINS)); if (c.y) hc[b]++; else hl[b]++; }
+  const mx = Math.max(...hc, ...hl) * 1.08;
+  const bw = W / BINS;
+  for (let b = 0; b < BINS; b++) {
+    const xl = L + b * bw;
+    x.fillStyle = 'rgba(46,230,197,0.55)'; x.fillRect(xl + 1, T + H - hl[b] / mx * H, bw - 2, hl[b] / mx * H);
+    x.fillStyle = 'rgba(255,107,139,0.6)'; x.fillRect(xl + 1, T + H - hc[b] / mx * H, bw - 2, hc[b] / mx * H);
+  }
+  const tx = L + state.thr * W;
+  x.fillStyle = 'rgba(245,165,36,0.07)'; x.fillRect(tx, T, L + W - tx, H);
+  x.strokeStyle = '#f5a524'; x.lineWidth = 2; x.setLineDash([6, 4]); x.beginPath(); x.moveTo(tx, T); x.lineTo(tx, T + H); x.stroke(); x.setLineDash([]);
+  x.fillStyle = '#f5a524'; x.font = '11px IBM Plex Mono, monospace'; x.fillText('contact →', tx + 6, T + 12);
+  x.fillStyle = '#5f6a7d'; for (let i = 0; i <= 10; i++) x.fillText((i / 10).toFixed(1), L + i / 10 * W - 8, h - 12);
+  x.fillText('model score →', w - R - 90, h - 12);
+}
+function drawProfit(sw) {
+  const { x, w, h } = B; x.clearRect(0, 0, w, h);
+  const L = 44, R = 12, T = 12, Bt = 30, W = w - L - R, H = h - T - Bt;
+  const pmin = Math.min(0, ...sw.map(s => s.p)), pmax = Math.max(1, ...sw.map(s => s.p));
+  const qx = t => L + (t - 0.01) / 0.98 * W, qy = p => T + H - (p - pmin) / (pmax - pmin) * H;
+  x.strokeStyle = 'rgba(200,220,255,0.15)'; x.beginPath(); x.moveTo(L, qy(0)); x.lineTo(L + W, qy(0)); x.stroke();
+  x.strokeStyle = '#7c8cff'; x.lineWidth = 1.5; x.setLineDash([3, 3]); x.beginPath(); sw.forEach((s, i) => { const yy = T + H - s.acc * H; i ? x.lineTo(qx(s.t), yy) : x.moveTo(qx(s.t), yy); }); x.stroke(); x.setLineDash([]);
+  x.strokeStyle = '#7ee787'; x.lineWidth = 2.5; x.beginPath(); sw.forEach((s, i) => i ? x.lineTo(qx(s.t), qy(s.p)) : x.moveTo(qx(s.t), qy(s.p))); x.stroke();
+  const best = sw.reduce((a, s) => s.p > a.p ? s : a);
+  x.fillStyle = '#f5a524'; x.beginPath(); x.moveTo(qx(best.t), qy(best.p) - 7); x.lineTo(qx(best.t) + 6, qy(best.p)); x.lineTo(qx(best.t), qy(best.p) + 7); x.lineTo(qx(best.t) - 6, qy(best.p)); x.closePath(); x.fill();
+  const cur = sw.reduce((a, s) => Math.abs(s.t - state.thr) < Math.abs(a.t - state.thr) ? s : a);
+  x.strokeStyle = '#f5a524'; x.setLineDash([4, 4]); x.beginPath(); x.moveTo(qx(state.thr), T); x.lineTo(qx(state.thr), T + H); x.stroke(); x.setLineDash([]);
+  x.fillStyle = '#eef2f7'; x.beginPath(); x.arc(qx(cur.t), qy(cur.p), 4, 0, 7); x.fill();
+  x.fillStyle = '#5f6a7d'; x.font = '10px IBM Plex Mono, monospace';
+  x.fillText('$' + Math.round(pmax / 1000) + 'k', 4, T + 10); x.fillText('$0', 4, qy(0) + 3); for (let i = 0; i <= 4; i++) x.fillText((i / 4).toFixed(2), qx(0.01 + i / 4 * 0.98) - 10, h - 10);
+}
+function drawROC(pts, m) {
+  const { x, w, h } = C; x.clearRect(0, 0, w, h);
+  const L = 36, R = 12, T = 12, Bt = 30, W = w - L - R, H = h - T - Bt;
+  const qx = f => L + f * W, qy = t => T + H - t * H;
+  x.strokeStyle = 'rgba(200,220,255,0.15)'; x.setLineDash([4, 4]); x.beginPath(); x.moveTo(qx(0), qy(0)); x.lineTo(qx(1), qy(1)); x.stroke(); x.setLineDash([]);
+  x.strokeStyle = '#2ee6c5'; x.lineWidth = 2.5; x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(qx(p[0]), qy(p[1])) : x.moveTo(qx(p[0]), qy(p[1]))); x.stroke();
+  const fpr = m.fp / (m.fp + m.tn), tpr = m.tp / (m.tp + m.fn);
+  x.fillStyle = '#f5a524'; x.beginPath(); x.arc(qx(fpr), qy(tpr), 6, 0, 7); x.fill();
+  x.fillStyle = '#5f6a7d'; x.font = '10px IBM Plex Mono, monospace'; x.fillText('false-positive rate →', L + 4, h - 10); x.save(); x.translate(10, T + H / 2 + 30); x.rotate(-Math.PI / 2); x.fillText('recall →', 0, 0); x.restore();
+}
+
+// ---------- controls & readout ----------
+const $ = id => document.getElementById(id);
+const money = v => (v < 0 ? '−$' : '$') + Math.abs(Math.round(v)).toLocaleString();
+function update() {
+  const m = confusion(state.thr, state.budget), sw = sweep();
+  const best = sw.reduce((a, s) => s.p > a.p ? s : a), bestAcc = sw.reduce((a, s) => s.acc > a.acc ? s : a);
+  const n = m.tp + m.fp, prec = n ? m.tp / n : 0, rec = m.tp / (m.tp + m.fn), acc = (m.tp + m.tn) / N;
+  const be = state.cost / (state.cost + state.save);
+  $('ro-profit').textContent = money(profitOf(m)) + ' profit';
+  $('c-tp').textContent = m.tp + ' caught'; $('c-fn').textContent = m.fn + ' missed'; $('c-fp').textContent = m.fp + ' wasted offers'; $('c-tn').textContent = m.tn + ' left alone';
+  $('ro-n').textContent = n + ' of ' + N; $('ro-prec').textContent = (prec * 100).toFixed(1) + '%'; $('ro-rec').textContent = (rec * 100).toFixed(1) + '%'; $('ro-acc').textContent = (acc * 100).toFixed(1) + '%';
+  $('ro-be').textContent = be.toFixed(2); $('ro-opt').textContent = best.t.toFixed(2) + ' → ' + money(best.p); $('ro-accopt').textContent = bestAcc.t.toFixed(2) + ' → ' + money(bestAcc.p);
+  const a = auc(); $('auc-lg').textContent = 'AUC ' + a.toFixed(3);
+  const badges = [];
+  if (Math.abs(state.thr - best.t) <= 0.03) badges.push('<span class="badge good">PROFIT-OPTIMAL</span>');
+  else if (state.thr > best.t + 0.1) badges.push('<span class="badge bad">TOO STRICT · missing churners worth ' + money(best.p - profitOf(m)) + '</span>');
+  else if (state.thr < best.t - 0.1) badges.push('<span class="badge warn">TOO LOOSE · wasting offers worth ' + money(best.p - profitOf(m)) + '</span>');
+  if (state.budget > 0 && n >= state.budget) badges.push('<span class="badge dim">budget binding: top ' + state.budget + '</span>');
+  $('ro-badges').innerHTML = badges.join(' ');
+  let note;
+  if (state.thr >= 0.45 && state.thr <= 0.55 && best.t < 0.3) note = '<b>0.5 is not a decision, it is a default.</b> At 0.5 the model contacts only the obvious churners. Because a caught churner is worth ' + Math.round(state.save / state.cost) + '× the offer, it pays to contact anyone above ' + be.toFixed(2) + ' — the profit-optimal cutoff is ' + best.t.toFixed(2) + ', worth ' + money(best.p - profitOf(m)) + ' more on these 2,000 customers.';
+  else if (state.cost >= 150) note = '<b>An expensive offer raises the bar.</b> Now a wasted offer hurts, so the optimum moves up toward ' + best.t.toFixed(2) + ' and precision matters more than recall. Same model, different economics, different decision.';
+  else if (state.budget > 0) note = '<b>With a budget the question changes</b> from "who is above the line?" to "who are the best ' + state.budget + '?". Sort by score, contact from the top — that is a gain chart, and the threshold becomes whatever score the ' + state.budget + 'th customer has.';
+  else if (state.sep < 1.0) note = '<b>A weak model (AUC ≈ ' + a.toFixed(2) + ') still has a best threshold</b> — it is just worth less. Compare the profit peak here with the strong-model preset: better ranking is worth real money, but only if the threshold is set right.';
+  else note = '<b>Read the two curves:</b> accuracy (periwinkle) peaks near ' + bestAcc.t.toFixed(2) + '; profit (lime) peaks at ' + best.t.toFixed(2) + '. The business is paid in profit. Nobody is paid in accuracy.';
+  $('ro-note').innerHTML = note;
+  drawHist(); drawProfit(sw); drawROC(roc(), m);
+}
+function sync() { $('v-thr').textContent = state.thr.toFixed(2); $('v-sep').textContent = state.sep.toFixed(1); $('v-base').textContent = Math.round(state.base * 100) + '%'; $('v-budget').textContent = state.budget ? 'top ' + state.budget : 'unlimited'; $('thr').value = state.thr; $('sep').value = state.sep; $('base').value = state.base; $('cost').value = state.cost; $('save').value = state.save; $('budget').value = state.budget; }
+function clearActive() { document.querySelectorAll('#presets button').forEach(b => b.classList.remove('active')); }
+function bestThr(kind) { const sw = sweep(); return kind === 'acc' ? sw.reduce((a, s) => s.acc > a.acc ? s : a).t : sw.reduce((a, s) => s.p > a.p ? s : a).t; }
+$('thr').addEventListener('input', e => { state.thr = +e.target.value; clearActive(); sync(); update(); });
+$('sep').addEventListener('input', e => { state.sep = +e.target.value; clearActive(); sample(); sync(); update(); });
+$('base').addEventListener('input', e => { state.base = +e.target.value; clearActive(); sample(); sync(); update(); });
+$('cost').addEventListener('input', e => { state.cost = Math.max(0, +e.target.value || 0); clearActive(); update(); });
+$('save').addEventListener('input', e => { state.save = Math.max(0, +e.target.value || 0); clearActive(); update(); });
+$('budget').addEventListener('input', e => { state.budget = +e.target.value; clearActive(); sync(); update(); });
+$('resample').addEventListener('click', () => { state.draw++; sample(); update(); });
+$('goopt').addEventListener('click', () => { state.thr = bestThr('opt'); sync(); update(); });
+document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => {
+  const [t, sep, base, cost, save, budget] = b.dataset.p.split(',');
+  state.sep = +sep; state.base = +base; state.cost = +cost; state.save = +save; state.budget = +budget; sample();
+  state.thr = t === 'opt' ? bestThr('opt') : t === 'acc' ? bestThr('acc') : +t;
+  clearActive(); b.classList.add('active'); sync(); update();
+}));
+A.c.addEventListener('mousemove', e => { const r = A.c.getBoundingClientRect(); const s = Math.max(0, Math.min(1, ((e.clientX - r.left) / r.width * A.w - 40) / (A.w - 54)));
+  let above = 0, ch = 0; for (const c of cust) if (c.s >= s) { above++; if (c.y) ch++; } $('hoverbox').textContent = 'score ≥ ' + s.toFixed(2) + ': ' + above + ' customers, ' + ch + ' churners (' + (above ? (ch / above * 100).toFixed(0) : 0) + '% precision if you cut here)'; });
+sample(); sync(); update();
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  url: string;
+  description: string;
+  icon: string;
+  badge?: string;
+  badgeType?: 'interactive' | 'video' | 'tool' | 'reference' | 'code';
+  linkText?: string;
+}
+
+const { title, url, description, icon, badge, badgeType = 'interactive', linkText = 'Explore now' } = Astro.props;
+
+const badgeColorMap: Record<string, string> = {
+  interactive: 'text-accent-cyan',
+  video: 'text-accent-magenta',
+  tool: 'text-accent-green',
+  reference: 'text-accent-orange',
+  code: 'text-accent-green',
+};
+
+const badgeColor = badgeColorMap[badgeType] || badgeColorMap.interactive;
+---
+
+<a href={url} target="_blank" rel="noopener" class="group block bg-bg-card border border-border-subtle rounded-2xl overflow-hidden transition-all duration-300 no-underline text-inherit hover:-translate-y-1.5 hover:border-accent-cyan/40 hover:shadow-[0_20px_60px_rgba(242,177,53,0.15)] fade-in">
+  <div class="h-[180px] bg-bg-tertiary flex items-center justify-center relative overflow-hidden">
+    {badge && (
+      <span class={`absolute top-4 right-4 px-3 py-1.5 bg-black/70 backdrop-blur-sm rounded-full text-[0.7rem] font-semibold uppercase tracking-wider ${badgeColor}`}>
+        {badge}
+      </span>
+    )}
+    <Icon name={icon} class="w-12 h-12 text-accent-purple transition-transform duration-300 group-hover:scale-110" />
+  </div>
+  <div class="p-6">
+    <h3 class="text-[1.15rem] font-semibold mb-2">{title}</h3>
+    <p class="text-text-secondary text-[0.9rem] mb-4">{description}</p>
+    <span class="inline-flex items-center gap-2 text-accent-cyan text-[0.85rem] font-medium">
+      {linkText} <Icon name="arrow-right" class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+    </span>
+  </div>
+</a>

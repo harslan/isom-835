@@ -1,0 +1,17 @@
+---
+interface Props {
+  number: number;
+  title: string;
+  description: string;
+}
+
+const { number, title, description } = Astro.props;
+const numStr = String(number).padStart(2, '0');
+---
+
+<div class="group bg-bg-card border border-border-subtle rounded-2xl p-8 transition-all duration-300 relative overflow-hidden hover:-translate-y-1 hover:border-accent-cyan/30 hover:shadow-[0_0_60px_rgba(242,177,53,0.15)] fade-in">
+  <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-accent-cyan to-accent-purple scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></div>
+  <div class="font-mono text-[2.5rem] font-bold bg-gradient-to-br from-accent-cyan to-accent-purple bg-clip-text text-transparent mb-4">{numStr}</div>
+  <h3 class="text-[1.1rem] font-semibold mb-3">{title}</h3>
+  <p class="text-text-secondary text-[0.9rem]">{description}</p>
+</div>

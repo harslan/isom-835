@@ -1,0 +1,242 @@
+{
+  "number": 11,
+  "slug": "session-11",
+  "title": "Forecasting: Time Series With ML & Foundation Models",
+  "subtitle": "Why random splits lie when time matters, lag and rolling features that turn forecasting into regression, classical baselines you must beat, and the zero-shot foundation models that changed the field in 2025",
+  "duration": "150 Minutes",
+  "icon": "activity",
+  "tags": [
+    "Time Series",
+    "Forecasting",
+    "Foundation Models"
+  ],
+  "objectives": [
+    {
+      "title": "Validate Forecasts Honestly",
+      "description": "TimeSeriesSplit and rolling-origin backtests: train on the past, test on the future, never the reverse. The 4%-offline-14%-live gap has one cause."
+    },
+    {
+      "title": "Turn Forecasting Into Regression",
+      "description": "Lags, rolling means, calendar features, holidays — then any regressor you already know. Gradient boosting on lag features is the workhorse of industrial demand forecasting."
+    },
+    {
+      "title": "Beat the Baselines First",
+      "description": "Seasonal naive, exponential smoothing, AutoARIMA via StatsForecast. If your model can't beat 'same hour last week,' it isn't a model."
+    },
+    {
+      "title": "Use a Foundation Model Zero-Shot",
+      "description": "Chronos-2 and TimesFM forecast a series they have never seen, with no training. When they win, when they don't, and how to use one as the instant baseline."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "The Split That Sees the Future",
+      "duration": "20 minutes",
+      "description": "Meet the data: 17,379 hours of bike rentals in Washington DC, 2011–2012, with weather and calendar. A random train/test split gives MAPE in the single digits. A time-ordered split gives triple that. The first was interpolation; only the second is forecasting.",
+      "bulletPoints": [
+        "Frame it: unit = one hour, target = rentals, horizon = 24 hours ahead, decision = how many bikes to stage where",
+        "TimeSeriesSplit: expanding training window, test always later than train"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:40 PM",
+      "title": "Baselines You Must Beat",
+      "duration": "20 minutes",
+      "description": "Naive (last value), seasonal naive (same hour last week), and a moving average. On the bike data seasonal naive lands at MAE ≈ 60 rides per hour. Everything we build tonight is judged against that number.",
+      "bulletPoints": [
+        "Seasonal naive is embarrassingly hard to beat on strongly periodic data — which is most business data",
+        "Report MAE and RMSE; report MAPE only if the series never approaches zero (bikes at 4 AM do)"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:40 PM - 6:05 PM",
+      "title": "Classical Models With StatsForecast",
+      "duration": "25 minutes",
+      "description": "Exponential smoothing (AutoETS), AutoARIMA, and Theta from Nixtla's StatsForecast — fast, well-tested, and the right second baseline. Fit on the training window, forecast the horizon, backtest with cross_validation. Then the limits: one series at a time, no weather, no holidays.",
+      "bulletPoints": [
+        "StatsForecast fits AutoARIMA on thousands of series in seconds — the M5 benchmark stack",
+        "Classical models own the 'no features, short history' regime"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, guess tomorrow's 8 AM demand.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:45 PM",
+      "title": "Forecasting as Regression: Lags + Gradient Boosting",
+      "duration": "30 minutes",
+      "description": "Build features that were knowable at forecast time: rentals 24 hours ago, 168 hours ago, the 24-hour rolling mean, hour-of-day, day-of-week, holiday flag, and the weather forecast. Then HistGradientBoostingRegressor with TimeSeriesSplit. MAE drops well below the seasonal-naive baseline — and the model can use weather, which no classical model could.",
+      "bulletPoints": [
+        "Every lag must respect the horizon: forecasting 24 hours ahead means the smallest usable lag is 24",
+        "mlforecast automates lags, rolling windows, and recursive multi-step forecasts for thousands of series"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 7:15 PM",
+      "title": "Zero-Shot: Chronos-2 and TimesFM",
+      "duration": "30 minutes",
+      "description": "A transformer pretrained on billions of time points forecasts your series with no training at all. Chronos-2 (Amazon, Oct 2025) handles covariates and led the GIFT-Eval benchmark at release; TimesFM 2.5 (Google) is Apache-licensed. We run Chronos on the bike series and compare to the boosted model. The evidence: strong on periodic and trending series, weaker on erratic ones — and instant.",
+      "bulletPoints": [
+        "Foundation models are the new first baseline: run one before you engineer a single feature",
+        "Licensing matters again: TimesFM 3.0 and TabPFN-3 weights are non-commercial; Chronos-2 is Apache-2.0"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:15 PM - 7:30 PM",
+      "title": "Wrap-Up & Project Check-In",
+      "duration": "15 minutes",
+      "description": "The forecasting stack in 2026: seasonal naive → StatsForecast → lag features + GBM → a foundation model as the challenger, all validated with rolling-origin backtests. Project notebooks are due in 13 days.",
+      "bulletPoints": [
+        "HW5 Track B is tonight's notebook with your own feature ideas, due Dec 7",
+        "Next week: neural networks, text embeddings, and LLMs as feature generators"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 11 Notebook — Forecasting Bike Demand",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-11/ISOM835_Session11_Forecasting.ipynb",
+      "description": "Random vs. time-ordered splits, seasonal-naive and StatsForecast baselines, lag/rolling/calendar features with HistGradientBoostingRegressor and TimeSeriesSplit, MAE by hour of day, and an optional Chronos-2 zero-shot cell.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "Bike Sharing Dataset — UCI",
+      "url": "https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset",
+      "description": "Fanaee-T & Gama (2013): hourly and daily rental counts from Capital Bikeshare, 2011–2012, with weather and calendar variables. hour.csv is the file we use.",
+      "icon": "database",
+      "badge": "Data",
+      "badgeType": "reference",
+      "linkText": "Open the dataset page"
+    },
+    {
+      "title": "Hyndman & Athanasopoulos — Forecasting: Principles and Practice (3rd ed.)",
+      "url": "https://otexts.com/fpp3/",
+      "description": "The free, definitive forecasting textbook. Chapters 5 (toolbox: benchmarks, residuals, evaluation) and 13.6 (forecasting with ML) are tonight; it uses R, but the ideas are language-free.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read online (free)"
+    },
+    {
+      "title": "Nixtla — StatsForecast & mlforecast",
+      "url": "https://github.com/Nixtla/mlforecast",
+      "description": "StatsForecast for AutoARIMA/ETS/Theta at scale, mlforecast for lag features and gradient boosting across many series with recursive forecasting built in. The free industrial stack.",
+      "icon": "wrench",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the repo"
+    },
+    {
+      "title": "Chronos-2 — From Univariate to Universal Forecasting (Amazon, Oct 2025)",
+      "url": "https://arxiv.org/abs/2510.15821",
+      "description": "The foundation model that forecasts zero-shot with covariates and multivariate inputs, leading the GIFT-Eval and fev-bench leaderboards at release. Apache-2.0 weights on Hugging Face.",
+      "icon": "sparkles",
+      "badge": "Frontier",
+      "badgeType": "reference",
+      "linkText": "Read the paper"
+    },
+    {
+      "title": "Chronos on GitHub — Pretrained Models for Time Series",
+      "url": "https://github.com/amazon-science/chronos-forecasting",
+      "description": "pip install chronos-forecasting; three lines to a zero-shot forecast. The README's quick-start is the optional cell in tonight's notebook.",
+      "icon": "cpu",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the repo"
+    },
+    {
+      "title": "Story: How DoorDash Forecasts Holiday Demand With a Cascade of GBMs",
+      "url": "https://careersatdoordash.com/blog/how-doordash-improves-holiday-predictions-via-cascade-ml-approach/",
+      "description": "A 2025 engineering post on predicting the hardest days of the year: gradient-boosted models with holiday multipliers layered on top. Lag features, calendar effects, and business overrides in production.",
+      "icon": "award",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the post"
+    },
+    {
+      "title": "Kaggle — Store Sales: Time Series Forecasting (Favorita)",
+      "url": "https://www.kaggle.com/competitions/store-sales-time-series-forecasting",
+      "description": "A permanent competition on Ecuadorian grocery sales with promotions, oil prices, and holidays — the natural next dataset after bikes, and a strong final-project candidate.",
+      "icon": "trophy",
+      "badge": "Go Deeper",
+      "badgeType": "code",
+      "linkText": "Open the competition"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "activity",
+      "title": "Beat Seasonal Naive: 24-Hour-Ahead Bike Demand",
+      "description": "Forecast hourly rentals one day ahead. Build the seasonal-naive baseline, then lag, rolling, and calendar features for HistGradientBoostingRegressor, validate with TimeSeriesSplit, and report MAE against the baseline — overall and by hour of day.",
+      "steps": [
+        {
+          "title": "Order and split by time",
+          "description": "Sort by datetime. Last 8 weeks are the test set; TimeSeriesSplit(5) on the rest for tuning. Never shuffle."
+        },
+        {
+          "title": "Baseline",
+          "description": "Seasonal naive: predict the count from exactly 168 hours earlier. Compute MAE on the test weeks."
+        },
+        {
+          "title": "Features knowable at forecast time",
+          "description": "lag_24, lag_168, rolling mean of the previous 7 days ending 24 hours ago, hour, weekday, holiday, workingday, and the weather columns (treated as the forecast)."
+        },
+        {
+          "title": "Model and diagnose",
+          "description": "HistGradientBoostingRegressor with early stopping. MAE overall, then groupby hour — where does the model still miss? Plot a test week: actual vs. baseline vs. model."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import pandas as pd, numpy as np\nfrom sklearn.ensemble import HistGradientBoostingRegressor\nfrom sklearn.metrics import mean_absolute_error\n\nbike = pd.read_csv('hour.csv')                       # UCI Bike Sharing, hourly\nbike['ts'] = pd.to_datetime(bike['dteday']) + pd.to_timedelta(bike['hr'], unit='h')\nbike = bike.set_index('ts').asfreq('h')              # fill the missing hours\nbike['cnt'] = bike['cnt'].interpolate()\n\ny = bike['cnt']\nfeat = pd.DataFrame({\n    'lag_24': y.shift(24), 'lag_168': y.shift(168),\n    'roll_7d': y.shift(24).rolling(168).mean(),\n    'hour': bike.index.hour, 'dow': bike.index.dayofweek,\n    'holiday': bike['holiday'].ffill(), 'workingday': bike['workingday'].ffill(),\n    'temp': bike['temp'].interpolate(), 'hum': bike['hum'].interpolate(), 'weathersit': bike['weathersit'].ffill(),\n}).dropna()\ny = y.loc[feat.index]\n\ncut = feat.index.max() - pd.Timedelta(weeks=8)          # last 8 weeks = test\nX_tr, X_te, y_tr, y_te = feat[:cut], feat[cut:], y[:cut], y[cut:]\n\nprint(f'seasonal naive MAE: {mean_absolute_error(y_te, X_te[\"lag_168\"]):.1f} rides/hour')\ngbm = HistGradientBoostingRegressor(learning_rate=0.05, max_iter=2000, early_stopping=True, random_state=835).fit(X_tr, y_tr)\nprint(f'GBM MAE:            {mean_absolute_error(y_te, gbm.predict(X_te)):.1f} rides/hour  ({gbm.n_iter_} trees)')"
+      },
+      "discussionNote": "The boosted model beats seasonal naive by a wide margin — but look at the by-hour MAE: the biggest misses are the 8 AM and 5 PM commute peaks on days when the weather turned. That is the honest story for the operations team: <em>we are good on normal days and we know exactly which hours to over-stage bikes on bad-weather days.</em> Then run the optional Chronos cell: with zero features and zero training it lands between the baseline and the GBM. In 2026 that is where you start, not where you finish."
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "timer",
+      "text": "<strong>Time series must be validated in time order.</strong> A random split lets lag features see the future; TimeSeriesSplit and rolling-origin backtests are the only honest scoreboards."
+    },
+    {
+      "icon": "activity",
+      "text": "<strong>Forecasting is regression on features that were knowable at forecast time:</strong> lags that respect the horizon, rolling statistics, calendar, holidays, and forecast weather. Gradient boosting on those features is the industrial workhorse."
+    },
+    {
+      "icon": "sparkles",
+      "text": "<strong>Beat seasonal naive, then StatsForecast, then run a foundation model.</strong> Chronos-2 and TimesFM forecast zero-shot and are strong on periodic series — the new instant baseline, not yet the finish line."
+    }
+  ],
+  "homework": [
+    {
+      "label": "Homework #5, Track B + Project Milestone",
+      "text": "HW5 (either track) due Mon Dec 7. Track B: tonight's bike notebook extended with at least three feature ideas of your own (e.g., lag_48, a rolling max, a 'rain in the last 3 hours' flag), MAE by hour of day and by weather situation, one plotted test week, and a paragraph on the holiday failures and how DoorDash-style multipliers might fix them. Project milestone: by Mon Dec 7 every team should have a working end-to-end notebook on real or realistic data; office hours this week are for project debugging."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 12: Neural Networks, Embeddings & LLMs as Features",
+    "description": "A multilayer perceptron on tabular data (and why it usually loses to boosting), text as features — TF-IDF, sentence embeddings, and zero-shot LLM labels — and the AI-assisted analyst's workflow: generate, verify, own.",
+    "tags": [
+      "Neural Networks",
+      "Embeddings",
+      "LLMs"
+    ],
+    "slug": "session-12"
+  }
+}

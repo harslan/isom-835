@@ -1,0 +1,22 @@
+---
+import Icon from './Icon.astro';
+---
+
+<button id="presenter-btn" class="presenter-btn fixed bottom-8 right-8 px-6 py-4 bg-gradient-to-r from-accent-cyan to-accent-purple border-none rounded-full text-bg-primary font-sans font-semibold text-[0.9rem] cursor-pointer flex items-center gap-2 shadow-[0_10px_40px_rgba(242,177,53,0.3)] transition-all duration-300 z-[100] hover:-translate-y-0.5 hover:shadow-[0_15px_50px_rgba(242,177,53,0.4)] max-md:bottom-4 max-md:right-4 max-md:px-4 max-md:py-3 max-md:text-[0.8rem]">
+  <Icon name="presentation" class="w-5 h-5" />
+  <span>Presenter Mode</span>
+</button>
+
+<script is:inline>
+  (function() {
+    let presenterMode = false;
+    const btn = document.getElementById('presenter-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      presenterMode = !presenterMode;
+      document.body.style.fontSize = presenterMode ? '120%' : '';
+      const span = btn.querySelector('span');
+      if (span) span.textContent = presenterMode ? 'Exit Presenter' : 'Presenter Mode';
+    });
+  })();
+</script>

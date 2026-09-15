@@ -1,0 +1,146 @@
+---
+import PracticeLayout from '../../layouts/PracticeLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { domains, getDomainQuestions, questions } from '../../data/questions';
+
+const domainsWithCounts = domains.map((d) => ({
+  ...d,
+  questionIds: getDomainQuestions(d.id).map((q) => q.id),
+  count: getDomainQuestions(d.id).length,
+}));
+
+const totalCount = questions.length;
+---
+
+<PracticeLayout
+  title="Practice | ISOM 835 — Predictive Analytics Question Bank"
+  description="A practice environment for ISOM 835 students to sharpen predictive-modeling judgment — 36 exam-style questions with misconception-tagged answers."
+>
+  <!-- Hero / intro -->
+  <section class="max-w-[900px] mx-auto px-8 pt-20 pb-12">
+    <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">
+      ISOM 835 &middot; Practice Bank
+    </div>
+    <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight mb-6">
+      Practice the judgment, not the answer.
+    </h1>
+    <div class="prose-practice text-[1.125rem] text-text-secondary max-w-[700px]">
+      <p>
+        Every question in this bank is exam-style and business-first: framing a prediction, leak-proof features, reading regression output, turning classifier scores into decisions, trees and boosting, and the trust layer — cross-validation, SHAP, conformal intervals, fairness, and forecasting validation. The wrong answers aren't filler; each one is tagged with the specific <strong>misconception</strong> a smart analyst might hold.
+      </p>
+      <p>
+        Before you see the answer, you'll be asked to type your reasoning. That's the part that builds the judgment. Take your time — and keep a pencil handy for the numeric ones.
+      </p>
+    </div>
+  </section>
+
+  <!-- Quick actions -->
+  <section class="max-w-[900px] mx-auto px-8 pb-16">
+    <div class="flex flex-wrap gap-4">
+      <button
+        id="random-btn"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-accent-cyan to-accent-purple text-bg-primary rounded-full font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_40px_rgba(242,177,53,0.3)] cursor-pointer border-0"
+      >
+        <Icon name="sparkles" class="w-4 h-4" />
+        Random question
+      </button>
+      <button
+        id="overall-progress"
+        class="inline-flex items-center gap-2 px-6 py-3 text-text-muted text-sm cursor-default"
+        disabled
+      >
+        <span id="overall-text">{totalCount} questions &middot; loading progress…</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Domain tracks -->
+  <section class="max-w-[1100px] mx-auto px-8 pb-24">
+    <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">
+      Six domains
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {domainsWithCounts.map((d) => (
+        <a
+          href={`/practice/${d.id}`}
+          data-domain={d.id}
+          data-question-ids={d.questionIds.join(',')}
+          class="domain-card group block bg-bg-card border border-border-subtle rounded-2xl p-7 transition-all duration-300 no-underline text-inherit hover:-translate-y-1 hover:border-accent-cyan/30 hover:shadow-[0_0_60px_rgba(242,177,53,0.1)]"
+        >
+          <div class="flex items-start gap-4 mb-4">
+            <div class="font-mono text-2xl font-bold bg-gradient-to-br from-accent-cyan to-accent-purple bg-clip-text text-transparent shrink-0">
+              {d.number}
+            </div>
+            <Icon name={d.icon} class="w-5 h-5 text-accent-purple mt-1.5 shrink-0" />
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold mb-1 transition-colors duration-300 group-hover:text-accent-cyan">
+                {d.title}
+              </h3>
+            </div>
+          </div>
+          <p class="text-text-secondary text-sm mb-5 leading-relaxed">{d.description}</p>
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-mono text-text-muted">{d.count} questions</span>
+            <span class="domain-progress font-mono text-text-muted" data-default={`0 / ${d.count}`}>
+              0 / {d.count}
+            </span>
+          </div>
+          <div class="mt-3 h-1 rounded-full bg-bg-tertiary overflow-hidden">
+            <div class="domain-bar h-full bg-gradient-to-r from-accent-cyan to-accent-purple transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ totalCount }}>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Hydrate per-domain progress
+      const cards = document.querySelectorAll('.domain-card');
+      let totalAttempted = 0;
+      let totalCorrect = 0;
+      cards.forEach((card) => {
+        const ids = card.getAttribute('data-question-ids').split(',').filter(Boolean);
+        const stats = window.PracticeStore.domainStats(ids);
+        totalAttempted += stats.attempted;
+        totalCorrect += stats.correct;
+        const progressEl = card.querySelector('.domain-progress');
+        const barEl = card.querySelector('.domain-bar');
+        if (progressEl) {
+          progressEl.textContent = stats.attempted === 0
+            ? `${stats.total} unseen`
+            : `${stats.correct} / ${stats.total} correct`;
+        }
+        if (barEl) {
+          const pct = stats.total > 0 ? (stats.attempted / stats.total) * 100 : 0;
+          barEl.style.width = pct + '%';
+        }
+      });
+
+      // Overall summary
+      const overallText = document.getElementById('overall-text');
+      if (overallText) {
+        if (totalAttempted === 0) {
+          overallText.textContent = `${totalCount} questions · none attempted yet`;
+        } else {
+          overallText.textContent =
+            `${totalAttempted} / ${totalCount} attempted · ${totalCorrect} correct`;
+        }
+      }
+
+      // Random question button
+      const randomBtn = document.getElementById('random-btn');
+      if (randomBtn) {
+        randomBtn.addEventListener('click', () => {
+          const allIds = [];
+          cards.forEach((c) => {
+            allIds.push(...c.getAttribute('data-question-ids').split(',').filter(Boolean));
+          });
+          if (allIds.length === 0) return;
+          const pick = allIds[Math.floor(Math.random() * allIds.length)];
+          window.location.href = `/practice/q/${pick}`;
+        });
+      }
+    });
+  </script>
+</PracticeLayout>

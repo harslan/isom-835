@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SessionCard from '../../components/SessionCard.astro';
+import SessionGrid from '../../components/SessionGrid.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import GradientText from '../../components/GradientText.astro';
+import { getCollection } from 'astro:content';
+import { sessionMeta } from '../../data/schedule';
+
+const sessions = await getCollection('sessions');
+const sorted = sessions.sort((a, b) => a.data.number - b.data.number);
+
+const allTags = [...new Set(sorted.flatMap((s) => s.data.tags))];
+---
+
+<BaseLayout title="ISOM 835 | All Sessions">
+  <section class="py-24 px-8 max-w-[1200px] mx-auto">
+    <div class="text-center mb-16">
+      <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold mb-4">
+        Course <GradientText>Sessions</GradientText>
+      </h1>
+      <p class="text-text-secondary text-lg max-w-[600px] mx-auto mb-8">
+        13 Monday evenings taking you from your first churn model to gradient boosting, forecasting, and LLM-powered features.
+      </p>
+      <div id="tag-filters" class="flex gap-3 flex-wrap justify-center mb-12">
+        <button class="tag-filter active px-4 py-2 bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30 rounded-full text-sm font-medium cursor-pointer transition-all duration-300 hover:bg-accent-cyan/30" data-tag="all">All</button>
+        {allTags.map((tag) => (
+          <button class="tag-filter px-4 py-2 bg-bg-card text-text-secondary border border-border-subtle rounded-full text-sm font-medium cursor-pointer transition-all duration-300 hover:border-accent-cyan/30 hover:text-accent-cyan" data-tag={tag}>{tag}</button>
+        ))}
+      </div>
+    </div>
+    <SessionGrid>
+      {sorted.map((session) => (
+        <div class="session-card-wrapper fade-in" data-tags={JSON.stringify(session.data.tags)}>
+          <SessionCard
+            number={session.data.number}
+            slug={session.data.slug}
+            title={session.data.title}
+            subtitle={session.data.subtitle}
+            icon={session.data.icon}
+            tags={session.data.tags}
+            date={sessionMeta[session.data.number]?.date}
+            iso={sessionMeta[session.data.number]?.iso}
+          />
+        </div>
+      ))}
+    </SessionGrid>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.tag-filter');
+    const cards = document.querySelectorAll('.session-card-wrapper');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => {
+          b.classList.remove('active');
+          b.classList.remove('bg-accent-cyan/20', 'text-accent-cyan', 'border-accent-cyan/30');
+          b.classList.add('bg-bg-card', 'text-text-secondary', 'border-border-subtle');
+        });
+        btn.classList.add('active');
+        btn.classList.remove('bg-bg-card', 'text-text-secondary', 'border-border-subtle');
+        btn.classList.add('bg-accent-cyan/20', 'text-accent-cyan', 'border-accent-cyan/30');
+
+        const tag = btn.dataset.tag;
+        cards.forEach(card => {
+          if (tag === 'all') {
+            card.style.display = '';
+          } else {
+            const tags = JSON.parse(card.dataset.tags || '[]');
+            card.style.display = tags.includes(tag) ? '' : 'none';
+          }
+        });
+      });
+    });
+  });
+</script>

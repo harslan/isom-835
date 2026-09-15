@@ -1,0 +1,242 @@
+{
+  "number": 6,
+  "slug": "session-06",
+  "title": "From Scores to Decisions: Thresholds, Costs & Calibration",
+  "subtitle": "A model produces a probability; a business produces a decision. Expected value, profit curves, tuned thresholds, calibration, lift and gain — and the launch of the Midterm Model Competition",
+  "duration": "150 Minutes",
+  "icon": "coins",
+  "tags": [
+    "Decision Thresholds",
+    "Calibration",
+    "Competition Launch"
+  ],
+  "objectives": [
+    {
+      "title": "Price the Two Mistakes",
+      "description": "A retention offer costs $50; a lost customer costs $1,500. Put those numbers in a cost matrix and the 'right' threshold falls out of the arithmetic — and it is nowhere near 0.5."
+    },
+    {
+      "title": "Tune the Threshold, Not the Model",
+      "description": "Plot profit against every threshold, find the peak, and use scikit-learn's TunedThresholdClassifierCV to choose it by cross-validation with a business scorer — the same model, thousands of dollars better."
+    },
+    {
+      "title": "Check Calibration Before You Trust a Probability",
+      "description": "AUC says the ranking is good; a calibration curve says whether 0.8 means 80%. Boosted trees and forests often need CalibratedClassifierCV before their scores can enter a budget calculation."
+    },
+    {
+      "title": "Target Under a Budget",
+      "description": "When you can only contact 10%, the question is 'who are the best 700?', not 'who is above 0.5?'. Lift and gain charts answer it, and the top-k view is how marketing actually works."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "Who Chose 0.5?",
+      "duration": "20 minutes",
+      "description": "Back to Session 1's Telco model. predict() flagged 322 customers; 201 of them really churn. It missed 173. The 0.5 cutoff assumes both mistakes cost the same. They don't: an unneeded offer costs $50, a missed churner costs a $1,500 customer.",
+      "bulletPoints": [
+        "Expected value of contacting a customer with churn probability p: p × (value saved) − (1 − p) × (offer cost)",
+        "Break-even threshold with $450 saved (30% of $1,500) and a $50 offer: p = 50 / 500 = 0.10"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:40 PM",
+      "title": "The Profit Curve",
+      "duration": "20 minutes",
+      "description": "Sweep the threshold from 0 to 1, compute the confusion matrix at each, multiply by the cost matrix, plot total profit. The peak is the threshold. On Telco the profit-maximizing threshold sits near 0.2 and adds tens of thousands of dollars over 0.5 on the test set alone.",
+      "bulletPoints": [
+        "Accuracy peaks at one threshold, profit at another — and the business only pays for one of them",
+        "The Threshold & Profit Explorer: drag the cutoff and watch the profit curve move"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:40 PM - 6:05 PM",
+      "title": "TunedThresholdClassifierCV & Custom Scorers",
+      "duration": "25 minutes",
+      "description": "scikit-learn (≥ 1.5) wraps any classifier and tunes the cutoff by cross-validation against a scorer you write — including one that returns dollars. Write the business scorer with make_scorer, wrap the pipeline, and let CV pick the threshold that pays.",
+      "bulletPoints": [
+        "FixedThresholdClassifier when the business hands you the cutoff; TunedThresholdClassifierCV when you must find it",
+        "scikit-learn 1.9 adds metric_at_thresholds() to tabulate any metric across every cutoff in one call"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, finalize competition teams.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:45 PM",
+      "title": "Calibration: Does 0.8 Mean 80%?",
+      "duration": "30 minutes",
+      "description": "Bin customers by predicted probability and plot the actual churn rate per bin. Logistic regression tends to sit on the diagonal; random forests and boosting push scores toward the middle or the extremes. CalibratedClassifierCV (isotonic or sigmoid) repairs it — and it matters because every dollar in the profit curve was computed from those probabilities.",
+      "bulletPoints": [
+        "Brier score: the MSE of probabilities — one number for calibration plus sharpness",
+        "Calibrate on a held-out fold, never on the training data"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 7:15 PM",
+      "title": "Lift, Gain & Targeting Under a Budget — Then Uplift",
+      "duration": "30 minutes",
+      "description": "Sort customers by score, contact the top 10%: the gain chart shows what share of churners you reach, the lift chart shows how many times better than random. Then the honest caveat: a churn model finds people likely to leave, not people an offer will persuade. Uplift modeling (treatment vs. control) is the next course's problem — but you should know it exists.",
+      "bulletPoints": [
+        "Top decile on Telco captures roughly 27% of churners with a 5-feature logistic model — lift ≈ 2.7",
+        "Wayfair's 'persuadables': target the customers whose behavior changes because of the offer, not the ones who were leaving anyway"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:15 PM - 7:30 PM",
+      "title": "Midterm Model Competition — Launch",
+      "duration": "15 minutes",
+      "description": "Teams of 2–3. A hidden test set of hotel bookings; predict which reservations will be canceled. Kaggle community competition, public leaderboard on half the test set, private on the other half. Leaderboard closes Sun Nov 8, 11:59 PM; reveal and three-minute 'what worked' talks on Nov 9.",
+      "bulletPoints": [
+        "Graded 50% on private leaderboard band, 50% on a one-page modeling memo: what you tried, what worked, what leaked",
+        "Anything from the course is allowed; Session 7 (trees) and Session 8 (boosting) will help — but a clean pipeline helps more"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 6 Notebook — From Scores to Decisions",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-06/ISOM835_Session6_Scores_to_Decisions.ipynb",
+      "description": "The cost matrix, the profit curve, TunedThresholdClassifierCV with a dollar scorer, calibration curves and CalibratedClassifierCV, lift and gain charts, and top-k targeting under a budget — all on Telco.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "The Threshold & Profit Explorer",
+      "url": "/explore/threshold/",
+      "description": "Two overlapping score distributions, a draggable threshold, and a live profit curve. Set the offer cost, the value of a save, and a contact budget; watch the profit-optimal cutoff drift away from 0.5 and from the accuracy-optimal one.",
+      "icon": "zap",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the explorer"
+    },
+    {
+      "title": "scikit-learn User Guide — Tuning the Decision Threshold",
+      "url": "https://scikit-learn.org/stable/modules/classification_threshold.html",
+      "description": "TunedThresholdClassifierCV and FixedThresholdClassifier, with the cost-sensitive learning example that mirrors tonight's lab.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "scikit-learn User Guide — Probability Calibration",
+      "url": "https://scikit-learn.org/stable/modules/calibration.html",
+      "description": "Calibration curves, CalibratedClassifierCV, isotonic vs. sigmoid, and the famous figure showing which model families are naturally calibrated and which are not.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "Story: Stripe Radar — Fraud Decisions at 100ms",
+      "url": "https://stripe.com/radar",
+      "description": "Stripe reports its Radar models cut fraud by roughly a third for the average business. Every one of those decisions is a threshold on a probability, tuned against the cost of a blocked good customer versus a fraudulent charge — tonight's arithmetic at planetary scale.",
+      "icon": "shield",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read about Radar"
+    },
+    {
+      "title": "Story: Wayfair's Uplift Models — Targeting the Persuadables",
+      "url": "https://www.aboutwayfair.com/uplift-modeling-in-display-remarketing",
+      "description": "Why a churn score is not a targeting score: Wayfair explains the four customer types (persuadables, sure things, lost causes, sleeping dogs) and why you should only pay to reach the first.",
+      "icon": "award",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the explainer"
+    },
+    {
+      "title": "Kaggle — The ISOM 835 Midterm Model Competition",
+      "url": "https://www.kaggle.com/competitions",
+      "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, and read the data description before you write a line of code — the leakage traps are real.",
+      "icon": "trophy",
+      "badge": "Competition",
+      "badgeType": "tool",
+      "linkText": "Join via Canvas link"
+    },
+    {
+      "title": "Provost & Fawcett — Data Science for Business, Chapters 7–8",
+      "url": "https://www.oreilly.com/library/view/data-science-for/9781449374273/",
+      "description": "The expected-value framework, profit curves, lift and cumulative response charts — the chapters this session is built on. Not free, but the single best business treatment of tonight's ideas.",
+      "icon": "book-open",
+      "badge": "Go Deeper",
+      "badgeType": "reference",
+      "linkText": "See the book"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "coins",
+      "title": "The Same Model, a Better Threshold, More Profit",
+      "description": "Take the Session 1 Telco logistic regression. Price the mistakes — a $50 offer, a saved customer worth $450 in expectation — and let scikit-learn find the threshold that maximizes profit on cross-validated folds. Then compare the confusion matrix and the money at 0.5 versus the tuned cutoff.",
+      "steps": [
+        {
+          "title": "Write the business scorer",
+          "description": "profit(y_true, y_pred) = 450 × TP − 50 × (TP + FP). Wrap it with make_scorer so cross-validation can use it."
+        },
+        {
+          "title": "Tune the threshold by CV",
+          "description": "TunedThresholdClassifierCV(pipeline, scoring=profit_scorer, cv=5). Fit on the training set; read best_threshold_."
+        },
+        {
+          "title": "Compare on the test set",
+          "description": "Confusion matrix and total profit at 0.5 and at the tuned threshold. Note how many more churners you catch and what it costs in extra offers."
+        },
+        {
+          "title": "Check calibration",
+          "description": "CalibrationDisplay.from_estimator on the test set. If the curve bows away from the diagonal, wrap the model in CalibratedClassifierCV and redo step 2."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split, TunedThresholdClassifierCV\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import make_scorer, confusion_matrix\n\nurl = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/telco_churn.csv'\ndf = pd.read_csv(url)\nX = pd.get_dummies(df[['tenure', 'MonthlyCharges', 'Contract', 'InternetService', 'PaymentMethod']], drop_first=True)\ny = (df['Churn'] == 'Yes').astype(int)\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)\n\nOFFER, SAVE = 50, 450          # $50 per offer; a caught churner is worth $450 in expectation\ndef profit(y_true, y_pred):\n    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()\n    return SAVE * tp - OFFER * (tp + fp)\nprofit_scorer = make_scorer(profit)\n\nbase = LogisticRegression(max_iter=1000)\ntuned = TunedThresholdClassifierCV(base, scoring=profit_scorer, cv=5).fit(X_tr, y_tr)\nprint(f'Tuned threshold: {tuned.best_threshold_:.2f}')\n\nfor name, model in [('threshold 0.50', base.fit(X_tr, y_tr)), ('tuned', tuned)]:\n    pred = model.predict(X_te)\n    print(f'{name:15s} profit on test set: ${profit(y_te, pred):,}   matrix: {confusion_matrix(y_te, pred).tolist()}')"
+      },
+      "discussionNote": "The model did not change. Not one coefficient. What changed is that we finally wrote down what each mistake costs, and the arithmetic moved the cutoff from 0.5 to roughly 0.1. On 1,409 test customers that is worth tens of thousands of dollars; scaled to the full customer base it is the difference between a churn model that pays for itself and one that does not. <em>The threshold is a business decision, and it belongs in the memo, not buried in a default argument.</em>"
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "coins",
+      "text": "<strong>A model produces a score; a business produces a decision.</strong> Write down the cost of each mistake, and the break-even threshold is p* = cost of a false alarm ÷ (cost of a false alarm + value of a catch)."
+    },
+    {
+      "icon": "gauge",
+      "text": "<strong>AUC is ranking; calibration is meaning.</strong> Check the calibration curve before a probability enters any dollar calculation, and use CalibratedClassifierCV on a held-out fold when trees or boosting bow away from the diagonal."
+    },
+    {
+      "icon": "trophy",
+      "text": "Under a budget the question is <strong>'who are the best k?'</strong> — gain and lift charts answer it. And a churn score is not an uplift score: it finds who will leave, not who an offer will persuade."
+    }
+  ],
+  "homework": [
+    {
+      "label": "Homework #3 + Competition Kickoff",
+      "text": "HW3 (due Mon Nov 2): finish Part 2 of the credit-default assignment — with a missed default costing $1,000 and a wrongly declined good customer $150, find the expected-cost-minimizing threshold with TunedThresholdClassifierCV and a custom scorer, report the confusion matrix and total cost at that threshold versus 0.5, and include a calibration plot. Competition: form your team of 2–3 on Kaggle by Mon Nov 2 and make at least one submission (even the baseline) so we know your team is registered. Leaderboard closes Sun Nov 8, 11:59 PM."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 7: Decision Trees & Random Forests",
+    "description": "How a tree splits, why it overfits, and how bagging hundreds of decorrelated trees fixes it. Out-of-bag scores, permutation importance, and the first model that needs no scaling at all.",
+    "tags": [
+      "Decision Trees",
+      "Random Forests",
+      "Feature Importance"
+    ],
+    "slug": "session-07"
+  }
+}

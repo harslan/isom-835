@@ -1,0 +1,22 @@
+---
+import Icon from './Icon.astro';
+
+const highlights = [
+  { number: '13', label: 'Sessions', icon: 'book-open' },
+  { number: '8', label: 'Model Families, Hands-On', icon: 'code' },
+  { number: '12+', label: 'Real Business Datasets', icon: 'database' },
+  { number: '1', label: 'Model Competition', icon: 'award' },
+];
+---
+
+<section class="py-24 px-8 max-w-[1200px] mx-auto">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    {highlights.map((h) => (
+      <div class="bg-bg-card border border-border-subtle rounded-2xl p-8 text-center transition-all duration-300 hover:-translate-y-1 hover:border-accent-cyan/30 fade-in">
+        <Icon name={h.icon} class="w-8 h-8 text-accent-purple mx-auto mb-4" />
+        <div class="text-4xl font-extrabold bg-gradient-to-br from-accent-cyan to-accent-purple bg-clip-text text-transparent mb-2">{h.number}</div>
+        <div class="text-text-secondary text-sm">{h.label}</div>
+      </div>
+    ))}
+  </div>
+</section>

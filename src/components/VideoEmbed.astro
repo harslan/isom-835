@@ -1,0 +1,41 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  youtubeId: string;
+  title: string;
+  description?: string;
+}
+
+const { youtubeId, title, description } = Astro.props;
+---
+
+<div class="bg-bg-secondary rounded-3xl p-12 my-8 fade-in">
+  <div class="mb-8">
+    <div class="font-mono text-[0.8rem] text-accent-cyan tracking-[3px] mb-4">FEATURED VIDEO</div>
+    <h2 class="text-[clamp(2rem,5vw,3rem)] font-bold mb-4">{title}</h2>
+    {description && <p class="text-text-secondary text-lg max-w-[700px]">{description}</p>}
+  </div>
+  <div class="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl bg-bg-tertiary">
+    <div class="video-placeholder absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center cursor-pointer bg-gradient-to-br from-bg-tertiary to-bg-secondary" data-video-id={youtubeId}>
+      <Icon name="play-circle" class="w-20 h-20 text-accent-cyan mb-4 transition-transform duration-300 hover:scale-110" />
+      <span class="text-text-secondary text-[0.9rem]">Click to load video</span>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  document.addEventListener('click', (e) => {
+    const placeholder = e.target.closest('.video-placeholder');
+    if (!placeholder) return;
+    const videoId = placeholder.dataset.videoId;
+    const container = placeholder.parentElement;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
+    iframe.className = 'absolute top-0 left-0 w-full h-full border-none';
+    container.innerHTML = '';
+    container.appendChild(iframe);
+  });
+</script>

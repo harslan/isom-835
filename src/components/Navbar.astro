@@ -1,0 +1,50 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  brand?: string;
+  links?: { label: string; href: string; accent?: 'graduate' }[];
+}
+
+const { brand = 'ISOM 835', links = [] } = Astro.props;
+const currentPath = Astro.url.pathname;
+---
+
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-[1000] bg-bg-primary/85 backdrop-blur-xl border-b border-border-subtle transition-all duration-300">
+  <div class="max-w-[1400px] mx-auto px-8 py-4 flex justify-between items-center">
+    <a href="/" class="font-mono text-sm text-accent-cyan tracking-[2px] no-underline">{brand}</a>
+    <ul class="hidden md:flex gap-8 list-none">
+      {links.map((link) => {
+        const isActive = currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href));
+        const isGrad = link.accent === 'graduate';
+        return (
+          <li>
+            <a
+              href={link.href}
+              class:list={[
+                'no-underline text-[0.85rem] font-medium transition-colors duration-300 relative',
+                'after:content-[""] after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:transition-all after:duration-300 hover:after:w-full',
+                isGrad
+                  ? 'text-grad-violet/85 hover:text-grad-violet after:bg-grad-violet'
+                  : 'text-text-secondary hover:text-accent-cyan after:bg-gradient-to-r after:from-accent-cyan after:to-accent-purple',
+                isActive && (isGrad ? '!text-grad-violet after:!w-full' : '!text-accent-cyan after:!w-full'),
+              ]}
+            >
+              {link.label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+    <div class="flex items-center gap-3">
+      <button id="search-trigger" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-bg-card border border-border-subtle rounded-lg text-text-muted text-sm cursor-pointer transition-all duration-300 hover:border-accent-cyan/30 hover:text-text-secondary" aria-label="Search">
+        <Icon name="search" class="w-4 h-4" />
+        <span>Search</span>
+        <kbd class="ml-1 px-1.5 py-0.5 bg-bg-tertiary rounded text-[0.65rem] font-mono border border-border-subtle">⌘K</kbd>
+      </button>
+      <button id="mobile-menu-btn" class="md:hidden bg-transparent border-none text-text-secondary cursor-pointer p-1" aria-label="Open menu">
+        <Icon name="menu" class="w-6 h-6" />
+      </button>
+    </div>
+  </div>
+</nav>

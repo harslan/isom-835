@@ -1,0 +1,30 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  tags?: string[];
+  slug?: string;
+}
+
+const { title, description, tags = [], slug } = Astro.props;
+---
+
+<div class="bg-gradient-to-br from-accent-cyan/10 to-accent-green/10 border border-accent-green/30 rounded-[20px] p-10 my-8 fade-in">
+  <div class="inline-flex items-center gap-2 px-4 py-2 bg-accent-green/20 rounded-full text-[0.75rem] font-semibold text-accent-green uppercase tracking-wider mb-6">
+    <Icon name="arrow-right" class="w-4 h-4" />
+    Coming Next
+  </div>
+  <h3 class="text-2xl font-bold mb-4">
+    {slug ? <a href={`/sessions/${slug}`} class="text-inherit no-underline hover:text-accent-green transition-colors">{title}</a> : title}
+  </h3>
+  <p class="text-text-secondary mb-6">{description}</p>
+  {tags.length > 0 && (
+    <div class="flex gap-4 flex-wrap">
+      {tags.map((tag) => (
+        <span class="px-4 py-2 bg-accent-green/15 rounded-full text-[0.8rem] text-accent-green">{tag}</span>
+      ))}
+    </div>
+  )}
+</div>

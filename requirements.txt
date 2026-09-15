@@ -1,0 +1,24 @@
+# ISOM 835 — pinned stack for local work (Colab already has most of these).
+# Python 3.12 recommended.
+pandas>=2.2
+numpy>=2.0
+scikit-learn>=1.6
+matplotlib>=3.9
+seaborn>=0.13
+lightgbm>=4.5
+xgboost>=2.1
+catboost>=1.2
+optuna>=4.0
+shap>=0.46
+mapie>=1.0
+skrub>=0.4
+imbalanced-learn>=0.13
+statsforecast>=2.0
+mlforecast>=1.0
+tabicl>=0.1
+umap-learn>=0.5
+sentence-transformers>=3.0
+mlflow>=3.0
+gradio>=5.0
+evidently>=0.6
+jupyter

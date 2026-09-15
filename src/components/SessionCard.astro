@@ -1,0 +1,39 @@
+---
+import Icon from './Icon.astro';
+import { WEEKDAY } from '../data/schedule';
+
+interface Props {
+  number: number;
+  slug: string;
+  title: string;
+  subtitle: string;
+  icon: string;
+  tags?: string[];
+  date?: string;
+  iso?: string;
+}
+
+const { number, slug, title, subtitle, icon, tags = [], date, iso } = Astro.props;
+const numStr = String(number).padStart(2, '0');
+---
+
+<a href={`/sessions/${slug}`} data-session-iso={iso} class="session-card group block h-full bg-bg-card border border-border-subtle rounded-2xl p-8 transition-all duration-300 no-underline text-inherit hover:-translate-y-1 hover:border-accent-cyan/30 hover:shadow-[0_0_60px_rgba(242,177,53,0.15)]">
+  <div class="flex items-center gap-4 mb-4">
+    <div class="font-mono text-3xl font-bold bg-gradient-to-br from-accent-cyan to-accent-purple bg-clip-text text-transparent">{numStr}</div>
+    <Icon name={icon} class="w-6 h-6 text-accent-purple" />
+    {date && (
+      <span class="ml-auto font-mono text-[0.7rem] tracking-wide text-text-muted border border-border-subtle rounded-full px-3 py-1 whitespace-nowrap">
+        {WEEKDAY} · {date}
+      </span>
+    )}
+  </div>
+  <h3 class="text-lg font-semibold mb-2 transition-colors duration-300 group-hover:text-accent-cyan">{title}</h3>
+  <p class="text-text-secondary text-sm mb-4">{subtitle}</p>
+  {tags.length > 0 && (
+    <div class="flex gap-2 flex-wrap">
+      {tags.map((tag) => (
+        <span class="px-3 py-1 bg-accent-purple/10 rounded-full text-[0.7rem] text-accent-purple">{tag}</span>
+      ))}
+    </div>
+  )}
+</a>

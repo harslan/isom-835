@@ -1,0 +1,241 @@
+{
+  "number": 13,
+  "slug": "session-13",
+  "title": "Ship It — Deployment, Monitoring & Your Prediction Story",
+  "subtitle": "Persist the pipeline, track it, put a front end on it, watch it drift, know the rules — then the night the course was built for: your prediction stories, presented",
+  "duration": "150 Minutes",
+  "icon": "rocket",
+  "tags": [
+    "Deployment",
+    "Monitoring",
+    "Final Presentations"
+  ],
+  "objectives": [
+    {
+      "title": "Ship a Pipeline, Not a Model",
+      "description": "joblib.dump the whole fitted Pipeline — preprocessing and all — so scoring a new customer is one line and the encoder can't drift from the model."
+    },
+    {
+      "title": "Track, Serve, and Monitor",
+      "description": "MLflow to record every experiment, Gradio to give a model a face in ten lines, Evidently to detect when the data feeding the model no longer looks like the data that trained it."
+    },
+    {
+      "title": "Know the Rules of the Road",
+      "description": "The EU AI Act's risk tiers and AI-literacy duty, the deferred high-risk deadlines for credit and hiring, and the US state laws (Colorado, Jan 2027) requiring explanation and human review for consequential automated decisions."
+    },
+    {
+      "title": "Tell a Prediction Story",
+      "description": "Question, data, model, honest evaluation, decision with a number, trust story. Eight minutes, one narrative — the skill the whole semester was building toward."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:15 PM",
+      "title": "From Notebook to Production: Persist the Pipeline",
+      "duration": "15 minutes",
+      "description": "The Telco pipeline, fitted, saved with joblib, loaded in a fresh process, scoring a new customer from a dict. Version the file, record the scikit-learn version, and never save the model without its preprocessing.",
+      "bulletPoints": [
+        "A model file without its ColumnTransformer is a model that will silently mis-score the first unseen category",
+        "Reproducibility checklist: random_state, library versions, data snapshot, the exact training query"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:15 PM - 5:30 PM",
+      "title": "Track It With MLflow, Serve It With Gradio",
+      "duration": "15 minutes",
+      "description": "mlflow.start_run, log_params, log_metrics, log_model — the experiment log that replaces 'final_v3_REAL.ipynb'. Then gradio.Interface around predict_proba: a working web demo of the churn model from inside Colab in ten lines, shareable by link.",
+      "bulletPoints": [
+        "MLflow 3 tracks classical experiments and LLM traces in one UI",
+        "A Gradio demo is the fastest way to let a business owner poke at a model and find its failure modes"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:30 PM - 5:45 PM",
+      "title": "Monitor It: Drift, Decay, and the Rules",
+      "duration": "15 minutes",
+      "description": "Models rot. Evidently compares this month's input distributions to the training data and flags drift; label delay means you watch the inputs before you can watch the accuracy. Then one slide on the law: EU AI Act risk tiers and the AI-literacy duty in force since 2025, high-risk obligations for credit scoring and hiring now due Dec 2027, and Colorado's SB 26-189 rules for consequential decisions from Jan 2027.",
+      "bulletPoints": [
+        "Watch input drift weekly, outcome metrics when labels arrive, and set a retraining trigger before launch",
+        "If your model touches credit, hiring, insurance, or health, it is in scope somewhere: explanation, human review, and documentation are the direction of travel"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:45 PM - 6:45 PM",
+      "title": "Final Presentations, Block 1",
+      "duration": "60 minutes",
+      "description": "Six teams, eight minutes each plus two for questions. The question, the data, the model, the honest evaluation, the decision with a number, the trust story. The audience asks the executive's questions: why this prediction? how sure? what if it's wrong?",
+      "bulletPoints": [
+        "Timekeeper is strict at 8:00 — practice with a clock",
+        "Every listener writes one sentence per team: the number they remember"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 6:55 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, congratulate Block 1.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:55 PM - 7:20 PM",
+      "title": "Final Presentations, Block 2",
+      "duration": "25 minutes",
+      "description": "The remaining teams. Same format, same questions, same clock.",
+      "bulletPoints": [
+        "Notebooks and memos were due last night; presentations are graded on the story, not the slides",
+        "Listeners' one-sentence notes go in the box for the Signal Award vote"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:20 PM - 7:30 PM",
+      "title": "The Signal Award & Closing",
+      "duration": "10 minutes",
+      "description": "The class votes for the project that best found the signal: a real question, an honest model, a decision that changed because of it, and a number attached. Then the last word: you can now take any business question about the future, frame it, model it, evaluate it honestly, and turn it into a decision. That is the skill. Use it well.",
+      "bulletPoints": [
+        "Grades posted within a week; the course site stays up — the notebooks are yours",
+        "ISOM 839 (Prescriptive Analytics) picks up where the decision memo ends: from prediction to optimization"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 13 Notebook — Ship It",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-13/ISOM835_Session13_Ship_It.ipynb",
+      "description": "joblib persistence and reload, a ten-line MLflow run, a Gradio demo of the churn pipeline, an Evidently drift report on a shifted sample, and the launch checklist.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "Final Project Brief — Your Prediction Story",
+      "url": "/project",
+      "description": "The five beats, the deliverables, the memo structure, the rubric, and the FAQ. Re-read the rubric before you finalize your slides.",
+      "icon": "file-text",
+      "badge": "Project",
+      "badgeType": "reference",
+      "linkText": "Open the brief"
+    },
+    {
+      "title": "scikit-learn User Guide — Model Persistence",
+      "url": "https://scikit-learn.org/stable/model_persistence.html",
+      "description": "joblib vs. pickle vs. skops vs. ONNX, the security caveats, and why you record the scikit-learn version alongside the file.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the guide"
+    },
+    {
+      "title": "MLflow — Tracking Quickstart",
+      "url": "https://mlflow.org/docs/latest/ml/tracking/quickstart/",
+      "description": "Log parameters, metrics, and a model in one run; compare runs in the UI. The experiment log that replaces file names ending in _final_v3.",
+      "icon": "wrench",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the quickstart"
+    },
+    {
+      "title": "Gradio — Quickstart",
+      "url": "https://www.gradio.app/guides/quickstart",
+      "description": "gr.Interface(fn, inputs, outputs).launch(share=True) — a shareable web demo of any Python function, from Colab, in a minute.",
+      "icon": "wrench",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the quickstart"
+    },
+    {
+      "title": "Evidently — Data Drift Reports",
+      "url": "https://docs.evidentlyai.com/",
+      "description": "Open-source monitoring: compare a reference dataset to current data, get per-column drift tests and a shareable HTML report. The first thing to schedule after launch.",
+      "icon": "radar",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the docs"
+    },
+    {
+      "title": "EU AI Act — Omnibus Changes and Deferred High-Risk Deadlines (2026)",
+      "url": "https://www.gibsondunn.com/eu-ai-act-omnibus-agreement-postponed-high-risk-deadlines-and-other-key-changes/",
+      "description": "A law-firm summary of where the AI Act stands after the 2026 Digital Omnibus: the AI-literacy duty already in force, transparency duties from Aug 2026, and Annex III high-risk obligations (credit scoring, hiring, insurance) deferred to Dec 2, 2027.",
+      "icon": "scale",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the summary"
+    },
+    {
+      "title": "Colorado SB 26-189 — Automated Decisions in Consequential Settings",
+      "url": "https://leg.colorado.gov/bills/sb26-189",
+      "description": "Signed May 2026, effective Jan 1, 2027: disclosure, adverse-outcome explanation within 30 days, and human-review rights for automated decisions in employment and similar contexts. The shape of US regulation to come.",
+      "icon": "scale",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the bill page"
+    },
+    {
+      "title": "Story: What Booking.com Learned From 150 Production Models",
+      "url": "https://www.kdd.org/kdd2019/accepted-papers/view/150-successful-machine-learning-models-6-lessons-learned-at-booking.com",
+      "description": "Lesson one: model performance is not business performance. Lesson five: latency matters. The right last reading for a course that ends with a decision memo, not a leaderboard.",
+      "icon": "award",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the paper page"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "rocket",
+      "title": "Save It, Serve It, Watch It",
+      "description": "Take the Telco churn pipeline from Session 6 (with its tuned threshold). Persist it, reload it in a clean state, score a single new customer, wrap it in a Gradio demo, and run a drift report against a deliberately shifted sample.",
+      "steps": [
+        {
+          "title": "Persist the whole pipeline",
+          "description": "joblib.dump(model, 'churn_pipeline_v1.joblib'). Record sklearn.__version__ and the training date in a small JSON next to it."
+        },
+        {
+          "title": "Reload and score one customer",
+          "description": "In a fresh cell: load, build a one-row DataFrame from a dict, predict_proba. This is what the production service will do."
+        },
+        {
+          "title": "Give it a face",
+          "description": "gr.Interface with sliders for tenure and monthly charges and dropdowns for contract, internet service, payment method → churn probability and the recommended action at the tuned threshold."
+        },
+        {
+          "title": "Check for drift",
+          "description": "Shift the test set (e.g., tenure × 0.6, more month-to-month contracts) and run an Evidently DataDriftPreset report comparing it to the training data. Read which columns drifted."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import joblib, json, sklearn, pandas as pd\nimport gradio as gr\n\n# 1) persist the fitted Pipeline (preprocessing + model), plus metadata\njoblib.dump(model, 'churn_pipeline_v1.joblib')\njson.dump({'sklearn': sklearn.__version__, 'threshold': 0.12, 'trained': '2026-12-14'}, open('churn_pipeline_v1.json', 'w'))\n\n# 2) reload in a clean state and score one customer\npipe = joblib.load('churn_pipeline_v1.joblib')\nmeta = json.load(open('churn_pipeline_v1.json'))\ndef score(tenure, monthly, contract, internet, payment):\n    row = pd.DataFrame([{'tenure': tenure, 'MonthlyCharges': monthly, 'Contract': contract,\n                         'InternetService': internet, 'PaymentMethod': payment}])\n    p = float(pipe.predict_proba(row)[0, 1])\n    return f'{p:.1%} churn risk — ' + ('SEND RETENTION OFFER' if p >= meta['threshold'] else 'no action')\n\n# 3) a web demo in one call (share=True gives a public link from Colab)\ngr.Interface(score,\n    inputs=[gr.Slider(0, 72, 12, label='Tenure (months)'), gr.Slider(18, 120, 70, label='Monthly charges'),\n            gr.Dropdown(['Month-to-month', 'One year', 'Two year'], value='Month-to-month', label='Contract'),\n            gr.Dropdown(['DSL', 'Fiber optic', 'No'], value='Fiber optic', label='Internet'),\n            gr.Dropdown(['Electronic check', 'Mailed check', 'Bank transfer (automatic)', 'Credit card (automatic)'], value='Electronic check', label='Payment')],\n    outputs='text', title='Telco churn — ISOM 835').launch(share=True)"
+      },
+      "discussionNote": "Notice what the demo exposes in thirty seconds that a notebook never would: a business owner drags tenure to 70 months on a month-to-month contract and asks why the risk is still 20%. That question — <em>why?</em> — is Session 9's SHAP waterfall, and the honest answer might be 'the model has seen very few such customers,' which is Session 9's conformal set saying {both}. <em>Shipping is where the trust layer stops being theory.</em>"
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "rocket",
+      "text": "<strong>Ship the pipeline, not the model.</strong> Persist preprocessing and estimator together, record versions and thresholds, and score new rows exactly the way training rows were built."
+    },
+    {
+      "icon": "radar",
+      "text": "<strong>Models rot.</strong> Track experiments, monitor input drift before labels arrive, set a retraining trigger before launch — and know that credit, hiring, insurance, and health models now come with explanation and human-review obligations."
+    },
+    {
+      "icon": "sparkles",
+      "text": "You can now take <strong>any business question about the future</strong>, frame it, model it in Python, evaluate it honestly, and turn it into a decision with a number attached. That was the promise. Find the signal."
+    }
+  ],
+  "homework": [
+    {
+      "label": "After the Finale",
+      "text": "Nothing due. Grades post within a week. Keep the notebooks — every one of them is a template for a real project. If you want to keep going: ISOM 839 (Prescriptive Analytics) turns predictions into optimal decisions; the Kaggle Favorita and Home Credit competitions are excellent next problems; and the Inria scikit-learn MOOC and ISLP labs will deepen everything we did. Thank you for a wonderful semester."
+    }
+  ]
+}

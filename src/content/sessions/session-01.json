@@ -1,0 +1,251 @@
+{
+  "number": 1,
+  "slug": "session-01",
+  "title": "From Data to Decisions: Your First Predictive Model",
+  "subtitle": "What predictive analytics is, why every business question about the future is a prediction problem — and a churn model you build yourself before 7:30",
+  "duration": "150 Minutes",
+  "icon": "rocket",
+  "tags": [
+    "Introduction",
+    "The Prediction Lifecycle",
+    "scikit-learn"
+  ],
+  "objectives": [
+    {
+      "title": "Locate Prediction on the Analytics Map",
+      "description": "Descriptive tells you what happened. Predictive tells you what will happen next — and to whom. Prescriptive decides what to do about it. This course lives in the middle, and feeds the third."
+    },
+    {
+      "title": "Walk the Prediction Lifecycle",
+      "description": "Business question → data → features → model → evaluation → decision → monitoring. You'll learn the loop tonight and repeat it thirteen times, on thirteen datasets, until it's reflex."
+    },
+    {
+      "title": "Build a Churn Model in Twelve Lines",
+      "description": "The IBM Telco dataset: 7,043 customers, 20 columns, one question — who leaves next month? pandas to load, scikit-learn to fit, a held-out test set to keep you honest."
+    },
+    {
+      "title": "Discover Why Accuracy Lies",
+      "description": "A model that predicts 'nobody churns' is 73% accurate on this data. Yours must beat that — and you'll learn the first three questions to ask of any accuracy number."
+    }
+  ],
+  "agenda": [
+    {
+      "time": "5:00 PM - 5:20 PM",
+      "title": "Welcome & The Course Ahead",
+      "duration": "20 minutes",
+      "description": "Introductions, what predictive analytics is, and the semester arc: data and features, regression, classification and decisions, trees and gradient boosting, evaluation and trust, unsupervised learning, forecasting, neural networks and LLM features, and finally shipping a model.",
+      "bulletPoints": [
+        "Every session: a business question → a dataset → a model you build → an evaluation you can defend → a decision",
+        "Grading: labs 15% · homework 25% · midterm model competition 20% · final prediction story 40%"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:20 PM - 5:40 PM",
+      "title": "The Prediction Lifecycle",
+      "duration": "20 minutes",
+      "description": "From CRISP-DM to the modern ML loop. The step business people skip is framing: what exactly is being predicted, for whom, how far ahead, and what decision changes if the prediction is right?",
+      "bulletPoints": [
+        "Netflix, Capital One, and your local hospital all run the same seven-step loop — only the data changes",
+        "Prediction unit, horizon, and decision: write these three down before you touch a keyboard"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "5:40 PM - 6:05 PM",
+      "title": "Meet the Data: Telco Customer Churn",
+      "duration": "25 minutes",
+      "description": "7,043 customers of a telecom company. Tenure, contract type, monthly charges, internet service, tech support — and a Churn column that says whether they left last month. Ten minutes of pandas to know it before we model it.",
+      "bulletPoints": [
+        "26.5% of customers churned — that number is your first baseline",
+        "Month-to-month contracts churn at 43%; two-year contracts at 3%. The signal is already visible"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:05 PM - 6:15 PM",
+      "title": "Break",
+      "duration": "10 minutes",
+      "description": "Stretch, coffee, meet a future competition teammate.",
+      "bulletPoints": [],
+      "isBreak": true
+    },
+    {
+      "time": "6:15 PM - 6:45 PM",
+      "title": "Your First Model, Live",
+      "duration": "30 minutes",
+      "description": "Split the data, fit a logistic regression on a handful of features, predict on the customers the model has never seen. Twelve lines of Python, and a probability of churn for every customer.",
+      "bulletPoints": [
+        "train_test_split with stratify=y — the single most important line in the notebook",
+        "fit on train, predict on test, never the other way around: the discipline that separates analysts from fortune-tellers"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "6:45 PM - 7:15 PM",
+      "title": "Why Accuracy Lies",
+      "duration": "30 minutes",
+      "description": "Our model scores 79% accuracy. The 'nobody churns' model scores 73%. Is 80 good? We open the confusion matrix and discover the model catches only half of the churners — and that a retention offer costs $50 while a lost customer costs $1,500.",
+      "bulletPoints": [
+        "Three questions for any accuracy: compared with what baseline? on which data? at what cost per mistake?",
+        "Preview of Session 6: the same model, a different threshold, $200K more profit"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:15 PM - 7:30 PM",
+      "title": "Wrap-Up & Homework #0",
+      "duration": "15 minutes",
+      "description": "The pattern you'll use all semester: load → split → fit → predict → evaluate → decide. Homework #0 gets your tools ready: Colab, a Kaggle account for the midterm competition, and one prediction problem from your own work.",
+      "bulletPoints": [
+        "Next week: the data itself — joins, groupbys, missing values, and the leak that ruins models",
+        "Post your prediction problem on Canvas — it may become your final project"
+      ],
+      "isBreak": false
+    }
+  ],
+  "resources": [
+    {
+      "title": "Session 1 Notebook — Your First Predictive Model (Telco Churn)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-01/ISOM835_Session1_First_Predictive_Model.ipynb",
+      "description": "The notebook we build in class: load the Telco data, explore churn rates by contract, split, fit a logistic regression, and read the confusion matrix. Runs free in your browser — no installation.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "The Overfitting Explorer — Bias, Variance, and Noise",
+      "url": "/explore/",
+      "description": "Drag the model-complexity slider and watch training error fall while test error turns back up. Add noise, resample the data, and see why a model that fits everything predicts nothing.",
+      "icon": "zap",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the explorer"
+    },
+    {
+      "title": "Session 1 Slides — From Data to Decisions",
+      "url": "/session-01/slides.html",
+      "description": "The deck from class: the analytics map, the prediction lifecycle, the Telco data, the twelve-line model, and why accuracy lies. Arrow keys to navigate, F for fullscreen.",
+      "icon": "presentation",
+      "badge": "Slides",
+      "badgeType": "interactive",
+      "linkText": "Open slides"
+    },
+    {
+      "title": "Telco Customer Churn — the dataset",
+      "url": "https://github.com/harslan/isom-835/blob/master/public/data/telco_churn.csv",
+      "description": "IBM's sample telecom dataset: 7,043 customers, 20 features, 26.5% churn. Hosted in the course repository so every notebook can load it from a URL with no login.",
+      "icon": "database",
+      "badge": "Data",
+      "badgeType": "reference",
+      "linkText": "View the data"
+    },
+    {
+      "title": "ISLP, Chapter 2 — Statistical Learning",
+      "url": "https://www.statlearning.com/",
+      "description": "The free textbook chapter that defines the whole field in 40 pages: what we mean by 'learning', prediction versus inference, the bias–variance trade-off, and why a test set is not optional.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read Chapter 2 (free PDF)"
+    },
+    {
+      "title": "Géron, Hands-On ML (3rd ed.), Chapter 1 — The Machine Learning Landscape",
+      "url": "https://github.com/ageron/handson-ml3",
+      "description": "The best-selling practitioner's book, chapter 1: types of learning, the main challenges (bad data, overfitting, underfitting), and testing and validating. All notebooks are free on GitHub.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Open the notebooks"
+    },
+    {
+      "title": "Story: How Netflix Turned Prediction Into $1B a Year",
+      "url": "https://research.netflix.com/research-area/recommendations",
+      "description": "Netflix estimates its recommendation system saves over $1 billion a year in reduced churn. The whole business case for predictive analytics in one sentence — and the churn problem you just modeled, at scale.",
+      "icon": "award",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read the research page"
+    },
+    {
+      "title": "StatQuest — Machine Learning Fundamentals: Bias and Variance",
+      "url": "https://www.youtube.com/watch?v=EuBBz3bI-aA",
+      "description": "Seven minutes, one picture you will never forget. Watch before Session 2 if the overfitting explorer felt like magic.",
+      "icon": "video",
+      "badge": "Video",
+      "badgeType": "video",
+      "linkText": "Watch on YouTube"
+    },
+    {
+      "title": "Refresher: Introducing scikit-learn (ISOM 730 notebook)",
+      "url": "https://colab.research.google.com/drive/1qVNaTGH7vi7nRQgy5fGSK87ZEju4CIEy",
+      "description": "Prof. Arslan's earlier notebook on the scikit-learn estimator API — choose a model, set hyperparameters, arrange X and y, fit, predict. If tonight's twelve lines went fast, this is the slow version.",
+      "icon": "target",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    }
+  ],
+  "activities": [
+    {
+      "number": 1,
+      "icon": "code",
+      "title": "Your First Predictive Model: Who Churns Next Month?",
+      "description": "A telecom company has 7,043 customers and knows which ones left last month. Build a model that scores every customer's probability of leaving — then judge it honestly against the do-nothing baseline.",
+      "steps": [
+        {
+          "title": "Frame the prediction",
+          "description": "Unit: one customer. Target: Churn (Yes/No). Horizon: next month. Decision: who gets a retention offer. Write these four down at the top of the notebook — they're the contract with the business."
+        },
+        {
+          "title": "Look before you model",
+          "description": "Churn rate overall (26.5%), then by contract type, by tenure bucket, by internet service. If a chart shows no signal, no model will find it either."
+        },
+        {
+          "title": "Split, fit, predict",
+          "description": "Hold out 20% with stratify=y. Fit a logistic regression on tenure, monthly charges, and contract type. Predict probabilities for the held-out customers."
+        },
+        {
+          "title": "Judge it honestly",
+          "description": "Accuracy versus the 73% baseline, then the confusion matrix: how many churners did we catch, how many loyal customers did we bother? Sketch what a $50 offer and a $1,500 lost customer do to the answer."
+        }
+      ],
+      "codeBlock": {
+        "language": "python",
+        "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import accuracy_score, confusion_matrix\n\nurl = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/telco_churn.csv'\ndf = pd.read_csv(url)\n\nX = pd.get_dummies(df[['tenure', 'MonthlyCharges', 'Contract']], drop_first=True)\ny = (df['Churn'] == 'Yes').astype(int)\n\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, stratify=y, random_state=835)\n\nmodel = LogisticRegression(max_iter=1000).fit(X_train, y_train)\npred = model.predict(X_test)\n\nprint(f'Baseline (nobody churns): {1 - y_test.mean():.1%}')\nprint(f'Model accuracy:           {accuracy_score(y_test, pred):.1%}')\nprint(confusion_matrix(y_test, pred))"
+      },
+      "discussionNote": "Notice what the split gives you that a spreadsheet cannot: an <em>honest</em> score. The model never saw the 1,409 test customers, so its 79% is a forecast of how it will do on <em>next</em> month's customers — not a memory of last month's. And notice what accuracy hides: the bottom-left cell of that matrix is churners we missed, each one worth $1,500. Session 6 is about that cell."
+    }
+  ],
+  "takeaways": [
+    {
+      "icon": "target",
+      "text": "Predictive analytics sits between describing the past and prescribing the future: <strong>descriptive → predictive → prescriptive</strong>. A prediction is only valuable when a decision changes because of it."
+    },
+    {
+      "icon": "layout",
+      "text": "The loop is always the same: <strong>frame → data → features → model → evaluate → decide → monitor</strong>. The framing step (unit, target, horizon, decision) is the one business people skip and the one that matters most."
+    },
+    {
+      "icon": "zap",
+      "text": "<strong>Accuracy lies.</strong> Always ask: compared with what baseline, on which held-out data, and at what cost per mistake? A 'nobody churns' model is 73% accurate and worth nothing."
+    }
+  ],
+  "homework": [
+    {
+      "label": "Homework #0",
+      "text": "Three setup tasks, due before Session 2 (Mon Sep 21). (1) Open the Session 1 notebook in Colab, run every cell, then add three features of your choice to the model and report whether accuracy and the confusion matrix improved — one paragraph on Canvas. (2) Create a free Kaggle account (kaggle.com) with your suffolk.edu email and join the ISOM 835 community competition link posted on Canvas; you'll need it for the midterm competition in October. (3) Post one paragraph on the Canvas discussion board describing a prediction problem from your own work or life — the unit, the target, the horizon, and the decision it would change. It may become your final project."
+    }
+  ],
+  "nextSession": {
+    "title": "Session 2: Data Wrangling & EDA for Prediction",
+    "description": "Real data arrives in five tables, three date formats, and a thousand missing values. pandas joins, groupbys, and datetime features on the Olist e-commerce dataset — and how to spot the leak that makes a model look brilliant and ship useless.",
+    "tags": [
+      "pandas",
+      "EDA",
+      "Data Leakage"
+    ],
+    "slug": "session-02"
+  }
+}
