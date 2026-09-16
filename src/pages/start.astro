@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GradientText from '../components/GradientText.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Icon from '../components/Icon.astro';
+import { course } from '../data/course';
+import { sessionMeta, WEEKDAY_LONG, MEETING_TIME } from '../data/schedule';
+
+const setup = [
+  { icon: 'code', title: 'Google Colab', minutes: '2 min', text: 'Every session notebook opens in Colab from the session page with one click. Sign in with any Google account; nothing to install. Tip: File → Save a copy in Drive the first time you open a notebook, so your edits persist.', href: 'https://colab.research.google.com/', link: 'Open Colab' },
+  { icon: 'trophy', title: 'Kaggle account', minutes: '3 min', text: 'You need one for the Midterm Model Competition (launches Oct 26) and it is the best free source of project datasets. Use your suffolk.edu email so we can find your team.', href: 'https://www.kaggle.com/', link: 'Create an account' },
+  { icon: 'github', title: 'The course repository', minutes: '1 min', text: 'All notebooks, datasets, and this site live in one public GitHub repo. You never need to clone it — but star it, and read a notebook there when Colab is slow.', href: 'https://github.com/harslan/isom-835', link: 'Open the repo' },
+  { icon: 'bot', title: 'An AI assistant (optional, encouraged)', minutes: '5 min', text: 'Colab has a built-in Gemini assistant; Claude and ChatGPT work in a second tab. Use them the way professionals do — to draft, then verify the split, the leakage, the metric, and the baseline yourself. Disclose what you used.', href: '/sessions/session-12', link: 'How we teach this (Session 12)' },
+];
+
+const week = [
+  { when: 'Before class', time: '30–45 min', icon: 'book-open', items: ['Read the session page: objectives and agenda (5 min).', 'Do the reading — usually one ISLP or Géron chapter section, always free.', 'Open the notebook in Colab and run the first three cells so the data is loaded when you arrive.'] },
+  { when: 'In class', time: '150 min', icon: 'zap', items: ['A business question, a dataset, and a model you build alongside the instructor.', 'The Explorer for the week, on your phone or laptop, when a concept needs a picture.', 'A 10-minute break at 6:05. Coffee is downstairs.'] },
+  { when: 'After class', time: '60–90 min', icon: 'sparkles', items: ['Finish the three "Your turn" exercises at the end of the notebook.', 'Do the Practice questions for that domain — six questions, misconception-tagged.', 'Homework is due by the start of the next class on Canvas.'] },
+];
+
+const habits = [
+  { title: 'Frame it in four lines', text: 'Unit, target, horizon, decision. Write them at the top of every notebook and every memo. Session 1.' },
+  { title: 'Beat the baseline first', text: '"Predict the majority class" or "same hour last week" is the score to beat. If you cannot name the baseline, you cannot claim a win. Session 1, 11.' },
+  { title: 'Split before you fit anything', text: 'Scalers, imputers, encoders learn from data. Put them in a Pipeline fit on the training fold. Session 3.' },
+  { title: 'Ask what a mistake costs', text: 'A model gives a score; the business needs a decision. The threshold comes from the cost matrix, not from 0.5. Session 6.' },
+  { title: 'Earn trust three ways', text: 'Why (SHAP), how sure (calibration, conformal), where it fails (sliced error rates). Session 9.' },
+];
+
+const firstSessions = [1, 2, 3].map((n) => ({ n, ...sessionMeta[n] }));
+---
+
+<BaseLayout title="ISOM 835 | Start Here" description="Your first 30 minutes in ISOM 835: setup, how each week works, and the five habits that make a predictive model worth trusting.">
+  <section class="py-24 px-8 max-w-[1100px] mx-auto">
+    <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">Start here · your first 30 minutes</div>
+    <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold leading-tight mb-6">
+      Welcome to <GradientText>ISOM 835</GradientText>
+    </h1>
+    <p class="text-text-secondary text-xl max-w-[800px] mb-6 leading-relaxed">
+      This course teaches one skill, thirteen times: take a business question about the future, turn it into a model in Python, evaluate it honestly, and turn the prediction into a decision someone would act on. This page is everything you need before the first class.
+    </p>
+    <p class="font-mono text-[0.8rem] text-text-muted tracking-wide">
+      {WEEKDAY_LONG}s · {MEETING_TIME} · {course.instructor.name} · <a href={`mailto:${course.instructor.email}`} class="text-accent-cyan no-underline">{course.instructor.email}</a>
+    </p>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="01" label="Setup" title="Four things, eleven minutes" description="Nothing to install. Do these once, before Session 1 if you can, before Session 2 at the latest." />
+    <div class="grid md:grid-cols-2 gap-6">
+      {setup.map((s) => (
+        <div class="bg-bg-card border border-border-subtle rounded-2xl p-7 fade-in flex flex-col">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-cyan/20 to-accent-purple/20 flex items-center justify-center"><Icon name={s.icon} class="w-5 h-5 text-accent-cyan" /></div>
+            <div><div class="font-bold">{s.title}</div><div class="font-mono text-[0.68rem] text-text-muted tracking-wide">{s.minutes}</div></div>
+          </div>
+          <p class="text-text-secondary text-sm leading-relaxed mb-4 flex-1">{s.text}</p>
+          <a href={s.href} target={s.href.startsWith('http') ? '_blank' : undefined} rel="noopener" class="font-mono text-[0.78rem] text-accent-cyan no-underline hover:underline">{s.link} →</a>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="02" label="Rhythm" title="How every week works" description="The same shape, thirteen times. About three hours outside class per week; more in project weeks." />
+    <div class="grid md:grid-cols-3 gap-6">
+      {week.map((w) => (
+        <div class="bg-bg-card border border-border-subtle rounded-2xl p-7 fade-in">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2"><Icon name={w.icon} class="w-5 h-5 text-accent-purple" /><span class="font-bold">{w.when}</span></div>
+            <span class="font-mono text-[0.68rem] text-text-muted">{w.time}</span>
+          </div>
+          <ul class="space-y-3">
+            {w.items.map((it) => (<li class="flex gap-3 text-sm text-text-secondary leading-relaxed"><Icon name="check" class="w-4 h-4 text-accent-cyan shrink-0 mt-0.5" /><span>{it}</span></li>))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="03" label="The site" title="Six places you'll live" />
+    <div class="grid md:grid-cols-3 gap-4">
+      {[
+        { href: '/sessions', icon: 'calendar', title: 'Sessions', text: 'One page per Monday: objectives, agenda, the notebook, readings, homework.' },
+        { href: '/explorers', icon: 'zap', title: 'Explorers', text: 'Draggable versions of the big ideas. If you can predict what the picture does before you drag, you understand it.' },
+        { href: '/practice', icon: 'target', title: 'Practice', text: '36 exam-style questions. Every wrong answer names the misconception behind it.' },
+        { href: '/cheatsheet', icon: 'file-text', title: 'Cheat Sheet', text: 'The whole course on one page: templates, formulas, checklists. Print it.' },
+        { href: '/datasets', icon: 'database', title: 'Datasets', text: 'Every dataset we use, with a copy-paste loader that needs no login.' },
+        { href: '/project', icon: 'award', title: 'Project', text: 'Your Prediction Story: the brief, the rubric, the deadlines, the FAQ.' },
+      ].map((c) => (
+        <a href={c.href} class="flex gap-4 bg-bg-card border border-border-subtle rounded-xl p-6 transition-all duration-300 no-underline hover:border-accent-cyan/30 hover:translate-x-1 fade-in">
+          <div class="w-10 h-10 rounded-lg bg-bg-tertiary/50 flex items-center justify-center shrink-0"><Icon name={c.icon} class="w-5 h-5 text-accent-cyan" /></div>
+          <div><div class="font-semibold mb-1 text-text-primary">{c.title}</div><div class="text-sm text-text-secondary leading-relaxed">{c.text}</div></div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="04" label="Five habits" title="What separates a model that ships from one that merely runs" description="These come up in every session and every rubric. Learn them early and the rest of the course is details." />
+    <div class="grid gap-3">
+      {habits.map((h, i) => (
+        <div class="flex gap-5 items-start px-6 py-5 bg-bg-card border border-border-subtle rounded-xl fade-in">
+          <span class="font-mono text-accent-cyan font-bold text-xl w-8 shrink-0">{i + 1}</span>
+          <div><div class="font-semibold mb-1">{h.title}</div><div class="text-text-secondary text-sm leading-relaxed">{h.text}</div></div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="05" label="Refreshers" title="If Python or pandas feel rusty" description="Prof. Arslan's earlier ISOM 730 notebooks, hosted in this repo so they open in Colab with one click. Work through the first two before Session 2." />
+    <div class="grid md:grid-cols-2 gap-4">
+      {[
+        { f: 'm4_2_exploratory_data_analysis.ipynb', t: 'pandas & exploratory data analysis', d: 'Series, DataFrames, joins, groupby — the pandas you need for Session 2.' },
+        { f: 'm5_1_data_visualizations_with_python.ipynb', t: 'matplotlib & seaborn', d: 'Line, scatter, histogram, pair plots — the charts that decide which features to engineer.' },
+        { f: 'm5_2_introducing_scikit_learn_library.ipynb', t: 'Introducing scikit-learn', d: 'The estimator API: choose, configure, fit, predict. The slow version of Session 1\'s twelve lines.' },
+        { f: 'm5_3_model_validation_and_model_selection.ipynb', t: 'Model validation & selection', d: 'Holdout, cross-validation, bias–variance, grid search — the ideas behind Sessions 1, 4, and 9.' },
+        { f: 'm6_2_linear_regression.ipynb', t: 'Linear regression, ridge & lasso', d: 'Basis functions and regularization on a small example. Pairs with Session 4.' },
+        { f: 'm7_1_decision_trees_random_forests.ipynb', t: 'Decision trees & random forests', d: 'A tree on blobs, the overfitting picture, bagging. Pairs with Session 7.' },
+      ].map((r) => (
+        <a href={`https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/${r.f}`} target="_blank" rel="noopener" class="flex gap-4 bg-bg-card border border-border-subtle rounded-xl p-5 transition-all duration-300 no-underline hover:border-accent-cyan/30 hover:translate-x-1 fade-in">
+          <Icon name="code" class="w-5 h-5 text-accent-purple shrink-0 mt-0.5" />
+          <div><div class="font-semibold mb-1 text-text-primary">{r.t}</div><div class="text-sm text-text-secondary leading-relaxed">{r.d}</div><div class="font-mono text-[0.7rem] text-accent-cyan mt-2">Open in Colab →</div></div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="06" label="Your first three Mondays" title="Where to begin" />
+    <div class="grid md:grid-cols-3 gap-4">
+      {firstSessions.map((s) => (
+        <a href={`/sessions/session-${String(s.n).padStart(2, '0')}`} class="bg-bg-card border border-border-subtle rounded-xl p-6 no-underline transition-all duration-300 hover:border-accent-cyan/30 hover:-translate-y-0.5 fade-in">
+          <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Session {s.n} · Mon {s.date}</div>
+          <div class="font-semibold text-text-primary">{s.module}</div>
+          <div class="text-sm text-text-secondary mt-1">Open the session page →</div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-24 px-8 max-w-[900px] mx-auto">
+    <div class="bg-gradient-to-br from-accent-cyan/5 to-accent-purple/5 border border-border-subtle rounded-2xl p-10 text-center">
+      <Icon name="sparkles" class="w-12 h-12 text-accent-cyan mx-auto mb-6" />
+      <h2 class="text-2xl font-bold mb-4">One promise</h2>
+      <p class="text-text-secondary leading-relaxed max-w-[640px] mx-auto">
+        By December you will be able to take any business question about the future, frame it, build a model that answers it, evaluate it honestly, and hand a decision-maker a number they can act on — and explain every line of it without an AI standing next to you.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

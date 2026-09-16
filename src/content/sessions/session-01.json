@@ -179,8 +179,8 @@
     },
     {
       "title": "Refresher: Introducing scikit-learn (ISOM 730 notebook)",
-      "url": "https://colab.research.google.com/drive/1qVNaTGH7vi7nRQgy5fGSK87ZEju4CIEy",
-      "description": "Prof. Arslan's earlier notebook on the scikit-learn estimator API — choose a model, set hyperparameters, arrange X and y, fit, predict. If tonight's twelve lines went fast, this is the slow version.",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/m5_2_introducing_scikit_learn_library.ipynb",
+      "description": "Prof. Arslan's earlier notebook on the scikit-learn estimator API — choose a model, set hyperparameters, arrange X and y, fit, predict. If tonight's twelve lines went fast, this is the slow version. Hosted in the course repo — opens in Colab with one click.",
       "icon": "target",
       "badge": "Refresher",
       "badgeType": "code",
@@ -247,5 +247,12 @@
       "Data Leakage"
     ],
     "slug": "session-02"
-  }
+  },
+  "videos": [
+    {
+      "youtubeId": "EuBBz3bI-aA",
+      "title": "StatQuest — Bias and Variance",
+      "description": "Seven minutes, one picture you will never forget. The overfitting explorer, explained by the man with the ukulele."
+    }
+  ]
 }

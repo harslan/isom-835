@@ -17,7 +17,7 @@ const { number, slug, title, subtitle, icon, tags = [], date, iso } = Astro.prop
 const numStr = String(number).padStart(2, '0');
 ---
 
-<a href={`/sessions/${slug}`} data-session-iso={iso} class="session-card group block h-full bg-bg-card border border-border-subtle rounded-2xl p-8 transition-all duration-300 no-underline text-inherit hover:-translate-y-1 hover:border-accent-cyan/30 hover:shadow-[0_0_60px_rgba(242,177,53,0.15)]">
+<a href={`/sessions/${slug}`} data-session-iso={iso} class="session-card group block h-full bg-bg-card border border-border-subtle rounded-2xl p-8 transition-all duration-300 no-underline text-inherit hover:-translate-y-1 hover:border-accent-cyan/30 hover:shadow-[0_0_60px_rgba(46,230,197,0.15)]">
   <div class="flex items-center gap-4 mb-4">
     <div class="font-mono text-3xl font-bold bg-gradient-to-br from-accent-cyan to-accent-purple bg-clip-text text-transparent">{numStr}</div>
     <Icon name={icon} class="w-6 h-6 text-accent-purple" />

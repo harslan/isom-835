@@ -152,17 +152,17 @@
     },
     {
       "title": "StatQuest — Decision Trees & Random Forests",
-      "url": "https://statquest.org/video_index.html",
-      "description": "Search the index for 'Decision and Classification Trees' and 'Random Forests Part 1'. The Gini walk-through is the clearest on the internet.",
+      "url": "https://www.youtube.com/watch?v=_L39rN6gz7Y",
+      "description": "Search the index for 'Decision and Classification Trees' and 'Random Forests Part 1'. The Gini walk-through is the clearest on the internet. Also embedded on this page.",
       "icon": "video",
       "badge": "Video",
       "badgeType": "video",
-      "linkText": "Open the index"
+      "linkText": "Watch on YouTube"
     },
     {
       "title": "Refresher: Decision Trees & Random Forests (ISOM 730 notebook)",
-      "url": "https://colab.research.google.com/drive/13HdM6eZktrZlrbOTFJb6TOSktezPq2sd",
-      "description": "Prof. Arslan's earlier notebook: a tree on synthetic blobs, the overfitting picture, bagging with 100 trees, and random-forest regression. The intuition, at a gentler pace.",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/m7_1_decision_trees_random_forests.ipynb",
+      "description": "Prof. Arslan's earlier notebook: a tree on synthetic blobs, the overfitting picture, bagging with 100 trees, and random-forest regression. The intuition, at a gentler pace. Hosted in the course repo — opens in Colab with one click.",
       "icon": "target",
       "badge": "Refresher",
       "badgeType": "code",
@@ -229,5 +229,17 @@
       "Competition Reveal"
     ],
     "slug": "session-08"
-  }
+  },
+  "videos": [
+    {
+      "youtubeId": "_L39rN6gz7Y",
+      "title": "StatQuest — Decision and Classification Trees",
+      "description": "Gini impurity and greedy splits, one question at a time."
+    },
+    {
+      "youtubeId": "J4Wdy0Wc_xQ",
+      "title": "StatQuest — Random Forests, Part 1",
+      "description": "Bootstrap, feature sampling, out-of-bag: why hundreds of noisy trees beat one careful one."
+    }
+  ]
 }

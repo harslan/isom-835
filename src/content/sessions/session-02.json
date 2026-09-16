@@ -5,7 +5,11 @@
   "subtitle": "Real data arrives in eight tables, three date formats, and a thousand blanks. pandas joins, groupbys, and datetime features on Olist e-commerce — and how to spot the leak that makes a model look brilliant and ship useless",
   "duration": "150 Minutes",
   "icon": "table",
-  "tags": ["pandas", "EDA", "Data Leakage"],
+  "tags": [
+    "pandas",
+    "EDA",
+    "Data Leakage"
+  ],
   "objectives": [
     {
       "title": "Assemble a Modeling Table from Many",
@@ -166,8 +170,8 @@
     },
     {
       "title": "Refresher: Exploratory Data Analysis with pandas (ISOM 730 notebook)",
-      "url": "https://colab.research.google.com/drive/1fw1j5NDYhhmU95d8s7xiiEjHj8C9ObUA",
-      "description": "Prof. Arslan's earlier notebook on matplotlib and seaborn — histograms, pair plots, bar plots. If tonight's charts went fast, this is the slow version.",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/m5_1_data_visualizations_with_python.ipynb",
+      "description": "Prof. Arslan's earlier notebook on matplotlib and seaborn — histograms, pair plots, bar plots. If tonight's charts went fast, this is the slow version. Hosted in the course repo — opens in Colab with one click.",
       "icon": "chart-bar",
       "badge": "Refresher",
       "badgeType": "code",
@@ -181,10 +185,22 @@
       "title": "From Eight Tables to One Modeling Table",
       "description": "Build the Olist modeling table at the order grain: one row per order, total basket value, item count, customer state, purchase weekday and hour, and the target — delivered after the estimated date. Every merge is validated and counted.",
       "steps": [
-        { "title": "Know the grain", "description": "orders is one row per order; order_items is one row per item. Print both shapes and the number of unique order_id in each. That difference is the trap." },
-        { "title": "Aggregate the many side first", "description": "groupby('order_id') on items to get item_count and basket_value. Now items is one row per order and the join is safe." },
-        { "title": "Merge with validate", "description": "orders.merge(items_agg, on='order_id', how='left', validate='one_to_one'). Print the row count before and after. They must match." },
-        { "title": "Build the target and the time features", "description": "late = delivered_date > estimated_date. Then weekday, hour, and month from the purchase timestamp. Check the late rate overall and by customer state." }
+        {
+          "title": "Know the grain",
+          "description": "orders is one row per order; order_items is one row per item. Print both shapes and the number of unique order_id in each. That difference is the trap."
+        },
+        {
+          "title": "Aggregate the many side first",
+          "description": "groupby('order_id') on items to get item_count and basket_value. Now items is one row per order and the join is safe."
+        },
+        {
+          "title": "Merge with validate",
+          "description": "orders.merge(items_agg, on='order_id', how='left', validate='one_to_one'). Print the row count before and after. They must match."
+        },
+        {
+          "title": "Build the target and the time features",
+          "description": "late = delivered_date > estimated_date. Then weekday, hour, and month from the purchase timestamp. Check the late rate overall and by customer state."
+        }
       ],
       "codeBlock": {
         "language": "python",
@@ -198,17 +214,35 @@
       "title": "Reproduce the Leak: Bank Marketing and Call Duration",
       "description": "45,211 phone calls from a Portuguese bank's deposit campaign; 11.7% said yes. Fit the same logistic regression twice — once with call duration, once without — and watch a worthless feature produce a spectacular score.",
       "steps": [
-        { "title": "Fit without duration", "description": "Age, balance, job, prior-campaign outcome and the rest. Cross-validated AUC lands around 0.76." },
-        { "title": "Fit with duration", "description": "Add the length of the call. AUC jumps to about 0.91. A manager would be thrilled." },
-        { "title": "Apply the prediction-time test", "description": "When do we need the prediction? Before dialing, to choose whom to call. Is call duration known then? No. Delete it, and explain why the 0.91 was a lie." }
+        {
+          "title": "Fit without duration",
+          "description": "Age, balance, job, prior-campaign outcome and the rest. Cross-validated AUC lands around 0.76."
+        },
+        {
+          "title": "Fit with duration",
+          "description": "Add the length of the call. AUC jumps to about 0.91. A manager would be thrilled."
+        },
+        {
+          "title": "Apply the prediction-time test",
+          "description": "When do we need the prediction? Before dialing, to choose whom to call. Is call duration known then? No. Delete it, and explain why the 0.91 was a lie."
+        }
       ],
       "discussionNote": "The UCI documentation for this dataset says it outright: duration 'highly affects the output target' and 'should be discarded if the intention is to have a realistic predictive model.' Most datasets don't come with that warning. Your job is to write it yourself."
     }
   ],
   "takeaways": [
-    { "icon": "table", "text": "The deliverable of wrangling is a <strong>modeling table</strong>: one row per prediction unit, features known at prediction time, one target column. Get the grain right and everything downstream gets easier." },
-    { "icon": "git-branch", "text": "<strong>Joins lie silently.</strong> Aggregate the many side first, merge with validate=, and print the row count before and after. A model trained on tripled rows is a model trained on a different population." },
-    { "icon": "shield-alert", "text": "<strong>Leakage is the #1 way smart people build useless models.</strong> Freeze the clock at the moment of decision and delete every column the clock hasn't reached — call duration, refund amount, days late." }
+    {
+      "icon": "table",
+      "text": "The deliverable of wrangling is a <strong>modeling table</strong>: one row per prediction unit, features known at prediction time, one target column. Get the grain right and everything downstream gets easier."
+    },
+    {
+      "icon": "git-branch",
+      "text": "<strong>Joins lie silently.</strong> Aggregate the many side first, merge with validate=, and print the row count before and after. A model trained on tripled rows is a model trained on a different population."
+    },
+    {
+      "icon": "shield-alert",
+      "text": "<strong>Leakage is the #1 way smart people build useless models.</strong> Freeze the clock at the moment of decision and delete every column the clock hasn't reached — call duration, refund amount, days late."
+    }
   ],
   "homework": [
     {
@@ -219,7 +253,11 @@
   "nextSession": {
     "title": "Session 3: Feature Engineering & Leak-Proof Pipelines",
     "description": "Encoding, scaling, imputation and feature engineering as one scikit-learn Pipeline that fits on training data only — so leakage becomes structurally impossible. Plus skrub's TableVectorizer, the 2025 shortcut.",
-    "tags": ["Pipelines", "Encoding", "Feature Engineering"],
+    "tags": [
+      "Pipelines",
+      "Encoding",
+      "Feature Engineering"
+    ],
     "slug": "session-03"
   }
 }

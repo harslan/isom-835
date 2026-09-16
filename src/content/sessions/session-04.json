@@ -161,17 +161,17 @@
     },
     {
       "title": "StatQuest — Ridge, Lasso & Elastic Net Regression",
-      "url": "https://statquest.org/video_index.html",
-      "description": "Search the index for 'Ridge', 'Lasso', and 'Elastic Net' — three short videos that make the penalty geometry obvious.",
+      "url": "https://www.youtube.com/watch?v=Q81RR3yKn30",
+      "description": "Search the index for 'Ridge', 'Lasso', and 'Elastic Net' — three short videos that make the penalty geometry obvious. Also embedded on this page.",
       "icon": "video",
       "badge": "Video",
       "badgeType": "video",
-      "linkText": "Open the index"
+      "linkText": "Watch on YouTube"
     },
     {
       "title": "Refresher: Linear Regression, Basis Functions, Ridge & Lasso (ISOM 730 notebook)",
-      "url": "https://colab.research.google.com/drive/1D_mocQY0w41t0bsB0UYzpykDH_g5jn7W",
-      "description": "Prof. Arslan's earlier notebook: simple regression, polynomial basis functions, and the ridge/lasso intuition on a small example. The slow version of tonight's middle hour.",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/m6_2_linear_regression.ipynb",
+      "description": "Prof. Arslan's earlier notebook: simple regression, polynomial basis functions, and the ridge/lasso intuition on a small example. The slow version of tonight's middle hour. Hosted in the course repo — opens in Colab with one click.",
       "icon": "target",
       "badge": "Refresher",
       "badgeType": "code",
@@ -238,5 +238,17 @@
       "ROC & PR"
     ],
     "slug": "session-05"
-  }
+  },
+  "videos": [
+    {
+      "youtubeId": "Q81RR3yKn30",
+      "title": "StatQuest — Ridge (L2) Regression",
+      "description": "Why shrinking coefficients toward zero makes predictions better on new data."
+    },
+    {
+      "youtubeId": "NGf0voTMlcs",
+      "title": "StatQuest — Lasso (L1) Regression",
+      "description": "And why the L1 penalty switches features off entirely."
+    }
+  ]
 }

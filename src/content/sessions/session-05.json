@@ -161,17 +161,17 @@
     },
     {
       "title": "StatQuest — Logistic Regression & ROC/AUC, Clearly Explained",
-      "url": "https://statquest.org/video_index.html",
-      "description": "Search the index for 'Logistic Regression' and 'ROC and AUC'. The ROC video in particular is the best 16 minutes you can spend before next week.",
+      "url": "https://www.youtube.com/watch?v=yIYKR4sgzI8",
+      "description": "Search the index for 'Logistic Regression' and 'ROC and AUC'. The ROC video in particular is the best 16 minutes you can spend before next week. Also embedded on this page.",
       "icon": "video",
       "badge": "Video",
       "badgeType": "video",
-      "linkText": "Open the index"
+      "linkText": "Watch on YouTube"
     },
     {
       "title": "Refresher: Naive Bayes Classification (ISOM 730 notebook)",
-      "url": "https://colab.research.google.com/drive/1Ff6uFZ-HhZm1e78D7ueh_AlID7aZ-E4A",
-      "description": "Prof. Arslan's earlier notebook on Gaussian and multinomial Naive Bayes, including the text-classification example. Pairs with the SVM refresher if you want a fourth boundary shape.",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/m6_1_naive_bayes_classification.ipynb",
+      "description": "Prof. Arslan's earlier notebook on Gaussian and multinomial Naive Bayes, including the text-classification example. Pairs with the SVM refresher if you want a fourth boundary shape. Hosted in the course repo — opens in Colab with one click.",
       "icon": "target",
       "badge": "Refresher",
       "badgeType": "code",
@@ -238,5 +238,17 @@
       "Competition Launch"
     ],
     "slug": "session-06"
-  }
+  },
+  "videos": [
+    {
+      "youtubeId": "yIYKR4sgzI8",
+      "title": "StatQuest — Logistic Regression",
+      "description": "The sigmoid, log-odds, and why we fit a line in a different space."
+    },
+    {
+      "youtubeId": "4jRBRDbJemM",
+      "title": "StatQuest — ROC and AUC, Clearly Explained",
+      "description": "The best sixteen minutes you can spend before Session 6."
+    }
+  ]
 }

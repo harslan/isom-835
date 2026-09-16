@@ -1,0 +1,191 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GradientText from '../components/GradientText.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import Icon from '../components/Icon.astro';
+
+const pipelineCode = `from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)
+
+num = X.select_dtypes(include='number').columns
+cat = X.columns.difference(num)
+prep = ColumnTransformer([
+    ('num', Pipeline([('imp', SimpleImputer(strategy='median')), ('sc', StandardScaler())]), num),
+    ('cat', OneHotEncoder(handle_unknown='ignore'), cat),
+])
+model = Pipeline([('prep', prep), ('clf', ANY_ESTIMATOR)])
+
+cv = StratifiedKFold(5, shuffle=True, random_state=835)
+print(cross_val_score(model, X_tr, y_tr, cv=cv, scoring='roc_auc').mean())   # tune here
+model.fit(X_tr, y_tr)                                                          # then touch the test set once`;
+
+const thresholdCode = `from sklearn.model_selection import TunedThresholdClassifierCV
+from sklearn.metrics import make_scorer, confusion_matrix
+
+def profit(y_true, y_pred):                     # write the business scorer in dollars
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    return VALUE_OF_CATCH * tp - COST_OF_ACTION * (tp + fp)
+
+tuned = TunedThresholdClassifierCV(model, scoring=make_scorer(profit), cv=5).fit(X_tr, y_tr)
+print(tuned.best_threshold_)                    # break-even ≈ cost / (cost + value)`;
+
+const metricMenu = [
+  { task: 'Regression', metric: 'MAE', reads: 'typical miss, in units', use: 'operations, sales' },
+  { task: 'Regression', metric: 'RMSE', reads: 'typical miss, big misses count extra', use: 'risk, finance' },
+  { task: 'Regression', metric: 'MAPE', reads: 'typical miss as a %', use: 'executives — never near zero' },
+  { task: 'Regression', metric: 'R²', reads: 'share of variance explained vs. the mean', use: 'analysts' },
+  { task: 'Classification', metric: 'ROC-AUC', reads: 'ranking quality; P(positive scores above negative)', use: 'model comparison, balanced classes' },
+  { task: 'Classification', metric: 'PR-AUC', reads: 'precision across recall levels', use: 'rare positives (fraud, default)' },
+  { task: 'Classification', metric: 'Precision / Recall', reads: '"of those flagged…" / "of those who actually…"', use: 'at the chosen threshold' },
+  { task: 'Classification', metric: 'Brier / calibration curve', reads: 'does 0.8 mean 80%?', use: 'before any dollar calculation' },
+  { task: 'Forecasting', metric: 'MAE vs. seasonal naive', reads: 'gain over "same hour last week"', use: 'always report the baseline' },
+];
+
+const cvChooser = [
+  { when: 'Rows are independent, label is rare', use: 'StratifiedKFold' },
+  { when: 'The same customer / agent / patient appears many times', use: 'GroupKFold (or StratifiedGroupKFold)' },
+  { when: 'Time matters — tomorrow is predicted from yesterday', use: 'TimeSeriesSplit; test period after training' },
+  { when: 'Small dataset, honest final number needed', use: 'nested CV (tune inside, evaluate outside)' },
+  { when: 'Hyperparameter search budget', use: 'RandomizedSearchCV → Optuna; tune 2–3 knobs' },
+];
+
+const modelChooser = [
+  { situation: 'Need to explain every coefficient', pick: 'Logistic / linear regression (+ ridge or lasso)', session: 4 },
+  { situation: 'Tabular business data, any size', pick: 'HistGradientBoosting / LightGBM / XGBoost, early-stopped', session: 8 },
+  { situation: 'Tabular, < 50k rows, no time to tune', pick: 'TabICL or TabPFN (foundation model) as instant baseline', session: 8 },
+  { situation: 'Want a strong no-tuning ensemble fast', pick: 'RandomForest (300 trees, min_samples_leaf=5)', session: 7 },
+  { situation: 'Text column', pick: 'TF-IDF → logistic; or sentence embeddings → any model', session: 12 },
+  { situation: 'Time series', pick: 'seasonal naive → StatsForecast → lags + GBM → Chronos', session: 11 },
+  { situation: 'No labels', pick: 'k-means on scaled RFM; DBSCAN for shape; IsolationForest for anomalies', session: 10 },
+];
+
+const leakage = [
+  'Would I know this value at the moment I need the prediction?',
+  'Is it recorded after the outcome (call duration, reservation status, follow-up visits)?',
+  'Is it downstream of a decision the model will influence (offer sent, line reduced)?',
+  'Is it aggregated over a window that includes the future (lifetime average)?',
+  'Did any fitted transformer (scaler, imputer, encoder, selector) see the test rows?',
+  'Does the split match production — new customers (GroupKFold), later dates (TimeSeriesSplit)?',
+  'Did the score jump to near-perfect from one column? That is a leak, not a discovery.',
+];
+
+const trust = [
+  { q: 'Why did it say that?', a: 'SHAP waterfall (one case) and beeswarm (the book); partial dependence for the shape.' },
+  { q: 'How sure is it?', a: 'Calibration curve first; conformal prediction (MAPIE) for 90% sets or intervals that keep their promise.' },
+  { q: 'Is it fair?', a: 'False-negative and false-positive rates by group. Equal accuracy can hide unequal harm.' },
+  { q: 'What happens after launch?', a: 'Persist the pipeline + threshold; monitor input drift weekly; retrain trigger; model card with an owner.' },
+];
+---
+
+<BaseLayout title="ISOM 835 | Cheat Sheet" description="The whole course on one page: framing template, leakage test, pipeline template, metric menu, threshold formula, CV chooser, model chooser, and the trust checklist.">
+  <section class="py-24 px-8 max-w-[1100px] mx-auto">
+    <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">Reference · print it</div>
+    <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold leading-tight mb-6">The Course on <GradientText>One Page</GradientText></h1>
+    <p class="text-text-secondary text-xl max-w-[800px] leading-relaxed">
+      Every template, formula, and checklist from the thirteen sessions. Keep it open during homework; bring it to your project presentation. Each block names the session that teaches it.
+    </p>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="01" label="Frame it · Session 1" title="Four lines before the keyboard" />
+    <div class="grid md:grid-cols-4 gap-4 fade-in">
+      {[['Unit', 'One row = one what? A customer, an order, an hour, a house.'], ['Target', 'What exactly is predicted — a label (yes/no), a number, a count?'], ['Horizon', 'How far ahead, and at what moment is the prediction made?'], ['Decision', 'What changes if the prediction is right? Who owns that decision today?']].map(([t, d]) => (
+        <div class="bg-bg-card border border-border-subtle rounded-xl p-5"><div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">{t}</div><div class="text-sm text-text-secondary leading-relaxed">{d}</div></div>
+      ))}
+    </div>
+    <p class="text-text-muted text-sm mt-4">Then name the baseline: majority class, the mean, or same-period-last-time. Every model must beat it.</p>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="02" label="Leakage test · Sessions 2, 3, 9, 11" title="Seven questions before you trust a score" />
+    <div class="bg-bg-card border border-border-subtle rounded-2xl p-7 fade-in">
+      <ul class="space-y-3">
+        {leakage.map((l) => (<li class="flex gap-3 text-sm text-text-secondary leading-relaxed"><Icon name="shield-alert" class="w-4 h-4 text-accent-magenta shrink-0 mt-0.5" /><span>{l}</span></li>))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="03" label="The template · Session 3" title="The pipeline every project starts from" description="Split first. Everything that learns from data lives inside the Pipeline. Swap the last step; nothing else changes." />
+    <div class="fade-in"><CodeBlock language="python" code={pipelineCode} /></div>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="04" label="Metric menu · Sessions 4, 5, 11" title="Which number for whom" />
+    <div class="overflow-x-auto fade-in">
+      <table class="w-full text-sm border-collapse">
+        <thead><tr class="text-left font-mono text-[0.7rem] tracking-[2px] uppercase text-text-muted"><th class="py-3 pr-4">Task</th><th class="py-3 pr-4">Metric</th><th class="py-3 pr-4">Reads as</th><th class="py-3">Report to</th></tr></thead>
+        <tbody>
+          {metricMenu.map((m) => (<tr class="border-t border-border-subtle"><td class="py-3 pr-4 text-text-muted">{m.task}</td><td class="py-3 pr-4 font-semibold text-text-primary">{m.metric}</td><td class="py-3 pr-4 text-text-secondary">{m.reads}</td><td class="py-3 text-text-secondary">{m.use}</td></tr>))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="05" label="The confusion matrix · Session 5" title="Four cells, four business meanings" />
+    <div class="grid md:grid-cols-2 gap-6 fade-in">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse font-mono">
+          <tr><td class="p-3"></td><td class="p-3 text-text-muted text-center">predicted: yes</td><td class="p-3 text-text-muted text-center">predicted: no</td></tr>
+          <tr><td class="p-3 text-text-muted">actually yes</td><td class="p-3 text-center rounded-lg bg-accent-green/10 text-accent-green border border-accent-green/30">TP · caught</td><td class="p-3 text-center bg-accent-magenta/10 text-accent-magenta border border-accent-magenta/40">FN · missed (the expensive cell)</td></tr>
+          <tr><td class="p-3 text-text-muted">actually no</td><td class="p-3 text-center bg-accent-orange/10 text-accent-orange border border-accent-orange/40">FP · false alarm (wasted action)</td><td class="p-3 text-center bg-bg-tertiary/40 text-text-secondary border border-border-subtle">TN · left alone</td></tr>
+        </table>
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-2xl p-6 text-sm text-text-secondary leading-relaxed space-y-2">
+        <div><b class="text-text-primary">Precision</b> = TP / (TP + FP) — of those we flagged, how many were right?</div>
+        <div><b class="text-text-primary">Recall</b> = TP / (TP + FN) — of those who actually were, how many did we catch?</div>
+        <div><b class="text-text-primary">Accuracy</b> = (TP + TN) / N — averages both mistakes; hides which one you make.</div>
+        <div><b class="text-text-primary">F1</b> = harmonic mean of precision and recall — assumes both mistakes cost the same. They never do.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="06" label="From scores to decisions · Session 6" title="The threshold is a business decision" />
+    <div class="grid md:grid-cols-2 gap-6 fade-in">
+      <div class="bg-bg-card border border-border-subtle rounded-2xl p-6">
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-3">Break-even probability</div>
+        <div class="font-mono text-lg text-text-primary mb-3">p* = cost of action ÷ (cost of action + value of a catch)</div>
+        <p class="text-sm text-text-secondary leading-relaxed">A $50 offer and a $450 save → p* = 0.10. Act on anyone above it. With a contact budget, sort by score and take the top k instead (gain chart). Check calibration before the probabilities enter any dollar arithmetic; a churn score is not an uplift score.</p>
+      </div>
+      <CodeBlock language="python" code={thresholdCode} />
+    </div>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="07" label="Validation chooser · Session 9" title="Match the splitter to production" />
+    <div class="grid gap-3 fade-in">
+      {cvChooser.map((c) => (<div class="flex flex-wrap gap-4 items-center justify-between px-6 py-4 bg-bg-card border border-border-subtle rounded-xl"><span class="text-sm text-text-secondary">{c.when}</span><span class="font-mono text-[0.8rem] text-accent-cyan">{c.use}</span></div>))}
+    </div>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="08" label="Model chooser · Sessions 4–12" title="The 2026 default stack" />
+    <div class="grid gap-3 fade-in">
+      {modelChooser.map((m) => (<a href={`/sessions/session-${String(m.session).padStart(2, '0')}`} class="flex flex-wrap gap-4 items-center justify-between px-6 py-4 bg-bg-card border border-border-subtle rounded-xl no-underline transition-all hover:border-accent-cyan/30"><span class="text-sm text-text-secondary">{m.situation}</span><span class="text-sm font-semibold text-text-primary">{m.pick}</span><span class="font-mono text-[0.7rem] text-text-muted">S{m.session} →</span></a>))}
+    </div>
+    <p class="text-text-muted text-sm mt-4">Knobs that matter for boosting: learning rate × number of trees (with early stopping), then leaves / depth, then regularization. Trees need no scaling; distance and gradient models do.</p>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="09" label="Trust · Sessions 9, 13" title="The four questions an executive will ask" />
+    <div class="grid md:grid-cols-2 gap-4 fade-in">
+      {trust.map((t) => (<div class="bg-bg-card border border-border-subtle rounded-xl p-6"><div class="font-semibold text-text-primary mb-2">{t.q}</div><div class="text-sm text-text-secondary leading-relaxed">{t.a}</div></div>))}
+    </div>
+  </section>
+
+  <section class="py-10 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="10" label="The memo · Project" title="Five sections, one page each at most" />
+    <div class="grid md:grid-cols-5 gap-3 fade-in">
+      {['The question', 'The data & the model', 'The honest evaluation', 'The decision & the money', 'The trust story'].map((s, i) => (<div class="bg-bg-card border border-border-subtle rounded-xl p-5 text-center"><div class="font-mono text-accent-cyan text-xl font-bold mb-1">{i + 1}</div><div class="text-sm text-text-primary font-semibold">{s}</div></div>))}
+    </div>
+    <p class="text-text-muted text-sm mt-4 text-center">Full brief, rubric, and deadlines on the <a href="/project" class="text-accent-cyan no-underline">Project page</a>.</p>
+  </section>
+</BaseLayout>

@@ -80,6 +80,14 @@ exam-week slot). No written final exam.
 
 ---
 
+## 3b. Student-facing pages beyond sessions
+
+- `/start` — first 30 minutes: setup (Colab, Kaggle, repo, AI assistant), the weekly rhythm, the six places on the site, five habits, refresher notebooks, first three Mondays.
+- `/cheatsheet` — the course on one page: framing, leakage test, pipeline template, metric menu, confusion matrix, threshold formula, CV chooser, model chooser, trust questions, memo structure.
+- `/datasets` — every dataset with a no-login loader and its gotcha, plus eight project-ready public datasets.
+- `/explorers` — overfitting (S1/S4), threshold & profit (S6), gradient boosting (S8), k-means (S10). Conformal explorer still to build.
+- Session pages embed the exact StatQuest videos (verified IDs) for S1, S4, S5, S7, S8, S9, S10.
+
 ## 4. Session JSON conventions (follow `session-01.json` exactly)
 
 - `duration`: `"150 Minutes"`. `icon`: a lucide name available in `Icon.astro`.

@@ -1,0 +1,142 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GradientText from '../components/GradientText.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import CodeBlock from '../components/CodeBlock.astro';
+import Icon from '../components/Icon.astro';
+
+const datasets = [
+  {
+    name: 'Telco Customer Churn', icon: 'users', sessions: [1, 2, 3, 6, 12, 13], task: 'classification',
+    shape: '7,043 customers × 21 columns · 26.5% churn', source: 'IBM sample data', url: 'https://github.com/harslan/isom-835/blob/master/public/data/telco_churn.csv',
+    why: 'The course\'s home dataset. Clean enough to model in twelve lines, rich enough for feature engineering, and the one we use to turn scores into a retention decision.',
+    gotcha: 'TotalCharges is read as text — 11 blank strings for brand-new customers. Coerce with pd.to_numeric(errors=\'coerce\').',
+    code: `URL = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/telco_churn.csv'
+df = pd.read_csv(URL)
+df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
+y = (df['Churn'] == 'Yes').astype(int)`,
+  },
+  {
+    name: 'Hotel Booking Demand', icon: 'hotel', sessions: [7, 8, 9], task: 'classification · competition',
+    shape: '119,390 bookings × 32 columns · 37% canceled', source: 'Antonio, de Almeida & Nunes (2019)', url: 'https://github.com/harslan/isom-835/blob/master/public/data/hotel_bookings.csv',
+    why: 'The midterm competition dataset and the tree/boosting workhorse. Big enough that early stopping and GroupKFold matter.',
+    gotcha: 'reservation_status and reservation_status_date ARE the outcome. assigned_room_type is known only at check-in. Drop all three.',
+    code: `URL = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/hotel_bookings.csv'
+df = pd.read_csv(URL)
+LEAKS = ['reservation_status', 'reservation_status_date', 'assigned_room_type']
+X, y = df.drop(columns=['is_canceled'] + LEAKS), df['is_canceled']`,
+  },
+  {
+    name: 'Ames Housing (Kaggle House Prices)', icon: 'building', sessions: [4, 9], task: 'regression',
+    shape: '1,460 sales × 79 features · median $163K', source: 'De Cock (2011) via OpenML / Kaggle', url: 'https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques',
+    why: 'The regression classic: skewed target, mixed types, many categoricals. Ridge and lasso shine; a permanent Kaggle leaderboard to check yourself against.',
+    gotcha: 'Model log1p(price) and expm1 the predictions before reporting errors in dollars.',
+    code: `from sklearn.datasets import fetch_openml
+ames = fetch_openml('house_prices', as_frame=True)
+X, y = ames.data.drop(columns=['Id']), ames.target`,
+  },
+  {
+    name: 'Default of Credit Card Clients (Taiwan)', icon: 'credit-card', sessions: [5, 6], task: 'classification',
+    shape: '30,000 clients × 23 features · 22.1% default', source: 'Yeh & Lien (2009), UCI / OpenML 42477', url: 'https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients',
+    why: 'Credit risk with a real base rate and a cost matrix that makes the threshold discussion concrete. Payment-status codes reward feature engineering.',
+    gotcha: 'OpenML column names are x1…x23; map them to the UCI documentation. Payment status columns work better as categories than as numbers.',
+    code: `from sklearn.datasets import fetch_openml
+credit = fetch_openml(data_id=42477, as_frame=True)
+X, y = credit.data, (credit.target == '1').astype(int)`,
+  },
+  {
+    name: 'Bank Marketing (Portuguese bank)', icon: 'coins', sessions: [3, 7], task: 'classification',
+    shape: '45,211 calls × 16 features · 11.7% subscribed', source: 'Moro, Cortez & Rita (2014), UCI / OpenML', url: 'https://archive.ics.uci.edu/dataset/222/bank+marketing',
+    why: 'Ten categorical columns make it the encoder playground — and it contains the most famous leak in tabular ML.',
+    gotcha: 'duration (V12) is call length, known only after the call. Drop it, or your model is a fortune-teller.',
+    code: `from sklearn.datasets import fetch_openml
+bank = fetch_openml('bank-marketing', version=1, as_frame=True)
+X = bank.data.drop(columns=['V12'])            # V12 = duration: leakage
+y = (bank.target == '2').astype(int)`,
+  },
+  {
+    name: 'Online Retail II', icon: 'shopping-cart', sessions: [10], task: 'unsupervised · RFM',
+    shape: '1,067,371 transactions · ~5,900 customers · 2009–2011', source: 'Chen (2019), UCI', url: 'https://archive.ics.uci.edu/dataset/502/online+retail+ii',
+    why: 'A million real transactions collapse into RFM profiles — the segmentation dataset.',
+    gotcha: 'Invoices starting with C are cancellations; drop them and rows without a Customer ID. The zip contains one xlsx with two sheets.',
+    code: `import io, zipfile, urllib.request
+z = zipfile.ZipFile(io.BytesIO(urllib.request.urlopen('https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip').read()))
+sheets = pd.read_excel(io.BytesIO(z.read([n for n in z.namelist() if n.endswith('.xlsx')][0])), sheet_name=None)
+tx = pd.concat(sheets.values(), ignore_index=True)`,
+  },
+  {
+    name: 'Bike Sharing (Capital Bikeshare, hourly)', icon: 'activity', sessions: [11], task: 'forecasting',
+    shape: '17,379 hours · 2011–2012 · weather + calendar', source: 'Fanaee-T & Gama (2013), UCI', url: 'https://archive.ics.uci.edu/dataset/275/bike+sharing+dataset',
+    why: 'Strong daily and weekly seasonality, weather covariates, holidays — everything a forecasting lesson needs.',
+    gotcha: 'Some hours are missing; call asfreq(\'h\') and interpolate before building lags. Never split randomly.',
+    code: `import io, zipfile, urllib.request
+z = zipfile.ZipFile(io.BytesIO(urllib.request.urlopen('https://archive.ics.uci.edu/static/public/275/bike+sharing+dataset.zip').read()))
+bike = pd.read_csv(io.BytesIO(z.read('hour.csv')))`,
+  },
+  {
+    name: 'Amazon Polarity (reviews)', icon: 'message-square-text', sessions: [12], task: 'text classification',
+    shape: '3.6M reviews · we use 5,000', source: 'Zhang, Zhao & LeCun (2015) via Hugging Face', url: 'https://huggingface.co/datasets/fancyzhx/amazon_polarity',
+    why: 'Text as features three ways: TF-IDF, sentence embeddings, zero-shot LLM labels.',
+    gotcha: 'Needs the datasets library (pip install datasets). Fallback in the notebook: sklearn\'s 20 newsgroups.',
+    code: `from datasets import load_dataset
+ds = load_dataset('fancyzhx/amazon_polarity', split='train[:5000]')
+texts, labels = ds['content'], ds['label']`,
+  },
+];
+
+const projectPicks = [
+  { name: 'Lending Club loans', url: 'https://www.kaggle.com/datasets/wordsforthewise/lending-club', note: 'Credit default with rich borrower features; watch for post-origination leaks.' },
+  { name: 'Home Credit Default Risk', url: 'https://www.kaggle.com/competitions/home-credit-default-risk', note: 'Multi-table credit risk; a joins-and-aggregation project.' },
+  { name: 'Credit Card Fraud (ULB)', url: 'https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud', note: '284,807 transactions, 0.172% fraud. PR-AUC and cost matrices.' },
+  { name: 'Olist Brazilian E-Commerce', url: 'https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce', note: '100k orders in 8 tables with reviews; late delivery → low review is a great target.' },
+  { name: 'Instacart Market Basket', url: 'https://www.kaggle.com/c/instacart-market-basket-analysis', note: 'Reorder prediction; 3M orders, 200k users.' },
+  { name: 'Favorita Store Sales', url: 'https://www.kaggle.com/competitions/store-sales-time-series-forecasting', note: 'Grocery demand with promotions, oil prices, holidays.' },
+  { name: 'M5 Walmart Forecasting', url: 'https://www.kaggle.com/competitions/m5-forecasting-accuracy', note: '42,840 hierarchical series; the forecasting benchmark.' },
+  { name: 'Adult income (Census)', url: 'https://archive.ics.uci.edu/dataset/2/adult', note: 'The standard fairness-slicing dataset.' },
+];
+---
+
+<BaseLayout title="ISOM 835 | Datasets" description="Every dataset used in ISOM 835 with a copy-paste loader that needs no login, the leakage gotchas, and project-ready public datasets.">
+  <section class="py-24 px-8 max-w-[1100px] mx-auto">
+    <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">Data · no login required</div>
+    <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold leading-tight mb-6">The <GradientText>Datasets</GradientText></h1>
+    <p class="text-text-secondary text-xl max-w-[800px] leading-relaxed">
+      Eight datasets carry the course. Each one loads with the snippet below in any Colab notebook, and each comes with the trap that catches first-time modelers.
+    </p>
+  </section>
+
+  <section class="py-6 px-8 max-w-[1100px] mx-auto">
+    <div class="grid gap-8">
+      {datasets.map((d) => (
+        <div class="bg-bg-card border border-border-subtle rounded-2xl p-7 fade-in">
+          <div class="flex flex-wrap items-start justify-between gap-4 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-cyan/20 to-accent-purple/20 flex items-center justify-center"><Icon name={d.icon} class="w-5 h-5 text-accent-cyan" /></div>
+              <div><h2 class="text-lg font-bold">{d.name}</h2><div class="font-mono text-[0.7rem] text-text-muted tracking-wide">{d.shape}</div></div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <span class="px-3 py-1 bg-accent-purple/10 rounded-full text-[0.7rem] text-accent-purple">{d.task}</span>
+              {d.sessions.map((n) => (<a href={`/sessions/session-${String(n).padStart(2, '0')}`} class="px-3 py-1 bg-bg-tertiary/60 rounded-full text-[0.7rem] text-text-secondary no-underline hover:text-accent-cyan">S{n}</a>))}
+            </div>
+          </div>
+          <p class="text-sm text-text-secondary leading-relaxed mb-2">{d.why}</p>
+          <p class="text-sm leading-relaxed mb-4 flex gap-2"><Icon name="shield-alert" class="w-4 h-4 text-accent-magenta shrink-0 mt-0.5" /><span class="text-text-secondary"><b class="text-text-primary">Gotcha:</b> {d.gotcha}</span></p>
+          <CodeBlock language="python" code={d.code} />
+          <div class="mt-3 font-mono text-[0.72rem] text-text-muted">Source: <a href={d.url} target="_blank" rel="noopener" class="text-accent-cyan no-underline hover:underline">{d.source}</a></div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-16 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="02" label="For your project" title="Eight more that work well" description="Public, well documented, and business-shaped. Frame the decision first — a Kaggle metric is not a deliverable." />
+    <div class="grid md:grid-cols-2 gap-4">
+      {projectPicks.map((p) => (
+        <a href={p.url} target="_blank" rel="noopener" class="flex gap-4 bg-bg-card border border-border-subtle rounded-xl p-5 no-underline transition-all duration-300 hover:border-accent-cyan/30 hover:translate-x-1 fade-in">
+          <Icon name="database" class="w-5 h-5 text-accent-purple shrink-0 mt-0.5" />
+          <div><div class="font-semibold text-text-primary mb-1">{p.name}</div><div class="text-sm text-text-secondary leading-relaxed">{p.note}</div></div>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

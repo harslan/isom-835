@@ -238,5 +238,12 @@
       "Anomaly Detection"
     ],
     "slug": "session-10"
-  }
+  },
+  "videos": [
+    {
+      "youtubeId": "fSytzGwwBVw",
+      "title": "StatQuest — Cross Validation",
+      "description": "Why one split is a coin flip and five splits are a measurement."
+    }
+  ]
 }

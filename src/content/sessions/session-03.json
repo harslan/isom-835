@@ -170,8 +170,8 @@
     },
     {
       "title": "Refresher: Data Visualization With matplotlib & seaborn (ISOM 730 notebook)",
-      "url": "https://colab.research.google.com/drive/1fw1j5NDYhhmU95d8s7xiiEjHj8C9ObUA",
-      "description": "Prof. Arslan's earlier notebook on line plots, scatter plots, histograms, and seaborn pair plots — the tools you use to decide which features to engineer.",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/m5_1_data_visualizations_with_python.ipynb",
+      "description": "Prof. Arslan's earlier notebook on line plots, scatter plots, histograms, and seaborn pair plots — the tools you use to decide which features to engineer. Hosted in the course repo — opens in Colab with one click.",
       "icon": "chart-scatter",
       "badge": "Refresher",
       "badgeType": "code",

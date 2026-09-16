@@ -170,17 +170,17 @@
     },
     {
       "title": "StatQuest — K-means Clustering & PCA Main Ideas",
-      "url": "https://statquest.org/video_index.html",
-      "description": "Search the index for 'K-means' and 'PCA main ideas'. Eight and five minutes respectively.",
+      "url": "https://www.youtube.com/watch?v=4b5d3muPQmA",
+      "description": "Search the index for 'K-means' and 'PCA main ideas'. Eight and five minutes respectively. Also embedded on this page.",
       "icon": "video",
       "badge": "Video",
       "badgeType": "video",
-      "linkText": "Open the index"
+      "linkText": "Watch on YouTube"
     },
     {
       "title": "Refresher: Principal Component Analysis (ISOM 730 notebook)",
-      "url": "https://colab.research.google.com/drive/1n70pf6LtHuWFiTvR4Oh9q9WR3Jhz1tSt",
-      "description": "Prof. Arslan's earlier notebook: PCA on digits and faces, choosing the number of components, and PCA as noise filtering. The picture-heavy version of tonight's PCA segment.",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/m7_2_principal_component_analysis.ipynb",
+      "description": "Prof. Arslan's earlier notebook: PCA on digits and faces, choosing the number of components, and PCA as noise filtering. The picture-heavy version of tonight's PCA segment. Hosted in the course repo — opens in Colab with one click.",
       "icon": "target",
       "badge": "Refresher",
       "badgeType": "code",
@@ -247,5 +247,17 @@
       "Foundation Models"
     ],
     "slug": "session-11"
-  }
+  },
+  "videos": [
+    {
+      "youtubeId": "4b5d3muPQmA",
+      "title": "StatQuest — K-means Clustering",
+      "description": "Assign, update, repeat — and why you run it more than once."
+    },
+    {
+      "youtubeId": "HMOI_lkzW08",
+      "title": "StatQuest — PCA Main Ideas in 5 Minutes",
+      "description": "Directions of greatest variance, explained with a picture."
+    }
+  ]
 }

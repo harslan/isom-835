@@ -25,6 +25,16 @@ const explorers = [
     concepts: ['Confusion matrix', 'Precision & recall', 'Expected value', 'Profit vs. accuracy'],
   },
   {
+    title: 'The Gradient Boosting Explorer',
+    tagline: 'Fit the residuals · early stopping as a picture',
+    href: '/explore/boosting/',
+    icon: 'trending-up',
+    session: 'Session 8 · Nov 9',
+    slug: 'session-08',
+    description: 'Start from a flat guess and add one tiny tree at a time, each fit to what the ensemble still gets wrong. Drag the learning rate and depth, step through the ensemble, and watch held-out error bottom out and turn back up — the point where early stopping stops.',
+    concepts: ['Residual fitting', 'Learning rate × trees', 'Weak learners', 'Early stopping'],
+  },
+  {
     title: 'The K-Means Explorer',
     tagline: 'Learning without labels · step the algorithm',
     href: '/explore/kmeans/',
@@ -37,7 +47,6 @@ const explorers = [
 ];
 
 const comingSoon = [
-  { title: 'The Gradient Boosting Explorer', session: 'Session 8', description: 'Watch residuals shrink tree by tree — and validation loss turn up when you keep going.' },
   { title: 'The Conformal Explorer', session: 'Session 9', description: 'Intervals that keep their promise: set a coverage level and watch the calibration residuals size the band.' },
 ];
 ---
@@ -60,7 +69,7 @@ const comingSoon = [
 
     <div class="grid gap-8 md:grid-cols-2">
       {explorers.map((e) => (
-        <a href={e.href} class="group block bg-bg-card border border-border-subtle rounded-2xl p-8 no-underline text-inherit transition-all duration-300 hover:-translate-y-1 hover:border-accent-cyan/40 hover:shadow-[0_0_60px_rgba(242,177,53,0.15)] fade-in">
+        <a href={e.href} class="group block bg-bg-card border border-border-subtle rounded-2xl p-8 no-underline text-inherit transition-all duration-300 hover:-translate-y-1 hover:border-accent-cyan/40 hover:shadow-[0_0_60px_rgba(46,230,197,0.15)] fade-in">
           <div class="flex items-center gap-4 mb-4">
             <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-cyan/20 to-accent-purple/20 flex items-center justify-center">
               <Icon name={e.icon} class="w-6 h-6 text-accent-cyan" />

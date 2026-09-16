@@ -18,12 +18,13 @@ const { title, description, navBrand } = Astro.props;
 
 const siteLinks: { label: string; href: string; accent?: 'graduate' }[] = [
   { label: 'Home', href: '/' },
+  { label: 'Start Here', href: '/start' },
   { label: 'Sessions', href: '/sessions' },
   { label: 'Syllabus', href: '/syllabus' },
-  { label: 'Resources', href: '/resources' },
   { label: 'Explorers', href: '/explorers' },
-  { label: 'Project', href: '/project' },
   { label: 'Practice', href: '/practice' },
+  { label: 'Cheat Sheet', href: '/cheatsheet' },
+  { label: 'Project', href: '/project' },
 ];
 
 // Build search index
@@ -81,6 +82,10 @@ searchIndex.push({
   url: '/practice',
 });
 
+searchIndex.push({ type: 'guide', title: 'Start Here — your first 30 minutes', subtitle: 'Setup, how each week works, how to use the site', url: '/start' });
+searchIndex.push({ type: 'guide', title: 'Cheat Sheet — the whole course on one page', subtitle: 'Framing, leakage test, pipeline template, metric menu, threshold formula, CV chooser, trust checklist', url: '/cheatsheet' });
+searchIndex.push({ type: 'guide', title: 'Datasets — every dataset with a no-login loader', subtitle: 'Telco, hotel bookings, Ames, credit default, bank marketing, retail, bikes, reviews', url: '/datasets' });
+searchIndex.push({ type: 'resource', title: 'Resources hub — every link from every session', subtitle: 'Readings, videos, tools, stories', url: '/resources' });
 searchIndex.push({
   type: 'project',
   title: 'Your Prediction Story — Final Project',

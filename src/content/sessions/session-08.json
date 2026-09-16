@@ -115,6 +115,15 @@
       "linkText": "Open in Colab"
     },
     {
+      "title": "The Gradient Boosting Explorer",
+      "url": "/explore/boosting/",
+      "description": "Watch residuals shrink tree by tree. Drag the learning rate and tree depth, step through the ensemble, and see validation loss turn back up when you keep going — early stopping as a picture.",
+      "icon": "zap",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the explorer"
+    },
+    {
       "title": "scikit-learn User Guide — Histogram-Based Gradient Boosting",
       "url": "https://scikit-learn.org/stable/modules/ensemble.html#histogram-based-gradient-boosting",
       "description": "Categorical support, missing values, early stopping, and monotonic constraints — the section that makes HistGradientBoosting the right first boosting model in 2026.",
@@ -170,12 +179,12 @@
     },
     {
       "title": "StatQuest — Gradient Boost Parts 1–4 & XGBoost",
-      "url": "https://statquest.org/video_index.html",
-      "description": "Search the index for 'Gradient Boost'. Part 1 (regression main ideas) and Part 3 (classification) are the ones to watch before HW4.",
+      "url": "https://www.youtube.com/watch?v=3CC4N4z3GJc",
+      "description": "Search the index for 'Gradient Boost'. Part 1 (regression main ideas) and Part 3 (classification) are the ones to watch before HW4. Also embedded on this page.",
       "icon": "video",
       "badge": "Video",
       "badgeType": "video",
-      "linkText": "Open the index"
+      "linkText": "Watch on YouTube"
     }
   ],
   "activities": [
@@ -238,5 +247,17 @@
       "Conformal Prediction"
     ],
     "slug": "session-09"
-  }
+  },
+  "videos": [
+    {
+      "youtubeId": "3CC4N4z3GJc",
+      "title": "StatQuest — Gradient Boost, Part 1: Regression Main Ideas",
+      "description": "Fit the residuals, scale by a learning rate, repeat. Watch before the notebook."
+    },
+    {
+      "youtubeId": "OtD8wVaFm6E",
+      "title": "StatQuest — XGBoost, Part 1",
+      "description": "The Kaggle veteran, tree by tree."
+    }
+  ]
 }
