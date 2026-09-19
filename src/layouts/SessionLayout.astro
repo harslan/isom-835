@@ -23,6 +23,15 @@ import TakeawayItem from '../components/TakeawayItem.astro';
 import HomeworkItem from '../components/HomeworkItem.astro';
 import NextSessionPreview from '../components/NextSessionPreview.astro';
 import { getCollection } from 'astro:content';
+import { getDomainQuestions, getDomain, type DomainId } from '../data/questions';
+import { teaserFor } from '../data/practice-content';
+
+// Which practice domain(s) each session feeds — shown as 'Practice for this session'
+const practiceBySession: Record<number, DomainId[]> = {
+  1: ['ml-foundations'], 2: ['data-features'], 3: ['data-features'], 4: ['regression'],
+  5: ['classification-decisions'], 6: ['classification-decisions'], 7: ['trees-ensembles'], 8: ['trees-ensembles'],
+  9: ['evaluation-unsupervised'], 10: ['evaluation-unsupervised'], 11: ['evaluation-unsupervised'], 12: ['trees-ensembles', 'ml-foundations'], 13: ['ml-foundations', 'classification-decisions'],
+};
 
 interface Props {
   session: any;
@@ -44,9 +53,12 @@ const sessionNavLinks = [
   ...(data.resources?.length ? [{ label: 'Resources', href: '#resources' }] : []),
   ...(data.activities?.length ? [{ label: 'Activities', href: '#activities' }] : []),
   ...(data.homework?.length ? [{ label: 'Homework', href: '#homework' }] : []),
+  { label: 'Practice', href: '#practice' },
 ];
 
 const numStr = String(data.number).padStart(2, '0');
+const practiceDomains = (practiceBySession[data.number] || []).map((id) => getDomain(id)!).filter(Boolean);
+const practiceQs = practiceDomains.flatMap((d) => getDomainQuestions(d.id).slice(0, 6));
 
 // Build search index
 const allSessions = await getCollection('sessions');
@@ -216,6 +228,23 @@ for (const s of sortedSessions) {
           <HomeworkItem label={item.label} text={item.text} />
         ))}
       </div>
+    </section>
+  )}
+
+  {practiceQs.length > 0 && (
+    <section id="practice" class="py-24 px-8 max-w-[1200px] mx-auto">
+      <SectionHeader number="07" label="Practice" title="Test Yourself" description={`Exam-style questions for the ideas in this session — ${practiceDomains.map((d) => d.title).join(' and ')}. Every wrong answer names the misconception behind it.`} />
+      <div class="grid gap-3 md:grid-cols-2 fade-in">
+        {practiceQs.map((q) => (
+          <a href={`/practice/q/${q.id}`} class="flex gap-4 items-start bg-bg-card border border-border-subtle rounded-xl px-5 py-4 no-underline transition-all duration-300 hover:border-accent-cyan/30 hover:translate-x-1">
+            <span class="font-mono text-[0.75rem] text-accent-cyan mt-0.5 shrink-0">{q.id}</span>
+            <span class="text-sm text-text-secondary leading-relaxed">{teaserFor(q.id) || q.question}</span>
+          </a>
+        ))}
+      </div>
+      <p class="text-text-muted text-sm font-mono mt-6 text-center">
+        {practiceDomains.map((d, i) => (<span>{i > 0 ? ' · ' : ''}<a href={`/practice/${d.id}`} class="text-accent-cyan no-underline">All of {d.shortTitle} →</a></span>))}
+      </p>
     </section>
   )}
 

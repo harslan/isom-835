@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Conformal Explorer · ISOM 835</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/explore/_shared.css">
+<style>
+  .lg-cal::before { color: var(--teal); } .lg-new::before { color: var(--coral); } .lg-fit::before { color: var(--peri); } .lg-band { color: var(--lime); } .lg-band::before { content: "▧ "; color: var(--lime); }
+  .lg-q::before { color: var(--amber); }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text2); margin-top: 6px; cursor: pointer; }
+  .toggle input { accent-color: var(--teal); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/sessions/session-09">← ISOM 835 · Session 9</a>
+  <div style="height:14px"></div>
+  <div class="kicker">Interactive · Intervals That Keep Their Promise</div>
+  <h1>The Conformal <span class="grad">Explorer</span></h1>
+  <p class="sub">
+    A model predicts a house price (or a demand, or a delivery time). A point forecast is a bet. <b>Split conformal prediction</b> measures the
+    model's errors on a <b>calibration set</b> it never trained on, takes the 90th-percentile error, and wraps every new prediction in a band that wide.
+    The promise: over many new cases, about 90% land inside — <b>for any model, with no assumption about the error shape</b>. Test the promise.
+  </p>
+
+  <div class="presets" id="presets">
+    <button data-p="0.9,0,0.18,120,0">90% · homoscedastic noise</button>
+    <button data-p="0.9,1,0.18,120,0">90% · noise grows with x</button>
+    <button data-p="0.95,0,0.18,120,0">95% coverage</button>
+    <button data-p="0.8,0,0.18,120,0">80% coverage</button>
+    <button data-p="0.9,0,0.18,30,0">Tiny calibration set (30)</button>
+    <button data-p="0.9,0,0.18,120,1">Wrong model (underfit)</button>
+    <button data-p="0.9,2,0.18,120,0">Distribution shift on new data</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="kicker" style="margin-bottom:6px">Prediction band on new cases</div>
+        <canvas id="cv" width="820" height="400"></canvas>
+        <div class="legend"><span class="lg-cal">Calibration cases</span><span class="lg-new">New cases (the test of the promise)</span><span class="lg-fit">Model prediction</span><span class="lg-band">Conformal band</span></div>
+        <div class="hoverbox" id="hoverbox">hover a new case to see whether it landed inside the band</div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="grid2">
+        <div class="panel">
+          <div class="kicker" style="margin-bottom:6px">Calibration residuals |y − ŷ|</div>
+          <canvas id="cv2" width="400" height="230"></canvas>
+          <div class="legend"><span class="lg-cal">residuals</span><span class="lg-q">the quantile that sets the band</span></div>
+        </div>
+        <div class="panel">
+          <div class="kicker" style="margin-bottom:6px">Coverage over repeated draws of new data</div>
+          <canvas id="cv3" width="400" height="230"></canvas>
+          <div class="legend"><span class="lg-new">coverage per draw</span><span class="lg-q">target</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel controls">
+        <div class="row"><label>Target coverage <b id="v-cov">90%</b></label><input type="range" id="cov" min="0.5" max="0.99" step="0.01" value="0.9"></div>
+        <div class="row"><label>Calibration set size <b id="v-ncal">120</b></label><input type="range" id="ncal" min="10" max="400" step="10" value="120"></div>
+        <div class="row"><label>Noise level <b id="v-noise">0.18</b></label><input type="range" id="noise" min="0.04" max="0.5" step="0.02" value="0.18"></div>
+        <div class="row"><label>Noise shape <b id="v-shape">constant</b></label><input type="range" id="shape" min="0" max="2" step="1" value="0"></div>
+        <label class="toggle"><input type="checkbox" id="badmodel"> Use a deliberately underfit model (straight line)</label>
+        <label class="toggle"><input type="checkbox" id="adaptive"> Adaptive band (scale residuals by a spread estimate)</label>
+        <div class="btnrow"><button class="btn primary" id="redraw">Draw new cases</button><button class="btn" id="run100">Repeat 100×</button><button class="btn" id="recal">New calibration set</button></div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="panel readout">
+        <div class="kicker" style="margin-bottom:6px">The promise, checked</div>
+        <div class="big" id="ro-cov">—</div>
+        <div class="stat"><span>Target coverage</span><b id="ro-target">—</b></div>
+        <div class="stat"><span>Band half-width (quantile of residuals)</span><b id="ro-q">—</b></div>
+        <div class="stat"><span>New cases inside / total</span><b id="ro-inside">—</b></div>
+        <div class="stat"><span>Mean coverage over repeats</span><b id="ro-mean">—</b></div>
+        <div id="ro-badges" style="margin-top:8px"></div>
+        <div class="note" id="ro-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sub" style="margin-top:26px">
+    <b>The recipe:</b> fit the model on training data; compute residuals rᵢ = |yᵢ − ŷᵢ| on a separate calibration set of n cases; take q = the ⌈(n+1)(1−α)⌉-th smallest residual;
+    predict ŷ ± q for every new case. Coverage ≥ 1−α is guaranteed on average as long as new cases are <b>exchangeable</b> with the calibration cases —
+    which is exactly what breaks under distribution shift. A bad model gets wide bands, not broken promises. In MAPIE this is <code>SplitConformalRegressor</code>.
+  </p>
+</div>
+<script>
+// ---------- data ----------
+let seed = 835;
+function rng() { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }
+function gauss() { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const truth = x => 0.35 + 0.5 * x + 0.18 * Math.sin(5 * x);
+const state = { cov: 0.9, ncal: 120, noise: 0.18, shape: 0, bad: false, adaptive: false, draw: 1, calDraw: 1 };
+const N_NEW = 100, N_TRAIN = 200;
+function noiseAt(x) { return state.noise * (state.shape === 1 ? (0.3 + 1.6 * x) : 1); }
+function gen(n, seedv, shifted) {
+  seed = seedv; const out = [];
+  for (let i = 0; i < n; i++) { let x = rng(); if (shifted) x = 0.7 + 0.3 * rng(); const y = truth(x) + noiseAt(x) * gauss() + (shifted ? 0.25 : 0); out.push([x, y]); }
+  return out.sort((a, b) => a[0] - b[0]);
+}
+let train = [], cal = [], fresh = [], coef = [], q = 0, covHist = [];
+// model: degree-6 polynomial (good) or straight line (bad), least squares
+const z = x => 2 * x - 1;
+function fitPoly(pts, d) {
+  const m = d + 1, A = Array.from({ length: m }, () => new Array(m).fill(0)), b = new Array(m).fill(0);
+  for (const [x, y] of pts) { const zx = z(x), pw = [1]; for (let k = 1; k < m; k++) pw.push(pw[k - 1] * zx); for (let i = 0; i < m; i++) { b[i] += pw[i] * y; for (let j = 0; j < m; j++) A[i][j] += pw[i] * pw[j]; } }
+  for (let i = 1; i < m; i++) A[i][i] += 1e-8;
+  const n = m, M = A.map((r, i) => [...r, b[i]]);
+  for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r; [M[c], M[p]] = [M[p], M[c]]; for (let r = 0; r < n; r++) if (r !== c) { const f = M[r][c] / M[c][c]; for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; } }
+  return M.map((r, i) => r[n] / r[i]);
+}
+function predict(x) { let zx = z(x), s = 0, p = 1; for (const c of coef) { s += c * p; p *= zx; } return s; }
+// adaptive: a crude spread model — |residual| regressed on x with a degree-2 poly, floored
+let spreadCoef = null;
+function spread(x) { if (!state.adaptive || !spreadCoef) return 1; let zx = z(x), s = 0, p = 1; for (const c of spreadCoef) { s += c * p; p *= zx; } return Math.max(0.02, s); }
+function calibrate() {
+  cal = gen(state.ncal, 9000 + state.calDraw * 131, false);
+  if (state.adaptive) { const absr = cal.map(([x, y]) => [x, Math.abs(y - predict(x))]); const save = coef; coef = fitPoly(absr, 2); spreadCoef = coef; coef = save; }
+  const scores = cal.map(([x, y]) => Math.abs(y - predict(x)) / spread(x)).sort((a, b) => a - b);
+  const n = scores.length, k = Math.min(n - 1, Math.ceil((n + 1) * state.cov) - 1);
+  q = scores[Math.max(0, k)];
+}
+function fitModel() { train = gen(N_TRAIN, 100 + state.calDraw, false); coef = fitPoly(train, state.bad ? 1 : 6); }
+function drawNew() { fresh = gen(N_NEW, 20000 + state.draw * 7919, state.shape === 2); }
+function coverage(pts) { let c = 0; for (const [x, y] of pts) if (Math.abs(y - predict(x)) <= q * spread(x)) c++; return c / pts.length; }
+// ---------- drawing ----------
+function hidpi(id, w, h) { const c = document.getElementById(id), dpr = Math.min(window.devicePixelRatio || 1, 2); c.width = w * dpr; c.height = h * dpr; const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); return { c, x, w, h }; }
+const A = hidpi('cv', 820, 400), B = hidpi('cv2', 400, 230), C = hidpi('cv3', 400, 230);
+const PAD = { l: 46, r: 16, t: 14, b: 32 }, Y0 = -0.3, Y1 = 1.5;
+const px = x => PAD.l + x * (A.w - PAD.l - PAD.r), py = y => A.h - PAD.b - (y - Y0) / (Y1 - Y0) * (A.h - PAD.t - PAD.b);
+let hover = null;
+function drawMain() {
+  const { x, w, h } = A; x.clearRect(0, 0, w, h);
+  x.fillStyle = 'rgba(126,231,135,0.13)'; x.beginPath();
+  for (let i = 0; i <= 200; i++) { const xx = i / 200; const yy = predict(xx) + q * spread(xx); i ? x.lineTo(px(xx), py(yy)) : x.moveTo(px(xx), py(yy)); }
+  for (let i = 200; i >= 0; i--) { const xx = i / 200; x.lineTo(px(xx), py(predict(xx) - q * spread(xx))); } x.closePath(); x.fill();
+  x.strokeStyle = 'rgba(126,231,135,0.6)'; x.lineWidth = 1; x.setLineDash([4, 4]); [1, -1].forEach(sg => { x.beginPath(); for (let i = 0; i <= 200; i++) { const xx = i / 200; const yy = predict(xx) + sg * q * spread(xx); i ? x.lineTo(px(xx), py(yy)) : x.moveTo(px(xx), py(yy)); } x.stroke(); }); x.setLineDash([]);
+  x.strokeStyle = '#7c8cff'; x.lineWidth = 2.5; x.beginPath(); for (let i = 0; i <= 200; i++) { const xx = i / 200; i ? x.lineTo(px(xx), py(predict(xx))) : x.moveTo(px(xx), py(predict(xx))); } x.stroke();
+  for (const [xx, yy] of cal) { x.fillStyle = 'rgba(46,230,197,0.35)'; x.beginPath(); x.arc(px(xx), py(yy), 2.6, 0, 7); x.fill(); }
+  for (const [xx, yy] of fresh) { const inside = Math.abs(yy - predict(xx)) <= q * spread(xx); x.fillStyle = inside ? '#ff6b8b' : '#f5a524'; x.beginPath(); x.arc(px(xx), py(yy), inside ? 3.4 : 4.6, 0, 7); x.fill(); if (!inside) { x.strokeStyle = '#f5a524'; x.lineWidth = 1.2; x.beginPath(); x.arc(px(xx), py(yy), 7, 0, 7); x.stroke(); } }
+  x.fillStyle = '#5f6a7d'; x.font = '11px IBM Plex Mono, monospace'; x.fillText('feature x →', w - PAD.r - 80, h - 10); x.save(); x.translate(12, 160); x.rotate(-Math.PI / 2); x.fillText('target y →', 0, 0); x.restore();
+  x.fillText('◯ = outside the band', PAD.l + 6, PAD.t + 12);
+}
+function drawResid() {
+  const { x, w, h } = B; x.clearRect(0, 0, w, h); const L = 36, R = 12, T = 12, Bt = 28, W = w - L - R, H = h - T - Bt;
+  const scores = cal.map(([xx, yy]) => Math.abs(yy - predict(xx)) / spread(xx)); const mx = Math.max(...scores, q) * 1.1; const bins = 24, hc = new Array(bins).fill(0);
+  for (const s of scores) hc[Math.min(bins - 1, Math.floor(s / mx * bins))]++; const hm = Math.max(...hc);
+  for (let b = 0; b < bins; b++) { x.fillStyle = (b / bins * mx <= q) ? 'rgba(46,230,197,0.6)' : 'rgba(46,230,197,0.2)'; x.fillRect(L + b * W / bins + 1, T + H - hc[b] / hm * H, W / bins - 2, hc[b] / hm * H); }
+  x.strokeStyle = '#f5a524'; x.lineWidth = 2; x.setLineDash([5, 4]); x.beginPath(); x.moveTo(L + q / mx * W, T); x.lineTo(L + q / mx * W, T + H); x.stroke(); x.setLineDash([]);
+  x.fillStyle = '#f5a524'; x.font = '10px IBM Plex Mono, monospace'; x.fillText('q = ' + q.toFixed(3), Math.min(L + q / mx * W + 4, w - 70), T + 12);
+  x.fillStyle = '#5f6a7d'; x.fillText('0', L, h - 10); x.fillText(mx.toFixed(2), w - R - 30, h - 10);
+}
+function drawCov() {
+  const { x, w, h } = C; x.clearRect(0, 0, w, h); const L = 40, R = 12, T = 12, Bt = 28, W = w - L - R, H = h - T - Bt;
+  const qy = v => T + H - (v - 0.4) / 0.6 * H;
+  x.strokeStyle = '#f5a524'; x.setLineDash([5, 4]); x.beginPath(); x.moveTo(L, qy(state.cov)); x.lineTo(L + W, qy(state.cov)); x.stroke(); x.setLineDash([]);
+  const n = Math.max(covHist.length, 20);
+  covHist.forEach((c, i) => { x.fillStyle = c >= state.cov - 0.05 ? 'rgba(255,107,139,0.8)' : '#f5a524'; x.beginPath(); x.arc(L + (i + 0.5) / n * W, qy(Math.max(0.4, c)), 3, 0, 7); x.fill(); });
+  if (covHist.length) { const m = covHist.reduce((a, b) => a + b, 0) / covHist.length; x.strokeStyle = '#ff6b8b'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(L, qy(m)); x.lineTo(L + W, qy(m)); x.stroke(); }
+  x.fillStyle = '#5f6a7d'; x.font = '10px IBM Plex Mono, monospace'; ['1.0', '0.8', '0.6', '0.4'].forEach((t, i) => x.fillText(t, 8, qy(1 - 0.2 * i) + 3)); x.fillText('draw →', w - R - 44, h - 10);
+}
+// ---------- controls & readout ----------
+const $ = id => document.getElementById(id);
+function readout() {
+  const c = coverage(fresh), inside = Math.round(c * fresh.length); const mean = covHist.length ? covHist.reduce((a, b) => a + b, 0) / covHist.length : c;
+  $('ro-cov').textContent = (c * 100).toFixed(0) + '% covered'; $('ro-target').textContent = (state.cov * 100).toFixed(0) + '%'; $('ro-q').textContent = '± ' + q.toFixed(3) + (state.adaptive ? ' × spread(x)' : ''); $('ro-inside').textContent = inside + ' / ' + fresh.length; $('ro-mean').textContent = covHist.length ? (mean * 100).toFixed(1) + '% over ' + covHist.length + ' draws' : '— (press Repeat 100×)';
+  const badges = [];
+  if (state.shape === 2) badges.push('<span class="badge bad">DISTRIBUTION SHIFT · promise void</span>');
+  else if (covHist.length >= 20 && Math.abs(mean - state.cov) < 0.03) badges.push('<span class="badge good">PROMISE KEPT on average</span>');
+  else if (covHist.length >= 20) badges.push('<span class="badge warn">mean coverage ' + (mean * 100).toFixed(0) + '% vs target ' + (state.cov * 100).toFixed(0) + '%</span>');
+  if (state.ncal <= 30) badges.push('<span class="badge warn">small calibration set: coverage varies a lot draw to draw</span>');
+  if (state.bad) badges.push('<span class="badge dim">underfit model → wide band, promise still kept</span>');
+  if (state.shape === 1 && !state.adaptive) badges.push('<span class="badge warn">one band width for all x: too wide on the left, too narrow on the right</span>');
+  $('ro-badges').innerHTML = badges.join(' ');
+  let note;
+  if (state.shape === 2) note = '<b>New cases come from a different world</b> — shifted right and up. The calibration residuals no longer describe them, and coverage collapses. Conformal guarantees coverage only for <i>exchangeable</i> data. This is why you monitor drift after launch (Session 13).';
+  else if (state.bad) note = '<b>A bad model does not break the promise; it pays for it in width.</b> The straight line misses the curve, so calibration residuals are large, q is large, and the band is wide — but ~' + (state.cov * 100).toFixed(0) + '% of new cases still land inside. Honest uncertainty, not a better forecast.';
+  else if (state.shape === 1 && !state.adaptive) note = '<b>Constant-width bands are honest on average and wrong everywhere.</b> Noise grows with x, so the band over-covers on the left and under-covers on the right. Tick <b>Adaptive band</b> to scale the residuals by a spread estimate (MAPIE: a conformalized quantile regression does this properly).';
+  else if (state.ncal <= 30) note = '<b>Thirty calibration cases give a noisy quantile.</b> Any single draw can land at 80% or 97%; the guarantee is about the average over draws. Press Repeat 100× and watch the mean settle near the target.';
+  else note = '<b>Read the three panels together.</b> Residuals on the calibration set (left) → the ' + (state.cov * 100).toFixed(0) + 'th-percentile residual sets the band → new cases land inside about ' + (state.cov * 100).toFixed(0) + '% of the time (right). No normal distribution assumed; any model would do. A conformal set of {both} in classification is the same idea for labels.';
+  $('ro-note').innerHTML = note;
+}
+function all() { drawMain(); drawResid(); drawCov(); readout(); }
+function rebuild() { fitModel(); calibrate(); covHist = []; drawNew(); all(); }
+function sync() { $('v-cov').textContent = Math.round(state.cov * 100) + '%'; $('v-ncal').textContent = state.ncal; $('v-noise').textContent = state.noise.toFixed(2); $('v-shape').textContent = ['constant', 'grows with x', 'shifted new data'][state.shape]; $('cov').value = state.cov; $('ncal').value = state.ncal; $('noise').value = state.noise; $('shape').value = state.shape; $('badmodel').checked = state.bad; $('adaptive').checked = state.adaptive; }
+function clearActive() { document.querySelectorAll('#presets button').forEach(b => b.classList.remove('active')); }
+$('cov').addEventListener('input', e => { state.cov = +e.target.value; clearActive(); sync(); calibrate(); covHist = []; all(); });
+$('ncal').addEventListener('input', e => { state.ncal = +e.target.value; clearActive(); sync(); calibrate(); covHist = []; all(); });
+$('noise').addEventListener('input', e => { state.noise = +e.target.value; clearActive(); sync(); rebuild(); });
+$('shape').addEventListener('input', e => { state.shape = +e.target.value; clearActive(); sync(); rebuild(); });
+$('badmodel').addEventListener('change', e => { state.bad = e.target.checked; clearActive(); rebuild(); });
+$('adaptive').addEventListener('change', e => { state.adaptive = e.target.checked; clearActive(); calibrate(); covHist = []; all(); });
+$('redraw').addEventListener('click', () => { state.draw++; drawNew(); covHist.push(coverage(fresh)); all(); });
+$('run100').addEventListener('click', () => { for (let i = 0; i < 100; i++) { state.draw++; drawNew(); covHist.push(coverage(fresh)); } all(); });
+$('recal').addEventListener('click', () => { state.calDraw++; rebuild(); });
+document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => {
+  const [cov, shape, noise, ncal, bad] = b.dataset.p.split(',').map(Number); state.cov = cov; state.shape = shape; state.noise = noise; state.ncal = ncal; state.bad = !!bad; state.adaptive = false;
+  clearActive(); b.classList.add('active'); sync(); rebuild(); for (let i = 0; i < 30; i++) { state.draw++; drawNew(); covHist.push(coverage(fresh)); } all();
+}));
+A.c.addEventListener('mousemove', e => { const r = A.c.getBoundingClientRect(); const mx = (e.clientX - r.left) / r.width * A.w, my = (e.clientY - r.top) / r.height * A.h; let best = null, bd = 1e9;
+  for (const p of fresh) { const d = (px(p[0]) - mx) ** 2 + (py(p[1]) - my) ** 2; if (d < bd) { bd = d; best = p; } }
+  if (best && bd < 400) { const inside = Math.abs(best[1] - predict(best[0])) <= q * spread(best[0]); $('hoverbox').textContent = 'x = ' + best[0].toFixed(2) + ' · actual ' + best[1].toFixed(3) + ' · predicted ' + predict(best[0]).toFixed(3) + ' ± ' + (q * spread(best[0])).toFixed(3) + ' → ' + (inside ? 'INSIDE the band' : 'OUTSIDE the band'); } });
+sync(); rebuild();
+</script>
+</body>
+</html>

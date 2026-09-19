@@ -35,6 +35,16 @@ const explorers = [
     concepts: ['Residual fitting', 'Learning rate × trees', 'Weak learners', 'Early stopping'],
   },
   {
+    title: 'The Conformal Explorer',
+    tagline: 'Uncertainty · intervals that keep their promise',
+    href: '/explore/conformal/',
+    icon: 'shield',
+    session: 'Session 9 · Nov 16',
+    slug: 'session-09',
+    description: 'A model, a calibration set, and a 90% band sized by the 90th-percentile residual. Draw new cases a hundred times and watch coverage settle on the target — then underfit the model, shrink the calibration set, or shift the data and see which promises survive.',
+    concepts: ['Calibration residuals', 'Coverage guarantee', 'Exchangeability', 'Adaptive bands'],
+  },
+  {
     title: 'The K-Means Explorer',
     tagline: 'Learning without labels · step the algorithm',
     href: '/explore/kmeans/',
@@ -46,9 +56,7 @@ const explorers = [
   },
 ];
 
-const comingSoon = [
-  { title: 'The Conformal Explorer', session: 'Session 9', description: 'Intervals that keep their promise: set a coverage level and watch the calibration residuals size the band.' },
-];
+const comingSoon: { title: string; session: string; description: string }[] = [];
 ---
 
 <BaseLayout title="ISOM 835 | Explorers — Interactive Machine Learning">
@@ -95,7 +103,7 @@ const comingSoon = [
       ))}
     </div>
 
-    <div class="mt-12 grid gap-6 md:grid-cols-2">
+    <div class="mt-12 grid gap-6 md:grid-cols-2" class:list={[comingSoon.length === 0 && 'hidden']}>
       {comingSoon.map((e) => (
         <div class="bg-bg-card/50 border border-dashed border-border-subtle rounded-2xl p-7 fade-in">
           <div class="font-mono text-[0.65rem] text-text-muted tracking-[2px] uppercase mb-2">Coming · {e.session}</div>

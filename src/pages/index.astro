@@ -15,13 +15,19 @@ const sorted = sessions.sort((a, b) => a.data.number - b.data.number);
 const byNumber = new Map(sorted.map((s) => [s.data.number, s]));
 
 // Serialize the schedule for the client-side "next class" spotlight
-const nextClassData = sorted.map((s) => ({
-  n: s.data.number,
-  slug: s.data.slug,
-  title: s.data.title,
-  date: sessionMeta[s.data.number]?.date ?? '',
-  iso: sessionMeta[s.data.number]?.iso ?? '',
-}));
+const nextClassData = sorted.map((s) => {
+  const nb = (s.data.resources || []).find((r: any) => /colab\.research\.google\.com\/github/.test(r.url));
+  const reading = (s.data.resources || []).find((r: any) => r.badge === 'Reading');
+  const explorer = (s.data.resources || []).find((r: any) => r.url.startsWith('/explore'));
+  const hw = (s.data.homework || [])[0];
+  return {
+    n: s.data.number, slug: s.data.slug, title: s.data.title, subtitle: s.data.subtitle,
+    date: sessionMeta[s.data.number]?.date ?? '', iso: sessionMeta[s.data.number]?.iso ?? '',
+    notebook: nb?.url ?? '', reading: reading ? { title: reading.title, url: reading.url } : null,
+    explorer: explorer ? { title: explorer.title, url: explorer.url } : null,
+    homework: hw ? hw.label : '',
+  };
+});
 ---
 
 <BaseLayout title="ISOM 835 | Predictive Analytics & Machine Learning — Suffolk University">
@@ -29,21 +35,34 @@ const nextClassData = sorted.map((s) => ({
 
   <CourseHighlights />
 
-  <!-- Next class spotlight (populated client-side from today's date) -->
+  <!-- This week (populated client-side from today's date) -->
   <section id="next-class" class="px-8 max-w-[1200px] mx-auto -mt-8 mb-4 hidden">
-    <a id="next-class-link" href="/sessions" class="group block bg-gradient-to-br from-accent-green/[0.06] to-bg-card border border-accent-green/25 rounded-2xl px-7 py-6 no-underline transition-all duration-300 hover:border-accent-green/60 hover:-translate-y-0.5 hover:shadow-[0_10px_40px_rgba(52,211,153,0.12)]">
-      <div class="flex flex-wrap items-center justify-between gap-5">
+    <div class="bg-gradient-to-br from-accent-green/[0.06] to-bg-card border border-accent-green/25 rounded-2xl px-7 py-6">
+      <div class="flex flex-wrap items-start justify-between gap-5 mb-5">
         <div class="min-w-0">
           <div class="font-mono text-[0.7rem] tracking-[2px] uppercase text-accent-green mb-2">
-            <span id="next-class-when">Next class</span> · {WEEKDAY_LONG} 5:00 PM
+            <span id="next-class-when">This week</span> · {WEEKDAY_LONG} 5:00 PM
           </div>
-          <div class="text-xl font-bold text-text-primary" id="next-class-title"></div>
+          <a id="next-class-link" href="/sessions" class="text-xl font-bold text-text-primary no-underline hover:text-accent-cyan transition-colors" ><span id="next-class-title"></span></a>
+          <p class="text-text-secondary text-sm mt-1 max-w-[720px]" id="next-class-sub"></p>
         </div>
-        <span class="font-mono text-[0.8rem] tracking-wide text-accent-green whitespace-nowrap transition-transform duration-300 group-hover:translate-x-1">
-          Open the session →
-        </span>
+        <a id="next-class-open" href="/sessions" class="font-mono text-[0.8rem] tracking-wide text-accent-green whitespace-nowrap no-underline hover:translate-x-1 transition-transform">Open the session →</a>
       </div>
-    </a>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <a id="tw-notebook" href="#" target="_blank" rel="noopener" class="tw-card hidden bg-bg-card/70 border border-border-subtle rounded-xl px-4 py-3 no-underline hover:border-accent-cyan/40 transition-colors">
+          <div class="font-mono text-[0.65rem] tracking-[2px] uppercase text-accent-cyan mb-1">Notebook</div><div class="text-sm text-text-primary">Open in Colab and run the first cells before class</div>
+        </a>
+        <a id="tw-reading" href="#" target="_blank" rel="noopener" class="tw-card hidden bg-bg-card/70 border border-border-subtle rounded-xl px-4 py-3 no-underline hover:border-accent-cyan/40 transition-colors">
+          <div class="font-mono text-[0.65rem] tracking-[2px] uppercase text-accent-cyan mb-1">Reading</div><div class="text-sm text-text-primary" id="tw-reading-t"></div>
+        </a>
+        <a id="tw-explorer" href="#" class="tw-card hidden bg-bg-card/70 border border-border-subtle rounded-xl px-4 py-3 no-underline hover:border-accent-cyan/40 transition-colors">
+          <div class="font-mono text-[0.65rem] tracking-[2px] uppercase text-accent-cyan mb-1">Explorer</div><div class="text-sm text-text-primary" id="tw-explorer-t"></div>
+        </a>
+        <a id="tw-homework" href="#" class="tw-card hidden bg-bg-card/70 border border-border-subtle rounded-xl px-4 py-3 no-underline hover:border-accent-cyan/40 transition-colors">
+          <div class="font-mono text-[0.65rem] tracking-[2px] uppercase text-accent-cyan mb-1">Due</div><div class="text-sm text-text-primary" id="tw-homework-t"></div>
+        </a>
+      </div>
+    </div>
   </section>
 
   <!-- Quick links: start here / cheat sheet / datasets -->
@@ -150,9 +169,17 @@ const nextClassData = sorted.map((s) => ({
       const link = document.getElementById('next-class-link');
       const title = document.getElementById('next-class-title');
       const when = document.getElementById('next-class-when');
-      link.href = '/sessions/' + next.slug;
+      link.href = '/sessions/' + next.slug; document.getElementById('next-class-open').href = '/sessions/' + next.slug;
       title.textContent = 'Session ' + next.n + ': ' + next.title;
-      when.textContent = (isToday ? 'Tonight' : 'Next class · ' + next.date);
+      document.getElementById('next-class-sub').textContent = next.subtitle || '';
+      when.textContent = (isToday ? 'Tonight' : 'This week · Mon ' + next.date);
+      const show = (id, href, text, tid) => { const el = document.getElementById(id); if (!href) return; el.href = href; if (tid) document.getElementById(tid).textContent = text; el.classList.remove('hidden'); };
+      show('tw-notebook', next.notebook);
+      if (next.reading) show('tw-reading', next.reading.url, next.reading.title, 'tw-reading-t');
+      if (next.explorer) show('tw-explorer', next.explorer.url, next.explorer.title.replace(/ — .*$/, ''), 'tw-explorer-t');
+      // the homework due THIS session was assigned last session
+      const prev = nextClassData.find((s) => s.n === next.n - 1);
+      if (prev && prev.homework) show('tw-homework', '/sessions/' + prev.slug + '#homework', prev.homework + ' — due at the start of class', 'tw-homework-t');
       box.classList.remove('hidden');
       // ring the matching session card
       document.querySelectorAll('.session-card[data-session-iso="' + next.iso + '"]').forEach((el) => {

@@ -115,6 +115,15 @@
       "linkText": "Open in Colab"
     },
     {
+      "title": "The Conformal Explorer",
+      "url": "/explore/conformal/",
+      "description": "Set a coverage target, watch the calibration residuals size the band, then draw new cases a hundred times and check the promise. Underfit the model, shrink the calibration set, or shift the data to see what breaks it.",
+      "icon": "zap",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the explorer"
+    },
+    {
       "title": "scikit-learn User Guide — Cross-Validation: Evaluating Estimator Performance",
       "url": "https://scikit-learn.org/stable/modules/cross_validation.html",
       "description": "Every splitter with a picture: KFold, StratifiedKFold, GroupKFold, StratifiedGroupKFold, TimeSeriesSplit. The visualization section alone is worth the visit.",
