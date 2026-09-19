@@ -77,6 +77,40 @@ const firstSessions = [1, 2, 3].map((n) => ({ n, ...sessionMeta[n] }));
     </div>
   </section>
 
+  <section class="py-6 px-8 max-w-[1100px] mx-auto">
+    <div class="bg-gradient-to-br from-accent-cyan/[0.06] to-bg-card border border-accent-cyan/25 rounded-2xl px-7 py-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <div>
+          <div class="font-mono text-[0.7rem] tracking-[2px] uppercase text-accent-cyan mb-1">Your progress · saved on this device</div>
+          <div class="text-lg font-bold text-text-primary">Where you are</div>
+        </div>
+        <div class="font-mono text-[0.72rem] text-text-muted" id="prog-note">Nothing recorded yet — start with Python, Guided or a Practice question.</div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <a href="/python/playground/" class="block bg-bg-card/70 border border-border-subtle rounded-xl px-5 py-4 no-underline hover:border-accent-cyan/40 transition-colors">
+          <div class="flex justify-between items-baseline mb-2"><span class="text-sm font-semibold text-text-primary">Python, Guided</span><span class="font-mono text-[0.72rem] text-text-muted" id="prog-py">0 / 28</span></div>
+          <div class="h-2 bg-bg-tertiary rounded-full overflow-hidden"><div id="bar-py" class="h-full bg-gradient-to-r from-accent-cyan to-accent-purple" style="width:0%"></div></div>
+        </a>
+        <a href="/practice" class="block bg-bg-card/70 border border-border-subtle rounded-xl px-5 py-4 no-underline hover:border-accent-cyan/40 transition-colors">
+          <div class="flex justify-between items-baseline mb-2"><span class="text-sm font-semibold text-text-primary">Practice bank</span><span class="font-mono text-[0.72rem] text-text-muted" id="prog-pr">0 / 36 correct</span></div>
+          <div class="h-2 bg-bg-tertiary rounded-full overflow-hidden"><div id="bar-pr" class="h-full bg-gradient-to-r from-accent-green to-accent-cyan" style="width:0%"></div></div>
+        </a>
+      </div>
+    </div>
+  </section>
+  <script is:inline>
+    (function () {
+      try {
+        const py = JSON.parse(localStorage.getItem('isom835-py-done') || '{}'); const npy = Object.keys(py).length;
+        const pr = JSON.parse(localStorage.getItem('isom835-practice-v1') || '{}'); const qs = pr.questions || {};
+        const attempted = Object.keys(qs).length, correct = Object.values(qs).filter(q => q && q.correct).length;
+        document.getElementById('prog-py').textContent = npy + ' / 28'; document.getElementById('bar-py').style.width = Math.min(100, 100 * npy / 28) + '%';
+        document.getElementById('prog-pr').textContent = correct + ' / 36 correct' + (attempted ? ' · ' + attempted + ' tried' : ''); document.getElementById('bar-pr').style.width = Math.min(100, 100 * correct / 36) + '%';
+        if (npy || attempted) document.getElementById('prog-note').textContent = 'Keep going — a little every day beats a lot on Sunday.';
+      } catch (e) {}
+    })();
+  </script>
+
   <section class="py-12 px-8 max-w-[1100px] mx-auto">
     <SectionHeader number="03" label="The site" title="Seven places you'll live" />
     <div class="grid md:grid-cols-3 gap-4">
