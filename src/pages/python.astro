@@ -16,17 +16,19 @@ const levels: Level[] = [
     blurb: 'Colab is a Python notebook in your browser: cells you run one at a time, text and code side by side. Learn the five keystrokes you will use ten thousand times.',
     can: ['Open a Colab notebook, run a cell (Shift+Enter), add a cell, save a copy to Drive', 'Read an error message from the bottom up', 'Print, comment, and ask Colab\'s assistant for help — then verify what it wrote'],
     links: [
+      { t: 'Python, Guided — Lesson 0 (read, run, get graded)', u: '/python/playground/#L0', k: 'web', d: 'Start here: the lesson, runnable examples, and graded exercises, all in the browser.' },
       { t: 'Module 0 — introduction activity (Prof. Arslan)', u: GH + 'python/modules/module_0_introduction_activity_ha.ipynb', k: 'lecture', d: 'A ten-minute first notebook: run, edit, break, fix.' },
       { t: 'Python Tutor — visualize code line by line', u: 'https://pythontutor.com/', k: 'web', d: 'Paste any short program and watch variables change step by step. The single best tool for understanding what a loop does.' },
       { t: 'Kaggle Learn — Python', u: 'https://www.kaggle.com/learn/python', k: 'web', d: 'Seven short lessons with exercises, no setup. If you have never written Python, start here tonight.' },
     ],
-    practice: 'Playground exercises 1–2.',
+    practice: 'Python, Guided — Lesson 0.',
   },
   {
     n: 1, title: 'Python foundations', time: '3–4 hours', icon: 'braces',
     blurb: 'Expressions, variables, and types; conditionals and try/except; functions with arguments and return values; while and for loops with break and continue. Everything else in the course is built from these.',
     can: ['Write numeric expressions and understand operator precedence', 'Direct control flow with if / elif / else and handle errors with try / except', 'Define and reuse functions with any number of arguments; know when a function returns nothing', 'Automate repetition with definite (for) and indefinite (while) loops'],
     links: [
+      { t: 'Python, Guided — Lesson 1 (read, run, get graded)', u: '/python/playground/#L1', k: 'web', d: 'Start here: the lesson, runnable examples, and graded exercises, all in the browser.' },
       { t: 'Slides 02 — Expressions & variables', u: 'https://docs.google.com/presentation/d/1BhnjBMYBJE-ygO7oqQ6mqpjjsq7yGrM-mUtk4V2I6ak/edit', k: 'slides' },
       { t: 'Slides 03 — Conditional execution', u: 'https://docs.google.com/presentation/d/15yQnTeDlQS7HdW624kpUOTJ5lMcBJqTVISYlg6JMtS4/edit?usp=sharing', k: 'slides' },
       { t: 'Slides 04 — Functions', u: 'https://docs.google.com/presentation/d/1RozruN78lQ1mjkayM1LpXdm4OnP5sYKfNKgA-nupCoc/edit?usp=sharing', k: 'slides' },
@@ -39,13 +41,14 @@ const levels: Level[] = [
       { t: 'CS Circles — Waterloo\'s interactive Python', u: 'https://cscircles.cemc.uwaterloo.ca/', k: 'web', d: 'Short lessons with exercises graded in the browser. Excellent for loops and functions.' },
       { t: 'Python docs — The official tutorial, chapters 3–4', u: 'https://docs.python.org/3/tutorial/', k: 'read', d: 'When you want the precise rule, not a metaphor.' },
     ],
-    practice: 'Playground exercises 3–6 and 14. Do FizzBuzz (Module 3 challenge) without looking anything up.',
+    practice: 'Python, Guided — Lesson 1 (six exercises, ending with FizzBuzz).',
   },
   {
     n: 2, title: 'Strings, files & lists', time: '3 hours', icon: 'type',
     blurb: 'Objects carry data and methods. Strings and lists are the first two you will use in every notebook; files are the memory that outlives your program.',
     can: ['Slice, search, and format strings; use the built-in string methods with confidence', 'Open, read, and iterate a text file line by line', 'Build, index, slice, sort, and mutate lists; use list methods and comprehensions'],
     links: [
+      { t: 'Python, Guided — Lesson 2 (read, run, get graded)', u: '/python/playground/#L2', k: 'web', d: 'Start here: the lesson, runnable examples, and graded exercises, all in the browser.' },
       { t: 'Slides 06 — Strings', u: 'https://docs.google.com/presentation/d/1DThGm0zjYYvT9wUs3W0H9RyUe0QA9BzqAa2hwnw23Nw/edit?usp=sharing', k: 'slides' },
       { t: 'Slides 07 — Files', u: 'https://docs.google.com/presentation/d/1mtYt3cHV3CrOlSJ-LdJh1u3AIODpVOfiI4XUVVsI56I/edit?usp=sharing', k: 'slides' },
       { t: 'Slides 08 — Lists', u: 'https://docs.google.com/presentation/d/1jx2T3azmpk7b_2BpL2KpfCKtdHuc-eg_LHIQgAvj06I/edit?usp=sharing', k: 'slides' },
@@ -56,13 +59,14 @@ const levels: Level[] = [
       { t: 'W3Schools — Python string formatting & list methods', u: 'https://www.w3schools.com/python/python_string_formatting.asp', k: 'read', d: 'The quickest reference on the web; the list-methods page is one click away.' },
       { t: 'Automate the Boring Stuff — Chapters 6 and 9', u: 'https://automatetheboringstuff.com/', k: 'read', d: 'Free book. Strings and files, taught through tasks you actually want to automate.' },
     ],
-    practice: 'Playground exercises 7–8 and 12.',
+    practice: 'Python, Guided — Lesson 2.',
   },
   {
     n: 3, title: 'Dictionaries, tuples & the web', time: '3 hours', icon: 'layers',
     blurb: 'A dictionary is a set of counters — the idiom behind every "rate by group" you will compute. Tuples are hashable and comparable, so you can sort lists of them and use them as keys. Then Python pretends to be a browser.',
     can: ['Count frequencies with a dictionary and the .get(key, 0) idiom; iterate keys, values, and items', 'Sort a list of tuples by any field; use tuples as dictionary keys', 'Retrieve a web page with urllib / requests and parse it with BeautifulSoup'],
     links: [
+      { t: 'Python, Guided — Lesson 3 (read, run, get graded)', u: '/python/playground/#L3', k: 'web', d: 'Start here: the lesson, runnable examples, and graded exercises, all in the browser.' },
       { t: 'Slides 09 — Dictionaries', u: 'https://docs.google.com/presentation/d/1o23qN6ml0QryraZrAyOU8eQ6ge4ANb9FnyaEmOs7tcA/edit?usp=sharing', k: 'slides' },
       { t: 'Slides 10 — Tuples', u: 'https://docs.google.com/presentation/d/1a1_14wN0eG2BKM1Vs6JkjrBb5RzhFWMyLjU0i8Zaep4/edit?usp=sharing', k: 'slides' },
       { t: 'Slides 12 — HTTP & scraping', u: 'https://docs.google.com/presentation/d/1HXtAYe-fARgh9Mo322w1zvX56238dehcq0vy4ccIw1k/edit?usp=sharing', k: 'slides' },
@@ -73,13 +77,14 @@ const levels: Level[] = [
       { t: 'Whirlwind Tour of Python (VanderPlas) — Data structures', u: 'https://jakevdp.github.io/WhirlwindTourOfPython/', k: 'read', d: 'A free, fast, precise tour for people who already program in something else.' },
       { t: 'regex101', u: 'https://regex101.com/', k: 'web', d: 'When you need to pull a pattern out of messy text, test the regular expression here first.' },
     ],
-    practice: 'Playground exercises 9–11 and 13.',
+    practice: 'Python, Guided — Lesson 3 (ends with rate-by-group by hand).',
   },
   {
     n: 4, title: 'pandas: working with data', time: '4–6 hours', icon: 'table',
     blurb: 'The library the whole course runs on. Read a CSV, look at it, select rows and columns, summarize, group, merge — and clean the column that was secretly a string.',
     can: ['Load data from CSV, Excel, URLs, and APIs into a DataFrame', 'Select with .loc / .iloc and boolean masks; add and transform columns', 'Summarize with describe / value_counts; aggregate with groupby; combine tables with merge', 'Recognize the three merge shapes (one-to-one, many-to-one, many-to-many) and check row counts'],
     links: [
+      { t: 'Python, Guided — Lesson 4 (read, run, get graded)', u: '/python/playground/#L4', k: 'web', d: 'Start here: the lesson, runnable examples, and graded exercises, all in the browser.' },
       { t: 'Module 4 lecture notebook — exploratory data analysis with pandas (Prof. Arslan)', u: GH + 'refreshers/m4_2_exploratory_data_analysis.ipynb', k: 'lecture', d: 'Series and DataFrames, indexing, summaries, groupby, and the three kinds of joins.' },
       { t: 'pandas library introduction (slides)', u: 'https://drive.google.com/file/d/19SVPgPfpO8ubHLfVcUdZkw-ot2CmHLBD/view?usp=sharing', k: 'slides' },
       { t: 'Slides 13 — Web services & APIs', u: 'https://docs.google.com/presentation/d/1FQXE_YXzT3TWUILmz-ne7yUrlXgFtDg_MQJssOhcckM/edit?usp=sharing', k: 'slides' },
@@ -93,7 +98,7 @@ const levels: Level[] = [
       { t: 'Kaggle Learn — Pandas', u: 'https://www.kaggle.com/learn/pandas', k: 'web', d: 'Six lessons with exercises on a wine-reviews dataset.' },
       { t: 'McKinney — Python for Data Analysis, 3rd ed. (free online)', u: 'https://wesmckinney.com/book/', k: 'read', d: 'By the creator of pandas. Chapters 5–8 are the reference for this level.' },
     ],
-    practice: 'Playground exercises 15–16, then Session 2\'s notebook.',
+    practice: 'Python, Guided — Lesson 4 (six pandas exercises), then Session 2\'s notebook.',
   },
   {
     n: 5, title: 'Visualization', time: '2 hours', icon: 'chart-scatter',
@@ -114,6 +119,7 @@ const levels: Level[] = [
     blurb: 'Choose a model, set its hyperparameters, arrange X and y, fit, predict. The estimator API is the same for every model in the course — learn it once here at a gentle pace, then Session 1 moves fast.',
     can: ['Arrange a features matrix and a target vector; split train and test', 'Fit and evaluate a model with the scikit-learn estimator API', 'Recognize overfitting and use a validation set or cross-validation'],
     links: [
+      { t: 'Python, Guided — Lesson 5 (read, run, get graded)', u: '/python/playground/#L5', k: 'web', d: 'Start here: the lesson, runnable examples, and graded exercises, all in the browser.' },
       { t: 'Introducing scikit-learn (Prof. Arslan)', u: GH + 'refreshers/m5_2_introducing_scikit_learn_library.ipynb', k: 'lecture' },
       { t: 'Model validation & selection (Prof. Arslan)', u: GH + 'refreshers/m5_3_model_validation_and_model_selection.ipynb', k: 'lecture' },
       { t: 'Introduction to scikit-learn (Fall 2025 Colab)', u: 'https://colab.research.google.com/drive/1ddkZPgzCHVZ9zCGBYjoX04n8YOGffCzG', k: 'lecture' },
@@ -121,12 +127,12 @@ const levels: Level[] = [
       { t: 'Neural Numbers — train a digit recognizer in your browser', u: 'https://imaginary.github.io/neural-numbers/index.html', k: 'web', d: 'Draw a digit, watch the network guess, then train it yourself. Pure delight.' },
       { t: 'Kaggle — Titanic tutorial: how a competition works', u: 'https://www.kaggle.com/code/alexisbcook/titanic-tutorial', k: 'web', d: 'Your first submission, step by step — the muscle memory you need for the midterm competition.' },
     ],
-    practice: 'Then start Session 1.',
+    practice: 'Python, Guided — Lesson 5 trains a model in the browser. Then start Session 1.',
   },
 ];
 
 const arenas = [
-  { t: 'Playground (this site)', u: '/python/playground/', d: 'Sixteen graded micro-exercises in the browser. Start here.' },
+  { t: 'Python, Guided (this site)', u: '/python/playground/', d: 'Seven lessons, runnable examples, 27 graded exercises, and a first scikit-learn model — all in the browser. Start here.' },
   { t: 'futurecoder', u: 'https://futurecoder.io/', d: 'A free, interactive, step-by-step Python course with a built-in debugger. The best "from zero" experience on the web.' },
   { t: 'CS Circles', u: 'https://cscircles.cemc.uwaterloo.ca/', d: 'University of Waterloo. Short lessons, instant grading.' },
   { t: 'HackInScience', u: 'https://hackinscience.org/', d: 'Free graded Python exercises, from beginner to advanced.' },
@@ -151,15 +157,15 @@ const kindLabel: Record<string, string> = { slides: 'Slides', lecture: 'Notebook
 const kindClass: Record<string, string> = { slides: 'text-accent-purple', lecture: 'text-accent-cyan', exercise: 'text-accent-green', challenge: 'text-accent-orange', web: 'text-accent-cyan', video: 'text-accent-magenta', read: 'text-text-muted' };
 ---
 
-<BaseLayout title="ISOM 835 | Python Track" description="A self-paced Python track for ISOM 835: eight levels from expressions to pandas and first scikit-learn, built on Prof. Arslan's ISOM 730 modules, with a browser-based playground and the best free resources on the web.">
+<BaseLayout title="ISOM 835 | Python Track" description="A self-paced Python track for ISOM 835: a guided in-browser course from your first variable to your first model, Prof. Arslan's ISOM 730 modules for depth, and the best free resources on the web.">
   <section class="py-24 px-8 max-w-[1100px] mx-auto">
     <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">Python Track · self-paced · free</div>
     <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold leading-tight mb-6">Python for <GradientText>Predictive Analytics</GradientText></h1>
     <p class="text-text-secondary text-xl max-w-[820px] leading-relaxed mb-6">
-      ISOM 835 assumes you can read and write basic Python and pandas. This track gets you there — or back there — in about twenty hours, at your own pace. It is built on Prof. Arslan's ISOM 730 modules (slides, lecture notebooks, exercises, and a challenge for every level), stitched to the best free resources on the web, and fronted by a playground that runs Python in your browser.
+      ISOM 835 assumes you can read and write basic Python and pandas. This track gets you there — or back there — in about twenty hours, at your own pace. Start with <b class="text-text-primary">Python, Guided</b>: seven lessons you read, run, and get graded on without leaving the page. Then go deeper with Prof. Arslan's ISOM 730 modules — slides, lecture notebooks, exercises, and a challenge for every level — and the best free resources on the web.
     </p>
     <div class="flex gap-4 flex-wrap">
-      <a href="/python/playground/" class="px-8 py-4 bg-gradient-to-r from-accent-cyan to-accent-purple rounded-full text-bg-primary font-semibold no-underline transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_40px_rgba(46,230,197,0.3)]">Open the Playground</a>
+      <a href="/python/playground/" class="px-8 py-4 bg-gradient-to-r from-accent-cyan to-accent-purple rounded-full text-bg-primary font-semibold no-underline transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_40px_rgba(46,230,197,0.3)]">Start Python, Guided →</a>
       <a href="#levels" class="px-8 py-4 border border-border-subtle rounded-full text-text-primary no-underline transition-all duration-300 hover:border-accent-cyan hover:text-accent-cyan">See the levels</a>
     </div>
   </section>
