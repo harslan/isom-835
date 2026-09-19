@@ -66,6 +66,18 @@ export const assessments = [
   },
 ];
 
+// What is due at the start of each session (authoritative; the session pages' homework labels are prose).
+export const dueBySession: Record<number, string> = {
+  2: 'HW0 — setup + first model',
+  3: 'HW1 — EDA + baseline (Telco)',
+  5: 'HW2 — Ames regression pipeline',
+  7: 'HW3 — credit default + threshold · competition team registered',
+  8: 'Competition leaderboard closed (Sun Nov 8) · memo tonight · project proposal',
+  10: 'HW4 — boosting + SHAP + conformal (hotel)',
+  12: 'HW5 — segmentation or forecasting',
+  13: 'Project notebook + memo (Sun Dec 13) · presentations tonight',
+};
+
 export const gradeScale = [
   ['A', '93–100'], ['A−', '90–92'], ['B+', '87–89'], ['B', '83–86'], ['B−', '80–82'], ['C+', '77–79'], ['C', '73–76'], ['F', 'below 73'],
 ];

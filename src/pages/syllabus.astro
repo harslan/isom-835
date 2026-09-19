@@ -4,7 +4,7 @@ import GradientText from '../components/GradientText.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import Icon from '../components/Icon.astro';
 import { getCollection } from 'astro:content';
-import { description, outcomes, grading, assessments, gradeScale, materials, tools, policies } from '../data/syllabus';
+import { description, outcomes, grading, assessments, gradeScale, materials, tools, policies, dueBySession } from '../data/syllabus';
 import { course } from '../data/course';
 import { sessionMeta, modules, WEEKDAY, WEEKDAY_LONG, MEETING_TIME } from '../data/schedule';
 
@@ -14,8 +14,7 @@ const sorted = sessions.sort((a, b) => a.data.number - b.data.number);
 // Weekly table: reading (first 'Reading' resource), what's due (homework assigned in the previous session)
 const weekly = sorted.map((s) => {
   const reading = (s.data.resources || []).find((r: any) => r.badge === 'Reading');
-  const prev = sorted.find((p) => p.data.number === s.data.number - 1);
-  const due = prev?.data.homework?.[0]?.label ?? '';
+  const due = dueBySession[s.data.number] ?? '';
   return { n: s.data.number, slug: s.data.slug, title: s.data.title, tags: s.data.tags, date: sessionMeta[s.data.number]?.date, module: sessionMeta[s.data.number]?.module, reading: reading ? reading.title.replace(/ — .*$/, '') : '—', due };
 });
 const milestones: Record<number, string> = { 6: 'Competition launches', 8: 'Competition reveal · memo due · project proposal due', 13: 'Final presentations · Signal Award' };
