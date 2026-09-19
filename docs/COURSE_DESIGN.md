@@ -88,6 +88,9 @@ exam-week slot). No written final exam.
 - `/explorers` — overfitting (S1/S4), threshold & profit (S6), gradient boosting (S8), k-means (S10). Conformal explorer still to build.
 - Session pages embed the exact StatQuest videos (verified IDs) for S1, S4, S5, S7, S8, S9, S10.
 
+- `/syllabus` — full syllabus: description, seven outcomes, weekly table (reading + due), grading + letter scale, assessments with rubrics, materials, tools, policies.
+- `public/advanced/` — optional advanced-track notebooks (uplift modeling, linked from S6 and the project page). Add more here (AutoML, causal) rather than lengthening sessions.
+
 ## 4. Session JSON conventions (follow `session-01.json` exactly)
 
 - `duration`: `"150 Minutes"`. `icon`: a lucide name available in `Icon.astro`.

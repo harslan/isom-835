@@ -4,70 +4,127 @@ import GradientText from '../components/GradientText.astro';
 import SectionHeader from '../components/SectionHeader.astro';
 import Icon from '../components/Icon.astro';
 import { getCollection } from 'astro:content';
-import { grading, policies } from '../data/syllabus';
+import { description, outcomes, grading, assessments, gradeScale, materials, tools, policies } from '../data/syllabus';
 import { course } from '../data/course';
-import { sessionMeta, WEEKDAY } from '../data/schedule';
+import { sessionMeta, modules, WEEKDAY, WEEKDAY_LONG, MEETING_TIME } from '../data/schedule';
 
 const sessions = await getCollection('sessions');
 const sorted = sessions.sort((a, b) => a.data.number - b.data.number);
+
+// Weekly table: reading (first 'Reading' resource), what's due (homework assigned in the previous session)
+const weekly = sorted.map((s) => {
+  const reading = (s.data.resources || []).find((r: any) => r.badge === 'Reading');
+  const prev = sorted.find((p) => p.data.number === s.data.number - 1);
+  const due = prev?.data.homework?.[0]?.label ?? '';
+  return { n: s.data.number, slug: s.data.slug, title: s.data.title, tags: s.data.tags, date: sessionMeta[s.data.number]?.date, module: sessionMeta[s.data.number]?.module, reading: reading ? reading.title.replace(/ — .*$/, '') : '—', due };
+});
+const milestones: Record<number, string> = { 6: 'Competition launches', 8: 'Competition reveal · memo due · project proposal due', 13: 'Final presentations · Signal Award' };
 ---
 
-<BaseLayout title="ISOM 835 | Syllabus">
-  <section class="py-24 px-8 max-w-[1200px] mx-auto">
-    <div class="text-center mb-16">
-      <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold mb-4">
-        Course <GradientText>Syllabus</GradientText>
-      </h1>
-      <p class="text-text-secondary text-lg max-w-[600px] mx-auto">
-        {course.code}: {course.title} &bull; {course.semester}
-      </p>
-      <p class="text-text-muted text-sm mt-4 max-w-[600px] mx-auto font-mono">
-        {course.meeting} &bull; {course.credits} Credits &bull; Prerequisite: {course.prerequisite}
-      </p>
-      <p class="text-text-muted text-sm mt-2 max-w-[600px] mx-auto">
-        No class Mon Oct 12 (October Break). Session 13 and final presentations meet in the exam-week slot, Mon Dec 14. No written final exam: the project is the final.
-      </p>
-    </div>
-  </section>
-
-  <!-- Schedule -->
-  <section class="py-12 px-8 max-w-[1200px] mx-auto">
-    <SectionHeader number="01" label="Schedule" title="Session Schedule" description="13 Monday evenings: from your first predictive model to the tabular and LLM frontier." />
-    <div class="grid gap-4">
-      {sorted.map((session) => (
-        <a href={`/sessions/${session.data.slug}`} class="flex items-center gap-6 px-6 py-5 bg-bg-card border border-border-subtle rounded-xl transition-all duration-300 no-underline text-inherit hover:border-accent-cyan/30 hover:translate-x-2 fade-in">
-          <div class="font-mono text-2xl font-bold bg-gradient-to-br from-accent-cyan to-accent-purple bg-clip-text text-transparent shrink-0 w-10">
-            {String(session.data.number).padStart(2, '0')}
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="font-semibold">{session.data.title}</div>
-            <div class="text-text-secondary text-sm truncate">{session.data.subtitle}</div>
-          </div>
-          <span class="font-mono text-[0.75rem] text-text-muted whitespace-nowrap shrink-0 max-sm:hidden">
-            {WEEKDAY} · {sessionMeta[session.data.number]?.date}
-          </span>
-          <Icon name="chevron-right" class="w-5 h-5 text-text-muted shrink-0" />
-        </a>
+<BaseLayout title="ISOM 835 | Syllabus" description="The full ISOM 835 syllabus: description, learning outcomes, weekly schedule with readings and due dates, assessments and rubrics, materials, tools, and policies.">
+  <section class="py-24 px-8 max-w-[1100px] mx-auto">
+    <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">{course.code} · {course.semester} · 3 credits</div>
+    <h1 class="text-[clamp(2.5rem,6vw,4rem)] font-extrabold leading-tight mb-6">Course <GradientText>Syllabus</GradientText></h1>
+    <p class="text-text-secondary text-lg max-w-[820px] leading-relaxed mb-8">{description}</p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[
+        ['Meets', `${WEEKDAY_LONG}s · ${MEETING_TIME}`],
+        ['Instructor', course.instructor.name],
+        ['Email', course.instructor.email],
+        ['Prerequisite', 'Sawyer Business School graduate standing; Python & pandas assumed (refreshers on the Start Here page)'],
+      ].map(([k, v]) => (
+        <div class="bg-bg-card border border-border-subtle rounded-xl p-5"><div class="font-mono text-[0.68rem] text-accent-cyan tracking-[2px] uppercase mb-2">{k}</div><div class="text-sm text-text-primary leading-snug">{v}</div></div>
       ))}
     </div>
+    <p class="text-text-muted text-sm mt-4 font-mono">No class Mon Oct 12 (October Break). Session 13 and final presentations meet in the exam-week slot, Mon Dec 14. No written final exam — the project is the final.</p>
   </section>
 
-  <!-- Grading -->
-  <section class="py-12 px-8 max-w-[1200px] mx-auto">
-    <SectionHeader number="02" label="Grading" title="Grade Breakdown" />
-    <div class="grid gap-4 fade-in">
-      {grading.map((item) => (
-        <div class="flex items-center justify-between px-6 py-5 bg-bg-card border border-border-subtle rounded-xl">
-          <span class="font-medium">{item.component}</span>
-          <span class="font-mono text-accent-cyan font-bold text-lg">{item.weight}%</span>
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="01" label="Learning Outcomes" title="By December you will be able to" />
+    <div class="grid gap-3 fade-in">
+      {outcomes.map((o) => (
+        <div class="flex gap-4 items-start px-6 py-4 bg-bg-card border border-border-subtle rounded-xl">
+          <span class="font-mono text-[0.8rem] text-accent-cyan font-bold w-32 shrink-0 pt-0.5">{o.verb}</span>
+          <span class="text-sm text-text-secondary leading-relaxed">{o.text}</span>
         </div>
       ))}
     </div>
   </section>
 
-  <!-- Policies -->
-  <section class="py-12 px-8 max-w-[1200px] mx-auto">
-    <SectionHeader number="03" label="Policies" title="Course Policies" />
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="02" label="Schedule" title="Thirteen Mondays" description="Nine modules. Each row links to the full session page with the notebook, readings, videos, explorer, homework, and practice questions." />
+    <div class="overflow-x-auto fade-in">
+      <table class="w-full text-sm border-collapse">
+        <thead><tr class="text-left font-mono text-[0.68rem] tracking-[2px] uppercase text-text-muted"><th class="py-3 pr-3">#</th><th class="py-3 pr-3">Date</th><th class="py-3 pr-3">Session</th><th class="py-3 pr-3">Reading before class</th><th class="py-3">Due at start of class</th></tr></thead>
+        <tbody>
+          {modules.map((m) => (
+            <>
+              <tr><td colspan="5" class="pt-6 pb-2 font-mono text-[0.7rem] tracking-[2px] uppercase text-accent-cyan">{m.name} <span class="text-text-muted normal-case tracking-normal">· {m.blurb}</span></td></tr>
+              {m.sessions.map((n) => { const w = weekly.find((x) => x.n === n)!; return (
+                <tr class="border-t border-border-subtle align-top">
+                  <td class="py-3 pr-3 font-mono text-accent-purple">{String(n).padStart(2, '0')}</td>
+                  <td class="py-3 pr-3 font-mono text-[0.75rem] text-text-muted whitespace-nowrap">{WEEKDAY} {w.date}</td>
+                  <td class="py-3 pr-3"><a href={`/sessions/${w.slug}`} class="text-text-primary font-semibold no-underline hover:text-accent-cyan">{w.title}</a>{milestones[n] && <div class="font-mono text-[0.68rem] text-accent-green mt-1">{milestones[n]}</div>}</td>
+                  <td class="py-3 pr-3 text-text-secondary">{w.reading}</td>
+                  <td class="py-3 text-text-secondary">{w.due || '—'}</td>
+                </tr>); })}
+            </>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="03" label="Grading" title="How the grade is built" />
+    <div class="grid md:grid-cols-[1fr_260px] gap-6 fade-in">
+      <div class="grid gap-3">
+        {grading.map((g) => (
+          <div class="flex items-center justify-between px-6 py-4 bg-bg-card border border-border-subtle rounded-xl"><span class="font-medium">{g.component}</span><span class="font-mono text-accent-cyan font-bold text-lg">{g.weight}%</span></div>
+        ))}
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-5">
+        <div class="font-mono text-[0.68rem] text-accent-cyan tracking-[2px] uppercase mb-3">Letter grades</div>
+        <table class="w-full text-sm font-mono">{gradeScale.map(([l, r]) => (<tr class="border-t border-border-subtle"><td class="py-1.5 text-text-primary">{l}</td><td class="py-1.5 text-text-secondary text-right">{r}</td></tr>))}</table>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="04" label="Assessments" title="What each piece is, and how it is graded" />
+    <div class="grid gap-6">
+      {assessments.map((a) => (
+        <div class="bg-bg-card border border-border-subtle rounded-2xl p-7 fade-in">
+          <div class="flex flex-wrap items-baseline justify-between gap-3 mb-2"><h3 class="text-lg font-bold">{a.name}</h3><span class="font-mono text-accent-cyan font-bold">{a.weight}%</span></div>
+          <p class="text-sm text-text-secondary leading-relaxed mb-4">{a.what}</p>
+          <div class="font-mono text-[0.68rem] text-text-muted tracking-[2px] uppercase mb-2">Rubric</div>
+          <ul class="space-y-1.5 mb-4">{a.rubric.map((r) => (<li class="flex gap-2 text-sm text-text-secondary"><Icon name="check" class="w-4 h-4 text-accent-cyan shrink-0 mt-0.5" /><span>{r}</span></li>))}</ul>
+          {a.items && (
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {a.items.map((it) => (<a href={`/sessions/session-${String(it.session).padStart(2, '0')}#homework`} class="bg-bg-tertiary/40 border border-border-subtle rounded-lg px-4 py-3 no-underline hover:border-accent-cyan/30"><div class="text-sm text-text-primary">{it.label}</div><div class="font-mono text-[0.7rem] text-accent-green mt-1">due {it.due}</div></a>))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="05" label="Materials & Tools" title="Everything is free" />
+    <div class="grid md:grid-cols-2 gap-6 fade-in">
+      <div class="grid gap-3">
+        {materials.map((m) => (<a href={m.url} target="_blank" rel="noopener" class="bg-bg-card border border-border-subtle rounded-xl p-5 no-underline hover:border-accent-cyan/30"><div class="text-sm font-semibold text-text-primary mb-1">{m.title}</div><div class="text-sm text-text-secondary">{m.note}</div></a>))}
+      </div>
+      <div class="bg-bg-card border border-border-subtle rounded-xl p-6">
+        <div class="font-mono text-[0.68rem] text-accent-cyan tracking-[2px] uppercase mb-3">Tools</div>
+        <ul class="space-y-3">{tools.map((t) => (<li class="flex gap-2 text-sm text-text-secondary leading-relaxed"><Icon name="wrench" class="w-4 h-4 text-accent-purple shrink-0 mt-0.5" /><span>{t}</span></li>))}</ul>
+        <p class="text-text-muted text-sm mt-4">Setup walkthrough on the <a href="/start" class="text-accent-cyan no-underline">Start Here</a> page. Dataset loaders on the <a href="/datasets" class="text-accent-cyan no-underline">Datasets</a> page.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="06" label="Policies" title="Course Policies" />
     <div class="grid gap-6 md:grid-cols-2 fade-in">
       {policies.map((policy) => (
         <div class="bg-bg-card border border-border-subtle rounded-2xl p-8">
@@ -76,6 +133,6 @@ const sorted = sessions.sort((a, b) => a.data.number - b.data.number);
         </div>
       ))}
     </div>
+    <p class="text-text-muted text-sm mt-8 text-center font-mono">This syllabus is a living document; changes are announced on Canvas and reflected here. Last updated Sep 19, 2026.</p>
   </section>
-
 </BaseLayout>

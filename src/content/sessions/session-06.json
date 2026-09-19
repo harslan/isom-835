@@ -124,6 +124,15 @@
       "linkText": "Open the explorer"
     },
     {
+      "title": "Advanced Track — Uplift Modeling: Who Is Worth Persuading?",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/advanced/ISOM835_Advanced_Uplift_Modeling.ipynb",
+      "description": "Optional companion notebook: a simulated randomized pilot, a churn model vs. a T-learner uplift model, the uplift curve, and why targeting the riskiest customers sends offers to lost causes. Pure scikit-learn, with an optional CausalML cell.",
+      "icon": "sparkles",
+      "badge": "Advanced",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    },
+    {
       "title": "scikit-learn User Guide — Tuning the Decision Threshold",
       "url": "https://scikit-learn.org/stable/modules/classification_threshold.html",
       "description": "TunedThresholdClassifierCV and FixedThresholdClassifier, with the cost-sensitive learning example that mirrors tonight's lab.",
