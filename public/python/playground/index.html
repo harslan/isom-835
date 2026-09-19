@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Playground · ISOM 835</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/explore/_shared.css">
+<style>
+  .layout { grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr); }
+  textarea { width: 100%; min-height: 300px; background: #0a0d15; color: #eef2f7; border: 1px solid var(--border); border-radius: 12px; padding: 14px; font-family: 'IBM Plex Mono', monospace; font-size: 0.88rem; line-height: 1.55; resize: vertical; tab-size: 4; }
+  textarea:focus { outline: 1px solid var(--teal); }
+  pre.out { background: #0a0d15; border: 1px solid var(--border); border-radius: 12px; padding: 14px; min-height: 120px; max-height: 320px; overflow: auto; font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; color: var(--text2); white-space: pre-wrap; margin-top: 12px; }
+  pre.out.ok { border-color: rgba(126,231,135,0.5); } pre.out.err { border-color: rgba(255,107,139,0.5); }
+  .exlist { list-style: none; display: grid; gap: 6px; }
+  .exlist button { width: 100%; text-align: left; background: var(--bg2); border: 1px solid var(--border); color: var(--text2); border-radius: 10px; padding: 9px 12px; cursor: pointer; font-family: 'Manrope', sans-serif; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .exlist button:hover { border-color: var(--teal); color: var(--text); }
+  .exlist button.active { border-color: var(--teal); color: var(--teal); }
+  .exlist .done { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--lime); }
+  .task { font-size: 0.9rem; line-height: 1.6; color: var(--text2); }
+  .task code { font-family: 'IBM Plex Mono', monospace; color: var(--lteal); background: rgba(46,230,197,0.08); padding: 1px 5px; border-radius: 4px; }
+  .task b { color: var(--text); }
+  .status { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-top: 8px; }
+  .lvl { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 1px; color: var(--muted); }
+  details summary { cursor: pointer; color: var(--muted); font-size: 0.8rem; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/python">← ISOM 835 · Python Track</a>
+  <div style="height:14px"></div>
+  <div class="kicker">Interactive · Python in your browser, nothing to install</div>
+  <h1>Python <span class="grad">Playground</span></h1>
+  <p class="sub">
+    Sixteen micro-exercises that walk the Python track in order — variables to functions to dictionaries to a first DataFrame.
+    Write code on the left, press <b>Run</b> (or Shift+Enter), and the checker tells you what passed. Python runs entirely in your browser via Pyodide;
+    the first load takes a few seconds. Your progress is saved on this device.
+  </p>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="kicker" style="margin-bottom:6px" id="ex-title">Loading…</div>
+        <div class="task" id="ex-task"></div>
+        <details><summary>Hint</summary><div class="task" id="ex-hint" style="margin-top:6px"></div></details>
+        <div style="height:12px"></div>
+        <textarea id="code" spellcheck="false"></textarea>
+        <div class="btnrow">
+          <button class="btn primary" id="run">Run &amp; check</button>
+          <button class="btn" id="reset">Reset starter code</button>
+          <button class="btn" id="next">Next exercise →</button>
+          <span class="status" id="status">starting Python…</span>
+        </div>
+        <pre class="out" id="out">Python is loading (about 10 MB, once). You can start typing.</pre>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="kicker" style="margin-bottom:8px">Exercises <span id="progress" style="color:var(--muted)"></span></div>
+        <ul class="exlist" id="exlist"></ul>
+      </div>
+      <div style="height:14px"></div>
+      <div class="panel readout">
+        <div class="kicker" style="margin-bottom:6px">Why this is here</div>
+        <div class="note" style="margin-top:0">Every exercise is a tiny version of something you will do in a real notebook: count churners in a dictionary, filter a list of customers, write a function you can reuse, load a DataFrame. When you can do these without looking anything up, the course notebooks stop feeling like a foreign language. For the full lessons, slides, and Colab notebooks, go back to the <a href="/python" style="color:var(--teal)">Python Track</a>.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.js"></script>
+<script>
+const EX = [
+ { id:'vars', lvl:'Level 1 · Variables', title:'Variables and arithmetic', task:'A customer pays <code>monthly = 72.5</code> for <code>months = 14</code>. Create both variables and a third, <code>total</code>, equal to their product. Then <code>print(total)</code>.', hint:'Multiplication is <code>*</code>. Python prints a float like <code>1015.0</code>.',
+   starter:"monthly = 72.5\nmonths = 14\n# create total, then print it\n", check:"assert abs(total - 1015.0) < 1e-9, 'total should be monthly * months = 1015.0'" },
+ { id:'strings', lvl:'Level 1 · Strings', title:'f-strings', task:'Given <code>name = \"Ana\"</code> and <code>p = 0.734</code>, print exactly: <code>Ana: 73.4% churn risk</code> using an f-string with a percent format.', hint:'<code>f\"{p:.1%}\"</code> formats 0.734 as 73.4%.',
+   starter:"name = 'Ana'\np = 0.734\n# print: Ana: 73.4% churn risk\n", check:"assert _out.strip() == 'Ana: 73.4% churn risk', f'got {_out.strip()!r}'" },
+ { id:'cond', lvl:'Level 1 · Conditionals', title:'A decision rule', task:'Write a function <code>action(p)</code> that returns <code>\"offer\"</code> if the churn probability <code>p</code> is at least 0.12, otherwise <code>\"no action\"</code>. (That threshold comes from Session 6.)', hint:'<code>def action(p):</code> then <code>if p >= 0.12: return ...</code>',
+   starter:"def action(p):\n    pass\n\nprint(action(0.3), action(0.05))\n", check:"assert action(0.3)=='offer' and action(0.05)=='no action' and action(0.12)=='offer'" },
+ { id:'loop', lvl:'Level 1 · Loops', title:'Sum with a for loop', task:'<code>charges = [29.85, 56.95, 53.85, 42.30, 70.70]</code>. Using a <code>for</code> loop (no <code>sum()</code>), add them into a variable <code>total</code> and print it.', hint:'Start with <code>total = 0</code>, then <code>for c in charges: total += c</code>.',
+   starter:"charges = [29.85, 56.95, 53.85, 42.30, 70.70]\ntotal = 0\n# loop here\nprint(total)\n", check:"assert abs(total-253.65)<1e-6\nassert 'sum(' not in _src, 'use a for loop, not sum()'" },
+ { id:'while', lvl:'Level 1 · Loops', title:'A while loop with break', task:'A balance starts at <code>1000</code> and grows 5% a year. Using a <code>while</code> loop, count how many <code>years</code> until it first exceeds 2000. Print <code>years</code>.', hint:'<code>while balance <= 2000: balance *= 1.05; years += 1</code>',
+   starter:"balance = 1000\nyears = 0\n# loop until balance > 2000\nprint(years)\n", check:"assert years == 15, f'expected 15 years, got {years}'" },
+ { id:'func', lvl:'Level 2 · Functions', title:'A reusable function', task:'Write <code>is_prime(n)</code> returning <code>True</code> for primes and <code>False</code> otherwise (n ≥ 2). Test it on 2, 9, 17.', hint:'Try every <code>d</code> from 2 to <code>int(n**0.5)</code>; if <code>n % d == 0</code> it is not prime.',
+   starter:"def is_prime(n):\n    pass\n\nprint([n for n in range(2, 20) if is_prime(n)])\n", check:"assert [n for n in range(2,30) if is_prime(n)] == [2,3,5,7,11,13,17,19,23,29]" },
+ { id:'strings2', lvl:'Level 2 · Strings', title:'Clean a messy string', task:'<code>price = \"$1,299.00 \"</code>. Turn it into the float <code>1299.0</code> stored in <code>clean</code>. (The Chipotle pandas exercise does this to a whole column.)', hint:'<code>.strip()</code>, <code>.replace(\"$\", \"\")</code>, <code>.replace(\",\", \"\")</code>, then <code>float()</code>.',
+   starter:"price = '$1,299.00 '\nclean = None\nprint(clean)\n", check:"assert clean == 1299.0 and isinstance(clean, float)" },
+ { id:'lists', lvl:'Level 2 · Lists', title:'Filter and sort a list', task:'<code>scores = [0.12, 0.81, 0.45, 0.93, 0.07, 0.66]</code>. Build <code>top</code>: the scores above 0.5, sorted from highest to lowest.', hint:'A list comprehension with an <code>if</code>, then <code>sorted(..., reverse=True)</code>.',
+   starter:"scores = [0.12, 0.81, 0.45, 0.93, 0.07, 0.66]\ntop = []\nprint(top)\n", check:"assert top == [0.93, 0.81, 0.66]" },
+ { id:'dict', lvl:'Level 3 · Dictionaries', title:'Count with a dictionary', task:'<code>contracts = [\"month\", \"year\", \"month\", \"two-year\", \"month\", \"year\"]</code>. Build a dictionary <code>counts</code> mapping each contract type to how many times it appears. Use <code>.get(key, 0)</code> — the idiom from Module 3.', hint:'<code>counts[c] = counts.get(c, 0) + 1</code> inside a loop.',
+   starter:"contracts = ['month', 'year', 'month', 'two-year', 'month', 'year']\ncounts = {}\n# count here\nprint(counts)\n", check:"assert counts == {'month':3, 'year':2, 'two-year':1}" },
+ { id:'dict2', lvl:'Level 3 · Dictionaries', title:'Most common word', task:'Given <code>text</code>, find the most frequent word and store it in <code>top_word</code>. Words are separated by spaces; ignore case.', hint:'<code>text.lower().split()</code>, count with a dict, then <code>max(counts, key=counts.get)</code>.',
+   starter:"text = 'the model beat the baseline and the baseline was strong'\ntop_word = None\nprint(top_word)\n", check:"assert top_word == 'the'" },
+ { id:'tuples', lvl:'Level 3 · Tuples & sorting', title:'Sort customers by risk', task:'<code>customers = [(\"Ana\", 0.73), (\"Ben\", 0.12), (\"Cy\", 0.55)]</code>. Create <code>ranked</code>: the same list sorted by risk, highest first.', hint:'<code>sorted(customers, key=lambda t: t[1], reverse=True)</code>',
+   starter:"customers = [('Ana', 0.73), ('Ben', 0.12), ('Cy', 0.55)]\nranked = []\nprint(ranked)\n", check:"assert ranked == [('Ana',0.73),('Cy',0.55),('Ben',0.12)]" },
+ { id:'files', lvl:'Level 3 · Files', title:'Read a file line by line', task:'The variable <code>f</code> is an open text file. Count how many lines contain the word <code>churn</code> and store it in <code>n</code>. (Use a <code>for line in f:</code> loop.)', hint:'<code>if \"churn\" in line: n += 1</code>',
+   starter:"import io\nf = io.StringIO('customer 1 churn\\ncustomer 2 stay\\ncustomer 3 churn\\ncustomer 4 churn\\n')\nn = 0\n# loop over f\nprint(n)\n", check:"assert n == 3" },
+ { id:'comp', lvl:'Level 3 · Comprehensions', title:'Dictionary comprehension', task:'<code>prices = {\"Ana\": 72.5, \"Ben\": 30.0, \"Cy\": 99.9}</code>. Build <code>discounted</code>: the same keys with every price reduced by 10%, rounded to 2 decimals.', hint:'<code>{k: round(v * 0.9, 2) for k, v in prices.items()}</code>',
+   starter:"prices = {'Ana': 72.5, 'Ben': 30.0, 'Cy': 99.9}\ndiscounted = {}\nprint(discounted)\n", check:"assert discounted == {'Ana':65.25,'Ben':27.0,'Cy':89.91}" },
+ { id:'try', lvl:'Level 2 · Errors', title:'try / except', task:'Write <code>to_number(s)</code> that returns <code>float(s)</code>, or <code>None</code> if <code>s</code> cannot be converted (like the blank <code>TotalCharges</code> in Telco).', hint:'<code>try: return float(s)</code> / <code>except ValueError: return None</code>',
+   starter:"def to_number(s):\n    pass\n\nprint(to_number('29.85'), to_number(' '))\n", check:"assert to_number('29.85')==29.85 and to_number(' ') is None and to_number('abc') is None" },
+ { id:'pandas', lvl:'Level 4 · pandas', title:'Your first DataFrame', task:'Build a DataFrame <code>df</code> from the dictionary <code>data</code>, then compute <code>rate</code>: the share of rows where <code>churn == \"Yes\"</code>. (pandas loads on first run; give it ~15 s.)', hint:'<code>df = pd.DataFrame(data)</code>; <code>rate = (df[\"churn\"] == \"Yes\").mean()</code>',
+   starter:"import pandas as pd\ndata = {'tenure': [1, 34, 2, 45, 8], 'churn': ['Yes', 'No', 'Yes', 'No', 'No']}\ndf = None\nrate = None\nprint(rate)\n", check:"import pandas as pd\nassert isinstance(df, pd.DataFrame) and abs(rate-0.4)<1e-9", pkgs:['pandas'] },
+ { id:'groupby', lvl:'Level 4 · pandas', title:'groupby: churn rate by contract', task:'<code>df</code> is given. Compute <code>by_contract</code>: a Series of churn rate (share of <code>"Yes"</code>) per <code>contract</code>, sorted from highest to lowest.', hint:'Make a 0/1 column, then <code>df.groupby(\"contract\")[\"is_churn\"].mean().sort_values(ascending=False)</code>',
+   starter:"import pandas as pd\ndf = pd.DataFrame({'contract': ['month','month','year','two','month','year'], 'churn': ['Yes','No','No','No','Yes','Yes']})\nby_contract = None\nprint(by_contract)\n", check:"import pandas as pd\nassert list(by_contract.index)==['month','year','two'] and abs(by_contract['month']-2/3)<1e-9 and by_contract['two']==0", pkgs:['pandas'] },
+];
+let py = null, cur = 0, done = JSON.parse(localStorage.getItem('isom835-py-done') || '{}');
+const $ = id => document.getElementById(id);
+function renderList() {
+  $('exlist').innerHTML = EX.map((e, i) => `<li><button class="${i === cur ? 'active' : ''}" data-i="${i}"><span><span class="lvl">${e.lvl}</span><br>${i + 1}. ${e.title}</span>${done[e.id] ? '<span class="done">✓ done</span>' : ''}</button></li>`).join('');
+  document.querySelectorAll('#exlist button').forEach(b => b.addEventListener('click', () => load(+b.dataset.i)));
+  $('progress').textContent = '· ' + Object.keys(done).filter(k => EX.some(e => e.id === k)).length + ' / ' + EX.length + ' done';
+}
+function load(i) { cur = i; const e = EX[i]; $('ex-title').textContent = e.lvl + ' — ' + e.title; $('ex-task').innerHTML = e.task; $('ex-hint').innerHTML = e.hint; $('code').value = localStorage.getItem('isom835-py-' + e.id) || e.starter; $('out').textContent = ''; $('out').className = 'out'; renderList(); }
+async function boot() {
+  try { py = await loadPyodide(); $('status').textContent = 'Python ' + py.runPython('import sys; sys.version.split()[0]') + ' ready'; $('out').textContent = 'Ready. Write your code and press Run.'; }
+  catch (e) { $('status').textContent = 'could not load Python — check your connection'; $('out').textContent = String(e); }
+}
+async function run() {
+  if (!py) { $('out').textContent = 'Python is still loading…'; return; }
+  const e = EX[cur], src = $('code').value; localStorage.setItem('isom835-py-' + e.id, src);
+  $('status').textContent = 'running…'; $('out').className = 'out';
+  try {
+    if (e.pkgs) { $('out').textContent = 'loading ' + e.pkgs.join(', ') + '…'; await py.loadPackage(e.pkgs); }
+    py.globals.set('_src', src);
+    const prog = `import sys, io\n_buf = io.StringIO(); _old = sys.stdout; sys.stdout = _buf\n_err = None\ntry:\n    exec(_src, globals())\nexcept Exception as _e:\n    _err = f'{type(_e).__name__}: {_e}'\nfinally:\n    sys.stdout = _old\n_out = _buf.getvalue()\n_check = None\nif _err is None:\n    try:\n        exec(${JSON.stringify(e.check)}, globals())\n        _check = 'ok'\n    except AssertionError as _a:\n        _check = 'fail: ' + (str(_a) or 'a check did not pass')\n    except Exception as _x:\n        _check = 'fail: ' + f'{type(_x).__name__}: {_x}'\n`;
+    py.runPython(prog);
+    const out = py.globals.get('_out'), err = py.globals.get('_err'), chk = py.globals.get('_check');
+    let msg = out ? out : '(no output)';
+    if (err) { msg += '\n\n✗ ' + err; $('out').className = 'out err'; }
+    else if (chk === 'ok') { msg += '\n\n✓ Correct — ' + e.title + ' passed.'; $('out').className = 'out ok'; done[e.id] = true; localStorage.setItem('isom835-py-done', JSON.stringify(done)); renderList(); }
+    else { msg += '\n\n✗ Not yet: ' + chk.replace(/^fail: /, ''); $('out').className = 'out err'; }
+    $('out').textContent = msg; $('status').textContent = 'ready';
+  } catch (ex) { $('out').textContent = String(ex); $('out').className = 'out err'; $('status').textContent = 'ready'; }
+}
+$('run').addEventListener('click', run);
+$('reset').addEventListener('click', () => { $('code').value = EX[cur].starter; });
+$('next').addEventListener('click', () => load((cur + 1) % EX.length));
+$('code').addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.shiftKey) { ev.preventDefault(); run(); } if (ev.key === 'Tab') { ev.preventDefault(); const t = ev.target, s = t.selectionStart; t.value = t.value.slice(0, s) + '    ' + t.value.slice(t.selectionEnd); t.selectionStart = t.selectionEnd = s + 4; } });
+load(0); boot();
+</script>
+</body>
+</html>

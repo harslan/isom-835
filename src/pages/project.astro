@@ -75,6 +75,11 @@ const deliverables = [
     description: 'Two pages to a named decision-maker: the question, the model in plain English, what it predicts, the decision and the dollars, and the trust story. No code, no math notation.',
   },
   {
+    icon: 'github',
+    title: 'Public GitHub repository',
+    description: 'A public repo with a README that tells the story (summary, objectives, dataset, tools, Colab links, how to run), the notebook, a visualizations folder, and the memo as PDF or Markdown. Optional: publish it as a GitHub Pages site with the template below. Check every link in an incognito window before you submit.',
+  },
+  {
     icon: 'presentation',
     title: 'Final presentation',
     description: 'Eight minutes plus two for questions on Mon Dec 14: your prediction story, told the way a data science lead tells it to an executive — question, data, model, evaluation, decision, trust.',
@@ -285,6 +290,17 @@ const faqs = [
           <p class="text-text-secondary text-sm leading-relaxed">{d.description}</p>
         </div>
       ))}
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4 mb-10">
+      <a href="/project/template.html" target="_blank" rel="noopener" class="flex gap-4 bg-bg-card border border-border-subtle rounded-xl p-6 no-underline transition-all duration-300 hover:border-accent-cyan/30 hover:translate-x-1 fade-in">
+        <Icon name="layout" class="w-6 h-6 text-accent-cyan shrink-0" />
+        <div><div class="font-semibold text-text-primary mb-1">Project-site template (single HTML file)</div><div class="text-sm text-text-secondary leading-relaxed">A clean one-page site with the five beats as sections, a dark/light toggle, and placeholders for your charts. Save it as index.html in your repo, turn on GitHub Pages, and your project has a home. View source to edit.</div></div>
+      </a>
+      <a href="https://harslan.github.io/predictive-analytics/project/" target="_blank" rel="noopener" class="flex gap-4 bg-bg-card border border-border-subtle rounded-xl p-6 no-underline transition-all duration-300 hover:border-accent-cyan/30 hover:translate-x-1 fade-in">
+        <Icon name="file-text" class="w-6 h-6 text-accent-purple shrink-0" />
+        <div><div class="font-semibold text-text-primary mb-1">Prior-term project guide (Fall 2025)</div><div class="text-sm text-text-secondary leading-relaxed">The earlier version of this brief: a 10–12 page report structure, repository checklist, and tips. The five-beat memo replaces the long report this term, but the repository advice still applies.</div></div>
+      </a>
     </div>
 
     <!-- Memo structure callout -->

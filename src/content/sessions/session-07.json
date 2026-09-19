@@ -194,6 +194,15 @@
       "badge": "Refresher",
       "badgeType": "code",
       "linkText": "Open in Colab"
+    },
+    {
+      "title": "Refresher: Müller & Guido, Ch. 2 — Trees, Forests & Boosting (official notebook)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/imlp_02-supervised-learning.ipynb",
+      "description": "Decision trees on the breast-cancer data, feature importances, random forests, and the original GradientBoostingClassifier — with the overfitting pictures.",
+      "icon": "book-open",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
     }
   ],
   "activities": [

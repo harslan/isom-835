@@ -203,6 +203,15 @@
       "badge": "Refresher",
       "badgeType": "code",
       "linkText": "Open in Colab"
+    },
+    {
+      "title": "Refresher: Müller & Guido, Ch. 2 — Supervised Learning (official notebook)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/imlp_02-supervised-learning.ipynb",
+      "description": "The gentlest complete tour of the classifiers you will meet all semester, each with its decision boundary drawn. Older scikit-learn, timeless ideas; the header explains what has changed.",
+      "icon": "book-open",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
     }
   ],
   "activities": [

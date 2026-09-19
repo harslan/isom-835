@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ISOM 835 · Your Prediction Story — project-site template.
+     How to use: replace every [bracketed] placeholder, drop your chart images into an images/ folder,
+     save as index.html in your public GitHub repo, then Settings → Pages → Deploy from branch (main, /root).
+     Single file, no frameworks, no build step. -->
+<title>[Project title] · ISOM 835</title>
+<style>
+  :root { --primary: #0f4c81; --accent: #2ee6c5; --bg: #f6f8fa; --card: #ffffff; --text: #1f2937; --muted: #5b6573; --border: #e5e9ef; --radius: 12px; }
+  [data-theme="dark"] { --primary: #7cc4ff; --accent: #2ee6c5; --bg: #0b0f17; --card: #131926; --text: #e6edf3; --muted: #9aa6b5; --border: #22304a; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; }
+  nav { position: sticky; top: 0; z-index: 10; background: var(--card); border-bottom: 1px solid var(--border); }
+  .nav { max-width: 1000px; margin: 0 auto; padding: 0.8rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .brand { font-weight: 700; color: var(--primary); }
+  .links { display: flex; gap: 1rem; flex-wrap: wrap; list-style: none; }
+  .links a { text-decoration: none; color: var(--muted); font-size: 0.92rem; } .links a:hover { color: var(--primary); }
+  .toggle { background: none; border: 1px solid var(--border); color: var(--text); border-radius: 999px; padding: 0.3rem 0.8rem; cursor: pointer; font-size: 0.85rem; }
+  header { background: linear-gradient(135deg, var(--primary), #082f52); color: #fff; padding: 4.5rem 1.25rem 4rem; text-align: center; }
+  header h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); margin-bottom: 0.6rem; }
+  header .sub { opacity: 0.9; max-width: 720px; margin: 0 auto 1.4rem; }
+  .kicker { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; opacity: 0.85; margin-bottom: 0.8rem; }
+  .btn { display: inline-block; padding: 0.7rem 1.3rem; border-radius: 999px; text-decoration: none; font-weight: 600; margin: 0.25rem; }
+  .btn.p { background: var(--accent); color: #062a24; } .btn.s { border: 1px solid rgba(255,255,255,0.6); color: #fff; }
+  main { max-width: 1000px; margin: -2rem auto 3rem; padding: 0 1.25rem; }
+  section.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.8rem; margin-bottom: 1.4rem; }
+  section.card h2 { color: var(--primary); font-size: 1.3rem; margin-bottom: 0.6rem; }
+  section.card .beat { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+  p, li { color: var(--text); } ul { padding-left: 1.3rem; margin: 0.6rem 0; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; margin-top: 1rem; }
+  .fact { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem; }
+  .fact b { display: block; font-size: 1.4rem; color: var(--primary); }
+  .fact span { font-size: 0.8rem; color: var(--muted); }
+  figure { margin: 1.2rem 0; } figure img { width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+  figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 0.4rem; }
+  .placeholder { border: 2px dashed var(--border); border-radius: 10px; padding: 2.4rem; text-align: center; color: var(--muted); margin: 1.2rem 0; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.55rem 0.6rem; border-bottom: 1px solid var(--border); } th { color: var(--muted); font-weight: 600; }
+  footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 2rem 1.25rem; }
+  @media print { nav, .toggle, .btn { display: none; } header { background: none; color: var(--text); padding: 1rem 0; } section.card { border: none; page-break-inside: avoid; } }
+</style>
+</head>
+<body>
+<nav><div class="nav">
+  <div class="brand">ISOM 835 · Prediction Story</div>
+  <ul class="links">
+    <li><a href="#question">Question</a></li><li><a href="#data">Data</a></li><li><a href="#model">Model</a></li>
+    <li><a href="#decision">Decision</a></li><li><a href="#trust">Trust</a></li>
+  </ul>
+  <button class="toggle" id="toggle" aria-label="Toggle dark mode">Dark</button>
+</div></nav>
+
+<header>
+  <div class="kicker">[Company or context] · [Fall 2026]</div>
+  <h1>[Who churns next month? — the prediction question as a title]</h1>
+  <p class="sub">[One sentence: the decision this prediction changes, and what it is worth.]</p>
+  <a class="btn p" href="[https://colab.research.google.com/github/…]">Open the notebook</a>
+  <a class="btn s" href="[https://github.com/you/repo]">GitHub repository</a>
+  <a class="btn s" href="[memo.pdf]">Decision memo (PDF)</a>
+</header>
+
+<main>
+  <section class="card" id="summary">
+    <div class="beat">Executive summary</div>
+    <h2>[The answer, in four sentences]</h2>
+    <p>[What was predicted, for whom, how well, and what the business should do differently. Lead with the number.]</p>
+    <div class="facts">
+      <div class="fact"><b>[12,430]</b><span>[rows in the dataset]</span></div>
+      <div class="fact"><b>[0.87]</b><span>[test ROC-AUC vs. 0.71 baseline]</span></div>
+      <div class="fact"><b>[0.12]</b><span>[decision threshold from the cost matrix]</span></div>
+      <div class="fact"><b>[$41K]</b><span>[estimated value per quarter]</span></div>
+    </div>
+  </section>
+
+  <section class="card" id="question">
+    <div class="beat">Beat 1</div>
+    <h2>The question</h2>
+    <p><strong>Unit:</strong> [one customer]. <strong>Target:</strong> [churn next month, yes/no]. <strong>Horizon:</strong> [30 days]. <strong>Decision:</strong> [who receives a retention offer], owned by [role]. Today this decision is made by [gut feel / a spreadsheet rule].</p>
+    <p><strong>Baseline to beat:</strong> [predict the majority class → 73.5% accuracy; or same-week-last-year].</p>
+  </section>
+
+  <section class="card" id="data">
+    <div class="beat">Beat 2</div>
+    <h2>Honest data</h2>
+    <p>[Source, size, time span, what had to be cleaned.] Leakage check: [columns dropped and why — e.g., recorded after the outcome].</p>
+    <div class="placeholder">[EDA figure: the one chart that shows the signal is real — e.g., outcome rate by the strongest feature]</div>
+    <!-- Replace the placeholder with: <figure><img src="images/eda.png" alt="…"><figcaption>…</figcaption></figure> -->
+  </section>
+
+  <section class="card" id="model">
+    <div class="beat">Beat 3</div>
+    <h2>A validated model</h2>
+    <p>[Pipeline in plain English: imputation, encoding, scaling inside a scikit-learn Pipeline; models compared; how hyperparameters were chosen; the validation scheme and why it matches production (stratified / grouped / time-ordered).]</p>
+    <table>
+      <thead><tr><th>Model</th><th>Validation [AUC]</th><th>Test [AUC]</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>[Baseline]</td><td>[0.50]</td><td>[0.50]</td><td>[majority class]</td></tr>
+        <tr><td>[Logistic regression]</td><td>[0.83]</td><td>[0.82]</td><td>[interpretable]</td></tr>
+        <tr><td>[Gradient boosting]</td><td>[0.88]</td><td>[0.87]</td><td>[early-stopped at n trees]</td></tr>
+      </tbody>
+    </table>
+    <div class="placeholder">[ROC / PR curve or predicted-vs-actual plot]</div>
+  </section>
+
+  <section class="card" id="decision">
+    <div class="beat">Beat 4</div>
+    <h2>The decision, with a number</h2>
+    <p>[Cost of a false alarm: $__. Value of a catch: $__. Break-even threshold: __. At that threshold the model recommends [action] for [N] units per [period], worth an estimated [$] versus the current practice. Assumptions stated honestly.]</p>
+    <div class="placeholder">[Profit-vs-threshold curve, gain chart, or the top-k list]</div>
+  </section>
+
+  <section class="card" id="trust">
+    <div class="beat">Beat 5</div>
+    <h2>The trust story</h2>
+    <ul>
+      <li><strong>Why it says that:</strong> [SHAP: top drivers globally, and one explained case].</li>
+      <li><strong>How sure it is:</strong> [calibration check; conformal 90% sets or intervals; share of ambiguous cases routed to a human].</li>
+      <li><strong>Where it fails:</strong> [error rates by group; the segment with the highest false-negative rate].</li>
+      <li><strong>After launch:</strong> [what is monitored, how often, and what triggers retraining].</li>
+    </ul>
+    <p><strong>Model card:</strong> intended use · training data · metrics by slice · known failure modes · owner · review date.</p>
+  </section>
+
+  <section class="card" id="ack">
+    <div class="beat">Acknowledgments</div>
+    <h2>Tools, data, and AI assistance</h2>
+    <p>[Data source and license. Libraries. Which AI assistants were used, for what, and how the output was verified — the split, the leakage, the metric, the baseline.]</p>
+  </section>
+</main>
+
+<footer>Built for ISOM 835: Predictive Analytics &amp; Machine Learning · Suffolk University · [Your name]</footer>
+
+<script>
+  const btn = document.getElementById('toggle'), root = document.documentElement;
+  const saved = localStorage.getItem('theme'); if (saved) root.setAttribute('data-theme', saved);
+  btn.textContent = root.getAttribute('data-theme') === 'dark' ? 'Light' : 'Dark';
+  btn.addEventListener('click', () => { const t = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; root.setAttribute('data-theme', t); localStorage.setItem('theme', t); btn.textContent = t === 'dark' ? 'Light' : 'Dark'; });
+</script>
+</body>
+</html>

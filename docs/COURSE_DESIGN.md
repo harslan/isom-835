@@ -93,6 +93,10 @@ exam-week slot). No written final exam.
 
 - Curated visual explainers (all URLs verified live on 2026-09-19): MLU-Explain (bias–variance, train/test/validation, linear & logistic regression, ROC, precision/recall, decision tree, random forest, cross-validation, double descent, equality of odds, neural networks), R2D3, Setosa (OLS, PCA), Naftali Harris (k-means, DBSCAN), explained.ai gradient boosting, the gradient-boosting playground, TensorFlow Playground, Google PAIR explorables (calibration, fairness), Molnar's Interpretable ML, Angelopoulos & Bates conformal tutorial, Fairlearn, Kaggle Learn (leakage, time series), Google Rules of ML, CS 329S, Kozyrkov's MFML. Attached to the relevant sessions as resources.
 
+- `/python` + `/python/playground/` — the Python Track: seven levels built on the ISOM 730 modules (Google Slides links from the module docs, notebooks hosted in `public/python/modules`, slides in `public/python/slides`, Fall 2025 lecture Colabs) plus a Pyodide playground with 16 graded exercises (checkers validated against reference solutions).
+- `public/refreshers/imlp_*` — Müller & Guido chapters 2 and 5 (official notebooks, patched for scikit-learn 1.7 / matplotlib 3.9), linked from S1, S5, S7, S9.
+- `/project/template.html` — single-file GitHub Pages template for the project site (five beats).
+
 ## 4. Session JSON conventions (follow `session-01.json` exactly)
 
 - `duration`: `"150 Minutes"`. `icon`: a lucide name available in `Icon.astro`.

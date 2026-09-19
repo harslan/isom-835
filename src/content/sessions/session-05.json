@@ -203,6 +203,15 @@
       "badge": "Refresher",
       "badgeType": "code",
       "linkText": "Open in Colab"
+    },
+    {
+      "title": "Refresher: Müller & Guido, Ch. 5 — Metrics, Confusion Matrices, ROC (official notebook)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/imlp_05-model-evaluation-and-improvement.ipynb",
+      "description": "The book chapter on evaluation: precision, recall, F1, ROC and AUC, with the imbalanced-class discussion. A slower second pass over tonight.",
+      "icon": "book-open",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
     }
   ],
   "activities": [

@@ -85,6 +85,7 @@ export const gradeScale = [
 export const materials = [
   { title: 'Géron — Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow (3rd ed.)', note: 'Primary companion. Notebooks free on GitHub; the book is optional.', url: 'https://github.com/ageron/handson-ml3' },
   { title: 'James, Witten, Hastie, Tibshirani & Taylor — An Introduction to Statistical Learning with Python (ISLP)', note: 'Theory reference. Free PDF and labs.', url: 'https://www.statlearning.com' },
+  { title: 'Müller & Guido — Introduction to Machine Learning with Python (O\'Reilly, 2016)', note: 'Optional, by a scikit-learn core developer; the clearest gentle introduction. Chapters 2 and 5 are hosted as refresher notebooks on the Start Here page (official companion code, free).', url: 'https://github.com/amueller/introduction_to_ml_with_python' },
   { title: 'VanderPlas — Python Data Science Handbook', note: 'Python and pandas refresher; the book behind ISOM 730. Free online.', url: 'https://jakevdp.github.io/PythonDataScienceHandbook/' },
   { title: 'Inria scikit-learn MOOC', note: 'Taught by scikit-learn\'s developers. Free, with videos and notebooks.', url: 'https://inria.github.io/scikit-learn-mooc/' },
   { title: 'Hyndman & Athanasopoulos — Forecasting: Principles and Practice (3rd ed.)', note: 'For Session 11 and forecasting projects. Free online.', url: 'https://otexts.com/fpp3/' },

@@ -78,9 +78,10 @@ const firstSessions = [1, 2, 3].map((n) => ({ n, ...sessionMeta[n] }));
   </section>
 
   <section class="py-12 px-8 max-w-[1100px] mx-auto">
-    <SectionHeader number="03" label="The site" title="Six places you'll live" />
+    <SectionHeader number="03" label="The site" title="Seven places you'll live" />
     <div class="grid md:grid-cols-3 gap-4">
       {[
+        { href: '/python', icon: 'braces', title: 'Python Track', text: 'Seven self-paced levels and a browser playground. Do it before Session 2 if pandas is new to you.' },
         { href: '/sessions', icon: 'calendar', title: 'Sessions', text: 'One page per Monday: objectives, agenda, the notebook, readings, homework.' },
         { href: '/explorers', icon: 'zap', title: 'Explorers', text: 'Draggable versions of the big ideas. If you can predict what the picture does before you drag, you understand it.' },
         { href: '/practice', icon: 'target', title: 'Practice', text: '36 exam-style questions. Every wrong answer names the misconception behind it.' },
@@ -118,6 +119,8 @@ const firstSessions = [1, 2, 3].map((n) => ({ n, ...sessionMeta[n] }));
         { f: 'm5_3_model_validation_and_model_selection.ipynb', t: 'Model validation & selection', d: 'Holdout, cross-validation, bias–variance, grid search — the ideas behind Sessions 1, 4, and 9.' },
         { f: 'm6_2_linear_regression.ipynb', t: 'Linear regression, ridge & lasso', d: 'Basis functions and regularization on a small example. Pairs with Session 4.' },
         { f: 'm7_1_decision_trees_random_forests.ipynb', t: 'Decision trees & random forests', d: 'A tree on blobs, the overfitting picture, bagging. Pairs with Session 7.' },
+        { f: 'imlp_02-supervised-learning.ipynb', t: 'Müller & Guido, Ch. 2 — Supervised learning (official book notebook)', d: 'Every classifier with its decision boundary drawn, by a scikit-learn core developer. Older scikit-learn, timeless ideas.' },
+        { f: 'imlp_05-model-evaluation-and-improvement.ipynb', t: 'Müller & Guido, Ch. 5 — Evaluation & improvement (official book notebook)', d: 'Cross-validation, grid search, and the metrics chapter. Pairs with Sessions 5, 6, and 9.' },
       ].map((r) => (
         <a href={`https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/${r.f}`} target="_blank" rel="noopener" class="flex gap-4 bg-bg-card border border-border-subtle rounded-xl p-5 transition-all duration-300 no-underline hover:border-accent-cyan/30 hover:translate-x-1 fade-in">
           <Icon name="code" class="w-5 h-5 text-accent-purple shrink-0 mt-0.5" />

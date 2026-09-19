@@ -239,6 +239,15 @@
       "badge": "Reading",
       "badgeType": "reference",
       "linkText": "Read the paper"
+    },
+    {
+      "title": "Refresher: Müller & Guido, Ch. 5 — Cross-Validation & Grid Search (official notebook)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/imlp_05-model-evaluation-and-improvement.ipynb",
+      "description": "k-fold, stratified, leave-one-out, shuffle-split, and grouped cross-validation, then grid search with nested CV. The slow version of tonight's first hour.",
+      "icon": "book-open",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
     }
   ],
   "activities": [
