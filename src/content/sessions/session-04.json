@@ -124,6 +124,24 @@
       "linkText": "Open the explorer"
     },
     {
+      "title": "MLU-Explain — Linear Regression",
+      "url": "https://mlu-explain.github.io/linear-regression/",
+      "description": "Least squares as a picture: drag points, watch the line and the residuals move, and see what R² actually measures.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "Setosa — Ordinary Least Squares, Explained Visually",
+      "url": "https://setosa.io/ev/ordinary-least-squares-regression/",
+      "description": "Drag the data and watch the squared errors — literally drawn as squares — shrink as the line finds its place.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
       "title": "ISLP, Chapter 3 — Linear Regression (and 6.2 — Shrinkage Methods)",
       "url": "https://www.statlearning.com/",
       "description": "The definitive free chapter on simple and multiple regression, plus the ridge and lasso section. Skip the math you don't need; read every figure caption.",

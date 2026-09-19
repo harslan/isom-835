@@ -124,6 +124,33 @@
       "linkText": "Open the explorer"
     },
     {
+      "title": "MLU-Explain — Logistic Regression",
+      "url": "https://mlu-explain.github.io/logistic-regression/",
+      "description": "The sigmoid, log-odds, and the decision boundary, interactively. Pairs with tonight's odds-ratio reading.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "MLU-Explain — ROC & AUC",
+      "url": "https://mlu-explain.github.io/roc-auc/",
+      "description": "Slide the threshold and watch the point walk along the ROC curve. The cleanest explanation of what AUC is (and is not) on the web.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "MLU-Explain — Precision & Recall",
+      "url": "https://mlu-explain.github.io/precision-recall/",
+      "description": "Precision, recall, F1 and the confusion matrix with a live example — the vocabulary of Session 5 in one scroll.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
       "title": "ISLP, Chapter 4 — Classification",
       "url": "https://www.statlearning.com/",
       "description": "Logistic regression, why not linear regression, multiple logistic regression, and generative classifiers (LDA, QDA, Naive Bayes). Sections 4.1–4.4 are tonight; 4.5 compares them.",

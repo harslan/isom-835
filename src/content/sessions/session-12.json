@@ -142,6 +142,33 @@
       "linkText": "Open the dataset card"
     },
     {
+      "title": "TensorFlow Playground",
+      "url": "https://playground.tensorflow.org/",
+      "description": "Train a small neural network in your browser: add layers and neurons, change the activation, and watch the decision boundary bend. Ten minutes here and \"hidden layer\" stops being abstract.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "MLU-Explain — Neural Networks",
+      "url": "https://mlu-explain.github.io/neural-networks/",
+      "description": "Forward pass, loss, backpropagation — as an interactive essay you can scroll through before class.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "Kozyrkov — Making Friends with Machine Learning (full course)",
+      "url": "https://www.youtube.com/watch?v=1vkb7BCMQd0",
+      "description": "Google's former Chief Decision Scientist's beloved conceptual course, free on YouTube: what ML is for, how projects fail, and how to think like a decision-maker. Six hours; watch the first hour before the project.",
+      "icon": "video",
+      "badge": "Video",
+      "badgeType": "video",
+      "linkText": "Watch on YouTube"
+    },
+    {
       "title": "Grinsztajn et al. (2022) & LLMTabBench (2026) — When Not to Use Deep Learning",
       "url": "https://arxiv.org/abs/2605.24417",
       "description": "LLMTabBench: LLMs are competitive zero-shot on low-data binary tasks but degrade past a complexity threshold, and few-shot examples can hurt. Pair with the 2022 tree-vs-NN benchmark for the full picture.",

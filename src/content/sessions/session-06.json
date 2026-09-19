@@ -133,6 +133,42 @@
       "linkText": "Open in Colab"
     },
     {
+      "title": "Google PAIR — Uncertainty & Calibration",
+      "url": "https://pair.withgoogle.com/explorables/uncertainty-calibration/",
+      "description": "An explorable from Google's People + AI Research team: what it means for a model's 70% to mean 70%, and how calibration is measured and fixed.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "Google ML Crash Course — Thresholds and the Confusion Matrix",
+      "url": "https://developers.google.com/machine-learning/crash-course/classification/thresholding",
+      "description": "Google's 2024-rebuilt crash course on choosing a classification threshold — short, with an interactive exercise.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the lesson"
+    },
+    {
+      "title": "scikit-learn — Comparison of Calibration of Classifiers",
+      "url": "https://scikit-learn.org/stable/auto_examples/calibration/plot_compare_calibration.html",
+      "description": "The canonical figure: logistic regression on the diagonal, random forest and naive Bayes bowed off it. Runnable example.",
+      "icon": "code",
+      "badge": "Go Deeper",
+      "badgeType": "code",
+      "linkText": "Open the example"
+    },
+    {
+      "title": "scikit-uplift & the Criteo Uplift Dataset",
+      "url": "https://www.uplift-modeling.com/",
+      "description": "If the advanced uplift notebook hooked you: a scikit-learn-style uplift library with tutorials, and the 25-million-row Criteo dataset (ailab.criteo.com) for a real project.",
+      "icon": "sparkles",
+      "badge": "Advanced",
+      "badgeType": "tool",
+      "linkText": "Open the docs"
+    },
+    {
       "title": "scikit-learn User Guide — Tuning the Decision Threshold",
       "url": "https://scikit-learn.org/stable/modules/classification_threshold.html",
       "description": "TunedThresholdClassifierCV and FixedThresholdClassifier, with the cost-sensitive learning example that mirrors tonight's lab.",

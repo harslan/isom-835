@@ -124,6 +124,60 @@
       "linkText": "Open the explorer"
     },
     {
+      "title": "MLU-Explain — Cross-Validation",
+      "url": "https://mlu-explain.github.io/cross-validation/",
+      "description": "K-fold, animated: watch the folds rotate and the estimate stabilize.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "Angelopoulos & Bates — A Gentle Introduction to Conformal Prediction",
+      "url": "https://arxiv.org/abs/2107.07511",
+      "description": "The self-contained tutorial that made conformal prediction mainstream: the split-conformal recipe, coverage guarantees, and extensions to classification, time series, and distribution shift.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the paper"
+    },
+    {
+      "title": "Google PAIR — Measuring Fairness",
+      "url": "https://pair.withgoogle.com/explorables/measuring-fairness/",
+      "description": "An explorable on why equal accuracy can hide unequal error rates, and the trade-offs between fairness definitions. Do this before the fairness-slicing lab.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "MLU-Explain — Equality of Odds",
+      "url": "https://mlu-explain.github.io/equality-of-odds/",
+      "description": "A fairness criterion you can drag: equalize true- and false-positive rates across groups and see what it costs.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "Molnar — Interpretable Machine Learning (free book)",
+      "url": "https://christophm.github.io/interpretable-ml-book/",
+      "description": "The reference for SHAP, partial dependence, ICE, permutation importance, and counterfactuals — with the honest caveats for each.",
+      "icon": "book-open",
+      "badge": "Go Deeper",
+      "badgeType": "reference",
+      "linkText": "Read online"
+    },
+    {
+      "title": "Fairlearn",
+      "url": "https://fairlearn.org/",
+      "description": "Microsoft's open-source toolkit for assessing and mitigating fairness issues: MetricFrame for sliced metrics is the one-liner behind tonight's fairness section.",
+      "icon": "wrench",
+      "badge": "Tool",
+      "badgeType": "tool",
+      "linkText": "Open the docs"
+    },
+    {
       "title": "scikit-learn User Guide — Cross-Validation: Evaluating Estimator Performance",
       "url": "https://scikit-learn.org/stable/modules/cross_validation.html",
       "description": "Every splitter with a picture: KFold, StratifiedKFold, GroupKFold, StratifiedGroupKFold, TimeSeriesSplit. The visualization section alone is worth the visit.",

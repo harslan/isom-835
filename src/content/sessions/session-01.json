@@ -142,6 +142,24 @@
       "linkText": "View the data"
     },
     {
+      "title": "MLU-Explain — The Bias–Variance Tradeoff",
+      "url": "https://mlu-explain.github.io/bias-variance/",
+      "description": "Amazon Machine Learning University's interactive essay: drag the model complexity and watch bias and variance trade places. The companion to our Overfitting Explorer, with the math when you want it.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "MLU-Explain — Train, Test, and Validation Sets",
+      "url": "https://mlu-explain.github.io/train-test-validation/",
+      "description": "Why we hold data out, what the three splits are for, and the mistake of tuning on the test set — as a scrollable visual story.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
       "title": "ISLP, Chapter 2 — Statistical Learning",
       "url": "https://www.statlearning.com/",
       "description": "The free textbook chapter that defines the whole field in 40 pages: what we mean by 'learning', prediction versus inference, the bias–variance trade-off, and why a test set is not optional.",

@@ -91,6 +91,8 @@ exam-week slot). No written final exam.
 - `/syllabus` — full syllabus: description, seven outcomes, weekly table (reading + due), grading + letter scale, assessments with rubrics, materials, tools, policies.
 - `public/advanced/` — optional advanced-track notebooks (uplift modeling, linked from S6 and the project page). Add more here (AutoML, causal) rather than lengthening sessions.
 
+- Curated visual explainers (all URLs verified live on 2026-09-19): MLU-Explain (bias–variance, train/test/validation, linear & logistic regression, ROC, precision/recall, decision tree, random forest, cross-validation, double descent, equality of odds, neural networks), R2D3, Setosa (OLS, PCA), Naftali Harris (k-means, DBSCAN), explained.ai gradient boosting, the gradient-boosting playground, TensorFlow Playground, Google PAIR explorables (calibration, fairness), Molnar's Interpretable ML, Angelopoulos & Bates conformal tutorial, Fairlearn, Kaggle Learn (leakage, time series), Google Rules of ML, CS 329S, Kozyrkov's MFML. Attached to the relevant sessions as resources.
+
 ## 4. Session JSON conventions (follow `session-01.json` exactly)
 
 - `duration`: `"150 Minutes"`. `icon`: a lucide name available in `Icon.astro`.

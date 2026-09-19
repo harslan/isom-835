@@ -133,6 +133,33 @@
       "linkText": "Open the dataset page"
     },
     {
+      "title": "Naftali Harris — Visualizing K-Means Clustering",
+      "url": "https://www.naftaliharris.com/blog/visualizing-k-means-clustering/",
+      "description": "Place centroids by hand and step the algorithm on several datasets, including the ones where k-means fails. The original explorer our K-Means Explorer is modeled on.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "Naftali Harris — Visualizing DBSCAN Clustering",
+      "url": "https://www.naftaliharris.com/blog/visualizing-dbscan-clustering/",
+      "description": "Density-based clustering step by step: watch core points, border points, and noise get labeled on smiley faces and moons.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "Setosa — Principal Component Analysis, Explained Visually",
+      "url": "https://setosa.io/ev/principal-component-analysis/",
+      "description": "Rotate a 2-D and a 3-D cloud and watch the principal components find the directions of greatest variance.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
       "title": "ISLP, Chapter 12 — Unsupervised Learning",
       "url": "https://www.statlearning.com/",
       "description": "PCA (12.2), k-means and hierarchical clustering (12.4), with the honest section on how unstable clusters can be. Read 12.2 and 12.4.",

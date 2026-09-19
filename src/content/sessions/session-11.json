@@ -124,6 +124,15 @@
       "linkText": "Open the dataset page"
     },
     {
+      "title": "Kaggle Learn — Time Series",
+      "url": "https://www.kaggle.com/learn/time-series",
+      "description": "Six lessons: trend, seasonality, lags, hybrid models, and forecasting with ML — with exercises on a store-sales dataset. The best free companion to tonight.",
+      "icon": "wand",
+      "badge": "Go Deeper",
+      "badgeType": "code",
+      "linkText": "Start the course"
+    },
+    {
       "title": "Hyndman & Athanasopoulos — Forecasting: Principles and Practice (3rd ed.)",
       "url": "https://otexts.com/fpp3/",
       "description": "The free, definitive forecasting textbook. Chapters 5 (toolbox: benchmarks, residuals, evaluation) and 13.6 (forecasting with ML) are tonight; it uses R, but the ideas are language-free.",

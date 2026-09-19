@@ -124,6 +124,24 @@
       "linkText": "Open the brief"
     },
     {
+      "title": "Google — Rules of Machine Learning",
+      "url": "https://developers.google.com/machine-learning/guides/rules-of-ml",
+      "description": "Forty-three rules from Google engineers on shipping ML. Rule #1: don't be afraid to launch a product without machine learning. Read before you present.",
+      "icon": "book-open",
+      "badge": "Reading",
+      "badgeType": "reference",
+      "linkText": "Read the rules"
+    },
+    {
+      "title": "Stanford CS 329S — Machine Learning Systems Design (Chip Huyen)",
+      "url": "https://stanford-cs329s.github.io/",
+      "description": "The course notes on data pipelines, deployment, monitoring, and drift that Session 13 compresses into forty-five minutes — free, for when you ship for real.",
+      "icon": "book-open",
+      "badge": "Go Deeper",
+      "badgeType": "reference",
+      "linkText": "Open the course"
+    },
+    {
       "title": "scikit-learn User Guide — Model Persistence",
       "url": "https://scikit-learn.org/stable/model_persistence.html",
       "description": "joblib vs. pickle vs. skops vs. ONNX, the security caveats, and why you record the scikit-learn version alongside the file.",
