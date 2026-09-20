@@ -18,6 +18,7 @@ npm run check:external   # …plus every external URL (a few minutes; bot-blocki
 | `check_html.py` | every page has `lang`, one `h1`, a title, a meta description, `alt` on images, no empty links |
 | `check_dates.py` | every "Mon Sep 14"-style mention falls on that weekday in the course year; session dates match `src/data/schedule.ts` |
 | `check_notebooks.py` | every notebook is valid nbformat 4, every code cell parses, no stored outputs, environment-check cell present, "Your turn" in Sessions 1–12, no private references |
+| `check_text.py` | no stale facts or private references in student-facing files (SAGE, Assistant Chair, 119k rows, private paths) |
 | `check_questions.mjs` | 36 practice questions, unique ids, one correct answer, an explanation for every wrong option, every session mapped to a domain |
 | `check_playground.py` | every Python, Guided exercise: the reference solution passes its check and the starter does not |
 

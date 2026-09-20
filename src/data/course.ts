@@ -12,6 +12,6 @@ export const course = {
     title: 'Chief AI Officer, Sawyer Business School · Associate Professor of Information Systems & Operations Management',
     email: 'harslan@suffolk.edu',
     github: 'harslan',
-    bio: 'Leads AI integration across the Sawyer Business School. Specializes in AI-powered business solutions, prescriptive and predictive analytics, and operations management. Creator of the SAGE Framework and recipient of the 2025 Eduventures Innovation Award. PhD from MIT.',
+    bio: 'Leads AI integration across the Sawyer Business School. Specializes in AI-powered business solutions, prescriptive and predictive analytics, and operations management. Creator of the SAIL Framework and recipient of the 2025 Eduventures Innovation Award. PhD from MIT.',
   },
 };

@@ -24,7 +24,9 @@ const { name, title, email, bio, github } = Astro.props;
     <div class="flex-1 min-w-[250px]">
       <h3 class="text-2xl font-bold mb-1">{name}</h3>
       <p class="text-accent-cyan text-sm mb-4">{title}</p>
-      <p class="text-text-secondary mb-4">{bio}</p>
+      <p class="text-text-secondary mb-4">{bio.includes("SAIL Framework")
+        ? <>{bio.split("SAIL Framework")[0]}<a href="https://sites.suffolk.edu/sail/" target="_blank" rel="noopener" class="text-accent-cyan no-underline hover:underline">SAIL Framework</a>{bio.split("SAIL Framework")[1]}</>
+        : bio}</p>
       <div class="flex gap-6 flex-wrap">
         <a href={`mailto:${email}`} class="inline-flex items-center gap-2 text-text-muted text-sm no-underline transition-colors hover:text-accent-cyan">
           <Icon name="mail" class="w-4 h-4" /> {email}
