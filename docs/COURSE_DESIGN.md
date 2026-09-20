@@ -97,6 +97,8 @@ exam-week slot). No written final exam.
 - `public/refreshers/imlp_*` — Müller & Guido chapters 2 and 5 (official notebooks, patched for scikit-learn 1.7 / matplotlib 3.9), linked from S1, S5, S7, S9.
 - `/project/template.html` — single-file GitHub Pages template for the project site (five beats).
 
+- **Private materials** live outside the public repo in `/Users/barut/projects/isom-835-private/`: `competition/` (Kaggle kit: train/test/sample_submission, the hidden `solution.csv` with Public/Private usage, a logistic baseline submission, and a README with launch steps and reference AUCs 0.893 / 0.956) and `solutions/` (instructor solutions for the "Your turn" exercises, released on Canvas after each session; Session 1 done).
+
 ## 4. Session JSON conventions (follow `session-01.json` exactly)
 
 - `duration`: `"150 Minutes"`. `icon`: a lucide name available in `Icon.astro`.

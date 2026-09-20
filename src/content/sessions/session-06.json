@@ -124,6 +124,15 @@
       "linkText": "Open the explorer"
     },
     {
+      "title": "Competition Starter Notebook — a leak-free submission in ten minutes",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-06/ISOM835_Competition_Starter.ipynb",
+      "description": "Loads the Kaggle files, builds the Session 3 pipeline, cross-validates (≈ 0.89 AUC), and writes submission.csv. It reproduces the logistic baseline on the leaderboard exactly; everything after that is yours.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
       "title": "Advanced Track — Uplift Modeling: Who Is Worth Persuading?",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/advanced/ISOM835_Advanced_Uplift_Modeling.ipynb",
       "description": "Optional companion notebook: a simulated randomized pilot, a churn model vs. a T-learner uplift model, the uplift curve, and why targeting the riskiest customers sends offers to lost causes. Pure scikit-learn, with an optional CausalML cell.",
@@ -207,7 +216,7 @@
     {
       "title": "Kaggle — The ISOM 835 Midterm Model Competition",
       "url": "https://www.kaggle.com/competitions",
-      "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, and read the data description before you write a line of code — the leakage traps are real.",
+      "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, download train.csv and test.csv from the Data tab, and read the rules — the leak columns are gone, but agent, company, and country deserve thought. Five submissions per day; leaderboard closes Sun Nov 8, 11:59 PM.",
       "icon": "trophy",
       "badge": "Competition",
       "badgeType": "tool",
