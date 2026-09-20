@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GradientText from '../../components/GradientText.astro';
+import Icon from '../../components/Icon.astro';
+
+const LAB0 = 'https://colab.research.google.com/github/harslan/isom-835/blob/master/public/python/ISOM835_Lab0_Python_Foundations.ipynb';
+const chapters = [
+  {
+    n: 2, when: 'Session 1 · Mon Sep 14', title: 'Variables, expressions & statements', icon: 'braces', lesson: '/python/playground/#L0',
+    slides: '1BhnjBMYBJE-ygO7oqQ6mqpjjsq7yGrM-mUtk4V2I6ak', book: 'https://www.py4e.com/html3/02-variables',
+    covered: ['Constants and the three types you will meet every day: int, float, str', 'Reserved words and the rules for variable names', 'Assignment statements: the right side is computed first, then stored in the name on the left', 'Numeric operators and precedence — and why 7 / 2 and 7 // 2 differ', 'Converting text to numbers with int() and float(); reading input'],
+    can: ['Predict what an expression evaluates to before you run it', 'Turn a string like "72.5" into a number you can do arithmetic with', 'Put a computed number into a sentence with an f-string'],
+    example: `monthly = 72.5
+months = 14
+total = monthly * months            # 1015.0 — the right side first, then the name
+churners, customers = 1869, 7043
+rate = churners / customers         # 0.2654...
+print(f'Churn rate: {rate:.1%}')    # Churn rate: 26.5%`,
+    why: 'Every column in a pandas table is a variable with a type. Session 2 spends twenty minutes on a column that should be a float and arrives as text.',
+  },
+  {
+    n: 3, when: 'Session 1 · Mon Sep 14', title: 'Conditional execution', icon: 'git-branch', lesson: '/python/playground/#L1',
+    slides: '15yQnTeDlQS7HdW624kpUOTJ5lMcBJqTVISYlg6JMtS4', book: 'https://www.py4e.com/html3/03-conditional',
+    covered: ['Comparison operators: <, <=, ==, >=, >, != — and why == is not =', 'One-way decisions with if, and indentation as the block marker', 'Nested decisions, then the cleaner multi-way if / elif / else', 'Combining conditions with and, or, not', 'try / except as a safety net around code that might fail'],
+    can: ['Sort a probability into high / medium / low risk with if / elif / else', 'Write a business rule as one boolean expression', 'Convert messy input without crashing, using try / except'],
+    example: `p, tenure, contract = 0.18, 9, 'Month-to-month'
+if p >= 0.5:
+    tier = 'high'
+elif p >= 0.2:
+    tier = 'medium'
+else:
+    tier = 'low'
+send_offer = p >= 0.10 and tenure < 24 and contract == 'Month-to-month'   # True`,
+    why: 'A threshold is an if statement. Session 6 is an entire evening about where to put it.',
+  },
+  {
+    n: 4, when: 'Session 2 review · Mon Sep 21', title: 'Functions', icon: 'code', lesson: '/python/playground/#L1',
+    slides: '1RozruN78lQ1mjkayM1LpXdm4OnP5sYKfNKgA-nupCoc', book: 'https://www.py4e.com/html3/04-functions',
+    covered: ['Built-in functions you already use (print, int, float, len) versus functions you define', 'def, the function name, and the indented body', 'Parameters and arguments; return values versus functions that only print', 'Default values for parameters, and calling with keywords', 'Why functions: name a piece of logic once, reuse it everywhere, test it in isolation'],
+    can: ['Turn a repeated if / elif / else into one function you call three times', 'Write a function with sensible defaults and call it with keyword arguments', 'Explain the difference between printing a result and returning it'],
+    example: `def expected_profit(p, offer=50, save=450):
+    """Expected profit of a retention offer to a customer with churn probability p."""
+    return p * save - offer
+
+expected_profit(0.5)               # 175.0
+expected_profit(0.5, offer=200)    # 25.0`,
+    why: 'scikit-learn is functions all the way down: fit(), predict(), score(). Reading their signatures is this chapter.',
+  },
+  {
+    n: 5, when: 'Session 2 review · Mon Sep 21', title: 'Loops & iteration', icon: 'repeat', lesson: '/python/playground/#L1',
+    slides: '1_ilvYR-64GgHYfpfJSzSsje-o4LJwQFIXvyTP7E9jzI', book: 'https://www.py4e.com/html3/05-iterations',
+    covered: ['while loops and the iteration variable that must change — or you have an infinite loop', 'break to leave a loop early, continue to skip to the next turn', 'Definite loops with for over a list, a string, or range()', 'The loop idioms: counting, summing, finding the largest (start from None), searching with a flag'],
+    can: ['Count how many customers churned with a counter and a for loop', 'Find the largest charge and its position with the None-start pattern', 'Process a queue until a sentinel value with while and break'],
+    example: `charges = [70.7, 20.05, 99.65, 45.3, 104.8, 89.1]
+largest = None
+for i in range(len(charges)):
+    if largest is None or charges[i] > largest:
+        largest, largest_index = charges[i], i
+# largest == 104.8, largest_index == 4`,
+    why: 'pandas is a loop you do not have to write. Knowing what the loop would have done is how you know what df.groupby() did.',
+  },
+];
+---
+
+<BaseLayout title="ISOM 835 | Python Foundations" description="The four Python for Everybody decks from Sessions 1 and 2 of ISOM 835 — variables, conditionals, functions, loops — with what to take away from each, a worked churn example, and Lab 0, the self-checking Python Foundations Check.">
+  <section class="py-20 px-8 max-w-[1100px] mx-auto">
+    <div class="font-mono text-[0.75rem] text-accent-cyan tracking-[3px] uppercase mb-6">Python foundations · Sessions 1 & 2 · review</div>
+    <h1 class="text-[clamp(2.3rem,5.5vw,3.6rem)] font-extrabold leading-tight mb-6">Four chapters, one <GradientText>churn problem</GradientText></h1>
+    <p class="text-text-secondary text-xl max-w-[820px] leading-relaxed mb-8">
+      In Session 1 we covered variables and conditionals; Session 2 opens with functions and loops. This page keeps the four decks in one place, says what you should be able to do after each, and shows every idea on the customer-churn problem the whole course keeps coming back to. Then <b class="text-text-primary">Lab 0</b> checks that it stuck.
+    </p>
+    <div class="flex gap-4 flex-wrap">
+      <a href={LAB0} target="_blank" rel="noopener" class="px-8 py-4 bg-gradient-to-r from-accent-cyan to-accent-purple rounded-full text-bg-primary font-semibold no-underline transition-all duration-300 hover:-translate-y-0.5">Open Lab 0 in Colab</a>
+      <a href="/python/playground/" class="px-8 py-4 border border-border-subtle rounded-full text-text-primary no-underline transition-all duration-300 hover:border-accent-cyan hover:text-accent-cyan">Python, Guided (in-browser)</a>
+    </div>
+  </section>
+
+  <section class="px-8 max-w-[1100px] mx-auto mb-12">
+    <div class="bg-bg-card/70 border border-accent-cyan/40 rounded-2xl p-6 md:p-8">
+      <div class="font-mono text-[0.7rem] tracking-[2px] uppercase text-accent-cyan mb-2">Lab 0 · Python Foundations Check</div>
+      <h2 class="text-2xl font-bold mb-3">Thirteen self-checking exercises · due before Session 3 (Mon Sep 28)</h2>
+      <p class="text-text-secondary leading-relaxed mb-4">Each exercise has a task, a cell for your code, and a check cell that prints ✓ or tells you exactly what is off. Three exercises per chapter, plus one that puts all four together. Budget 60–90 minutes. Upload the finished notebook to Canvas; it counts toward <em>Participation &amp; in-class labs</em> on completion.</p>
+      <ul class="grid md:grid-cols-2 gap-x-8 gap-y-1 text-text-secondary text-[0.95rem] list-disc pl-5 mb-2">
+        <li>Variables: what a customer has paid, text that should be a number, a churn-rate sentence</li>
+        <li>Conditionals: risk tiers, the retention-offer rule, a try / except safety net</li>
+        <li>Functions: expected profit of an offer, risk_tier(), clean_price()</li>
+        <li>Loops: count churners, the largest charge, a queue with a sentinel — then all of it at once</li>
+      </ul>
+    </div>
+  </section>
+
+  {chapters.map((c) => (
+    <section class="px-8 max-w-[1100px] mx-auto py-10 border-t border-border-subtle">
+      <div class="flex items-start gap-4 mb-6">
+        <div class="w-12 h-12 rounded-xl bg-accent-cyan/10 border border-accent-cyan/30 flex items-center justify-center text-accent-cyan shrink-0"><Icon name={c.icon} size={22} /></div>
+        <div>
+          <div class="font-mono text-[0.7rem] tracking-[2px] uppercase text-text-muted">Chapter {c.n} · {c.when}</div>
+          <h2 class="text-2xl md:text-3xl font-bold">{c.title}</h2>
+        </div>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div>
+          <h3 class="font-semibold text-text-primary mb-2">What we covered</h3>
+          <ul class="list-disc pl-5 text-text-secondary space-y-1 mb-6">{c.covered.map((x) => <li>{x}</li>)}</ul>
+          <h3 class="font-semibold text-text-primary mb-2">You should now be able to</h3>
+          <ul class="pl-0 space-y-1 mb-6">{c.can.map((x) => <li class="flex gap-2 text-text-secondary"><span class="text-accent-green mt-1"><Icon name="check" size={14} /></span><span>{x}</span></li>)}</ul>
+          <h3 class="font-semibold text-text-primary mb-2">On the churn problem</h3>
+          <pre class="bg-bg-primary/80 border border-border-subtle rounded-xl p-4 text-[0.82rem] leading-relaxed overflow-x-auto mb-3"><code>{c.example}</code></pre>
+          <p class="text-text-secondary text-[0.95rem] italic mb-4">{c.why}</p>
+          <div class="flex flex-wrap gap-3 text-[0.9rem]">
+            <a href={`https://docs.google.com/presentation/d/${c.slides}/edit`} target="_blank" rel="noopener" class="text-accent-purple no-underline hover:underline">Open the slides ↗</a>
+            <a href={c.lesson} class="text-accent-cyan no-underline hover:underline">Python, Guided lesson</a>
+            <a href={c.book} target="_blank" rel="noopener" class="text-text-secondary no-underline hover:underline">Free book chapter (py4e) ↗</a>
+          </div>
+        </div>
+        <div>
+          <div class="rounded-xl overflow-hidden border border-border-subtle bg-black" style="aspect-ratio: 16 / 9;">
+            <iframe src={`https://docs.google.com/presentation/d/${c.slides}/embed?start=false&loop=false&delayms=3000`} title={`Slides — Chapter ${c.n}: ${c.title}`} loading="lazy" allowfullscreen class="w-full h-full border-0"></iframe>
+          </div>
+          <p class="text-text-muted text-[0.8rem] mt-2">Slides by Charles Severance, <a href="https://www.py4e.com" target="_blank" rel="noopener" class="text-text-secondary">Python for Everybody</a>, used under its Creative Commons license.</p>
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <section class="px-8 max-w-[1100px] mx-auto py-12 border-t border-border-subtle">
+    <h2 class="text-2xl font-bold mb-3">Where this goes next</h2>
+    <p class="text-text-secondary leading-relaxed max-w-[820px]">Chapters 6–10 (strings, files, lists, dictionaries, tuples) and pandas are Levels 2–4 of the <a href="/python" class="text-accent-cyan">Python Track</a>, with the same slides, the same in-browser lessons, and Prof. Arslan's ISOM 730 notebooks. Session 2's notebook assumes Level 4; if Lab 0 felt easy, go there. If it did not, do Lessons 0 and 1 of <a href="/python/playground/" class="text-accent-cyan">Python, Guided</a> first — they grade you as you go.</p>
+  </section>
+</BaseLayout>

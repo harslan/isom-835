@@ -212,6 +212,14 @@
       "badge": "Refresher",
       "badgeType": "code",
       "linkText": "Open in Colab"
+    },
+    {
+      "title": "Python foundations — the two decks from class (variables & expressions, conditionals)",
+      "url": "/python/foundations/",
+      "description": "What we covered from Python for Everybody chapters 2 and 3, what you should now be able to do, each idea on the churn problem, and the slides embedded. Lab 0 (the self-checking Python Foundations Check) opens in Session 2.",
+      "icon": "braces",
+      "badge": "Review",
+      "badgeType": "reference"
     }
   ],
   "activities": [

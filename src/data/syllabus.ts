@@ -28,7 +28,7 @@ export const grading = [
 export const assessments = [
   {
     name: 'Participation & in-class labs', weight: 15,
-    what: 'Every session has a live notebook. Credit for being present, running the lab, and completing the "Your turn" exercises by the following Sunday. Two lowest weeks dropped.',
+    what: 'Every session has a live notebook. Credit for being present, running the lab, and completing the "Your turn" exercises by the following Sunday. Two lowest weeks dropped. Lab 0, the Python Foundations Check (due Mon Sep 28), is the first lab credit.',
     rubric: ['Present and engaged (attendance, questions, explorer use)', '"Your turn" cells attempted in ≥ 10 of 12 lab sessions'],
   },
   {
@@ -69,7 +69,7 @@ export const assessments = [
 // What is due at the start of each session (authoritative; the session pages' homework labels are prose).
 export const dueBySession: Record<number, string> = {
   2: 'HW0 — setup + first model',
-  3: 'HW1 — EDA + baseline (Telco)',
+  3: 'HW1 — EDA + baseline (Telco) · Lab 0 Python Foundations Check',
   5: 'HW2 — Ames regression pipeline',
   7: 'HW3 — credit default + threshold · competition team registered',
   8: 'Competition leaderboard closed (Sun Nov 8) · memo tonight · project proposal',
