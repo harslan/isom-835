@@ -270,7 +270,7 @@
   "homework": [
     {
       "label": "Homework #0",
-      "text": "Three setup tasks, due before Session 2 (Mon Sep 21). (1) Open the Session 1 notebook in Colab, run every cell, then add three features of your choice to the model and report whether accuracy and the confusion matrix improved — one paragraph on Canvas. (2) Create a free Kaggle account (kaggle.com) with your suffolk.edu email and join the ISOM 835 community competition link posted on Canvas; you'll need it for the midterm competition in October. (3) Post one paragraph on the Canvas discussion board describing a prediction problem from your own work or life — the unit, the target, the horizon, and the decision it would change. It may become your final project."
+      "text": "Three setup tasks, due before Session 2 (Mon Sep 21). (1) Open the Session 1 notebook in Colab, run every cell, then add three features of your choice to the model and report whether accuracy and the confusion matrix improved — one paragraph on Canvas. (2) Create a free Kaggle account (kaggle.com) with your suffolk.edu email and confirm your username on Canvas; you'll need it for the midterm competition (invite link arrives in Session 6, Oct 26) and for datasets in later sessions. (3) Post one paragraph on the Canvas discussion board describing a prediction problem from your own work or life — the unit, the target, the horizon, and the decision it would change. It may become your final project."
     }
   ],
   "nextSession": {
