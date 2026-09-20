@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Leakage Time Machine · ISOM 835</title>
+<meta name="description" content="Drag the moment a prediction is made and watch which features exist, how good the model looks, and whether there is still a decision left to make. Real models on real data: a bank's phone campaign and a hotel's bookings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/explore/_shared.css">
+<style>
+  .stories { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 6px; }
+  .stories button { background: var(--card); border: 1px solid var(--border); color: var(--text2); border-radius: 999px; padding: 8px 16px; font: 600 0.85rem Manrope, sans-serif; cursor: pointer; }
+  .stories button.on { border-color: var(--teal); color: var(--teal); }
+  .frame { font-size: 0.92rem; color: var(--text2); margin: 6px 0 18px; } .frame b { color: var(--text); }
+  .timeline { position: relative; margin: 26px 8px 8px; }
+  .track { position: relative; height: 6px; background: var(--border); border-radius: 3px; }
+  .fill { position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(90deg, var(--teal), var(--peri)); border-radius: 3px; transition: width .25s; }
+  .stops { display: flex; justify-content: space-between; margin-top: 10px; }
+  .stop { flex: 1; text-align: center; font-size: 0.78rem; color: var(--text2); cursor: pointer; padding: 6px 4px; border-radius: 8px; line-height: 1.25; }
+  .stop:first-child { text-align: left; } .stop:last-child { text-align: right; }
+  .stop.on { color: var(--text); font-weight: 700; }
+  .stop .dot { display: block; width: 14px; height: 14px; margin: -20px auto 8px; border-radius: 50%; background: var(--card); border: 2px solid var(--border); }
+  .stop:first-child .dot { margin-left: 0; } .stop:last-child .dot { margin-right: 0; }
+  .stop.on .dot, .stop.past .dot { border-color: var(--teal); background: var(--teal); }
+  .stop.leak.on .dot { border-color: var(--coral); background: var(--coral); }
+  input[type=range].moment { width: 100%; margin: 8px 0 0; accent-color: var(--teal); }
+  .groups { display: grid; gap: 12px; margin-top: 8px; }
+  .group { border: 1px dashed var(--border); border-radius: 12px; padding: 10px 12px; transition: opacity .25s; }
+  .group h4 { margin: 0 0 8px; font: 700 0.72rem 'IBM Plex Mono', monospace; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); display: flex; justify-content: space-between; align-items: center; }
+  .group.known h4 { color: var(--teal); } .group.future { opacity: 0.45; } .group.future h4 { color: var(--coral); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font: 500 0.78rem 'IBM Plex Mono', monospace; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--text); cursor: default; }
+  .chip.hot { border-color: var(--coral); color: var(--coral); }
+  .group.future .chip { text-decoration: line-through; }
+  .tag { font: 600 0.68rem Manrope, sans-serif; letter-spacing: 0; text-transform: none; padding: 2px 8px; border-radius: 999px; }
+  .tag.ok { background: rgba(46,230,197,0.12); color: var(--teal); } .tag.no { background: rgba(255,107,139,0.14); color: var(--coral); }
+  .bars { display: grid; grid-auto-flow: column; gap: 10px; align-items: end; height: 120px; margin-top: 10px; }
+  .bar { position: relative; background: var(--border); border-radius: 6px 6px 0 0; transition: height .3s; }
+  .bar.on { background: linear-gradient(180deg, var(--peri), var(--teal)); } .bar.leak.on { background: linear-gradient(180deg, var(--coral), #b23a52); }
+  .bar span { position: absolute; top: -20px; left: 0; right: 0; text-align: center; font: 700 0.75rem 'IBM Plex Mono', monospace; color: var(--text2); }
+  .bar.on span { color: var(--text); }
+  .verdict { border-left: 3px solid var(--teal); padding: 10px 14px; margin-top: 12px; color: var(--text); font-size: 0.95rem; line-height: 1.5; background: rgba(46,230,197,0.05); border-radius: 0 10px 10px 0; }
+  .verdict.leak { border-color: var(--coral); background: rgba(255,107,139,0.06); }
+  .decision { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 0.9rem; color: var(--text2); }
+  .question { margin-top: 26px; padding: 18px 20px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+  .question h3 { margin: 0 0 8px; font-size: 1.1rem; } .question p { margin: 0 0 8px; color: var(--text2); line-height: 1.55; }
+  .question code { font-family: 'IBM Plex Mono', monospace; color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/sessions/session-02">← ISOM 835 · Session 2</a>
+  <div style="height:14px"></div>
+  <div class="kicker">Interactive · When Did You Know That?</div>
+  <h1>The Leakage <span class="grad">Time Machine</span></h1>
+  <p class="sub">
+    A model is only as honest as the <b>moment</b> it pretends to live in. Drag the prediction moment along the timeline and watch three things change:
+    which columns <b>exist yet</b>, how good the model <b>looks</b>, and whether there is still a <b>decision left to make</b>. Every number below comes from a
+    real gradient-boosting model trained on the real data with exactly the features that exist at that moment — nothing is simulated.
+  </p>
+
+  <div class="stories" id="stories"></div>
+  <div class="frame" id="frame"></div>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="timeline">
+          <div class="track"><div class="fill" id="fill"></div></div>
+          <div class="stops" id="stops"></div>
+        </div>
+        <input type="range" class="moment" id="moment" min="0" max="3" step="1" value="0" aria-label="Prediction moment">
+        <div class="groups" id="groups"></div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <div class="kicker" style="margin:0 0 6px">Model quality by moment · ROC-AUC</div>
+        <div class="bars" id="bars"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel readout">
+        <div class="kicker" style="margin:0 0 4px">At this moment</div>
+        <div class="big" id="ro-auc">—</div>
+        <div class="stat"><span>ROC-AUC on held-out data</span><b id="ro-auc2">—</b></div>
+        <div class="stat"><span id="ro-budget-label">Caught in the top 10%</span><b id="ro-caught">—</b></div>
+        <div class="stat"><span>Precision of that top slice</span><b id="ro-prec">—</b></div>
+        <div class="stat"><span>Features the model can see</span><b id="ro-nfeat">—</b></div>
+        <div class="decision" id="ro-decision"></div>
+        <div class="verdict" id="ro-verdict"></div>
+      </div>
+      <div class="note" style="margin-top:12px" id="ro-note"></div>
+    </div>
+  </div>
+
+  <div class="question">
+    <h3>The one question that catches every leak</h3>
+    <p><b>Would this value exist, in the database, at the moment the decision is made?</b> Not "is it correlated with the target" — the leaks are the <em>most</em> correlated columns. Not "does it feel like cheating" — <code>duration</code> feels like an innocent column about the call. The question is about <b>time</b>: a value written after the decision cannot inform it, and a value written after the outcome <em>is</em> the outcome wearing a costume.</p>
+    <p>Two habits that follow. (1) Write the prediction moment at the top of every notebook — <em>"prediction is made at booking / before the call / on the 1st of the month"</em> — and audit every column against it, which is exactly Homework 1, question 4. (2) When a score jumps by ten points after you add one column, do not celebrate; ask what time it is.</p>
+    <p style="margin:0">Session 2 builds this on Olist and Telco · the bank data is UCI Bank Marketing (its own documentation warns that <code>duration</code> "should be discarded if the intention is to have a realistic predictive model") · the hotel data is the course file, 83,573 bookings.</p>
+  </div>
+</div>
+
+<script>
+const STORIES = [
+ {
+  id: 'bank', name: 'The bank call', question: 'Will this client subscribe to a term deposit?', decision: 'whom to call, and when',
+  frame: '<b>Unit:</b> one client in a phone campaign · <b>Target:</b> subscribes to a term deposit · <b>Base rate:</b> 11.7% · <b>Budget:</b> the team can make 1,130 calls (10% of the 11,303 held-out clients) · <b>Decision:</b> whom to call',
+  budgetLabel: 'Subscribers caught in the 1,130 calls', total: 1322,
+  moments: [
+   { name: 'Before we pick up the phone', auc: 0.727, caught: 476, prec: 0.42, leak: false, decisionOpen: 'ok', decisionText: 'Decision still open: choose whom to call.',
+     verdict: 'The honest number. Every one of these columns sits in the CRM before anyone dials: who the client is, their balance and loans, and how the <em>last</em> campaign ended. AUC 0.73 is what "predicting who will subscribe" actually looks like — and it is enough to make 1,130 calls catch 36% of the subscribers instead of the 10% random calling would.',
+     groups: [{ label: 'In the CRM before the campaign', chips: ['age','job','marital','education','default','balance','housing','loan','pdays','previous','poutcome'] }] },
+   { name: 'As we dial', auc: 0.791, caught: 550, prec: 0.49, leak: false, decisionOpen: 'partial', decisionText: 'Decision partly open: you can still choose the channel and the day — not whom to call.',
+     verdict: 'Knowable <em>only if you decide it first</em>. The contact channel, the month and the day are choices the campaign makes, so a model can use them to plan <em>when</em> and <em>how</em> to call — but not to choose <em>whom</em>, because for a client you have not dialed yet they do not exist. And <code>campaign</code> counts contacts that already happened in this campaign: it quietly encodes how hard the team has already been trying. Same features, honest for one decision and leaky for another.',
+     groups: [{ label: 'In the CRM before the campaign', chips: ['age','job','marital','education','default','balance','housing','loan','pdays','previous','poutcome'] }, { label: 'Decided when the call is planned', chips: ['contact','day','month','campaign'] }] },
+   { name: 'After the call ends', auc: 0.934, caught: 687, prec: 0.61, leak: true, decisionOpen: 'no', decisionText: 'No decision left: the call is over.',
+     verdict: 'Spectacular and useless. <code>duration</code> is how long the call lasted — it exists only once the call is over, and a long call is simply what a "yes" sounds like. AUC 0.93 is not a better model; it is a model that was handed the answer in a different unit. Ship it, and the day it goes live every new client has a duration of zero.',
+     groups: [{ label: 'In the CRM before the campaign', chips: ['age','job','marital','education','default','balance','housing','loan','pdays','previous','poutcome'] }, { label: 'Decided when the call is planned', chips: ['contact','day','month','campaign'] }, { label: 'Written after the call', chips: ['duration'], hot: ['duration'] }] },
+  ],
+  note: 'UCI Bank Marketing, 45,211 clients, 25% held out; HistGradientBoosting with early stopping, one model per moment. The data set\'s own documentation flags <code>duration</code> as a feature to discard for realistic prediction — it is the most-cited leak in the teaching literature, and it is still in half the Kaggle notebooks that use this data.',
+ },
+ {
+  id: 'hotel', name: 'The hotel booking', question: 'Will this booking cancel?', decision: 'overbook, or ask for a deposit',
+  frame: '<b>Unit:</b> one booking · <b>Target:</b> cancels before arrival · <b>Base rate:</b> 37% · <b>Budget:</b> the revenue manager will treat 30% of bookings (6,268 of 20,894 held out) as likely cancellations · <b>Decision:</b> deposit policy at booking, overbooking level before arrival',
+  budgetLabel: 'Cancellations caught in the flagged 30%', total: 7740,
+  moments: [
+   { name: 'At booking', auc: 0.953, caught: 5685, prec: 0.91, leak: false, decisionOpen: 'ok', decisionText: 'Decision open: ask for a deposit, set the overbooking level.',
+     verdict: 'The honest number, and it is already excellent: the deposit type, the lead time, the country, the channel and the guest\'s cancellation history are all fixed the moment the booking lands. This is the model the competition asks you to build, and 0.95 is the ceiling you should expect without cheating.',
+     groups: [{ label: 'Fixed when the booking is made', chips: ['hotel','lead_time','arrival dates','stays','adults','children','babies','meal','country','market_segment','distribution_channel','is_repeated_guest','previous_cancellations','previous_bookings_not_canceled','reserved_room_type','deposit_type','agent','company','customer_type','adr','required_car_parking_spaces','total_of_special_requests'] }] },
+   { name: 'The night before arrival', auc: 0.955, caught: 5713, prec: 0.91, leak: false, decisionOpen: 'partial', decisionText: 'Decision partly open: overbooking can still be adjusted; the deposit policy cannot.',
+     verdict: 'Legitimate for one decision, a leak for the other. <code>booking_changes</code> and <code>days_in_waiting_list</code> accumulate between booking and arrival, so a model that sets tomorrow\'s overbooking level may use them — but a model that decides the deposit policy <em>at booking</em> may not, because at that moment they are zero for everyone. The feature did not change; the moment did.',
+     groups: [{ label: 'Fixed when the booking is made', chips: ['hotel','lead_time','arrival dates','stays','adults','children','babies','meal','country','market_segment','distribution_channel','is_repeated_guest','previous_cancellations','previous_bookings_not_canceled','reserved_room_type','deposit_type','agent','company','customer_type','adr','required_car_parking_spaces','total_of_special_requests'] }, { label: 'Accumulates before arrival', chips: ['booking_changes','days_in_waiting_list'] }] },
+   { name: 'At check-in', auc: 0.958, caught: 5744, prec: 0.92, leak: true, decisionOpen: 'no', decisionText: 'No decision left: the guest is at the desk — or is not.',
+     verdict: 'A small gain and a pure leak. <code>assigned_room_type</code> is written when the guest arrives; a booking whose assigned room differs from the reserved one is a booking that <em>showed up</em> (those cancel 6% of the time versus 42%). The gain is tiny because the model already knew most of it — which is the trap: a leak does not have to be dramatic to be a leak.',
+     groups: [{ label: 'Fixed when the booking is made', chips: ['hotel','lead_time','arrival dates','stays','adults','children','babies','meal','country','market_segment','distribution_channel','is_repeated_guest','previous_cancellations','previous_bookings_not_canceled','reserved_room_type','deposit_type','agent','company','customer_type','adr','required_car_parking_spaces','total_of_special_requests'] }, { label: 'Accumulates before arrival', chips: ['booking_changes','days_in_waiting_list'] }, { label: 'Written at the front desk', chips: ['assigned_room_type'], hot: ['assigned_room_type'] }] },
+   { name: 'After the stay, or the no-show', auc: 1.000, caught: 6268, prec: 1.00, leak: true, decisionOpen: 'no', decisionText: 'No decision left: the outcome has happened.',
+     verdict: 'The label wearing a costume. <code>reservation_status</code> is "Canceled", "Check-Out" or "No-Show" — it is the target column with a different name, and a model that sees it is a lookup table. AUC 1.000 is not a result; it is a bug report. When you see a perfect score, do not ask what you did right; ask what time it is.',
+     groups: [{ label: 'Fixed when the booking is made', chips: ['hotel','lead_time','arrival dates','stays','adults','children','babies','meal','country','market_segment','distribution_channel','is_repeated_guest','previous_cancellations','previous_bookings_not_canceled','reserved_room_type','deposit_type','agent','company','customer_type','adr','required_car_parking_spaces','total_of_special_requests'] }, { label: 'Accumulates before arrival', chips: ['booking_changes','days_in_waiting_list'] }, { label: 'Written at the front desk', chips: ['assigned_room_type'], hot: ['assigned_room_type'] }, { label: 'Written after the outcome', chips: ['reservation_status','reservation_status_date'], hot: ['reservation_status','reservation_status_date'] }] },
+  ],
+  note: 'The course hotel file (83,573 bookings, the competition\'s training set), 25% held out; HistGradientBoosting with early stopping, one model per moment. These three leak columns are exactly the ones removed in Sessions 7–9 and from the competition data.',
+ },
+];
+const $ = id => document.getElementById(id); let story = 0, moment = 0;
+function renderStories() { $('stories').innerHTML = STORIES.map((s, i) => `<button class="${i === story ? 'on' : ''}" data-i="${i}">${s.name} — <i>${s.question}</i></button>`).join(''); document.querySelectorAll('#stories button').forEach(b => b.onclick = () => { story = +b.dataset.i; moment = 0; render(); }); }
+function render() {
+  const S = STORIES[story], M = S.moments, m = M[moment]; renderStories(); $('frame').innerHTML = S.frame;
+  const r = $('moment'); r.max = M.length - 1; r.value = moment; $('fill').style.width = (M.length > 1 ? moment / (M.length - 1) * 100 : 0) + '%';
+  $('stops').innerHTML = M.map((x, i) => `<div class="stop ${i === moment ? 'on' : ''} ${i < moment ? 'past' : ''} ${x.leak ? 'leak' : ''}" data-i="${i}"><span class="dot"></span>${x.name}</div>`).join('');
+  document.querySelectorAll('.stop').forEach(s => s.onclick = () => { moment = +s.dataset.i; render(); });
+  const allGroups = M[M.length - 1].groups;
+  $('groups').innerHTML = allGroups.map((g, gi) => { const known = gi < m.groups.length; return `<div class="group ${known ? 'known' : 'future'}"><h4>${g.label} <span class="tag ${known ? 'ok' : 'no'}">${known ? 'exists at this moment' : 'not yet written'}</span></h4><div class="chips">${g.chips.map(c => `<span class="chip ${(g.hot || []).includes(c) ? 'hot' : ''}">${c}</span>`).join('')}</div></div>`; }).join('');
+  const maxA = 1, minA = 0.6; $('bars').innerHTML = M.map((x, i) => `<div class="bar ${i === moment ? 'on' : ''} ${x.leak ? 'leak' : ''}" style="height:${Math.max(6, (x.auc - minA) / (maxA - minA) * 100)}px" title="${x.name}"><span>${x.auc.toFixed(3)}</span></div>`).join('');
+  $('ro-auc').textContent = m.auc.toFixed(3); $('ro-auc2').textContent = m.auc.toFixed(3); $('ro-budget-label').textContent = S.budgetLabel;
+  $('ro-caught').textContent = `${m.caught.toLocaleString()} / ${S.total.toLocaleString()} (${Math.round(m.caught / S.total * 100)}%)`; $('ro-prec').textContent = m.prec.toFixed(2);
+  $('ro-nfeat').textContent = m.groups.reduce((n, g) => n + g.chips.length, 0) + (S.id === 'hotel' ? ' (arrival dates = 4 columns)' : '');
+  const badge = { ok: '<span class="tag ok">decision open</span>', partial: '<span class="tag ok" style="background:rgba(245,165,36,0.15);color:var(--amber)">partly open</span>', no: '<span class="tag no">too late to act</span>' }[m.decisionOpen];
+  $('ro-decision').innerHTML = badge + ' ' + m.decisionText; const v = $('ro-verdict'); v.className = 'verdict' + (m.leak ? ' leak' : ''); v.innerHTML = m.verdict; $('ro-note').innerHTML = S.note;
+}
+$('moment').addEventListener('input', e => { moment = +e.target.value; render(); });
+document.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { moment = Math.min(moment + 1, STORIES[story].moments.length - 1); render(); } if (e.key === 'ArrowLeft') { moment = Math.max(moment - 1, 0); render(); } });
+render();
+</script>
+</body>
+</html>

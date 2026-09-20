@@ -116,6 +116,14 @@
       "linkText": "Open in Colab"
     },
     {
+      "title": "The Leakage Time Machine — when did you know that?",
+      "url": "/explore/leakage/",
+      "description": "Drag the moment a prediction is made and watch which columns exist yet, how good a real model looks, and whether there is still a decision left to make — on a bank's phone campaign (AUC 0.73 → 0.93 once the call length leaks in) and on the hotel bookings from the competition. Tonight's one question, made draggable.",
+      "icon": "timer",
+      "badge": "Explorer",
+      "badgeType": "interactive"
+    },
+    {
       "title": "Lab 0 — Python Foundations Check (Colab)",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/python/ISOM835_Lab0_Python_Foundations.ipynb",
       "description": "Thirteen short exercises on the four Python chapters from Sessions 1–2, each with a check cell that prints ✓ or tells you what is off. Due before Session 3; completion credit under Participation & in-class labs.",
