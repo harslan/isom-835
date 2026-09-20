@@ -1,0 +1,21 @@
+name: quality gates
+on:
+  push: { branches: [master] }
+  pull_request:
+  schedule: [{ cron: '0 11 * * 1' }]   # Mondays 11:00 UTC — the morning of class
+  workflow_dispatch:
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install -q "numpy>=2" "pandas>=2.2" "scikit-learn>=1.6"
+      - run: npm ci
+      - run: bash scripts/qa/run_all.sh
+      - name: external links (weekly, report only)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: python3 scripts/qa/check_external_links.py || true

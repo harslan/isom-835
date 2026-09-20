@@ -6,7 +6,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "check": "bash scripts/qa/run_all.sh",
+    "check:external": "EXTERNAL=1 bash scripts/qa/run_all.sh"
   },
   "dependencies": {
     "@astrojs/vercel": "^9.0.4",

@@ -17,6 +17,7 @@ npm run build    # production build to dist/
 ## Structure
 
 - `docs/COURSE_DESIGN.md` — the arc of the course: 13 sessions, datasets, assessments, JSON conventions. Read this first.
+- `docs/MAINTENANCE.md` — quality gates (`npm run check`), how to change a session, notebook or the playground safely, and the release checklist.
 - `src/content/sessions/session-XX.json` — one file per session (objectives, agenda, resources, activities, homework)
 - `src/data/schedule.ts` — dates, modules, meeting day (single source of truth for the calendar)
 - `src/data/course.ts` / `src/data/syllabus.ts` — course metadata, grading, policies

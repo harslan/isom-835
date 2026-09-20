@@ -3,3 +3,13 @@ dist/
 .vercel/
 .astro/
 .vercel
+# artifacts written by the notebooks when run locally
+*.joblib
+churn_pipeline_v1.json
+submission.csv
+rf_full_submission.csv
+drift_report.html
+mlruns/
+__pycache__/
+.venv*/
+.DS_Store
