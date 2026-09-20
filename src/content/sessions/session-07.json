@@ -33,7 +33,7 @@
       "time": "5:00 PM - 5:20 PM",
       "title": "HW3 Debrief & Meet the Data: Hotel Bookings",
       "duration": "20 minutes",
-      "description": "Threshold choices from your HW3 submissions — the range was 0.18 to 0.42, and the best memo explained why. Then the competition dataset in full: 119,390 hotel reservations from a city and a resort hotel in Portugal, 37% canceled, 32 columns — two of which are leaks.",
+      "description": "Threshold choices from your HW3 submissions — the range was 0.18 to 0.42, and the best memo explained why. Then the competition dataset: 83,573 hotel reservations from a city and a resort hotel in Portugal, 37% canceled, 32 columns — two of which are leaks.",
       "bulletPoints": [
         "reservation_status and reservation_status_date are the outcome in disguise: drop them or your leaderboard score is fiction",
         "assigned_room_type vs. reserved_room_type: a mismatch is known only at check-in — think about whether that's leakage too"
@@ -117,7 +117,7 @@
     {
       "title": "Hotel Booking Demand — the dataset",
       "url": "https://github.com/harslan/isom-835/blob/master/public/data/hotel_bookings.csv",
-      "description": "Antonio, de Almeida & Nunes (2019): 119,390 bookings, 32 columns, 37% canceled. Hosted in the course repo for no-login loading. The competition's hidden test set is a stratified slice of the same source.",
+      "description": "Antonio, de Almeida & Nunes (2019). The course file holds the competition's 83,573 training bookings, 32 columns, 37% canceled — hosted in the repo for no-login loading. The 35,817 hidden test bookings exist only on Kaggle, so anything you learn from the course file is fair game.",
       "icon": "hotel",
       "badge": "Data",
       "badgeType": "reference",

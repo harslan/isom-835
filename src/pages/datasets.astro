@@ -18,7 +18,7 @@ y = (df['Churn'] == 'Yes').astype(int)`,
   },
   {
     name: 'Hotel Booking Demand', icon: 'hotel', sessions: [7, 8, 9], task: 'classification · competition',
-    shape: '119,390 bookings × 32 columns · 37% canceled', source: 'Antonio, de Almeida & Nunes (2019)', url: 'https://github.com/harslan/isom-835/blob/master/public/data/hotel_bookings.csv',
+    shape: '83,573 bookings × 32 columns · 37% canceled (the competition training rows; 35,817 test rows are held out on Kaggle)', source: 'Antonio, de Almeida & Nunes (2019)', url: 'https://github.com/harslan/isom-835/blob/master/public/data/hotel_bookings.csv',
     why: 'The midterm competition dataset and the tree/boosting workhorse. Big enough that early stopping and GroupKFold matter.',
     gotcha: 'reservation_status and reservation_status_date ARE the outcome. assigned_room_type is known only at check-in. Drop all three.',
     code: `URL = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/hotel_bookings.csv'
