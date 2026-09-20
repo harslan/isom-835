@@ -28,7 +28,7 @@ export const grading = [
 export const assessments = [
   {
     name: 'Participation & in-class labs', weight: 15,
-    what: 'Every session has a live notebook. Credit for being present, running the lab, and completing the "Your turn" exercises by the following Sunday. Two lowest weeks dropped. Lab 0, the Python Foundations Check (due Mon Sep 28), is the first lab credit.',
+    what: 'Every session has a live notebook. Credit for being present, running the lab, and completing the "Your turn" exercises by the following Sunday. Two lowest weeks dropped. Homework #0 (setup + first model, due Mon Sep 21) and Lab 0 (the Python Foundations Check, due Mon Sep 28) are completion credits here, not part of the five graded homework notebooks.',
     rubric: ['Present and engaged (attendance, questions, explorer use)', '"Your turn" cells attempted in ≥ 10 of 12 lab sessions'],
   },
   {
@@ -41,7 +41,7 @@ export const assessments = [
       'Communication (20%) — one clear paragraph per question answering what the numbers mean for the business',
     ],
     items: [
-      { label: 'HW0 — Setup + first model', due: 'Mon Sep 21', session: 1 },
+      { label: 'HW0 — Setup + first model (completion credit under participation)', due: 'Mon Sep 21', session: 1 },
       { label: 'HW1 — EDA + baseline on Telco', due: 'Mon Sep 28', session: 2 },
       { label: 'HW2 — Ames regression pipeline (ridge/lasso)', due: 'Mon Oct 19', session: 4 },
       { label: 'HW3 — Credit default: classification + threshold/cost', due: 'Mon Nov 2', session: 5 },
