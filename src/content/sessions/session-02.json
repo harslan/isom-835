@@ -142,7 +142,7 @@
     {
       "title": "Olist Brazilian E-Commerce — the dataset",
       "url": "https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce",
-      "description": "Roughly 100,000 real orders from a Brazilian marketplace, 2016–2018, in eight linked tables with a published schema diagram. Requires a free Kaggle account — the one you created for Homework #0.",
+      "description": "Roughly 100,000 real orders from a Brazilian marketplace, 2016–2018, in eight linked tables with a published schema diagram. Requires a free Kaggle account (two minutes to create with your suffolk.edu email); the notebook has a no-login fallback on Telco if you would rather not.",
       "icon": "shopping-cart",
       "badge": "Data",
       "badgeType": "reference",
