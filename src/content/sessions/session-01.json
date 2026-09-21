@@ -94,12 +94,12 @@
     },
     {
       "time": "7:15 PM - 7:30 PM",
-      "title": "Wrap-Up & Homework #0",
+      "title": "Wrap-Up & Before Next Session",
       "duration": "15 minutes",
-      "description": "The pattern you'll use all semester: load → split → fit → predict → evaluate → decide. Homework #0 gets your tools ready: Colab, a Kaggle account for the midterm competition, and one prediction problem from your own work.",
+      "description": "The pattern you'll use all semester: load → split → fit → predict → evaluate → decide. Nothing to submit this week: run tonight's notebook end to end and try Exercise 1, so that Session 2 — and Homework #1, which opens there — start from code you have already touched.",
       "bulletPoints": [
         "Next week: the data itself — joins, groupbys, missing values, and the leak that ruins models",
-        "Post your prediction problem on Canvas — it may become your final project"
+        "Start thinking about a prediction problem from your own work — HW1 asks for it, and it may become your final project"
       ],
       "isBreak": false
     }
@@ -269,8 +269,8 @@
   ],
   "homework": [
     {
-      "label": "Homework #0",
-      "text": "Three setup tasks, due before Session 3 (Mon Sep 28) — but do the first one this week so you can follow Session 2. (1) Open the Session 1 notebook in Colab, run every cell, then add three features of your choice to the model and report whether accuracy and the confusion matrix improved — one paragraph on Canvas. (2) Create a free Kaggle account (kaggle.com) with your suffolk.edu email and confirm your username on Canvas; you'll need it for the midterm competition (invite link arrives in Session 6, Oct 26) and for datasets in later sessions. (3) Post one paragraph on the Canvas discussion board describing a prediction problem from your own work or life — the unit, the target, the horizon, and the decision it would change. It may become your final project."
+      "label": "Before Session 2 (nothing to submit)",
+      "text": "Open the Session 1 notebook in Colab, run every cell, and try Exercise 1: add three features of your choice and see whether accuracy and the confusion matrix improve. There is no submission — Homework #1 opens in Session 2 and is due Mon Sep 28, and it starts from exactly this notebook. Meanwhile, keep an eye out for a prediction problem from your own work or life; HW1 asks you to frame one."
     }
   ],
   "nextSession": {

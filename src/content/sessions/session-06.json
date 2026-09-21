@@ -280,7 +280,7 @@
   "homework": [
     {
       "label": "Homework #3 + Competition Kickoff",
-      "text": "HW3 (due Mon Nov 2): finish Part 2 of the credit-default assignment — with a missed default costing $1,000 and a wrongly declined good customer $150, find the expected-cost-minimizing threshold with TunedThresholdClassifierCV and a custom scorer, report the confusion matrix and total cost at that threshold versus 0.5, and include a calibration plot. Competition: form your team of 2–3 on Kaggle by Mon Nov 2 and make at least one submission (even the baseline) so we know your team is registered. Leaderboard closes Sun Nov 8, 11:59 PM."
+      "text": "HW3 (due Mon Nov 2): finish Part 2 of the credit-default assignment — with a missed default costing $1,000 and a wrongly declined good customer $150, find the expected-cost-minimizing threshold with TunedThresholdClassifierCV and a custom scorer, report the confusion matrix and total cost at that threshold versus 0.5, and include a calibration plot. Competition: create a free Kaggle account with your suffolk.edu email if you have not already, then form your team of 2–3 on Kaggle by Mon Nov 2 and make at least one submission (even the baseline) so we know your team is registered. Leaderboard closes Sun Nov 8, 11:59 PM."
     }
   ],
   "nextSession": {

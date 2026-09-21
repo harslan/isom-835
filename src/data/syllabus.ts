@@ -28,7 +28,7 @@ export const grading = [
 export const assessments = [
   {
     name: 'Participation & in-class labs', weight: 15,
-    what: 'Every session has a live notebook. Credit for being present, running the lab, and completing the "Your turn" exercises by the following Sunday. Two lowest weeks dropped. Homework #0 (setup + first model) and Lab 0 (the Python Foundations Check), both due Mon Sep 28, are completion credits here, not part of the five graded homework notebooks.',
+    what: 'Every session has a live notebook. Credit for being present, running the lab, and completing the "Your turn" exercises by the following Sunday. Two lowest weeks dropped. Lab 0, the Python Foundations Check (due Mon Sep 28), is a completion credit here, not one of the five graded homework notebooks.',
     rubric: ['Present and engaged (attendance, questions, explorer use)', '"Your turn" cells attempted in ≥ 10 of 12 lab sessions'],
   },
   {
@@ -41,7 +41,6 @@ export const assessments = [
       'Communication (20%) — one clear paragraph per question answering what the numbers mean for the business',
     ],
     items: [
-      { label: 'HW0 — Setup + first model (completion credit under participation)', due: 'Mon Sep 28', session: 1 },
       { label: 'HW1 — EDA + baseline on Telco', due: 'Mon Sep 28', session: 2 },
       { label: 'HW2 — Ames regression pipeline (ridge/lasso)', due: 'Mon Oct 19', session: 4 },
       { label: 'HW3 — Credit default: classification + threshold/cost', due: 'Mon Nov 2', session: 5 },
@@ -68,7 +67,7 @@ export const assessments = [
 
 // What is due at the start of each session (authoritative; the session pages' homework labels are prose).
 export const dueBySession: Record<number, string> = {
-  3: 'HW0 setup + first model · HW1 — EDA + baseline (Telco) · Lab 0 Python Foundations Check',
+  3: 'HW1 — EDA + baseline (Telco) · Lab 0 Python Foundations Check',
   5: 'HW2 — Ames regression pipeline',
   7: 'HW3 — credit default + threshold · competition team registered',
   8: 'Competition leaderboard closed (Sun Nov 8) · memo tonight · project proposal',
