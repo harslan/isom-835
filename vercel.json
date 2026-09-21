@@ -1,15 +1,5 @@
 {
   "framework": "astro",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "redirects": [
-    {
-      "source": "/session-:num(\\d{2})",
-      "destination": "/sessions/session-:num"
-    },
-    {
-      "source": "/session-:num(\\d{2})/",
-      "destination": "/sessions/session-:num"
-    }
-  ]
+  "outputDirectory": "dist"
 }
