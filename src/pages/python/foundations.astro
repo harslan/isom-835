@@ -4,6 +4,7 @@ import GradientText from '../../components/GradientText.astro';
 import Icon from '../../components/Icon.astro';
 
 const LAB0 = 'https://colab.research.google.com/github/harslan/isom-835/blob/master/public/python/ISOM835_Lab0_Python_Foundations.ipynb';
+const CLASS_NB = 'https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-02/class-live-code.ipynb';
 const chapters = [
   {
     n: 2, when: 'Session 1 · Mon Sep 14', title: 'Variables, expressions & statements', icon: 'braces', lesson: '/python/playground/#L0',
@@ -72,7 +73,9 @@ for i in range(len(charges)):
     <div class="flex gap-4 flex-wrap">
       <a href={LAB0} target="_blank" rel="noopener" class="px-8 py-4 bg-gradient-to-r from-accent-cyan to-accent-purple rounded-full text-bg-primary font-semibold no-underline transition-all duration-300 hover:-translate-y-0.5">Open Lab 0 in Colab</a>
       <a href="/python/playground/" class="px-8 py-4 border border-border-subtle rounded-full text-text-primary no-underline transition-all duration-300 hover:border-accent-cyan hover:text-accent-cyan">Python, Guided (in-browser)</a>
+      <a href={CLASS_NB} target="_blank" rel="noopener" class="px-8 py-4 border border-border-subtle rounded-full text-text-primary no-underline transition-all duration-300 hover:border-accent-purple hover:text-accent-purple">What we typed in class ↗</a>
     </div>
+    <p class="text-text-muted text-[0.9rem] mt-4 max-w-[820px]">The class notebook is the Session 2 meeting cell for cell — conditionals, try / except, a function, loops, then a first look at pandas on the Titanic passenger list. Outputs are cleared; run it to get them back.</p>
   </section>
 
   <section class="px-8 max-w-[1100px] mx-auto mb-12">

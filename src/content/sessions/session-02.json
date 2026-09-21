@@ -116,6 +116,15 @@
       "linkText": "Open in Colab"
     },
     {
+      "title": "Session 2 Class Notebook — What We Typed Together",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-02/class-live-code.ipynb",
+      "description": "The live notebook from our meeting, cell for cell: comparisons and if/elif, try/except on a bad int(), a first function, while and for loops, the largest-so-far pattern, then pandas on the Titanic passenger list — head, dtypes, shape, column selection, means, isnull().sum(), and filtering rows. Outputs cleared so you get them by running. Four questions at the end.",
+      "icon": "code",
+      "badge": "In Class",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    },
+    {
       "title": "The Leakage Time Machine — when did you know that?",
       "url": "/explore/leakage/",
       "description": "Drag the moment a prediction is made and watch which columns exist yet, how good a real model looks, and whether there is still a decision left to make — on a bank's phone campaign (AUC 0.73 → 0.93 once the call length leaks in) and on the hotel bookings from the competition. Tonight's one question, made draggable.",
