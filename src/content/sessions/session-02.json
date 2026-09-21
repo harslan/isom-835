@@ -31,9 +31,9 @@
   "agenda": [
     {
       "time": "5:00 PM - 5:20 PM",
-      "title": "Python Review (Functions & Loops) & Homework #0 Debrief",
+      "title": "Python Review (Functions & Loops) & The Data Problem",
       "duration": "20 minutes",
-      "description": "We open with the two remaining Python for Everybody decks — functions (Ch. 4) and loops (Ch. 5) — because tonight's pandas code is loops and functions in disguise. Then your prediction problems from Canvas, read aloud, and the uncomfortable truth: in Session 1 the data came as one clean table. It never does. Tonight is about the 80% of the job that happens before fit().",
+      "description": "We open with the two remaining Python for Everybody decks — functions (Ch. 4) and loops (Ch. 5) — because tonight's pandas code is loops and functions in disguise. Then the uncomfortable truth: in Session 1 the data came as one clean table. It never does. Tonight is about the 80% of the job that happens before fit().",
       "bulletPoints": [
         "Lab 0 — the Python Foundations Check — opens tonight: thirteen self-checking exercises on variables, conditionals, functions and loops, due before Session 3",
         "Kaggle 2022 survey: data scientists still report spending most of their time cleaning and organizing data",

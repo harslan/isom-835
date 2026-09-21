@@ -31,9 +31,9 @@
   "agenda": [
     {
       "time": "5:00 PM - 5:20 PM",
-      "title": "HW1 Debrief & The Wrong Way",
+      "title": "HW0 & HW1 Debrief & The Wrong Way",
       "duration": "20 minutes",
-      "description": "Three leakage patterns from your HW1 submissions, anonymized. Then the classic mistake live: scale the whole dataset, then split. The score looks great. It is a lie.",
+      "description": "Three of your HW0 prediction problems read aloud — unit, target, horizon, decision — then three leakage patterns from your HW1 submissions, anonymized. Then the classic mistake live: scale the whole dataset, then split. The score looks great. It is a lie.",
       "bulletPoints": [
         "Anything that learns from data — a scaler, an imputer, an encoder — is a model and must be fit on training data only",
         "Rule of the semester: split first, then fit everything on the training fold"
