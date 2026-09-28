@@ -115,6 +115,24 @@
       "linkText": "Open in Colab"
     },
     {
+      "title": "Session 3 Class Notebook — What We Type Together",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-03/class-live-code.ipynb",
+      "description": "Tonight's live notebook: pandas continued from where Session 2 stopped — describe, value_counts, sorting, loc/iloc, new columns, missing values, groupby — on Titanic first, then the same moves on Telco through to who to call first.",
+      "icon": "code",
+      "badge": "In Class",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "The Churn Detective — a self-checking case file (HW1 companion)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-03/ISOM835_Churn_Detective.ipynb",
+      "description": "Seven case files on the Telco data, one per part of Homework 1: the tampered TotalCharges column, groupby interrogations, engineered clues, the sign-up-day time machine, a model that beats the baseline, and framing your own prediction problem. Guess before you run, then a check cell prints ✓. 60–90 minutes; ends with a scorecard.",
+      "icon": "search",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
       "title": "scikit-learn User Guide — Preprocessing Data",
       "url": "https://scikit-learn.org/stable/modules/preprocessing.html",
       "description": "The reference for every transformer we use tonight: StandardScaler, OneHotEncoder, OrdinalEncoder, TargetEncoder, and the imputers. Bookmark it.",

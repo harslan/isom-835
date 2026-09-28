@@ -141,6 +141,15 @@
       "badgeType": "code"
     },
     {
+      "title": "The Churn Detective — a self-checking case file (HW1 companion)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-03/ISOM835_Churn_Detective.ipynb",
+      "description": "Seven case files on the Telco data, one per part of Homework 1: the tampered TotalCharges column, groupby interrogations, engineered clues, the sign-up-day time machine, a model that beats the baseline, and framing your own prediction problem. Guess before you run, then a check cell prints ✓. 60–90 minutes; ends with a scorecard.",
+      "icon": "search",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
       "title": "Python foundations — the four decks, what to take away, worked churn examples",
       "url": "/python/foundations/",
       "description": "The review page for Python for Everybody chapters 2–5: what we covered, what you should be able to do, one worked example per chapter on the churn problem, and the slides embedded.",
