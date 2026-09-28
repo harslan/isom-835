@@ -33,7 +33,7 @@ export const assessments = [
   },
   {
     name: 'Homework (5 notebooks, individual)', weight: 25,
-    what: 'Five Colab notebooks on real data, each due at the start of class on Canvas. Graded on the same four things every time.',
+    what: 'Five Colab notebooks on real data, each due at 11:59 PM on the due date, on Canvas. Graded on the same four things every time.',
     rubric: [
       'Framing & baseline (20%) — unit, target, horizon, decision stated; the naive baseline computed and beaten',
       'Pipeline & leakage (30%) — split before any fitted transformer; leaks identified and removed; code runs top to bottom',
@@ -111,7 +111,7 @@ export const policies = [
   },
   {
     title: 'Late Submissions',
-    description: 'Assignments are due by the start of class on Canvas. Late submissions receive a 10% penalty per day, up to 3 days. After 3 days, assignments receive zero credit. The competition leaderboard closes when it closes. One free 48-hour extension per student on any single homework — just email before the deadline.',
+    description: 'Assignments are due at 11:59 PM on the due date, on Canvas. Late submissions receive a 10% penalty per day, up to 3 days. After 3 days, assignments receive zero credit. The competition leaderboard closes when it closes. One free 48-hour extension per student on any single homework — just email before the deadline.',
   },
   {
     title: 'Accessibility & Support',

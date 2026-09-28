@@ -184,7 +184,7 @@ const nextClassData = sorted.map((s) => {
       if (next.explorer) show('tw-explorer', next.explorer.url, next.explorer.title.replace(/ — .*$/, ''), 'tw-explorer-t');
       // the homework due THIS session was assigned last session
       const prev = nextClassData.find((s) => s.n === next.n - 1);
-      if (prev && prev.homework) show('tw-homework', '/sessions/' + prev.slug + '#homework', prev.homework + ' — due at the start of class', 'tw-homework-t');
+      if (prev && prev.homework) show('tw-homework', '/sessions/' + prev.slug + '#homework', prev.homework + ' — due 11:59 PM', 'tw-homework-t');
       box.classList.remove('hidden');
       // ring the matching session card
       document.querySelectorAll('.session-card[data-session-iso="' + next.iso + '"]').forEach((el) => {
