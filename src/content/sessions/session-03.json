@@ -31,9 +31,9 @@
   "agenda": [
     {
       "time": "5:00 PM - 5:20 PM",
-      "title": "HW1 Debrief & The Wrong Way",
+      "title": "The Wrong Way, Live",
       "duration": "20 minutes",
-      "description": "Three of your prediction problems from HW1 read aloud — unit, target, horizon, decision — then three leakage patterns from the same submissions, anonymized. Then the classic mistake live: scale the whole dataset, then split. The score looks great. It is a lie.",
+      "description": "Where the Churn Detective left off: the columns you would not know on sign-up day, and why that matters. Then the classic mistake live: scale the whole dataset, then split. The score looks great. It is a lie.",
       "bulletPoints": [
         "Anything that learns from data — a scaler, an imputer, an encoder — is a model and must be fit on training data only",
         "Rule of the semester: split first, then fit everything on the training fold"
@@ -66,7 +66,7 @@
       "time": "6:05 PM - 6:15 PM",
       "title": "Break",
       "duration": "10 minutes",
-      "description": "Stretch, coffee, compare notes on HW1.",
+      "description": "Stretch, coffee, compare notes on the Churn Detective and HW1 (due next Monday).",
       "bulletPoints": [],
       "isBreak": true
     },

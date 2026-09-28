@@ -66,9 +66,9 @@ an evaluation you can defend → a decision.*
 | 12 | Dec 7 | Time & Text | Neural Networks, Embeddings & LLMs as Features | Amazon reviews (HF `amazon_polarity`) + Telco | MLP; TF-IDF vs. sentence embeddings vs. zero-shot LLM; when deep learning beats GBDT on tabular (rarely); the AI-assisted analyst |
 | 13 | Dec 14 (exam-week slot) | Finale | Ship It — Deployment, Monitoring & Your Prediction Story | Your project | joblib pipelines, MLflow, a Gradio demo, drift monitoring (Evidently), EU AI Act in one slide; **final presentations** |
 
-**Homework (5, individual):** HW1 due S3 Sep 28 (EDA + baseline on Telco); HW2 due S5 Oct 19 (Ames regression pipeline);
+**Homework (5, individual):** HW1 due S4 Oct 5 (EDA + baseline on Telco); HW2 due S5 Oct 19 (Ames regression pipeline);
 HW3 due S7 Nov 2 (credit default: classification + threshold/profit); HW4 due S10 Nov 23 (hotel bookings: GBM + SHAP);
-HW5 due S12 Dec 7 (forecast bike demand *or* segment retail customers — student's choice). There is no HW0: Session 1 asks students to run the notebook (nothing to submit), and HW1 carries the prediction-problem framing question. Lab 0 (Python Foundations Check, due S3) is completion credit under participation.
+HW5 due S12 Dec 7 (forecast bike demand *or* segment retail customers — student's choice). There is no HW0: Session 1 asks students to run the notebook (nothing to submit), and HW1 carries the prediction-problem framing question. Lab 0 (Python Foundations Check, due S4) is completion credit under participation.
 
 **Midterm Model Competition (team of 2–3, Kaggle community competition):** launched S6 Oct 26 ·
 hidden test set of hotel bookings · leaderboard closes Sun Nov 8, 11:59 PM · reveal + 3-minute

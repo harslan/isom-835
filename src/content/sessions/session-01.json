@@ -270,7 +270,7 @@
   "homework": [
     {
       "label": "Before Session 2 (nothing to submit)",
-      "text": "Open the Session 1 notebook in Colab, run every cell, and try Exercise 1: add three features of your choice and see whether accuracy and the confusion matrix improve. There is no submission — Homework #1 opens in Session 2 and is due Mon Sep 28, and it starts from exactly this notebook. Meanwhile, keep an eye out for a prediction problem from your own work or life; HW1 asks you to frame one."
+      "text": "Open the Session 1 notebook in Colab, run every cell, and try Exercise 1: add three features of your choice and see whether accuracy and the confusion matrix improve. There is no submission — Homework #1 opens in Session 2 and is due Mon Oct 5, and it starts from exactly this notebook. Meanwhile, keep an eye out for a prediction problem from your own work or life; HW1 asks you to frame one."
     }
   ],
   "nextSession": {
