@@ -24,7 +24,7 @@ for f in nbs:
         n = int(is_session.group(1))
         if '# Environment check' not in text: bad.append((f, 'missing the environment-check cell'))
         if n <= 12 and 'Your turn' not in text: bad.append((f, 'no "Your turn" section'))
-        if 'raw.githubusercontent.com/harslan/isom-835/master/public/data/' not in text and n in (1, 2, 3, 6, 7, 8, 9, 12, 13): bad.append((f, 'does not load data from the course repo URL'))
+        if 'raw.githubusercontent.com/harslan/isom-835/master/public/data/' not in text and n in (1, 2, 3, 5, 7, 8, 9, 12, 13): bad.append((f, 'does not load data from the course repo URL'))
 print(f'notebooks: {len(nbs)} checked, {len(bad)} problems')
 for b in bad: print('  PROBLEM', b)
 sys.exit(1 if bad else 0)

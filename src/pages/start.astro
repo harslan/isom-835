@@ -8,7 +8,7 @@ import { sessionMeta, WEEKDAY_LONG, MEETING_TIME } from '../data/schedule';
 
 const setup = [
   { icon: 'code', title: 'Google Colab', minutes: '2 min', text: 'Every session notebook opens in Colab from the session page with one click. Sign in with any Google account; nothing to install. Tip: File → Save a copy in Drive the first time you open a notebook, so your edits persist.', href: 'https://colab.research.google.com/', link: 'Open Colab' },
-  { icon: 'trophy', title: 'Kaggle account', minutes: '3 min', text: 'You need one for the Midterm Model Competition (launches Oct 26) and it is the best free source of project datasets. Use your suffolk.edu email so we can find your team.', href: 'https://www.kaggle.com/', link: 'Create an account' },
+  { icon: 'trophy', title: 'Kaggle account', minutes: '3 min', text: 'You need one for the Midterm Model Competition (launches Oct 19) and it is the best free source of project datasets. Use your suffolk.edu email so we can find your team.', href: 'https://www.kaggle.com/', link: 'Create an account' },
   { icon: 'github', title: 'The course repository', minutes: '1 min', text: 'All notebooks, datasets, and this site live in one public GitHub repo. You never need to clone it — but star it, and read a notebook there when Colab is slow.', href: 'https://github.com/harslan/isom-835', link: 'Open the repo' },
   { icon: 'bot', title: 'An AI assistant (optional, encouraged)', minutes: '5 min', text: 'Colab has a built-in Gemini assistant; Claude and ChatGPT work in a second tab. Use them the way professionals do — to draft, then verify the split, the leakage, the metric, and the baseline yourself. Disclose what you used.', href: '/sessions/session-12', link: 'How we teach this (Session 12)' },
 ];
@@ -23,7 +23,7 @@ const habits = [
   { title: 'Frame it in four lines', text: 'Unit, target, horizon, decision. Write them at the top of every notebook and every memo. Session 1.' },
   { title: 'Beat the baseline first', text: '"Predict the majority class" or "same hour last week" is the score to beat. If you cannot name the baseline, you cannot claim a win. Session 1, 11.' },
   { title: 'Split before you fit anything', text: 'Scalers, imputers, encoders learn from data. Put them in a Pipeline fit on the training fold. Session 3.' },
-  { title: 'Ask what a mistake costs', text: 'A model gives a score; the business needs a decision. The threshold comes from the cost matrix, not from 0.5. Session 6.' },
+  { title: 'Ask what a mistake costs', text: 'A model gives a score; the business needs a decision. The threshold comes from the cost matrix, not from 0.5. Session 5.' },
   { title: 'Earn trust three ways', text: 'Why (SHAP), how sure (calibration, conformal), where it fails (sliced error rates). Session 9.' },
 ];
 
@@ -150,8 +150,8 @@ const firstSessions = [1, 2, 3].map((n) => ({ n, ...sessionMeta[n] }));
         { f: 'm4_2_exploratory_data_analysis.ipynb', t: 'pandas & exploratory data analysis', d: 'Series, DataFrames, joins, groupby — the pandas you need for Session 2.' },
         { f: 'm5_1_data_visualizations_with_python.ipynb', t: 'matplotlib & seaborn', d: 'Line, scatter, histogram, pair plots — the charts that decide which features to engineer.' },
         { f: 'm5_2_introducing_scikit_learn_library.ipynb', t: 'Introducing scikit-learn', d: 'The estimator API: choose, configure, fit, predict. The slow version of Session 1\'s twelve lines.' },
-        { f: 'm5_3_model_validation_and_model_selection.ipynb', t: 'Model validation & selection', d: 'Holdout, cross-validation, bias–variance, grid search — the ideas behind Sessions 1, 4, and 9.' },
-        { f: 'm6_2_linear_regression.ipynb', t: 'Linear regression, ridge & lasso', d: 'Basis functions and regularization on a small example. Pairs with Session 4.' },
+        { f: 'm5_3_model_validation_and_model_selection.ipynb', t: 'Model validation & selection', d: 'Holdout, cross-validation, bias–variance, grid search — the ideas behind Sessions 1, 6, and 9.' },
+        { f: 'm6_2_linear_regression.ipynb', t: 'Linear regression, ridge & lasso', d: 'Basis functions and regularization on a small example. Pairs with Session 6.' },
         { f: 'm7_1_decision_trees_random_forests.ipynb', t: 'Decision trees & random forests', d: 'A tree on blobs, the overfitting picture, bagging. Pairs with Session 7.' },
         { f: 'imlp_02-supervised-learning.ipynb', t: 'Müller & Guido, Ch. 2 — Supervised learning (official book notebook)', d: 'Every classifier with its decision boundary drawn, by a scikit-learn core developer. Older scikit-learn, timeless ideas.' },
         { f: 'imlp_05-model-evaluation-and-improvement.ipynb', t: 'Müller & Guido, Ch. 5 — Evaluation & improvement (official book notebook)', d: 'Cross-validation, grid search, and the metrics chapter. Pairs with Sessions 5, 6, and 9.' },

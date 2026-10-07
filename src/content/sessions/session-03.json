@@ -96,10 +96,10 @@
       "time": "7:15 PM - 7:30 PM",
       "title": "Wrap-Up & Next Week",
       "duration": "15 minutes",
-      "description": "The reusable template: ColumnTransformer → Pipeline → cross_val_score. Next week we point it at a continuous target and learn to predict prices.",
+      "description": "The reusable template: ColumnTransformer → Pipeline → cross_val_score. Next week we point it at 30,000 credit-card customers and learn to predict who defaults.",
       "bulletPoints": [
         "Practice item: rebuild your HW1 model as a Pipeline and confirm the score does not change",
-        "Reading for Session 4: ISLP Chapter 3 (Linear Regression)"
+        "Reading for Session 4: ISLP Chapter 4 (Classification), 4.1–4.3"
       ],
       "isBreak": false
     }
@@ -244,16 +244,16 @@
   "homework": [
     {
       "label": "Practice (ungraded) + Reading",
-      "text": "Before Session 4 (Mon Oct 5): rebuild your HW1 Telco model as a Pipeline with a ColumnTransformer and confirm the cross-validated AUC matches what you reported. Then add three engineered features of your own design (at least one ratio, at least one interaction) and note whether AUC moves. Read ISLP Chapter 3 (Linear Regression), sections 3.1–3.3 — we predict house prices next week."
+      "text": "Before Session 4 (Mon Oct 5): rebuild your HW1 Telco model as a Pipeline with a ColumnTransformer and confirm the cross-validated AUC matches what you reported. Then add three engineered features of your own design (at least one ratio, at least one interaction) and note whether AUC moves. Read ISLP Chapter 4 (Classification), sections 4.1–4.3 — we predict who defaults on a credit card next week."
     }
   ],
   "nextSession": {
-    "title": "Session 4: Regression — Predicting Numbers",
-    "description": "From yes/no to how much: linear regression on the Ames housing data, coefficients in dollars, log targets, ridge and lasso, and the residual plot that tells you what your model is missing.",
+    "title": "Session 4: Classification — Predicting Yes/No",
+    "description": "Logistic regression as odds, kNN and Naive Bayes as contrasts, the confusion matrix in depth, precision vs. recall, ROC vs. PR curves, and what to do when only 22% of your credit-card customers default.",
     "tags": [
-      "Regression",
-      "Regularization",
-      "Residuals"
+      "Classification",
+      "Logistic Regression",
+      "ROC & PR"
     ],
     "slug": "session-04"
   }

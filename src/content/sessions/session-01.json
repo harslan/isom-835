@@ -88,7 +88,7 @@
       "description": "Our model scores 79% accuracy. The 'nobody churns' model scores 73%. Is 80 good? We open the confusion matrix and discover the model catches only half of the churners — and that a retention offer costs $50 while a lost customer costs $1,500.",
       "bulletPoints": [
         "Three questions for any accuracy: compared with what baseline? on which data? at what cost per mistake?",
-        "Preview of Session 6: the same model, a different threshold, $200K more profit"
+        "Preview of Session 5: the same model, a different threshold, $200K more profit"
       ],
       "isBreak": false
     },

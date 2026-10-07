@@ -210,7 +210,7 @@
       "number": 1,
       "icon": "rocket",
       "title": "Save It, Serve It, Watch It",
-      "description": "Take the Telco churn pipeline from Session 6 (with its tuned threshold). Persist it, reload it in a clean state, score a single new customer, wrap it in a Gradio demo, and run a drift report against a deliberately shifted sample.",
+      "description": "Take the Telco churn pipeline from Session 5 (with its tuned threshold). Persist it, reload it in a clean state, score a single new customer, wrap it in a Gradio demo, and run a drift report against a deliberately shifted sample.",
       "steps": [
         {
           "title": "Persist the whole pipeline",

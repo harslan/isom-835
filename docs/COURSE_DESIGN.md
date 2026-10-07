@@ -3,7 +3,9 @@
 **Predictive Analytics & Machine Learning** · Suffolk University, Sawyer Business School
 Prof. Hasan Arslan · Mondays 5:00–7:30 PM (150 min) · 13 sessions: 12 class Mondays Sep 14 → Dec 7 (no class Oct 12, October Break) + exam-week Monday Dec 14 for final presentations
 
-This document is the single source of truth for the *arc* of the course. Every session JSON in
+This document is the single source of truth for the *arc* of the course.
+
+> **Fall 2026 reorder (Oct 7, 2026).** Classification is taught before regression: Session 4 (Oct 5) is Classification, Session 5 (Oct 19) is From Scores to Decisions with the competition launch, Session 6 (Oct 26) is Regression. Homework follows: HW2 = credit-default classification (due Oct 19), HW3 = threshold/cost on that model + Ames regression (due Nov 2). The cohort also spent Sessions 2–3 on Python/pandas fundamentals; the published Session 2–3 notebooks are reference material, and the class-live-code notebooks are what was typed in class. Every session JSON in
 `src/content/sessions/` must follow it. Session 13 (Dec 14) opens with a 45-minute "Ship It" segment, then final presentations fill the rest.
 
 Sibling courses: [isom-839](https://isom-839.vercel.app)
@@ -55,9 +57,9 @@ an evaluation you can defend → a decision.*
 | 1 | Sep 14 | Foundations | From Data to Decisions: Your First Predictive Model | IBM Telco Churn (`/data/telco_churn.csv`) | pandas + scikit-learn; the lifecycle; baseline vs. model; why accuracy lies |
 | 2 | Sep 21 | Data & Features | Data Wrangling & EDA for Prediction | Olist Brazilian e-commerce (Kaggle) + Telco | pandas joins/groupby/datetime; EDA that asks questions; missing data; leakage spotting |
 | 3 | Sep 28 | Data & Features | Feature Engineering & Leak-Proof Pipelines | Bank Marketing (UCI) + Telco | ColumnTransformer, Pipeline, encoders, scaling, target encoding, skrub's TableVectorizer |
-| 4 | Oct 5 | Regression | Regression: Predicting Numbers | Ames Housing (`fetch_openml('house_prices')`) | OLS → ridge/lasso/elastic-net; RMSE/MAE/MAPE; residual diagnostics; log targets; pricing |
-| 5 | Oct 19 | Classification & Decisions | Classification: Predicting Yes/No | Taiwan Credit-Card Default (UCI / OpenML 42477) | logistic regression, odds ratios, kNN, Naive Bayes; confusion matrix, precision/recall, ROC-AUC, PR-AUC; imbalance |
-| 6 | Oct 26 | Classification & Decisions | From Scores to Decisions: Thresholds, Costs & Calibration | Credit Default + Telco (with a cost matrix) | expected-value framework, profit curves, `TunedThresholdClassifierCV`, calibration curves, lift/gain, uplift preview. **Midterm competition launches.** |
+| 4 | Oct 5 | Classification & Decisions | Classification: Predicting Yes/No | Taiwan Credit-Card Default (UCI / OpenML 42477) | logistic regression, odds ratios, kNN, Naive Bayes; confusion matrix, precision/recall, ROC-AUC, PR-AUC; imbalance |
+| 5 | Oct 19 | Classification & Decisions | From Scores to Decisions: Thresholds, Costs & Calibration | Credit Default + Telco (with a cost matrix) | expected-value framework, profit curves, `TunedThresholdClassifierCV`, calibration curves, lift/gain, uplift preview. **Midterm competition launches.** |
+| 6 | Oct 26 | Regression | Regression: Predicting Numbers | Ames Housing (`fetch_openml('house_prices')`) | OLS → ridge/lasso/elastic-net; RMSE/MAE/MAPE; residual diagnostics; log targets; pricing |
 | 7 | Nov 2 | Trees & Ensembles | Decision Trees & Random Forests | Bank Marketing + Hotel Bookings | CART, overfitting, bagging, RF, OOB, permutation importance |
 | 8 | Nov 9 | Trees & Ensembles | Gradient Boosting & the Tabular Frontier | Hotel Bookings (`/data/hotel_bookings.csv`) | HistGradientBoosting, LightGBM, XGBoost, CatBoost; early stopping; TabPFN-2.5 as a 2025 alternative. **Competition leaderboard reveal.** |
 | 9 | Nov 16 | Evaluation & Optimization | Trust, but Verify: Tuning, Explaining & Uncertainty | Hotel Bookings + Credit Default | CV strategies (stratified/group/time), Optuna, SHAP, partial dependence, MAPIE conformal intervals, model cards, fairness slices |
@@ -66,11 +68,11 @@ an evaluation you can defend → a decision.*
 | 12 | Dec 7 | Time & Text | Neural Networks, Embeddings & LLMs as Features | Amazon reviews (HF `amazon_polarity`) + Telco | MLP; TF-IDF vs. sentence embeddings vs. zero-shot LLM; when deep learning beats GBDT on tabular (rarely); the AI-assisted analyst |
 | 13 | Dec 14 (exam-week slot) | Finale | Ship It — Deployment, Monitoring & Your Prediction Story | Your project | joblib pipelines, MLflow, a Gradio demo, drift monitoring (Evidently), EU AI Act in one slide; **final presentations** |
 
-**Homework (5, individual):** HW1 due S4 Oct 5 (EDA + baseline on Telco); HW2 due S5 Oct 19 (Ames regression pipeline);
-HW3 due S7 Nov 2 (credit default: classification + threshold/profit); HW4 due S10 Nov 23 (hotel bookings: GBM + SHAP);
+**Homework (5, individual):** HW1 due S4 Oct 5 (EDA + baseline on Telco); HW2 due S5 Oct 19 (credit default: classification, ROC/PR, odds ratios);
+HW3 due S7 Nov 2 (Part 1 threshold/cost on the HW2 model, assigned S5; Part 2 Ames regression pipeline, assigned S6); HW4 due S10 Nov 23 (hotel bookings: GBM + SHAP);
 HW5 due S12 Dec 7 (forecast bike demand *or* segment retail customers — student's choice). There is no HW0: Session 1 asks students to run the notebook (nothing to submit), and HW1 carries the prediction-problem framing question. Lab 0 (Python Foundations Check, due S4) is completion credit under participation.
 
-**Midterm Model Competition (team of 2–3, Kaggle community competition):** launched S6 Oct 26 ·
+**Midterm Model Competition (team of 2–3, Kaggle community competition):** launched S5 Oct 19 ·
 hidden test set of hotel bookings · leaderboard closes Sun Nov 8, 11:59 PM · reveal + 3-minute
 "what worked" talks in S8 Nov 9. Graded 50% leaderboard rank band, 50% a one-page modeling memo.
 
@@ -85,16 +87,16 @@ exam-week slot). No written final exam.
 - `/start` — first 30 minutes: setup (Colab, Kaggle, repo, AI assistant), the weekly rhythm, the six places on the site, five habits, refresher notebooks, first three Mondays.
 - `/cheatsheet` — the course on one page: framing, leakage test, pipeline template, metric menu, confusion matrix, threshold formula, CV chooser, model chooser, trust questions, memo structure.
 - `/datasets` — every dataset with a no-login loader and its gotcha, plus eight project-ready public datasets.
-- `/explorers` — overfitting (S1/S4), threshold & profit (S6), gradient boosting (S8), k-means (S10). Conformal explorer still to build.
+- `/explorers` — overfitting (S1/S6), threshold & profit (S5), gradient boosting (S8), k-means (S10). Conformal explorer still to build.
 - Session pages embed the exact StatQuest videos (verified IDs) for S1, S4, S5, S7, S8, S9, S10.
 
 - `/syllabus` — full syllabus: description, seven outcomes, weekly table (reading + due), grading + letter scale, assessments with rubrics, materials, tools, policies.
-- `public/advanced/` — optional advanced-track notebooks (uplift modeling, linked from S6 and the project page). Add more here (AutoML, causal) rather than lengthening sessions.
+- `public/advanced/` — optional advanced-track notebooks (uplift modeling, linked from S5 and the project page). Add more here (AutoML, causal) rather than lengthening sessions.
 
 - Curated visual explainers (all URLs verified live on 2026-09-19): MLU-Explain (bias–variance, train/test/validation, linear & logistic regression, ROC, precision/recall, decision tree, random forest, cross-validation, double descent, equality of odds, neural networks), R2D3, Setosa (OLS, PCA), Naftali Harris (k-means, DBSCAN), explained.ai gradient boosting, the gradient-boosting playground, TensorFlow Playground, Google PAIR explorables (calibration, fairness), Molnar's Interpretable ML, Angelopoulos & Bates conformal tutorial, Fairlearn, Kaggle Learn (leakage, time series), Google Rules of ML, CS 329S, Kozyrkov's MFML. Attached to the relevant sessions as resources.
 
 - `/python` + `/python/playground/` ("Python, Guided": 7 lessons, 20 runnable examples, 28 graded exercises incl. pandas and a scikit-learn model in the browser via Pyodide + CodeMirror; every checker validated against a reference solution and a failing starter) — the Python Track: seven levels built on the ISOM 730 modules (Google Slides links from the module docs, notebooks hosted in `public/python/modules`, slides in `public/python/slides`, Fall 2025 lecture Colabs) plus a Pyodide playground with 16 graded exercises (checkers validated against reference solutions).
-- `public/refreshers/imlp_*` — Müller & Guido chapters 2 and 5 (official notebooks, patched for scikit-learn 1.7 / matplotlib 3.9), linked from S1, S5, S7, S9.
+- `public/refreshers/imlp_*` — Müller & Guido chapters 2 and 5 (official notebooks, patched for scikit-learn 1.7 / matplotlib 3.9), linked from S1, S4, S7, S9.
 - `/project/template.html` — single-file GitHub Pages template for the project site (five beats).
 
 - **Private materials** live outside the public repo in `/Users/barut/projects/isom-835-private/`: `competition/` (Kaggle kit: train/test/sample_submission, the hidden `solution.csv` with Public/Private usage, a logistic baseline submission, and a README with launch steps and reference AUCs 0.893 / 0.956) and `solutions/` (instructor solutions for the "Your turn" exercises, released on Canvas after each session; Session 1 done).

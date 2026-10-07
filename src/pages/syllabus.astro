@@ -17,7 +17,7 @@ const weekly = sorted.map((s) => {
   const due = dueBySession[s.data.number] ?? '';
   return { n: s.data.number, slug: s.data.slug, title: s.data.title, tags: s.data.tags, date: sessionMeta[s.data.number]?.date, module: sessionMeta[s.data.number]?.module, reading: reading ? reading.title.replace(/ — .*$/, '') : '—', due };
 });
-const milestones: Record<number, string> = { 6: 'Competition launches', 8: 'Competition reveal · memo due · project proposal due', 13: 'Final presentations · Signal Award' };
+const milestones: Record<number, string> = { 5: 'Competition launches', 8: 'Competition reveal · memo due · project proposal due', 13: 'Final presentations · Signal Award' };
 ---
 
 <BaseLayout title="ISOM 835 | Syllabus" description="The full ISOM 835 syllabus: description, learning outcomes, weekly schedule with readings and due dates, assessments and rubrics, materials, tools, and policies.">

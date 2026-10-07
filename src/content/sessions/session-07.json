@@ -33,7 +33,7 @@
       "time": "5:00 PM - 5:20 PM",
       "title": "HW3 Debrief & Meet the Data: Hotel Bookings",
       "duration": "20 minutes",
-      "description": "Threshold choices from your HW3 submissions — the range was 0.18 to 0.42, and the best memo explained why. Then the competition dataset: 83,573 hotel reservations from a city and a resort hotel in Portugal, 37% canceled, 32 columns — two of which are leaks.",
+      "description": "Threshold choices from HW3 Part 1 — the range was 0.18 to 0.42, and the best memo explained why — and the residual plot that caught the most expensive houses in Part 2. Then the competition dataset: 83,573 hotel reservations from a city and a resort hotel in Portugal, 37% canceled, 32 columns — two of which are leaks.",
       "bulletPoints": [
         "reservation_status and reservation_status_date are the outcome in disguise: drop them or your leaderboard score is fiction",
         "assigned_room_type vs. reserved_room_type: a mismatch is known only at check-in — think about whether that's leakage too"

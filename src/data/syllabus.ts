@@ -42,15 +42,15 @@ export const assessments = [
     ],
     items: [
       { label: 'HW1 — EDA + baseline on Telco', due: 'Mon Oct 5', session: 2 },
-      { label: 'HW2 — Ames regression pipeline (ridge/lasso)', due: 'Mon Oct 19', session: 4 },
-      { label: 'HW3 — Credit default: classification + threshold/cost', due: 'Mon Nov 2', session: 5 },
+      { label: 'HW2 — Credit default: classification (logistic, ROC/PR, odds ratios)', due: 'Mon Oct 19', session: 4 },
+      { label: 'HW3 — Threshold/cost on the credit model + Ames regression pipeline (ridge/lasso)', due: 'Mon Nov 2', session: 5 },
       { label: 'HW4 — Hotel bookings: boosting + SHAP + calibration + conformal', due: 'Mon Nov 23', session: 9 },
       { label: 'HW5 — Segmentation (Track A) or forecasting (Track B)', due: 'Mon Dec 7', session: 10 },
     ],
   },
   {
     name: 'Midterm Model Competition (teams of 2–3)', weight: 20,
-    what: 'A Kaggle community competition on a hidden test split of hotel bookings — predict cancellations. Launches Oct 26; leaderboard closes Sun Nov 8, 11:59 PM; reveal and 3-minute "what worked" talks on Nov 9.',
+    what: 'A Kaggle community competition on a hidden test split of hotel bookings — predict cancellations. Launches Oct 19; leaderboard closes Sun Nov 8, 11:59 PM; reveal and 3-minute "what worked" talks on Nov 9.',
     rubric: [
       'Private-leaderboard band (50%) — top third / middle / bottom third on ROC-AUC, with a floor for any leak-free submission that beats the logistic baseline',
       'One-page modeling memo (50%) — what you tried, what worked, what leaked, and one thing you would do with two more weeks',
@@ -68,8 +68,8 @@ export const assessments = [
 // What is due at the start of each session (authoritative; the session pages' homework labels are prose).
 export const dueBySession: Record<number, string> = {
   4: 'HW1 — EDA + baseline (Telco) · Lab 0 Python Foundations Check',
-  5: 'HW2 — Ames regression pipeline',
-  7: 'HW3 — credit default + threshold · competition team registered',
+  5: 'HW2 — credit default classification',
+  7: 'HW3 — threshold/cost + Ames regression · competition team registered',
   8: 'Competition leaderboard closed (Sun Nov 8) · memo tonight · project proposal',
   10: 'HW4 — boosting + SHAP + conformal (hotel)',
   12: 'HW5 — segmentation or forecasting',

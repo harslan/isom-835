@@ -1,64 +1,64 @@
 {
   "number": 6,
   "slug": "session-06",
-  "title": "From Scores to Decisions: Thresholds, Costs & Calibration",
-  "subtitle": "A model produces a probability; a business produces a decision. Expected value, profit curves, tuned thresholds, calibration, lift and gain — and the launch of the Midterm Model Competition",
+  "title": "Regression: Predicting Numbers",
+  "subtitle": "What is a house worth? Linear regression as the interpretable baseline, coefficients in dollars, log targets, ridge and lasso, and the residual plot that tells you what the model is missing",
   "duration": "150 Minutes",
-  "icon": "coins",
+  "icon": "chart-line",
   "tags": [
-    "Decision Thresholds",
-    "Calibration",
-    "Competition Launch"
+    "Regression",
+    "Regularization",
+    "Model Evaluation"
   ],
   "objectives": [
     {
-      "title": "Price the Two Mistakes",
-      "description": "A retention offer costs $50; a lost customer costs $1,500. Put those numbers in a cost matrix and the 'right' threshold falls out of the arithmetic — and it is nowhere near 0.5."
+      "title": "Fit and Read a Linear Regression",
+      "description": "Coefficients are slopes in business units: $112 per square foot, $9,800 per garage bay. You'll learn to state them, to standardize them before comparing them, and to stop reading them as causes."
     },
     {
-      "title": "Tune the Threshold, Not the Model",
-      "description": "Plot profit against every threshold, find the peak, and use scikit-learn's TunedThresholdClassifierCV to choose it by cross-validation with a business scorer — the same model, thousands of dollars better."
+      "title": "Pick the Right Error Metric",
+      "description": "RMSE punishes big misses, MAE reports the typical miss, MAPE explodes near zero, R² tells you how much of the variance you explained. Which one you report depends on who is asking."
     },
     {
-      "title": "Check Calibration Before You Trust a Probability",
-      "description": "AUC says the ranking is good; a calibration curve says whether 0.8 means 80%. Boosted trees and forests often need CalibratedClassifierCV before their scores can enter a budget calculation."
+      "title": "Regularize With Ridge, Lasso & Elastic Net",
+      "description": "Eighty features, one thousand houses: the recipe for overfitting. Penalized regression shrinks coefficients — and lasso sets most of them to exactly zero, which is feature selection for free."
     },
     {
-      "title": "Target Under a Budget",
-      "description": "When you can only contact 10%, the question is 'who are the best 700?', not 'who is above 0.5?'. Lift and gain charts answer it, and the top-k view is how marketing actually works."
+      "title": "Diagnose With Residuals",
+      "description": "Predicted vs. actual, residuals vs. fitted, and the fan shape that says 'take the log of the target.' The plots that separate a model that works from one that merely runs."
     }
   ],
   "agenda": [
     {
       "time": "5:00 PM - 5:20 PM",
-      "title": "Who Chose 0.5?",
+      "title": "From Yes/No to How Much",
       "duration": "20 minutes",
-      "description": "Back to Session 1's Telco model. predict() flagged 322 customers; 201 of them really churn. It missed 173. The 0.5 cutoff assumes both mistakes cost the same. They don't: an unneeded offer costs $50, a missed churner costs a $1,500 customer.",
+      "description": "Five sessions of yes/no; tonight a number. Classification predicts a label; regression predicts a number — a price, a demand, a delivery time, a lifetime value. Same lifecycle, different target, different metrics. The Ames housing data: 1,460 sales, 79 features, a median price of $163,000.",
       "bulletPoints": [
-        "Expected value of contacting a customer with churn probability p: p × (value saved) − (1 − p) × (offer cost)",
-        "Break-even threshold with $450 saved (30% of $1,500) and a $50 offer: p = 50 / 500 = 0.10"
+        "The baseline is the mean: predict $181K for every house, RMSE ≈ $74K. Every model must beat that",
+        "Sale price is right-skewed: a few $500K+ homes will dominate squared error unless we take the log"
       ],
       "isBreak": false
     },
     {
       "time": "5:20 PM - 5:40 PM",
-      "title": "The Profit Curve",
+      "title": "One Feature, One Line",
       "duration": "20 minutes",
-      "description": "Sweep the threshold from 0 to 1, compute the confusion matrix at each, multiply by the cost matrix, plot total profit. The peak is the threshold. On Telco the profit-maximizing threshold sits near 0.2 and adds tens of thousands of dollars over 0.5 on the test set alone.",
+      "description": "Price against living area. The least-squares line, the intercept, the slope, and what 'holding everything else fixed' means once we add a second feature. The whole of linear regression in one picture.",
       "bulletPoints": [
-        "Accuracy peaks at one threshold, profit at another — and the business only pays for one of them",
-        "The Threshold & Profit Explorer: drag the cutoff and watch the profit curve move"
+        "Slope: roughly $110 per square foot on this data — a number a realtor can use",
+        "R² ≈ 0.50 with one feature: half the variance explained by size alone"
       ],
       "isBreak": false
     },
     {
       "time": "5:40 PM - 6:05 PM",
-      "title": "TunedThresholdClassifierCV & Custom Scorers",
+      "title": "Many Features, Many Units",
       "duration": "25 minutes",
-      "description": "scikit-learn (≥ 1.5) wraps any classifier and tunes the cutoff by cross-validation against a scorer you write — including one that returns dollars. Write the business scorer with make_scorer, wrap the pipeline, and let CV pick the threshold that pays.",
+      "description": "Pipeline from Session 3, target = log(price), LinearRegression at the end. Coefficients now live on the log scale — a coefficient of 0.10 means roughly +10% price. Standardize to compare importance; never compare a per-square-foot slope to a per-garage-bay slope raw.",
       "bulletPoints": [
-        "FixedThresholdClassifier when the business hands you the cutoff; TunedThresholdClassifierCV when you must find it",
-        "scikit-learn 1.9 adds metric_at_thresholds() to tabulate any metric across every cutoff in one call"
+        "log target: errors become percentage errors, so a 5% miss on a $100K house counts the same as on a $500K house",
+        "Predict, then np.expm1 to get back to dollars before you report RMSE"
       ],
       "isBreak": false
     },
@@ -66,221 +66,185 @@
       "time": "6:05 PM - 6:15 PM",
       "title": "Break",
       "duration": "10 minutes",
-      "description": "Stretch, coffee, finalize competition teams.",
+      "description": "Stretch, coffee, argue about what a garage is worth.",
       "bulletPoints": [],
       "isBreak": true
     },
     {
       "time": "6:15 PM - 6:45 PM",
-      "title": "Calibration: Does 0.8 Mean 80%?",
+      "title": "Overfitting & Regularization",
       "duration": "30 minutes",
-      "description": "Bin customers by predicted probability and plot the actual churn rate per bin. Logistic regression tends to sit on the diagonal; random forests and boosting push scores toward the middle or the extremes. CalibratedClassifierCV (isotonic or sigmoid) repairs it — and it matters because every dollar in the profit curve was computed from those probabilities.",
+      "description": "Add polynomial terms and watch train R² climb while test R² collapses — the Overfitting Explorer, now with real houses. Then RidgeCV, LassoCV, ElasticNetCV: one alpha, chosen by cross-validation, and the coefficient path that shows lasso switching features off one by one.",
       "bulletPoints": [
-        "Brier score: the MSE of probabilities — one number for calibration plus sharpness",
-        "Calibrate on a held-out fold, never on the training data"
+        "Ridge shrinks; lasso selects. Elastic net does both. Scale features first or the penalty is unfair",
+        "LassoCV keeps ~25 of 200+ one-hot columns on Ames: a model a client can read"
       ],
       "isBreak": false
     },
     {
       "time": "6:45 PM - 7:15 PM",
-      "title": "Lift, Gain & Targeting Under a Budget — Then Uplift",
+      "title": "Residual Diagnostics & the Metric Menu",
       "duration": "30 minutes",
-      "description": "Sort customers by score, contact the top 10%: the gain chart shows what share of churners you reach, the lift chart shows how many times better than random. Then the honest caveat: a churn model finds people likely to leave, not people an offer will persuade. Uplift modeling (treatment vs. control) is the next course's problem — but you should know it exists.",
+      "description": "Residuals vs. fitted: a fan means heteroscedasticity, a curve means a missing nonlinearity, a cluster of big misses means a segment the model doesn't understand. Then the metric menu — RMSE, MAE, MAPE, R² — and a one-line rule for which to report to whom.",
       "bulletPoints": [
-        "Top decile on Telco captures roughly 27% of churners with a 5-feature logistic model — lift ≈ 2.7",
-        "Wayfair's 'persuadables': target the customers whose behavior changes because of the offer, not the ones who were leaving anyway"
+        "Report MAE to operations (typical miss), RMSE to risk (big misses matter), R² to statisticians, never MAPE near zero",
+        "Preview: HistGradientBoostingRegressor on the same pipeline drops RMSE by another 20% — Session 8"
       ],
       "isBreak": false
     },
     {
       "time": "7:15 PM - 7:30 PM",
-      "title": "Midterm Model Competition — Launch",
+      "title": "Wrap-Up & Homework #3, Part 2",
       "duration": "15 minutes",
-      "description": "Teams of 2–3. A hidden test set of hotel bookings; predict which reservations will be canceled. Kaggle community competition, public leaderboard on half the test set, private on the other half. Leaderboard closes Sun Nov 8, 11:59 PM; reveal and three-minute 'what worked' talks on Nov 9.",
+      "description": "The regression template: pipeline → log target → regularized linear model → residual plots → metrics in business units. HW3 Part 2 is the Ames competition in miniature.",
       "bulletPoints": [
-        "Graded 50% on private leaderboard band, 50% on a one-page modeling memo: what you tried, what worked, what leaked",
-        "Anything from the course is allowed; Session 7 (trees) and Session 8 (boosting) will help — but a clean pipeline helps more"
+        "HW3 Part 2: a leak-proof Ames pipeline with ridge or lasso, due Mon Nov 2 together with the threshold part from Session 5",
+        "Next: decision trees and random forests — the first model that needs no scaling at all"
       ],
       "isBreak": false
     }
   ],
   "resources": [
     {
-      "title": "Session 6 Notebook — From Scores to Decisions",
-      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-06/ISOM835_Session6_Scores_to_Decisions.ipynb",
-      "description": "The cost matrix, the profit curve, TunedThresholdClassifierCV with a dollar scorer, calibration curves and CalibratedClassifierCV, lift and gain charts, and top-k targeting under a budget — all on Telco.",
+      "title": "Session 6 Notebook — Regression on Ames Housing",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-06/ISOM835_Session6_Regression.ipynb",
+      "description": "One-feature line, full pipeline with log target, RidgeCV / LassoCV / ElasticNetCV with coefficient paths, residual diagnostics, and every metric on the menu in dollars.",
       "icon": "code",
       "badge": "Hands-On",
       "badgeType": "interactive",
       "linkText": "Open in Colab"
     },
     {
-      "title": "The Threshold & Profit Explorer",
-      "url": "/explore/threshold/",
-      "description": "Two overlapping score distributions, a draggable threshold, and a live profit curve. Set the offer cost, the value of a save, and a contact budget; watch the profit-optimal cutoff drift away from 0.5 and from the accuracy-optimal one.",
+      "title": "The Overfitting Explorer — Bias, Variance, and Noise",
+      "url": "/explore/",
+      "description": "Tonight's polynomial demo as a living picture: drag the degree, watch test error turn back up, then add data and watch the wiggles get tamed.",
       "icon": "zap",
       "badge": "Play",
       "badgeType": "interactive",
       "linkText": "Open the explorer"
     },
     {
-      "title": "Competition Starter Notebook — a leak-free submission in ten minutes",
-      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-06/ISOM835_Competition_Starter.ipynb",
-      "description": "Loads the Kaggle files, builds the Session 3 pipeline, cross-validates (≈ 0.89 AUC), and writes submission.csv. It reproduces the logistic baseline on the leaderboard exactly; everything after that is yours.",
-      "icon": "code",
-      "badge": "Hands-On",
-      "badgeType": "interactive",
-      "linkText": "Open in Colab"
-    },
-    {
-      "title": "Advanced Track — Uplift Modeling: Who Is Worth Persuading?",
-      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/advanced/ISOM835_Advanced_Uplift_Modeling.ipynb",
-      "description": "Optional companion notebook: a simulated randomized pilot, a churn model vs. a T-learner uplift model, the uplift curve, and why targeting the riskiest customers sends offers to lost causes. Pure scikit-learn, with an optional CausalML cell.",
-      "icon": "sparkles",
-      "badge": "Advanced",
-      "badgeType": "code",
-      "linkText": "Open in Colab"
-    },
-    {
-      "title": "Google PAIR — Uncertainty & Calibration",
-      "url": "https://pair.withgoogle.com/explorables/uncertainty-calibration/",
-      "description": "An explorable from Google's People + AI Research team: what it means for a model's 70% to mean 70%, and how calibration is measured and fixed.",
+      "title": "MLU-Explain — Linear Regression",
+      "url": "https://mlu-explain.github.io/linear-regression/",
+      "description": "Least squares as a picture: drag points, watch the line and the residuals move, and see what R² actually measures.",
       "icon": "eye",
       "badge": "Interactive",
       "badgeType": "interactive",
       "linkText": "Open the explainer"
     },
     {
-      "title": "Google ML Crash Course — Thresholds and the Confusion Matrix",
-      "url": "https://developers.google.com/machine-learning/crash-course/classification/thresholding",
-      "description": "Google's 2024-rebuilt crash course on choosing a classification threshold — short, with an interactive exercise.",
+      "title": "Setosa — Ordinary Least Squares, Explained Visually",
+      "url": "https://setosa.io/ev/ordinary-least-squares-regression/",
+      "description": "Drag the data and watch the squared errors — literally drawn as squares — shrink as the line finds its place.",
+      "icon": "eye",
+      "badge": "Interactive",
+      "badgeType": "interactive",
+      "linkText": "Open the explainer"
+    },
+    {
+      "title": "ISLP, Chapter 3 — Linear Regression (and 6.2 — Shrinkage Methods)",
+      "url": "https://www.statlearning.com/",
+      "description": "The definitive free chapter on simple and multiple regression, plus the ridge and lasso section. Skip the math you don't need; read every figure caption.",
       "icon": "book-open",
       "badge": "Reading",
       "badgeType": "reference",
-      "linkText": "Read the lesson"
+      "linkText": "Read the chapters (free PDF)"
     },
     {
-      "title": "scikit-learn — Comparison of Calibration of Classifiers",
-      "url": "https://scikit-learn.org/stable/auto_examples/calibration/plot_compare_calibration.html",
-      "description": "The canonical figure: logistic regression on the diagonal, random forest and naive Bayes bowed off it. Runnable example.",
-      "icon": "code",
+      "title": "Kaggle — House Prices: Advanced Regression Techniques",
+      "url": "https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques",
+      "description": "The Ames data as a permanent Kaggle competition. Submit your HW3 predictions and see where a well-built linear model lands on the leaderboard — a warm-up for the midterm competition.",
+      "icon": "trophy",
       "badge": "Go Deeper",
       "badgeType": "code",
-      "linkText": "Open the example"
+      "linkText": "Open the competition"
     },
     {
-      "title": "scikit-uplift & the Criteo Uplift Dataset",
-      "url": "https://www.uplift-modeling.com/",
-      "description": "If the advanced uplift notebook hooked you: a scikit-learn-style uplift library with tutorials, and the 25-million-row Criteo dataset (ailab.criteo.com) for a real project.",
-      "icon": "sparkles",
-      "badge": "Advanced",
-      "badgeType": "tool",
-      "linkText": "Open the docs"
-    },
-    {
-      "title": "scikit-learn User Guide — Tuning the Decision Threshold",
-      "url": "https://scikit-learn.org/stable/modules/classification_threshold.html",
-      "description": "TunedThresholdClassifierCV and FixedThresholdClassifier, with the cost-sensitive learning example that mirrors tonight's lab.",
+      "title": "scikit-learn User Guide — Linear Models",
+      "url": "https://scikit-learn.org/stable/modules/linear_model.html",
+      "description": "OLS, Ridge, Lasso, ElasticNet, and their CV variants, with the cost functions written out. The place to check what alpha actually multiplies.",
       "icon": "book-open",
       "badge": "Reading",
       "badgeType": "reference",
       "linkText": "Open the guide"
     },
     {
-      "title": "scikit-learn User Guide — Probability Calibration",
-      "url": "https://scikit-learn.org/stable/modules/calibration.html",
-      "description": "Calibration curves, CalibratedClassifierCV, isotonic vs. sigmoid, and the famous figure showing which model families are naturally calibrated and which are not.",
-      "icon": "book-open",
-      "badge": "Reading",
-      "badgeType": "reference",
-      "linkText": "Open the guide"
-    },
-    {
-      "title": "Story: Stripe Radar — Fraud Decisions at 100ms",
-      "url": "https://stripe.com/radar",
-      "description": "Stripe reports its Radar models cut fraud by roughly a third for the average business. Every one of those decisions is a threshold on a probability, tuned against the cost of a blocked good customer versus a fraudulent charge — tonight's arithmetic at planetary scale.",
-      "icon": "shield",
+      "title": "Story: Zillow's $500M Lesson in Prediction Error",
+      "url": "https://www.cnn.com/2021/11/02/homes/zillow-exit-ibuying-home-business/index.html",
+      "description": "In 2021 Zillow shut its home-flipping unit after its pricing models overpaid at scale, writing down more than $500 million. The residual plot nobody looked at — and a reminder that a point prediction without an error bar is a bet.",
+      "icon": "trending-down",
       "badge": "Story",
       "badgeType": "reference",
-      "linkText": "Read about Radar"
+      "linkText": "Read the story"
     },
     {
-      "title": "Story: Wayfair's Uplift Models — Targeting the Persuadables",
-      "url": "https://www.aboutwayfair.com/uplift-modeling-in-display-remarketing",
-      "description": "Why a churn score is not a targeting score: Wayfair explains the four customer types (persuadables, sure things, lost causes, sleeping dogs) and why you should only pay to reach the first.",
-      "icon": "award",
-      "badge": "Story",
-      "badgeType": "reference",
-      "linkText": "Read the explainer"
+      "title": "StatQuest — Ridge, Lasso & Elastic Net Regression",
+      "url": "https://www.youtube.com/watch?v=Q81RR3yKn30",
+      "description": "Search the index for 'Ridge', 'Lasso', and 'Elastic Net' — three short videos that make the penalty geometry obvious. Also embedded on this page.",
+      "icon": "video",
+      "badge": "Video",
+      "badgeType": "video",
+      "linkText": "Watch on YouTube"
     },
     {
-      "title": "Kaggle — The ISOM 835 Midterm Model Competition",
-      "url": "https://www.kaggle.com/competitions",
-      "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, download train.csv and test.csv from the Data tab, and read the rules — the leak columns are gone, but agent, company, and country deserve thought. Five submissions per day; leaderboard closes Sun Nov 8, 11:59 PM.",
-      "icon": "trophy",
-      "badge": "Competition",
-      "badgeType": "tool",
-      "linkText": "Join via Canvas link"
-    },
-    {
-      "title": "Provost & Fawcett — Data Science for Business, Chapters 7–8",
-      "url": "https://www.oreilly.com/library/view/data-science-for/9781449374273/",
-      "description": "The expected-value framework, profit curves, lift and cumulative response charts — the chapters this session is built on. Not free, but the single best business treatment of tonight's ideas.",
-      "icon": "book-open",
-      "badge": "Go Deeper",
-      "badgeType": "reference",
-      "linkText": "See the book"
+      "title": "Refresher: Linear Regression, Basis Functions, Ridge & Lasso (ISOM 730 notebook)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/m6_2_linear_regression.ipynb",
+      "description": "Prof. Arslan's earlier notebook: simple regression, polynomial basis functions, and the ridge/lasso intuition on a small example. The slow version of tonight's middle hour. Hosted in the course repo — opens in Colab with one click.",
+      "icon": "target",
+      "badge": "Refresher",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
     }
   ],
   "activities": [
     {
       "number": 1,
-      "icon": "coins",
-      "title": "The Same Model, a Better Threshold, More Profit",
-      "description": "Take the Session 1 Telco logistic regression. Price the mistakes — a $50 offer, a saved customer worth $450 in expectation — and let scikit-learn find the threshold that maximizes profit on cross-validated folds. Then compare the confusion matrix and the money at 0.5 versus the tuned cutoff.",
+      "icon": "chart-line",
+      "title": "What Is a House Worth? Regularized Regression on Ames",
+      "description": "1,460 house sales in Ames, Iowa, with 79 features. Build a leak-proof pipeline that predicts log(price), let LassoCV choose the penalty, and report the error in dollars a buyer would understand.",
       "steps": [
         {
-          "title": "Write the business scorer",
-          "description": "profit(y_true, y_pred) = 450 × TP − 50 × (TP + FP). Wrap it with make_scorer so cross-validation can use it."
+          "title": "Frame it",
+          "description": "Unit: one house. Target: sale price (modeled as log). Horizon: at listing. Decision: list price / offer price. Baseline: the mean price, RMSE ≈ $74K."
         },
         {
-          "title": "Tune the threshold by CV",
-          "description": "TunedThresholdClassifierCV(pipeline, scoring=profit_scorer, cv=5). Fit on the training set; read best_threshold_."
+          "title": "Reuse the pipeline",
+          "description": "Session 3's ColumnTransformer, unchanged. Log-transform the target with np.log1p before fitting."
         },
         {
-          "title": "Compare on the test set",
-          "description": "Confusion matrix and total profit at 0.5 and at the tuned threshold. Note how many more churners you catch and what it costs in extra offers."
+          "title": "Let CV pick alpha",
+          "description": "LassoCV(cv=5) at the end of the pipeline. Inspect how many coefficients survived and which features they are."
         },
         {
-          "title": "Check calibration",
-          "description": "CalibrationDisplay.from_estimator on the test set. If the curve bows away from the diagonal, wrap the model in CalibratedClassifierCV and redo step 2."
+          "title": "Report in dollars",
+          "description": "Predict on the test set, np.expm1 the predictions, then RMSE and MAE in dollars. Plot residuals vs. fitted and describe the shape in one sentence."
         }
       ],
       "codeBlock": {
         "language": "python",
-        "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split, TunedThresholdClassifierCV\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import make_scorer, confusion_matrix\n\nurl = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/telco_churn.csv'\ndf = pd.read_csv(url)\nX = pd.get_dummies(df[['tenure', 'MonthlyCharges', 'Contract', 'InternetService', 'PaymentMethod']], drop_first=True)\ny = (df['Churn'] == 'Yes').astype(int)\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)\n\nOFFER, SAVE = 50, 450          # $50 per offer; a caught churner is worth $450 in expectation\ndef profit(y_true, y_pred):\n    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()\n    return SAVE * tp - OFFER * (tp + fp)\nprofit_scorer = make_scorer(profit)\n\nbase = LogisticRegression(max_iter=1000)\ntuned = TunedThresholdClassifierCV(base, scoring=profit_scorer, cv=5).fit(X_tr, y_tr)\nprint(f'Tuned threshold: {tuned.best_threshold_:.2f}')\n\nfor name, model in [('threshold 0.50', base.fit(X_tr, y_tr)), ('tuned', tuned)]:\n    pred = model.predict(X_te)\n    print(f'{name:15s} profit on test set: ${profit(y_te, pred):,}   matrix: {confusion_matrix(y_te, pred).tolist()}')"
+        "code": "import numpy as np\nfrom sklearn.datasets import fetch_openml\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LassoCV\nfrom sklearn.metrics import mean_absolute_error, root_mean_squared_error\n\names = fetch_openml('house_prices', as_frame=True)\nX, y = ames.data.drop(columns=['Id']), ames.target\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=835)\n\n# prep = the Session 3 ColumnTransformer (impute+scale numeric, one-hot categorical)\nmodel = Pipeline([('prep', prep), ('lasso', LassoCV(cv=5, random_state=835))])\nmodel.fit(X_tr, np.log1p(y_tr))\n\npred = np.expm1(model.predict(X_te))\nprint(f'Baseline RMSE (predict the mean): ${root_mean_squared_error(y_te, np.full(len(y_te), y_tr.mean())):,.0f}')\nprint(f'Lasso RMSE: ${root_mean_squared_error(y_te, pred):,.0f}   MAE: ${mean_absolute_error(y_te, pred):,.0f}')\n\ncoef = model.named_steps['lasso'].coef_\nprint(f'alpha chosen: {model.named_steps[\"lasso\"].alpha_:.4f}, non-zero coefficients: {(coef != 0).sum()} of {len(coef)}')"
       },
-      "discussionNote": "The model did not change. Not one coefficient. What changed is that we finally wrote down what each mistake costs, and the arithmetic moved the cutoff from 0.5 to roughly 0.1. On 1,409 test customers that is worth tens of thousands of dollars; scaled to the full customer base it is the difference between a churn model that pays for itself and one that does not. <em>The threshold is a business decision, and it belongs in the memo, not buried in a default argument.</em>"
+      "discussionNote": "Look at which features lasso kept. Overall quality, living area, neighborhood dummies, year built — the list reads like a realtor's checklist, which is the point: <em>a regularized linear model is the most explainable strong model you will ever ship.</em> Then look at the residual plot: the biggest misses are the most expensive houses. The model knows less about a $450K house because it has seen fewer of them — and that is exactly the segment where a mistake costs the most."
     }
   ],
   "takeaways": [
     {
-      "icon": "coins",
-      "text": "<strong>A model produces a score; a business produces a decision.</strong> Write down the cost of each mistake, and the break-even threshold is p* = cost of a false alarm ÷ (cost of a false alarm + value of a catch)."
+      "icon": "chart-line",
+      "text": "A linear coefficient is a <strong>slope in business units, holding other features fixed</strong> — not a cause, and not comparable across features until you standardize."
     },
     {
-      "icon": "gauge",
-      "text": "<strong>AUC is ranking; calibration is meaning.</strong> Check the calibration curve before a probability enters any dollar calculation, and use CalibratedClassifierCV on a held-out fold when trees or boosting bow away from the diagonal."
+      "icon": "sliders-horizontal",
+      "text": "<strong>Ridge shrinks, lasso selects.</strong> Choose alpha by cross-validation, scale features first, and remember that a lasso model with 25 surviving features is one a client can read."
     },
     {
-      "icon": "trophy",
-      "text": "Under a budget the question is <strong>'who are the best k?'</strong> — gain and lift charts answer it. And a churn score is not an uplift score: it finds who will leave, not who an offer will persuade."
+      "icon": "eye",
+      "text": "<strong>Metrics are for audiences:</strong> MAE for operations, RMSE when big misses hurt, R² for fit, MAPE never near zero. And always look at the residual plot — the fan shape is the log transform asking to be applied."
     }
   ],
   "homework": [
     {
-      "label": "Homework #3 + Competition Kickoff",
-      "text": "HW3 (due Mon Nov 2): finish Part 2 of the credit-default assignment — with a missed default costing $1,000 and a wrongly declined good customer $150, find the expected-cost-minimizing threshold with TunedThresholdClassifierCV and a custom scorer, report the confusion matrix and total cost at that threshold versus 0.5, and include a calibration plot. Competition: create a free Kaggle account with your suffolk.edu email if you have not already, then form your team of 2–3 on Kaggle by Mon Nov 2 and make at least one submission (even the baseline) so we know your team is registered. Leaderboard closes Sun Nov 8, 11:59 PM."
+      "label": "Homework #3, Part 2 + Competition",
+      "text": "Due Mon Nov 2, 11:59 PM, on Canvas, in the same notebook as Part 1 (the threshold on your HW2 credit model). Build a leak-proof Ames pipeline in Colab: ColumnTransformer preprocessing, log(price) target, and your choice of RidgeCV, LassoCV, or ElasticNetCV. Report test RMSE and MAE in dollars against the mean baseline, plot residuals vs. fitted, and write one paragraph naming the segment of houses your model gets most wrong and why. Bonus (+5%): submit your predictions to the Kaggle House Prices competition and include your public leaderboard score. Competition: your team of 2–3 should be formed on Kaggle with at least one submission by Mon Nov 2; the leaderboard closes Sun Nov 8, 11:59 PM."
     }
   ],
   "nextSession": {
@@ -292,5 +256,17 @@
       "Feature Importance"
     ],
     "slug": "session-07"
-  }
+  },
+  "videos": [
+    {
+      "youtubeId": "Q81RR3yKn30",
+      "title": "StatQuest — Ridge (L2) Regression",
+      "description": "Why shrinking coefficients toward zero makes predictions better on new data."
+    },
+    {
+      "youtubeId": "NGf0voTMlcs",
+      "title": "StatQuest — Lasso (L1) Regression",
+      "description": "And why the L1 penalty switches features off entirely."
+    }
+  ]
 }

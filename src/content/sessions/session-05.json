@@ -1,64 +1,64 @@
 {
   "number": 5,
   "slug": "session-05",
-  "title": "Classification: Predicting Yes/No",
-  "subtitle": "Logistic regression as odds, kNN and Naive Bayes as contrasts, the confusion matrix in depth, precision vs. recall, ROC vs. PR — on 30,000 credit-card customers, 22% of whom default",
+  "title": "From Scores to Decisions: Thresholds, Costs & Calibration",
+  "subtitle": "A model produces a probability; a business produces a decision. Expected value, profit curves, tuned thresholds, calibration, lift and gain — and the launch of the Midterm Model Competition",
   "duration": "150 Minutes",
-  "icon": "crosshair",
+  "icon": "coins",
   "tags": [
-    "Classification",
-    "Logistic Regression",
-    "ROC & PR"
+    "Decision Thresholds",
+    "Calibration",
+    "Competition Launch"
   ],
   "objectives": [
     {
-      "title": "Read Logistic Regression as Odds",
-      "description": "The sigmoid turns a linear score into a probability; each coefficient is a log-odds change. e^0.69 ≈ 2 means 'doubles the odds' — the sentence a credit officer can repeat."
+      "title": "Price the Two Mistakes",
+      "description": "A retention offer costs $50; a lost customer costs $1,500. Put those numbers in a cost matrix and the 'right' threshold falls out of the arithmetic — and it is nowhere near 0.5."
     },
     {
-      "title": "Contrast Three Classifiers",
-      "description": "Logistic regression draws a line, kNN votes among neighbors, Naive Bayes multiplies likelihoods. Same data, three decision boundaries, three sets of strengths."
+      "title": "Tune the Threshold, Not the Model",
+      "description": "Plot profit against every threshold, find the peak, and use scikit-learn's TunedThresholdClassifierCV to choose it by cross-validation with a business scorer — the same model, thousands of dollars better."
     },
     {
-      "title": "Master the Confusion Matrix",
-      "description": "Four cells, four business meanings. Precision, recall, F1, specificity — computed by hand once, so you never again trust a single accuracy number."
+      "title": "Check Calibration Before You Trust a Probability",
+      "description": "AUC says the ranking is good; a calibration curve says whether 0.8 means 80%. Boosted trees and forests often need CalibratedClassifierCV before their scores can enter a budget calculation."
     },
     {
-      "title": "Choose ROC-AUC or PR-AUC",
-      "description": "ROC for balanced problems and ranking quality; precision–recall when the positive class is rare and false alarms cost money. Fraud at 0.2% makes the difference brutal."
+      "title": "Target Under a Budget",
+      "description": "When you can only contact 10%, the question is 'who are the best 700?', not 'who is above 0.5?'. Lift and gain charts answer it, and the top-k view is how marketing actually works."
     }
   ],
   "agenda": [
     {
       "time": "5:00 PM - 5:20 PM",
-      "title": "HW2 Debrief & Meet the Data: Credit-Card Default",
+      "title": "HW2 Debrief & Who Chose 0.5?",
       "duration": "20 minutes",
-      "description": "Three residual plots from your Ames submissions, then a new dataset: 30,000 credit-card customers in Taiwan, six months of bill and payment history, and a label for whether they defaulted the following month. 22.1% did.",
+      "description": "Three confusion matrices and the best odds-ratio sentences from your HW2 credit submissions. Then back to Session 1's Telco model. predict() flagged 322 customers; 201 of them really churn. It missed 173. The 0.5 cutoff assumes both mistakes cost the same. They don't: an unneeded offer costs $50, a missed churner costs a $1,500 customer.",
       "bulletPoints": [
-        "Baseline: 'nobody defaults' is 77.9% accurate and would bankrupt the bank",
-        "Features: credit limit, age, six months of payment status, bill amounts, payment amounts"
+        "Expected value of contacting a customer with churn probability p: p × (value saved) − (1 − p) × (offer cost)",
+        "Break-even threshold with $450 saved (30% of $1,500) and a $50 offer: p = 50 / 500 = 0.10"
       ],
       "isBreak": false
     },
     {
       "time": "5:20 PM - 5:40 PM",
-      "title": "Logistic Regression: A Line in Log-Odds",
+      "title": "The Profit Curve",
       "duration": "20 minutes",
-      "description": "Why linear regression fails on a 0/1 target, the sigmoid that fixes it, and coefficients as log-odds. Payment status last month has the biggest coefficient — and exponentiating it tells you exactly how much a late payment multiplies the odds of default.",
+      "description": "Sweep the threshold from 0 to 1, compute the confusion matrix at each, multiply by the cost matrix, plot total profit. The peak is the threshold. On Telco the profit-maximizing threshold sits near 0.2 and adds tens of thousands of dollars over 0.5 on the test set alone.",
       "bulletPoints": [
-        "predict_proba gives the probability; predict just applies a 0.5 cutoff you never chose",
-        "C is inverse regularization strength: it's ridge/lasso for classification"
+        "Accuracy peaks at one threshold, profit at another — and the business only pays for one of them",
+        "The Threshold & Profit Explorer: drag the cutoff and watch the profit curve move"
       ],
       "isBreak": false
     },
     {
       "time": "5:40 PM - 6:05 PM",
-      "title": "kNN & Naive Bayes: Two Other Ways to Draw a Boundary",
+      "title": "TunedThresholdClassifierCV & Custom Scorers",
       "duration": "25 minutes",
-      "description": "kNN: no training, just voting among the k nearest customers — and a decision boundary that follows the data everywhere. Naive Bayes: multiply likelihoods, fast and surprisingly good on text. Decision-boundary plots on two features make the three models' personalities visible.",
+      "description": "scikit-learn (≥ 1.5) wraps any classifier and tunes the cutoff by cross-validation against a scorer you write — including one that returns dollars. Write the business scorer with make_scorer, wrap the pipeline, and let CV pick the threshold that pays.",
       "bulletPoints": [
-        "kNN needs scaling and gets slow at scale; k controls bias–variance exactly like polynomial degree",
-        "Naive Bayes assumes independence it doesn't have — and often works anyway"
+        "FixedThresholdClassifier when the business hands you the cutoff; TunedThresholdClassifierCV when you must find it",
+        "scikit-learn 1.9 adds metric_at_thresholds() to tabulate any metric across every cutoff in one call"
       ],
       "isBreak": false
     },
@@ -66,225 +66,231 @@
       "time": "6:05 PM - 6:15 PM",
       "title": "Break",
       "duration": "10 minutes",
-      "description": "Stretch, coffee, pick a competition teammate — the midterm launches next week.",
+      "description": "Stretch, coffee, finalize competition teams.",
       "bulletPoints": [],
       "isBreak": true
     },
     {
       "time": "6:15 PM - 6:45 PM",
-      "title": "The Confusion Matrix, Cell by Cell",
+      "title": "Calibration: Does 0.8 Mean 80%?",
       "duration": "30 minutes",
-      "description": "True positive: a defaulter we flagged. False negative: a defaulter we approved — the expensive cell. False positive: a good customer we declined — the cell that loses revenue and trust. Precision, recall, F1, specificity computed by hand, then classification_report.",
+      "description": "Bin customers by predicted probability and plot the actual churn rate per bin. Logistic regression tends to sit on the diagonal; random forests and boosting push scores toward the middle or the extremes. CalibratedClassifierCV (isotonic or sigmoid) repairs it — and it matters because every dollar in the profit curve was computed from those probabilities.",
       "bulletPoints": [
-        "Precision: of those we flagged, how many defaulted? Recall: of those who defaulted, how many did we flag?",
-        "F1 is the harmonic mean — useful, but it assumes both mistakes cost the same. They never do"
+        "Brier score: the MSE of probabilities — one number for calibration plus sharpness",
+        "Calibrate on a held-out fold, never on the training data"
       ],
       "isBreak": false
     },
     {
       "time": "6:45 PM - 7:15 PM",
-      "title": "ROC vs. Precision–Recall & Class Imbalance",
+      "title": "Lift, Gain & Targeting Under a Budget — Then Uplift",
       "duration": "30 minutes",
-      "description": "The ROC curve sweeps every threshold and plots recall against false-positive rate; AUC is the probability a random defaulter scores above a random good customer. Then the PR curve — and why at 22% default ROC is fine, but at 0.2% fraud only PR tells the truth. class_weight='balanced' as the first fix for imbalance; why SMOTE is usually unnecessary.",
+      "description": "Sort customers by score, contact the top 10%: the gain chart shows what share of churners you reach, the lift chart shows how many times better than random. Then the honest caveat: a churn model finds people likely to leave, not people an offer will persuade. Uplift modeling (treatment vs. control) is the next course's problem — but you should know it exists.",
       "bulletPoints": [
-        "Logistic regression on this data: AUC ≈ 0.72 with raw features, ≈ 0.77 with the payment-status columns treated as categories",
-        "Imbalance fixes in order: choose the right metric, reweight, tune the threshold (next week), then and only then resample"
+        "Top decile on Telco captures roughly 27% of churners with a 5-feature logistic model — lift ≈ 2.7",
+        "Wayfair's 'persuadables': target the customers whose behavior changes because of the offer, not the ones who were leaving anyway"
       ],
       "isBreak": false
     },
     {
       "time": "7:15 PM - 7:30 PM",
-      "title": "Wrap-Up: The Cliffhanger",
+      "title": "Midterm Model Competition — Launch",
       "duration": "15 minutes",
-      "description": "We now have a probability for every customer. We have not decided what to do with it. predict() used 0.5 — who chose that? Next week: costs, thresholds, calibration, and profit curves. HW3 launches.",
+      "description": "Teams of 2–3. A hidden test set of hotel bookings; predict which reservations will be canceled. Kaggle community competition, public leaderboard on half the test set, private on the other half. Leaderboard closes Sun Nov 8, 11:59 PM; reveal and three-minute 'what worked' talks on Nov 9.",
       "bulletPoints": [
-        "HW3 (due Nov 2): a credit-default classifier with a threshold you can defend — Session 6 gives you the tools",
-        "Reading: ISLP Chapter 4 (Classification), 4.1–4.4"
+        "Graded 50% on private leaderboard band, 50% on a one-page modeling memo: what you tried, what worked, what leaked",
+        "Anything from the course is allowed; Session 7 (trees) and Session 8 (boosting) will help — but a clean pipeline helps more"
       ],
       "isBreak": false
     }
   ],
   "resources": [
     {
-      "title": "Session 5 Notebook — Classification on Credit-Card Default",
-      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-05/ISOM835_Session5_Classification.ipynb",
-      "description": "Logistic regression with odds ratios, kNN and Naive Bayes with decision-boundary plots, the confusion matrix by hand, classification_report, ROC and PR curves, and class_weight='balanced'.",
+      "title": "Session 5 Notebook — From Scores to Decisions",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-05/ISOM835_Session5_Scores_to_Decisions.ipynb",
+      "description": "The cost matrix, the profit curve, TunedThresholdClassifierCV with a dollar scorer, calibration curves and CalibratedClassifierCV, lift and gain charts, and top-k targeting under a budget — all on Telco.",
       "icon": "code",
       "badge": "Hands-On",
       "badgeType": "interactive",
       "linkText": "Open in Colab"
     },
     {
-      "title": "The Threshold & Profit Explorer — Preview",
+      "title": "The Threshold & Profit Explorer",
       "url": "/explore/threshold/",
-      "description": "Next week's explorer, available now: drag the threshold across the two score distributions and watch precision, recall, and the confusion matrix move. Ignore the profit panel until Session 6 — or don't.",
+      "description": "Two overlapping score distributions, a draggable threshold, and a live profit curve. Set the offer cost, the value of a save, and a contact budget; watch the profit-optimal cutoff drift away from 0.5 and from the accuracy-optimal one.",
       "icon": "zap",
       "badge": "Play",
       "badgeType": "interactive",
       "linkText": "Open the explorer"
     },
     {
-      "title": "MLU-Explain — Logistic Regression",
-      "url": "https://mlu-explain.github.io/logistic-regression/",
-      "description": "The sigmoid, log-odds, and the decision boundary, interactively. Pairs with tonight's odds-ratio reading.",
+      "title": "Competition Starter Notebook — a leak-free submission in ten minutes",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-05/ISOM835_Competition_Starter.ipynb",
+      "description": "Loads the Kaggle files, builds the Session 3 pipeline, cross-validates (≈ 0.89 AUC), and writes submission.csv. It reproduces the logistic baseline on the leaderboard exactly; everything after that is yours.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "Advanced Track — Uplift Modeling: Who Is Worth Persuading?",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/advanced/ISOM835_Advanced_Uplift_Modeling.ipynb",
+      "description": "Optional companion notebook: a simulated randomized pilot, a churn model vs. a T-learner uplift model, the uplift curve, and why targeting the riskiest customers sends offers to lost causes. Pure scikit-learn, with an optional CausalML cell.",
+      "icon": "sparkles",
+      "badge": "Advanced",
+      "badgeType": "code",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "Google PAIR — Uncertainty & Calibration",
+      "url": "https://pair.withgoogle.com/explorables/uncertainty-calibration/",
+      "description": "An explorable from Google's People + AI Research team: what it means for a model's 70% to mean 70%, and how calibration is measured and fixed.",
       "icon": "eye",
       "badge": "Interactive",
       "badgeType": "interactive",
       "linkText": "Open the explainer"
     },
     {
-      "title": "MLU-Explain — ROC & AUC",
-      "url": "https://mlu-explain.github.io/roc-auc/",
-      "description": "Slide the threshold and watch the point walk along the ROC curve. The cleanest explanation of what AUC is (and is not) on the web.",
-      "icon": "eye",
-      "badge": "Interactive",
-      "badgeType": "interactive",
-      "linkText": "Open the explainer"
-    },
-    {
-      "title": "MLU-Explain — Precision & Recall",
-      "url": "https://mlu-explain.github.io/precision-recall/",
-      "description": "Precision, recall, F1 and the confusion matrix with a live example — the vocabulary of Session 5 in one scroll.",
-      "icon": "eye",
-      "badge": "Interactive",
-      "badgeType": "interactive",
-      "linkText": "Open the explainer"
-    },
-    {
-      "title": "ISLP, Chapter 4 — Classification",
-      "url": "https://www.statlearning.com/",
-      "description": "Logistic regression, why not linear regression, multiple logistic regression, and generative classifiers (LDA, QDA, Naive Bayes). Sections 4.1–4.4 are tonight; 4.5 compares them.",
+      "title": "Google ML Crash Course — Thresholds and the Confusion Matrix",
+      "url": "https://developers.google.com/machine-learning/crash-course/classification/thresholding",
+      "description": "Google's 2024-rebuilt crash course on choosing a classification threshold — short, with an interactive exercise.",
       "icon": "book-open",
       "badge": "Reading",
       "badgeType": "reference",
-      "linkText": "Read Chapter 4 (free PDF)"
+      "linkText": "Read the lesson"
     },
     {
-      "title": "scikit-learn User Guide — Classification Metrics",
-      "url": "https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics",
-      "description": "Every metric from tonight with its formula: precision, recall, F1, ROC-AUC, average precision, and the confusion matrix. The section on multiclass averaging will save you later.",
+      "title": "scikit-learn — Comparison of Calibration of Classifiers",
+      "url": "https://scikit-learn.org/stable/auto_examples/calibration/plot_compare_calibration.html",
+      "description": "The canonical figure: logistic regression on the diagonal, random forest and naive Bayes bowed off it. Runnable example.",
+      "icon": "code",
+      "badge": "Go Deeper",
+      "badgeType": "code",
+      "linkText": "Open the example"
+    },
+    {
+      "title": "scikit-uplift & the Criteo Uplift Dataset",
+      "url": "https://www.uplift-modeling.com/",
+      "description": "If the advanced uplift notebook hooked you: a scikit-learn-style uplift library with tutorials, and the 25-million-row Criteo dataset (ailab.criteo.com) for a real project.",
+      "icon": "sparkles",
+      "badge": "Advanced",
+      "badgeType": "tool",
+      "linkText": "Open the docs"
+    },
+    {
+      "title": "scikit-learn User Guide — Tuning the Decision Threshold",
+      "url": "https://scikit-learn.org/stable/modules/classification_threshold.html",
+      "description": "TunedThresholdClassifierCV and FixedThresholdClassifier, with the cost-sensitive learning example that mirrors tonight's lab.",
       "icon": "book-open",
       "badge": "Reading",
       "badgeType": "reference",
       "linkText": "Open the guide"
     },
     {
-      "title": "Default of Credit Card Clients — the dataset",
-      "url": "https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients",
-      "description": "Yeh & Lien's 2009 dataset from a Taiwanese bank: 30,000 clients, April–September 2005. The documentation explains the payment-status codes (−1 = paid duly, 1 = one month late …) that make the strongest features.",
-      "icon": "credit-card",
-      "badge": "Data",
+      "title": "scikit-learn User Guide — Probability Calibration",
+      "url": "https://scikit-learn.org/stable/modules/calibration.html",
+      "description": "Calibration curves, CalibratedClassifierCV, isotonic vs. sigmoid, and the famous figure showing which model families are naturally calibrated and which are not.",
+      "icon": "book-open",
+      "badge": "Reading",
       "badgeType": "reference",
-      "linkText": "Read the documentation"
+      "linkText": "Open the guide"
     },
     {
-      "title": "Story: AI Credit Models — More Approvals at the Same Risk (vendor-reported)",
-      "url": "https://www.zest.ai/learn/blog/top-five-ways-lenders-are-embracing-machine-learning/",
-      "description": "Lenders using ML underwriting report approving materially more applicants at constant default rates — Upstart has claimed ~43% more approvals at the same loss rate. Vendor numbers, so read them as claims; the mechanism (better ranking than a scorecard) is exactly tonight's AUC.",
+      "title": "Story: Stripe Radar — Fraud Decisions at 100ms",
+      "url": "https://stripe.com/radar",
+      "description": "Stripe reports its Radar models cut fraud by roughly a third for the average business. Every one of those decisions is a threshold on a probability, tuned against the cost of a blocked good customer versus a fraudulent charge — tonight's arithmetic at planetary scale.",
+      "icon": "shield",
+      "badge": "Story",
+      "badgeType": "reference",
+      "linkText": "Read about Radar"
+    },
+    {
+      "title": "Story: Wayfair's Uplift Models — Targeting the Persuadables",
+      "url": "https://www.aboutwayfair.com/uplift-modeling-in-display-remarketing",
+      "description": "Why a churn score is not a targeting score: Wayfair explains the four customer types (persuadables, sure things, lost causes, sleeping dogs) and why you should only pay to reach the first.",
       "icon": "award",
       "badge": "Story",
       "badgeType": "reference",
-      "linkText": "Read the claims"
+      "linkText": "Read the explainer"
     },
     {
-      "title": "StatQuest — Logistic Regression & ROC/AUC, Clearly Explained",
-      "url": "https://www.youtube.com/watch?v=yIYKR4sgzI8",
-      "description": "Search the index for 'Logistic Regression' and 'ROC and AUC'. The ROC video in particular is the best 16 minutes you can spend before next week. Also embedded on this page.",
-      "icon": "video",
-      "badge": "Video",
-      "badgeType": "video",
-      "linkText": "Watch on YouTube"
+      "title": "Kaggle — The ISOM 835 Midterm Model Competition",
+      "url": "https://www.kaggle.com/competitions",
+      "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, download train.csv and test.csv from the Data tab, and read the rules — the leak columns are gone, but agent, company, and country deserve thought. Five submissions per day; leaderboard closes Sun Nov 8, 11:59 PM.",
+      "icon": "trophy",
+      "badge": "Competition",
+      "badgeType": "tool",
+      "linkText": "Join via Canvas link"
     },
     {
-      "title": "Refresher: Naive Bayes Classification (ISOM 730 notebook)",
-      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/m6_1_naive_bayes_classification.ipynb",
-      "description": "Prof. Arslan's earlier notebook on Gaussian and multinomial Naive Bayes, including the text-classification example. Pairs with the SVM refresher if you want a fourth boundary shape. Hosted in the course repo — opens in Colab with one click.",
-      "icon": "target",
-      "badge": "Refresher",
-      "badgeType": "code",
-      "linkText": "Open in Colab"
-    },
-    {
-      "title": "Refresher: Müller & Guido, Ch. 5 — Metrics, Confusion Matrices, ROC (official notebook)",
-      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/refreshers/imlp_05-model-evaluation-and-improvement.ipynb",
-      "description": "The book chapter on evaluation: precision, recall, F1, ROC and AUC, with the imbalanced-class discussion. A slower second pass over tonight.",
+      "title": "Provost & Fawcett — Data Science for Business, Chapters 7–8",
+      "url": "https://www.oreilly.com/library/view/data-science-for/9781449374273/",
+      "description": "The expected-value framework, profit curves, lift and cumulative response charts — the chapters this session is built on. Not free, but the single best business treatment of tonight's ideas.",
       "icon": "book-open",
-      "badge": "Refresher",
-      "badgeType": "code",
-      "linkText": "Open in Colab"
+      "badge": "Go Deeper",
+      "badgeType": "reference",
+      "linkText": "See the book"
     }
   ],
   "activities": [
     {
       "number": 1,
-      "icon": "crosshair",
-      "title": "Who Defaults Next Month? Three Classifiers, One Confusion Matrix",
-      "description": "30,000 credit-card customers, 22% default rate. Fit logistic regression, kNN, and Gaussian Naive Bayes in the same pipeline, compare ROC-AUC and PR-AUC, and then read the logistic model's confusion matrix cell by cell in the bank's language.",
+      "icon": "coins",
+      "title": "The Same Model, a Better Threshold, More Profit",
+      "description": "Take the Session 1 Telco logistic regression. Price the mistakes — a $50 offer, a saved customer worth $450 in expectation — and let scikit-learn find the threshold that maximizes profit on cross-validated folds. Then compare the confusion matrix and the money at 0.5 versus the tuned cutoff.",
       "steps": [
         {
-          "title": "Frame it",
-          "description": "Unit: one cardholder. Target: default next month. Horizon: one month. Decision: reduce the credit line / call / do nothing. Baseline: 77.9% accuracy by predicting 'no default' for everyone."
+          "title": "Write the business scorer",
+          "description": "profit(y_true, y_pred) = 450 × TP − 50 × (TP + FP). Wrap it with make_scorer so cross-validation can use it."
         },
         {
-          "title": "Fit three models in one pipeline",
-          "description": "Same preprocessing, swap the last step: LogisticRegression, KNeighborsClassifier(k=25), GaussianNB. Record ROC-AUC and average precision for each."
+          "title": "Tune the threshold by CV",
+          "description": "TunedThresholdClassifierCV(pipeline, scoring=profit_scorer, cv=5). Fit on the training set; read best_threshold_."
         },
         {
-          "title": "Read the odds",
-          "description": "np.exp(coef_) for the logistic model. Find the feature with the largest odds ratio and say it in a sentence a credit officer would understand."
+          "title": "Compare on the test set",
+          "description": "Confusion matrix and total profit at 0.5 and at the tuned threshold. Note how many more churners you catch and what it costs in extra offers."
         },
         {
-          "title": "Read the matrix",
-          "description": "Confusion matrix at the default threshold. Name each cell in business terms. Compute precision and recall by hand, then confirm with classification_report."
+          "title": "Check calibration",
+          "description": "CalibrationDisplay.from_estimator on the test set. If the curve bows away from the diagonal, wrap the model in CalibratedClassifierCV and redo step 2."
         }
       ],
       "codeBlock": {
         "language": "python",
-        "code": "import numpy as np\nfrom sklearn.datasets import fetch_openml\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.naive_bayes import GaussianNB\nfrom sklearn.metrics import roc_auc_score, average_precision_score, confusion_matrix\n\ncredit = fetch_openml(data_id=42477, as_frame=True)\nX, y = credit.data, (credit.target == '1').astype(int)      # 1 = defaulted next month\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)\n\nmodels = {\n    'logistic': LogisticRegression(max_iter=2000),\n    'knn-25':   KNeighborsClassifier(n_neighbors=25),\n    'naive bayes': GaussianNB(),\n}\nfor name, clf in models.items():\n    pipe = make_pipeline(StandardScaler(), clf).fit(X_tr, y_tr)\n    p = pipe.predict_proba(X_te)[:, 1]\n    print(f'{name:12s} ROC-AUC {roc_auc_score(y_te, p):.3f}   PR-AUC {average_precision_score(y_te, p):.3f}')\n\nlogit = make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000)).fit(X_tr, y_tr)\nprint(confusion_matrix(y_te, logit.predict(X_te)))   # rows: actual, cols: predicted"
+        "code": "import pandas as pd\nfrom sklearn.model_selection import train_test_split, TunedThresholdClassifierCV\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import make_scorer, confusion_matrix\n\nurl = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/telco_churn.csv'\ndf = pd.read_csv(url)\nX = pd.get_dummies(df[['tenure', 'MonthlyCharges', 'Contract', 'InternetService', 'PaymentMethod']], drop_first=True)\ny = (df['Churn'] == 'Yes').astype(int)\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)\n\nOFFER, SAVE = 50, 450          # $50 per offer; a caught churner is worth $450 in expectation\ndef profit(y_true, y_pred):\n    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()\n    return SAVE * tp - OFFER * (tp + fp)\nprofit_scorer = make_scorer(profit)\n\nbase = LogisticRegression(max_iter=1000)\ntuned = TunedThresholdClassifierCV(base, scoring=profit_scorer, cv=5).fit(X_tr, y_tr)\nprint(f'Tuned threshold: {tuned.best_threshold_:.2f}')\n\nfor name, model in [('threshold 0.50', base.fit(X_tr, y_tr)), ('tuned', tuned)]:\n    pred = model.predict(X_te)\n    print(f'{name:15s} profit on test set: ${profit(y_te, pred):,}   matrix: {confusion_matrix(y_te, pred).tolist()}')"
       },
-      "discussionNote": "The three models rank customers similarly (AUC within a few points) — but look at the confusion matrix: at the default threshold, logistic regression flags only a fraction of the defaulters. That is not a modeling failure. It is a <em>decision</em> nobody made: <code>predict()</code> silently assumes a missed default costs the same as a wrongly declined customer. Next week we price the two mistakes and let the price choose the threshold."
+      "discussionNote": "The model did not change. Not one coefficient. What changed is that we finally wrote down what each mistake costs, and the arithmetic moved the cutoff from 0.5 to roughly 0.1. On 1,409 test customers that is worth tens of thousands of dollars; scaled to the full customer base it is the difference between a churn model that pays for itself and one that does not. <em>The threshold is a business decision, and it belongs in the memo, not buried in a default argument.</em>"
     }
   ],
   "takeaways": [
     {
-      "icon": "sigma",
-      "text": "Logistic regression is <strong>linear in log-odds</strong>: exponentiate a coefficient to get an odds ratio, and say it in words — 'a late payment last month roughly doubles the odds of default.'"
+      "icon": "coins",
+      "text": "<strong>A model produces a score; a business produces a decision.</strong> Write down the cost of each mistake, and the break-even threshold is p* = cost of a false alarm ÷ (cost of a false alarm + value of a catch)."
     },
     {
-      "icon": "crosshair",
-      "text": "The confusion matrix has <strong>four cells with four business meanings</strong>. Precision asks 'of those we flagged…', recall asks 'of those who actually…'. Accuracy averages over both mistakes and hides which one you are making."
+      "icon": "gauge",
+      "text": "<strong>AUC is ranking; calibration is meaning.</strong> Check the calibration curve before a probability enters any dollar calculation, and use CalibratedClassifierCV on a held-out fold when trees or boosting bow away from the diagonal."
     },
     {
-      "icon": "chart-line",
-      "text": "<strong>ROC-AUC measures ranking; PR-AUC measures usefulness on rare positives.</strong> At 22% default either works; at 0.2% fraud only precision–recall tells the truth. And predict()'s 0.5 threshold is a decision you have not yet made."
+      "icon": "trophy",
+      "text": "Under a budget the question is <strong>'who are the best k?'</strong> — gain and lift charts answer it. And a churn score is not an uplift score: it finds who will leave, not who an offer will persuade."
     }
   ],
   "homework": [
     {
-      "label": "Homework #3 (launches tonight)",
-      "text": "Due Mon Nov 2. Build a credit-default classifier on the Taiwan data in a leak-proof pipeline (logistic regression required; a second model of your choice optional). Report ROC-AUC and PR-AUC on a stratified test set, show the confusion matrix, and interpret the three largest odds ratios in plain English. Part 2, using next week's Session 6 material: assume a missed default costs $1,000 and a wrongly declined good customer costs $150 in lost revenue; find the threshold that minimizes expected cost and report the confusion matrix and cost at that threshold versus 0.5. Reading before Session 6: ISLP 4.1–4.4."
+      "label": "Homework #3, Part 1 (launches tonight) + Competition Kickoff",
+      "text": "HW3 (due Mon Nov 2, 11:59 PM, on Canvas) has two parts in one notebook. Part 1, tonight: return to your HW2 credit-default model. With a missed default costing $1,000 and a wrongly declined good customer $150, find the expected-cost-minimizing threshold with TunedThresholdClassifierCV and a custom scorer, report the confusion matrix and total cost at that threshold versus 0.5, and include a calibration plot. Part 2, regression on Ames housing, is assigned in full next week. Competition: create a free Kaggle account with your suffolk.edu email if you have not already, then form your team of 2–3 on Kaggle by Mon Nov 2 and make at least one submission (even the baseline) so we know your team is registered. Leaderboard closes Sun Nov 8, 11:59 PM."
     }
   ],
   "nextSession": {
-    "title": "Session 6: From Scores to Decisions — Thresholds, Costs & Calibration",
-    "description": "The expected-value framework, profit curves, TunedThresholdClassifierCV, calibration plots, lift and gain charts, and targeting under a budget. Plus: the Midterm Model Competition launches.",
+    "title": "Session 6: Regression — Predicting Numbers",
+    "description": "From yes/no to how much: linear regression on the Ames housing data, coefficients in dollars, log targets, ridge and lasso, and the residual plot that tells you what your model is missing.",
     "tags": [
-      "Decision Thresholds",
-      "Calibration",
-      "Competition Launch"
+      "Regression",
+      "Regularization",
+      "Residuals"
     ],
     "slug": "session-06"
-  },
-  "videos": [
-    {
-      "youtubeId": "yIYKR4sgzI8",
-      "title": "StatQuest — Logistic Regression",
-      "description": "The sigmoid, log-odds, and why we fit a line in a different space."
-    },
-    {
-      "youtubeId": "4jRBRDbJemM",
-      "title": "StatQuest — ROC and AUC, Clearly Explained",
-      "description": "The best sixteen minutes you can spend before Session 6."
-    }
-  ]
+  }
 }
