@@ -154,6 +154,13 @@ const startResources = [
   },
 ];
 
+const milestones = [
+  { n: 1, title: 'Problem & dataset', due: 'Mon Nov 2 · 11:59 PM', text: 'One paragraph on Canvas: the prediction (unit, target, horizon), who owns the decision it changes, and where the data comes from. Posted as a discussion, so you can borrow ideas from other teams.' },
+  { n: 2, title: 'Baseline with a metric', due: 'Mon Nov 23 · 11:59 PM', text: 'A notebook that loads the data, splits before anything is fitted, computes the naive baseline, and scores a first model with the metric the decision needs.' },
+  { n: 3, title: 'Tuned model + error analysis', due: 'Mon Nov 30 · 11:59 PM', text: 'Hyperparameters tuned inside cross-validation, calibration if you classify, SHAP for three cases, error rates by the slices that matter, and a half-page model card.' },
+  { n: 4, title: 'Dry run', due: 'Mon Dec 7 · 5:00 PM', text: 'Draft slides (PDF, ten at most) on Canvas before class; four-minute dry runs in pairs during Session 12, with written notes from the instructor before the real thing.' },
+];
+
 const rubric = [
   { part: 'Framing & data', weight: 15, text: 'A real question with a real owner; data honestly described; leakage found and removed.' },
   { part: 'Modeling & validation', weight: 25, text: 'Leak-proof pipeline, a baseline beaten, a validation scheme that matches production, sensible model choice and tuning.' },
@@ -189,7 +196,7 @@ const faqs = [
   },
   {
     question: 'When are things due?',
-    answer: 'Proposal (one paragraph: the prediction, the unit, the horizon, the decision, the data plan) due Mon Nov 9 on Canvas. Notebook and memo due Sun Dec 13 at 11:59 PM. Presentations Mon Dec 14, 5:00 PM, in the exam-week slot.',
+    answer: 'Four small pass/fail milestones, all on Canvas: Milestone 1, your problem and dataset in one paragraph (the prediction, the unit, the horizon, the decision, the data plan), Mon Nov 2; Milestone 2, a baseline model with the metric your decision needs, Mon Nov 23; Milestone 3, a tuned model with an error analysis, Mon Nov 30; Milestone 4, draft slides for a dry run in class, Mon Dec 7 by 5:00 PM. Milestones 1–3 are due at 11:59 PM. The notebook, memo, and repo link are due Mon Dec 14 at 5:00 PM, the start of the exam-week slot, and presentations follow that evening.',
   },
 ];
 ---
@@ -218,8 +225,8 @@ const faqs = [
         <div class="text-sm text-text-primary leading-snug">Notebook + 2-page memo + 8-min talk</div>
       </div>
       <div class="bg-bg-card border border-border-subtle rounded-xl p-5">
-        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Proposal Due</div>
-        <div class="text-sm text-text-primary leading-snug">Mon Nov 9 &middot; Canvas</div>
+        <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Milestone 1 Due</div>
+        <div class="text-sm text-text-primary leading-snug">Mon Nov 2 &middot; Canvas</div>
       </div>
       <div class="bg-bg-card border border-border-subtle rounded-xl p-5">
         <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Presentations</div>
@@ -279,7 +286,7 @@ const faqs = [
 
   <!-- Deliverables -->
   <section class="py-12 px-8 max-w-[1100px] mx-auto">
-    <SectionHeader number="02" label="Deliverables" title="What to Submit" description="Three things: notebook and memo on Canvas by Sun Dec 13 at 11:59 PM, presentation in class Mon Dec 14." />
+    <SectionHeader number="02" label="Deliverables" title="What to Submit" description="Three things on Canvas by Mon Dec 14 at 5:00 PM — notebook, memo, and repo link — then the presentation in class that evening. Four small milestones along the way keep the weeks before from piling up." />
     <div class="grid md:grid-cols-3 gap-6 mb-10">
       {deliverables.map((d) => (
         <div class="bg-bg-card border border-border-subtle rounded-2xl p-8 fade-in">
@@ -322,6 +329,21 @@ const faqs = [
           </li>
         ))}
       </ul>
+    </div>
+  </section>
+
+  <!-- Milestones -->
+  <section class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="02b" label="Milestones" title="Four Small Steps, Pass/Fail" description="Each milestone is small on purpose: it exists so the last week is a polish, not a scramble. Pass means the piece is there and the notebook runs. Together they are 20 of the project's 120 points." />
+    <div class="grid md:grid-cols-4 gap-4">
+      {milestones.map((m) => (
+        <div class="bg-bg-card border border-border-subtle rounded-2xl p-6 fade-in">
+          <div class="font-mono text-[0.7rem] text-accent-cyan tracking-[2px] uppercase mb-2">Milestone {m.n}</div>
+          <h3 class="font-bold mb-1">{m.title}</h3>
+          <div class="font-mono text-[0.7rem] text-accent-green mb-3">{m.due}</div>
+          <p class="text-text-secondary text-sm leading-relaxed">{m.text}</p>
+        </div>
+      ))}
     </div>
   </section>
 
@@ -410,7 +432,7 @@ const faqs = [
         On the last night, after all presentations, the class votes for the project that best found the signal: a real question, an honest model, a decision that changed because of it, and a number attached. Netflix credits its models with a billion dollars a year in retained subscribers; Stripe with a third less fraud. Your project is your first entry in that tradition.
       </p>
       <div class="font-mono text-sm text-accent-cyan tracking-[2px]">
-        Proposal Nov 9 &middot; Notebook + Memo Dec 13 &middot; Presentations Dec 14
+        Milestone 1 Nov 2 &middot; Notebook + Memo Dec 14, 5:00 PM &middot; Presentations Dec 14
       </div>
     </div>
   </section>

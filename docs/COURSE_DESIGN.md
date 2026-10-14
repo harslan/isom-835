@@ -68,17 +68,20 @@ an evaluation you can defend → a decision.*
 | 12 | Dec 7 | Time & Text | Neural Networks, Embeddings & LLMs as Features | Amazon reviews (HF `amazon_polarity`) + Telco | MLP; TF-IDF vs. sentence embeddings vs. zero-shot LLM; when deep learning beats GBDT on tabular (rarely); the AI-assisted analyst |
 | 13 | Dec 14 (exam-week slot) | Finale | Ship It — Deployment, Monitoring & Your Prediction Story | Your project | joblib pipelines, MLflow, a Gradio demo, drift monitoring (Evidently), EU AI Act in one slide; **final presentations** |
 
-**Homework (5, individual):** HW1 due S4 Oct 5 (EDA + baseline on Telco); HW2 due S5 Oct 19 (credit default: classification, ROC/PR, odds ratios);
-HW3 due S7 Nov 2 (Part 1 threshold/cost on the HW2 model, assigned S5; Part 2 Ames regression pipeline, assigned S6); HW4 due S10 Nov 23 (hotel bookings: GBM + SHAP);
-HW5 due S12 Dec 7 (forecast bike demand *or* segment retail customers — student's choice). There is no HW0: Session 1 asks students to run the notebook (nothing to submit), and HW1 carries the prediction-problem framing question. Lab 0 (Python Foundations Check, due S4) is completion credit under participation.
+**Homework (3 graded notebooks, individual):** HW1 due S4 Oct 5 (EDA + baseline on Telco); HW2 due S5 Oct 19 (credit default: classification, ROC/PR, odds ratios);
+HW3 due S9 Nov 16 (Part 1 threshold/cost on the HW2 model, assigned S5; Part 2 Ames regression pipeline, assigned S6 — 21 days after Part 2 is released). The hotel-bookings boosting notebook (S9) and the
+segmentation/forecasting notebooks (S10–S11) are optional practice: their skills are graded inside the project milestones, so the last four weeks carry no new homework. There is no HW0: Session 1 asks students to run the notebook (nothing to submit), and HW1 carries the prediction-problem framing question. Lab 0 (Python Foundations Check, due S4) is completion credit under participation.
 
 **Midterm Model Competition (team of 2–3, Kaggle community competition):** launched S5 Oct 19 ·
-hidden test set of hotel bookings · leaderboard closes Sun Nov 8, 11:59 PM · reveal + 3-minute
-"what worked" talks in S8 Nov 9. Graded 50% leaderboard rank band, 50% a one-page modeling memo.
+hidden test set of hotel bookings · leaderboard closes Mon Nov 9, 4:30 PM (the predictions file is also uploaded on Canvas, so grading never depends on Kaggle) · reveal + 3-minute
+"what worked" talks in S8 Nov 9 · one-page memo on Canvas by 11:59 PM that night. Graded 50% leaderboard rank band, 50% the memo. The midterm has its week alone.
 
-**Final Project — "Your Prediction Story" (team of 2–3, solo allowed):** proposal due Mon Nov 9 ·
-notebook + 2-page decision memo due Sun Dec 13, 11:59 PM · presentations Mon Dec 14 (Session 13,
+**Final Project — "Your Prediction Story" (team of 2–3, solo allowed):** four pass/fail milestones, one per week, never two deadlines in a week:
+Milestone 1 problem + dataset (graded discussion) Mon Nov 2 · Milestone 2 baseline + metric Mon Nov 23 · Milestone 3 tuned model + error analysis Mon Nov 30 · Milestone 4 dry-run slides Mon Dec 7, 5:00 PM (paired dry runs in S12) ·
+notebook + 2-page decision memo + repo link Mon Dec 14, 5:00 PM (the start of the exam-week slot; nothing is due in the 48 hours before it) · presentations Mon Dec 14 (Session 13,
 exam-week slot). No written final exam.
+
+**Scheduling rules (set Oct 14, 2026):** one due date per Mon–Sun week; Monday 11:59 PM is the standing time; lead time is 7 days for a post, 14 for a notebook that trains models, 21 for anything tuned, cross-validated, or scored on a held-out set; nothing due the day after class, during a break, on Thanksgiving Thu/Fri, or inside 48 hours of the final slot. Canvas is built to match (`isom-835-private/canvas/canvas_build_fall2026.js`).
 
 ---
 

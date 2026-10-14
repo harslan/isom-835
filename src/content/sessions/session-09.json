@@ -94,12 +94,12 @@
     },
     {
       "time": "7:10 PM - 7:30 PM",
-      "title": "Fairness Slices, the Model Card & Homework #4",
+      "title": "Fairness Slices, the Model Card & Milestone 3",
       "duration": "20 minutes",
-      "description": "Equal accuracy can hide unequal harm: compute false-negative and false-positive rates by group (customer type, market segment, country) and look for gaps. Then the one-page model card — intended use, data, metrics by slice, known failure modes, owner. HW4 is assigned in full.",
+      "description": "Equal accuracy can hide unequal harm: compute false-negative and false-positive rates by group (customer type, market segment, country) and look for gaps. Then the one-page model card — intended use, data, metrics by slice, known failure modes, owner. Milestone 3 of the final project is assigned in full — tonight is where your tuned model and error analysis come from.",
       "bulletPoints": [
         "Credit scoring and hiring are 'high-risk' uses under the EU AI Act; explanation and human review are the direction of travel everywhere",
-        "HW4 due Mon Nov 23: boosting + SHAP + calibration + conformal on hotel bookings"
+        "Milestone 2 (baseline + metric) due Mon Nov 23; Milestone 3 (tuned model + error analysis) due Mon Nov 30 — both pass/fail"
       ],
       "isBreak": false
     }
@@ -216,7 +216,7 @@
     {
       "title": "Kaggle Learn — Machine Learning Explainability",
       "url": "https://www.kaggle.com/learn/machine-learning-explainability",
-      "description": "Permutation importance, partial dependence, and SHAP values in four short lessons with exercises. The fastest path to fluency before HW4.",
+      "description": "Permutation importance, partial dependence, and SHAP values in four short lessons with exercises. The fastest path to fluency before Milestone 3.",
       "icon": "wand",
       "badge": "Go Deeper",
       "badgeType": "code",
@@ -297,8 +297,8 @@
   ],
   "homework": [
     {
-      "label": "Homework #4",
-      "text": "Due Mon Nov 23. On the hotel bookings data (leaks removed): (1) an early-stopped gradient-boosting model with two or three hyperparameters tuned by Optuna or RandomizedSearchCV inside cross-validation; (2) a calibration plot and, if needed, CalibratedClassifierCV; (3) SHAP waterfall plots for three bookings — one confident cancel, one confident stay, one ambiguous — each with a two-sentence explanation a hotel manager would accept; (4) a beeswarm and your three-sentence reading of it; (5) MAPIE prediction sets at 90% with the share of ambiguous bookings; (6) false-negative and false-positive rates by hotel type and by market segment; (7) a half-page model card. Submit the notebook on Canvas."
+      "label": "Project Milestones 2 & 3",
+      "text": "Milestone 2, due Mon Nov 23, 11:59 PM, on Canvas: your project data loaded, split before anything is fitted, the naive baseline computed, and a first model scored with the metric your decision needs. Milestone 3, due Mon Nov 30, 11:59 PM: a tuned model (two or three hyperparameters inside cross-validation), a calibration plot if you classify, SHAP for three cases a decision-maker would recognize, error rates by the slices that matter, and a half-page model card. Both are pass/fail: run top to bottom, split before fit, and the pieces present. Practice, ungraded: tonight's hotel notebook has every piece — early-stopped boosting, Optuna, SHAP waterfalls and beeswarm, MAPIE prediction sets — run it end to end on the hotel data before you try it on your own."
     }
   ],
   "nextSession": {

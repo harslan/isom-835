@@ -96,7 +96,7 @@
       "time": "7:15 PM - 7:30 PM",
       "title": "Midterm Model Competition — Launch",
       "duration": "15 minutes",
-      "description": "Teams of 2–3. A hidden test set of hotel bookings; predict which reservations will be canceled. Kaggle community competition, public leaderboard on half the test set, private on the other half. Leaderboard closes Sun Nov 8, 11:59 PM; reveal and three-minute 'what worked' talks on Nov 9.",
+      "description": "Teams of 2–3. A hidden test set of hotel bookings; predict which reservations will be canceled. Kaggle community competition, public leaderboard on half the test set, private on the other half. Leaderboard closes Mon Nov 9, 4:30 PM; reveal and three-minute 'what worked' talks that evening in Session 8.",
       "bulletPoints": [
         "Graded 50% on private leaderboard band, 50% on a one-page modeling memo: what you tried, what worked, what leaked",
         "Anything from the course is allowed; Session 7 (trees) and Session 8 (boosting) will help — but a clean pipeline helps more"
@@ -216,7 +216,7 @@
     {
       "title": "Kaggle — The ISOM 835 Midterm Model Competition",
       "url": "https://www.kaggle.com/competitions",
-      "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, download train.csv and test.csv from the Data tab, and read the rules — the leak columns are gone, but agent, company, and country deserve thought. Five submissions per day; leaderboard closes Sun Nov 8, 11:59 PM.",
+      "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, download train.csv and test.csv from the Data tab, and read the rules — the leak columns are gone, but agent, company, and country deserve thought. Five submissions per day; leaderboard closes Mon Nov 9, 4:30 PM.",
       "icon": "trophy",
       "badge": "Competition",
       "badgeType": "tool",
@@ -280,7 +280,7 @@
   "homework": [
     {
       "label": "Homework #3, Part 1 (launches tonight) + Competition Kickoff",
-      "text": "HW3 (due Mon Nov 2, 11:59 PM, on Canvas) has two parts in one notebook. Part 1, tonight: return to your HW2 credit-default model. With a missed default costing $1,000 and a wrongly declined good customer $150, find the expected-cost-minimizing threshold with TunedThresholdClassifierCV and a custom scorer, report the confusion matrix and total cost at that threshold versus 0.5, and include a calibration plot. Part 2, regression on Ames housing, is assigned in full next week. Competition: create a free Kaggle account with your suffolk.edu email if you have not already, then form your team of 2–3 on Kaggle by Mon Nov 2 and make at least one submission (even the baseline) so we know your team is registered. Leaderboard closes Sun Nov 8, 11:59 PM."
+      "text": "HW3 (due Mon Nov 16, 11:59 PM, on Canvas) has two parts in one notebook. Part 1, tonight: return to your HW2 credit-default model. With a missed default costing $1,000 and a wrongly declined good customer $150, find the expected-cost-minimizing threshold with TunedThresholdClassifierCV and a custom scorer, report the confusion matrix and total cost at that threshold versus 0.5, and include a calibration plot. Part 2, regression on Ames housing, is assigned in full next week. Competition: create a free Kaggle account with your suffolk.edu email if you have not already, then form your team of 2–3 on Kaggle by Mon Nov 2 and make at least one submission (even the baseline) so we know your team is registered. The leaderboard closes Mon Nov 9, 4:30 PM — upload the same predictions file on Canvas by then, and the one-page memo that night by 11:59 PM. Final project, Milestone 1: your problem and dataset in one paragraph, due Mon Nov 2 on Canvas."
     }
   ],
   "nextSession": {

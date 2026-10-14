@@ -98,7 +98,7 @@
       "duration": "15 minutes",
       "description": "Every team should have a leak-free pipeline and a forest submission by tonight. Next week, gradient boosting — the model that will probably win — and the tabular foundation models that might beat it.",
       "bulletPoints": [
-        "Leaderboard closes Sun Nov 8, 11:59 PM; final-project proposals due Mon Nov 9 on Canvas",
+        "Leaderboard closes Mon Nov 9, 4:30 PM — upload the same predictions file on Canvas by then; the memo is due that night at 11:59 PM",
         "Reading: ISLP Chapter 8 (Tree-Based Methods), 8.1–8.2"
       ],
       "isBreak": false
@@ -253,7 +253,7 @@
   "homework": [
     {
       "label": "Competition Sprint + Reading",
-      "text": "No graded homework this week — the Midterm Model Competition is the assignment. By Mon Nov 9: at least one random-forest submission from your team, and a running list in your memo draft of every feature you dropped as leakage and why. Leaderboard closes Sun Nov 8, 11:59 PM. Final-project proposals (one paragraph: the prediction, the unit, the horizon, the decision, the data plan) are due Mon Nov 9 on Canvas. Read ISLP 8.2.3 (Boosting) before next class."
+      "text": "No graded homework this week — the Midterm Model Competition is the assignment. Before the leaderboard closes Mon Nov 9, 4:30 PM: at least one random-forest submission from your team, your best predictions file uploaded on Canvas as well as on Kaggle, and a running list in your memo draft of every feature you dropped as leakage and why. The one-page memo is due on Canvas Mon Nov 9, 11:59 PM, after the reveal. HW3 (the threshold on your credit model + the Ames pipeline) is due Mon Nov 16. Read ISLP 8.2.3 (Boosting) before next class."
     }
   ],
   "nextSession": {

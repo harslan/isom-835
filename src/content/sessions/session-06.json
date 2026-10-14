@@ -98,7 +98,7 @@
       "duration": "15 minutes",
       "description": "The regression template: pipeline → log target → regularized linear model → residual plots → metrics in business units. HW3 Part 2 is the Ames competition in miniature.",
       "bulletPoints": [
-        "HW3 Part 2: a leak-proof Ames pipeline with ridge or lasso, due Mon Nov 2 together with the threshold part from Session 5",
+        "HW3 Part 2: a leak-proof Ames pipeline with ridge or lasso, due Mon Nov 16 together with the threshold part from Session 5",
         "Next: decision trees and random forests — the first model that needs no scaling at all"
       ],
       "isBreak": false
@@ -244,7 +244,7 @@
   "homework": [
     {
       "label": "Homework #3, Part 2 + Competition",
-      "text": "Due Mon Nov 2, 11:59 PM, on Canvas, in the same notebook as Part 1 (the threshold on your HW2 credit model). Build a leak-proof Ames pipeline in Colab: ColumnTransformer preprocessing, log(price) target, and your choice of RidgeCV, LassoCV, or ElasticNetCV. Report test RMSE and MAE in dollars against the mean baseline, plot residuals vs. fitted, and write one paragraph naming the segment of houses your model gets most wrong and why. Bonus (+5%): submit your predictions to the Kaggle House Prices competition and include your public leaderboard score. Competition: your team of 2–3 should be formed on Kaggle with at least one submission by Mon Nov 2; the leaderboard closes Sun Nov 8, 11:59 PM."
+      "text": "Due Mon Nov 16, 11:59 PM, on Canvas, in the same notebook as Part 1 (the threshold on your HW2 credit model). Build a leak-proof Ames pipeline in Colab: ColumnTransformer preprocessing, log(price) target, and your choice of RidgeCV, LassoCV, or ElasticNetCV. Report test RMSE and MAE in dollars against the mean baseline, plot residuals vs. fitted, and write one paragraph naming the segment of houses your model gets most wrong and why. Bonus (+5%): submit your predictions to the Kaggle House Prices competition and include your public leaderboard score. Competition: your team of 2–3 should be formed on Kaggle with at least one submission by Mon Nov 2 — the same night Milestone 1 of the final project (your problem and dataset, one paragraph) is due on Canvas. The leaderboard closes Mon Nov 9, 4:30 PM."
     }
   ],
   "nextSession": {

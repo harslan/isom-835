@@ -31,9 +31,9 @@
   "agenda": [
     {
       "time": "5:00 PM - 5:20 PM",
-      "title": "HW5 Debrief & What a Neural Network Is",
+      "title": "Project Check-In & What a Neural Network Is",
       "duration": "20 minutes",
-      "description": "Segments and forecasts from HW5, then the model everyone has heard of: layers of weighted sums and nonlinear activations, trained by gradient descent on a loss. A logistic regression is a neural network with no hidden layer. MLPClassifier makes it three lines.",
+      "description": "Where every project stands after Milestone 3, then the model everyone has heard of: layers of weighted sums and nonlinear activations, trained by gradient descent on a loss. A logistic regression is a neural network with no hidden layer. MLPClassifier makes it three lines.",
       "bulletPoints": [
         "Scale the inputs — a neural net is more sensitive to scale than kNN",
         "Hidden layers, learning rate, epochs, early stopping: the same overfitting story, new vocabulary"
@@ -94,11 +94,11 @@
     },
     {
       "time": "7:15 PM - 7:30 PM",
-      "title": "Wrap-Up & Final Week",
+      "title": "Dry Runs in Pairs & Final Week",
       "duration": "15 minutes",
-      "description": "The map is complete: tabular → boosting and TFMs; text → embeddings and LLMs; time → lags and foundation models; everything → honest validation and a decision. Next Monday: ship it, then present.",
+      "description": "Teams pair up: four minutes each with the Milestone 4 slides, two minutes of feedback on the one thing to fix. Then the map is complete: tabular → boosting and TFMs; text → embeddings and LLMs; time → lags and foundation models; everything → honest validation and a decision. Next Monday: ship it, then present.",
       "bulletPoints": [
-        "Project notebook + 2-page decision memo due Sun Dec 13, 11:59 PM on Canvas",
+        "Project notebook + 2-page decision memo + repo link due Mon Dec 14, 5:00 PM on Canvas — the start of the exam-week slot",
         "Presentations Mon Dec 14, 8 minutes + 2 minutes Q&A per team, order posted Friday"
       ],
       "isBreak": false
@@ -262,7 +262,7 @@
   "homework": [
     {
       "label": "Project Final Stretch",
-      "text": "No new homework. Final project notebook and 2-page decision memo are due Sun Dec 13, 11:59 PM on Canvas; presentations are Mon Dec 14 in the exam-week slot. Before you submit, run the Session 12 verification checklist on your own notebook: is the split before every fitted transformer, is any feature recorded after the outcome, is the metric the one the decision needs, and does the model beat the obvious baseline? Bring your slides on a laptop; 8 minutes plus 2 for questions."
+      "text": "No new homework. Final project notebook, 2-page decision memo, and repo link are due Mon Dec 14, 5:00 PM on Canvas, and presentations follow that evening in the exam-week slot. Before you submit, run the Session 12 verification checklist on your own notebook: is the split before every fitted transformer, is any feature recorded after the outcome, is the metric the one the decision needs, and does the model beat the obvious baseline? Bring your slides on a laptop; 8 minutes plus 2 for questions."
     }
   ],
   "nextSession": {

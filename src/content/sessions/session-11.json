@@ -96,9 +96,9 @@
       "time": "7:15 PM - 7:30 PM",
       "title": "Wrap-Up & Project Check-In",
       "duration": "15 minutes",
-      "description": "The forecasting stack in 2026: seasonal naive → StatsForecast → lag features + GBM → a foundation model as the challenger, all validated with rolling-origin backtests. Project notebooks are due in 13 days.",
+      "description": "The forecasting stack in 2026: seasonal naive → StatsForecast → lag features + GBM → a foundation model as the challenger, all validated with rolling-origin backtests. Project notebooks and memos are due in two weeks; your dry run is next Monday.",
       "bulletPoints": [
-        "HW5 Track B is tonight's notebook with your own feature ideas, due Dec 7",
+        "Milestone 4 next Monday: slides on Canvas by 5:00 PM Dec 7, then four-minute dry runs in pairs during class",
         "Next week: neural networks, text embeddings, and LLMs as feature generators"
       ],
       "isBreak": false
@@ -234,8 +234,8 @@
   ],
   "homework": [
     {
-      "label": "Homework #5, Track B + Project Milestone",
-      "text": "HW5 (either track) due Mon Dec 7. Track B: tonight's bike notebook extended with at least three feature ideas of your own (e.g., lag_48, a rolling max, a 'rain in the last 3 hours' flag), MAE by hour of day and by weather situation, one plotted test week, and a paragraph on the holiday failures and how DoorDash-style multipliers might fix them. Project milestone: by Mon Dec 7 every team should have a working end-to-end notebook on real or realistic data; office hours this week are for project debugging."
+      "label": "Project Milestone 4 — the dry run",
+      "text": "Milestone 4 is due Mon Dec 7, 5:00 PM, on Canvas: your draft slides (PDF, ten slides at most) for the eight-minute story. In Session 12 teams pair up and give each other a four-minute dry run with two minutes of feedback, and you get written notes on the slides from me before the real thing. By tonight every team should have a working end-to-end notebook; office hours this week are for project debugging. Forecasting projects: tonight's bike notebook is your template — add at least three feature ideas of your own (lag_48, a rolling max, a 'rain in the last 3 hours' flag), MAE by hour of day and by weather situation, and one plotted test week."
     }
   ],
   "nextSession": {

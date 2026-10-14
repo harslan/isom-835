@@ -20,7 +20,7 @@ export const outcomes = [
 
 export const grading = [
   { component: 'Participation & In-Class Labs', weight: 15 },
-  { component: 'Homework Assignments (5 × Python notebooks)', weight: 25 },
+  { component: 'Homework Assignments (3 × Python notebooks)', weight: 25 },
   { component: 'Midterm Model Competition (Team, Kaggle-style)', weight: 20 },
   { component: 'Final Project: Your Prediction Story (Notebook + Memo + Talk)', weight: 40 },
 ];
@@ -28,12 +28,12 @@ export const grading = [
 export const assessments = [
   {
     name: 'Participation & in-class labs', weight: 15,
-    what: 'Every session has a live notebook. Credit for being present, running the lab, and completing the "Your turn" exercises by the following Sunday. Two lowest weeks dropped. Lab 0, the Python Foundations Check (due Mon Oct 5), is a completion credit here, not one of the five graded homework notebooks.',
+    what: 'Every session has a live notebook. Credit for being present, running the lab, and completing the "Your turn" exercises by the following Sunday. Two lowest weeks dropped. Lab 0, the Python Foundations Check (due Mon Oct 5), is a completion credit here, not one of the three graded homework notebooks.',
     rubric: ['Present and engaged (attendance, questions, explorer use)', '"Your turn" cells attempted in ≥ 10 of 12 lab sessions'],
   },
   {
-    name: 'Homework (5 notebooks, individual)', weight: 25,
-    what: 'Five Colab notebooks on real data, each due at 11:59 PM on the due date, on Canvas. Graded on the same four things every time.',
+    name: 'Homework (3 notebooks, individual)', weight: 25,
+    what: 'Three Colab notebooks on real data, each due at 11:59 PM on the due date, on Canvas. Graded on the same four things every time. The hotel-bookings boosting notebook and the segmentation/forecasting notebooks are optional practice: their skills are graded inside the final-project milestones instead of as separate homework.',
     rubric: [
       'Framing & baseline (20%) — unit, target, horizon, decision stated; the naive baseline computed and beaten',
       'Pipeline & leakage (30%) — split before any fitted transformer; leaks identified and removed; code runs top to bottom',
@@ -43,14 +43,12 @@ export const assessments = [
     items: [
       { label: 'HW1 — EDA + baseline on Telco', due: 'Mon Oct 5', session: 2 },
       { label: 'HW2 — Credit default: classification (logistic, ROC/PR, odds ratios)', due: 'Mon Oct 19', session: 4 },
-      { label: 'HW3 — Threshold/cost on the credit model + Ames regression pipeline (ridge/lasso)', due: 'Mon Nov 2', session: 5 },
-      { label: 'HW4 — Hotel bookings: boosting + SHAP + calibration + conformal', due: 'Mon Nov 23', session: 9 },
-      { label: 'HW5 — Segmentation (Track A) or forecasting (Track B)', due: 'Mon Dec 7', session: 10 },
+      { label: 'HW3 — Threshold/cost on the credit model + Ames regression pipeline (ridge/lasso)', due: 'Mon Nov 16', session: 5 },
     ],
   },
   {
     name: 'Midterm Model Competition (teams of 2–3)', weight: 20,
-    what: 'A Kaggle community competition on a hidden test split of hotel bookings — predict cancellations. Launches Oct 19; leaderboard closes Sun Nov 8, 11:59 PM; reveal and 3-minute "what worked" talks on Nov 9.',
+    what: 'A Kaggle community competition on a hidden test split of hotel bookings — predict cancellations. Launches Oct 19; leaderboard closes Mon Nov 9, 4:30 PM (upload the same predictions file on Canvas by then); reveal and 3-minute "what worked" talks that evening; one-page memo on Canvas by 11:59 PM.',
     rubric: [
       'Private-leaderboard band (50%) — top third / middle / bottom third on ROC-AUC, with a floor for any leak-free submission that beats the logistic baseline',
       'One-page modeling memo (50%) — what you tried, what worked, what leaked, and one thing you would do with two more weeks',
@@ -58,22 +56,24 @@ export const assessments = [
   },
   {
     name: 'Final Project — Your Prediction Story (teams of 2–3, solo allowed)', weight: 40,
-    what: 'A real prediction question, a leak-proof model, an honest evaluation, a decision with a number, and a trust story. Proposal Mon Nov 9; notebook + 2-page memo Sun Dec 13, 11:59 PM; 8-minute presentation Mon Dec 14. No written final exam.',
+    what: 'A real prediction question, a leak-proof model, an honest evaluation, a decision with a number, and a trust story. Four small pass/fail milestones keep every team moving: problem + dataset (Mon Nov 2), baseline + metric (Mon Nov 23), tuned model + error analysis (Mon Nov 30), dry-run slides (Mon Dec 7, 5:00 PM). Notebook + 2-page memo + repo link Mon Dec 14, 5:00 PM; 8-minute presentation that evening. No written final exam.',
     rubric: [
       'Framing & data (15%)', 'Modeling & validation (25%)', 'Decision & value (25%)', 'Trust story (15%)', 'Memo & presentation (20%)',
     ],
   },
 ];
 
-// What is due at the start of each session (authoritative; the session pages' homework labels are prose).
+// What is due the week of each session, at 11:59 PM on the Monday unless noted (authoritative; the session pages' homework labels are prose).
 export const dueBySession: Record<number, string> = {
   4: 'HW1 — EDA + baseline (Telco) · Lab 0 Python Foundations Check',
   5: 'HW2 — credit default classification',
-  7: 'HW3 — threshold/cost + Ames regression · competition team registered',
-  8: 'Competition leaderboard closed (Sun Nov 8) · memo tonight · project proposal',
-  10: 'HW4 — boosting + SHAP + conformal (hotel)',
-  12: 'HW5 — segmentation or forecasting',
-  13: 'Project notebook + memo (Sun Dec 13) · presentations tonight',
+  7: 'Project Milestone 1 — problem + dataset · competition team registered on Kaggle',
+  8: 'Competition: leaderboard closes 4:30 PM, predictions on Canvas · memo tonight',
+  9: 'HW3 — threshold/cost + Ames regression',
+  10: 'Project Milestone 2 — baseline + metric',
+  11: 'Project Milestone 3 — tuned model + error analysis',
+  12: 'Project Milestone 4 — dry-run slides by 5:00 PM',
+  13: 'Project notebook + memo + repo (5:00 PM) · presentations tonight',
 };
 
 export const gradeScale = [

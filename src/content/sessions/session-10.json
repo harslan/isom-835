@@ -31,9 +31,9 @@
   "agenda": [
     {
       "time": "5:00 PM - 5:20 PM",
-      "title": "HW4 Debrief & Learning Without a Target",
+      "title": "Milestone 2 Debrief & Learning Without a Target",
       "duration": "20 minutes",
-      "description": "The best SHAP explanations from HW4, then a shift: nine sessions with a y column, and now none. Unsupervised learning finds structure — groups, directions, outliers — and the business supplies the meaning. Meet the data: Online Retail II, 1,067,371 transactions from a UK gift retailer, 2009–2011.",
+      "description": "The best baselines and metrics from Milestone 2, then a shift: nine sessions with a y column, and now none. Unsupervised learning finds structure — groups, directions, outliers — and the business supplies the meaning. Meet the data: Online Retail II, 1,067,371 transactions from a UK gift retailer, 2009–2011.",
       "bulletPoints": [
         "No target means no accuracy — evaluation is about usefulness, stability, and whether the segments make sense to the people who own them",
         "From transactions to customers: one groupby turns a million rows into ~5,900 RFM profiles"
@@ -94,12 +94,12 @@
     },
     {
       "time": "7:05 PM - 7:30 PM",
-      "title": "Anomalies: Isolation Forest & Homework #5",
+      "title": "Anomalies: Isolation Forest & Your Project",
       "duration": "25 minutes",
-      "description": "Random trees isolate outliers in a few splits and normal points in many; the average path length is the anomaly score. On a simulated card-transaction stream with 1% fraud, Isolation Forest puts roughly a third of the fraud into the top 5% of scores with no labels at all — a starting point for the review queue, not a finished detector. Then HW5: your choice of forecasting or segmentation.",
+      "description": "Random trees isolate outliers in a few splits and normal points in many; the average path length is the anomaly score. On a simulated card-transaction stream with 1% fraud, Isolation Forest puts roughly a third of the fraud into the top 5% of scores with no labels at all — a starting point for the review queue, not a finished detector. Then the project: if yours has no label, tonight’s segmentation notebook is your template; if it has a clock, next week’s forecasting notebook is.",
       "bulletPoints": [
         "contamination sets the alert rate; the business sets contamination — how many alerts can the fraud team review per day?",
-        "HW5 due Mon Dec 7: segment the retail customers (tonight) or forecast bike demand (next week)"
+        "Milestone 3 (tuned model + error analysis) due Mon Nov 30; Milestone 4 (dry run) Mon Dec 7, slides on Canvas by 5:00 PM"
       ],
       "isBreak": false
     }
@@ -261,8 +261,8 @@
   ],
   "homework": [
     {
-      "label": "Homework #5 (choose one track)",
-      "text": "Due Mon Dec 7. Track A — Segmentation: RFM on Online Retail II, a defended choice of k (elbow + silhouette + business reasoning), a profile table with a name and a one-sentence marketing action per segment, a PCA scatter colored by segment, and a paragraph on how you would measure whether the segmentation worked. Track B — Forecasting (after Session 11): hourly bike demand with a seasonal-naive baseline, a lag-feature gradient-boosting model evaluated with TimeSeriesSplit, MAE by hour-of-day, and one paragraph on what the model gets wrong on holidays. Either track: notebook on Canvas."
+      "label": "Milestone 3 + Practice (pick a track, ungraded)",
+      "text": "Milestone 3 is due Mon Nov 30, 11:59 PM, on Canvas: your tuned model with an error analysis and a half-page model card (the full list is in Session 9). Practice, ungraded, for projects that need it — Track A, Segmentation: RFM on Online Retail II, a defended choice of k (elbow + silhouette + business reasoning), a profile table with a name and a one-sentence marketing action per segment, a PCA scatter colored by segment, and a paragraph on how you would measure whether the segmentation worked. Track B, Forecasting (after Session 11): hourly bike demand with a seasonal-naive baseline, a lag-feature gradient-boosting model evaluated with TimeSeriesSplit, MAE by hour-of-day, and one paragraph on what the model gets wrong on holidays. Either track: run it for yourself; nothing to submit."
     }
   ],
   "nextSession": {

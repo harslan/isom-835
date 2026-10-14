@@ -9,6 +9,7 @@ import Icon from '../components/Icon.astro';
 import { getCollection } from 'astro:content';
 import { course } from '../data/course';
 import { modules, sessionMeta, WEEKDAY_LONG } from '../data/schedule';
+import { dueBySession } from '../data/syllabus';
 
 const sessions = await getCollection('sessions');
 const sorted = sessions.sort((a, b) => a.data.number - b.data.number);
@@ -26,6 +27,7 @@ const nextClassData = sorted.map((s) => {
     notebook: nb?.url ?? '', reading: reading ? { title: reading.title, url: reading.url } : null,
     explorer: explorer ? { title: explorer.title, url: explorer.url } : null,
     homework: hw ? hw.label : '',
+    due: dueBySession[s.data.number] ?? '',
   };
 });
 ---
@@ -184,7 +186,8 @@ const nextClassData = sorted.map((s) => {
       if (next.explorer) show('tw-explorer', next.explorer.url, next.explorer.title.replace(/ — .*$/, ''), 'tw-explorer-t');
       // the homework due THIS session was assigned last session
       const prev = nextClassData.find((s) => s.n === next.n - 1);
-      if (prev && prev.homework) show('tw-homework', '/sessions/' + prev.slug + '#homework', prev.homework + ' — due 11:59 PM', 'tw-homework-t');
+      // the authoritative 'due this week' line from the syllabus; it links to the homework block that assigned it
+      if (next.due && prev) show('tw-homework', '/sessions/' + prev.slug + '#homework', next.due + (/\d:\d\d (AM|PM)/.test(next.due) ? '' : ' — Mon 11:59 PM'), 'tw-homework-t');
       box.classList.remove('hidden');
       // ring the matching session card
       document.querySelectorAll('.session-card[data-session-iso="' + next.iso + '"]').forEach((el) => {
