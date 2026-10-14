@@ -6,6 +6,7 @@ import Icon from '../components/Icon.astro';
 import { getCollection } from 'astro:content';
 import { description, outcomes, grading, assessments, gradeScale, materials, tools, policies, dueBySession } from '../data/syllabus';
 import { course } from '../data/course';
+import { deadlines, ICS_PATH } from '../data/deadlines';
 import { sessionMeta, modules, WEEKDAY, WEEKDAY_LONG, MEETING_TIME } from '../data/schedule';
 
 const sessions = await getCollection('sessions');
@@ -74,8 +75,33 @@ const milestones: Record<number, string> = { 5: 'Competition launches', 8: 'Comp
     </div>
   </section>
 
+  <section id="deadlines" class="py-12 px-8 max-w-[1100px] mx-auto">
+    <SectionHeader number="03" label="Deadlines" title="Every due date, once" description="One thing due per week, always a Monday at 11:59 PM unless noted; nothing the day after class, nothing over Thanksgiving, nothing in the two days before the final slot. Each row opens the Canvas page." />
+    <div class="flex flex-wrap items-center gap-3 mb-6 fade-in">
+      <a href={ICS_PATH} download="isom-835.ics" class="inline-flex items-center gap-2 bg-accent-cyan/10 border border-accent-cyan/40 text-accent-cyan rounded-xl px-5 py-3 no-underline font-semibold text-sm transition-all duration-300 hover:bg-accent-cyan/20 hover:-translate-y-0.5">
+        <Icon name="calendar" class="w-4 h-4" /> Add every deadline and class to your calendar (.ics)
+      </a>
+      <span class="text-text-muted text-xs">Opens in Apple Calendar, Google Calendar (Settings → Import), and Outlook. All times Eastern.</span>
+    </div>
+    <div class="overflow-x-auto fade-in">
+      <table class="w-full text-sm border-collapse">
+        <thead><tr class="text-left font-mono text-[0.68rem] tracking-[2px] uppercase text-text-muted"><th class="py-3 pr-3">Due</th><th class="py-3 pr-3">What</th><th class="py-3 pr-3">Submit</th><th class="py-3">Points</th></tr></thead>
+        <tbody>
+          {deadlines.map((d) => (
+            <tr class="border-t border-border-subtle hover:bg-bg-card/60 transition-colors">
+              <td class="py-3 pr-3 whitespace-nowrap font-mono text-[0.8rem] text-accent-green">{d.date} · {d.time}</td>
+              <td class="py-3 pr-3"><a href={d.canvas} target="_blank" rel="noopener" class="text-text-primary no-underline hover:text-accent-cyan">{d.title}</a> <a href={d.site} class="text-text-muted text-xs no-underline hover:text-accent-cyan">· assigned</a></td>
+              <td class="py-3 pr-3 text-text-secondary">{d.what}</td>
+              <td class="py-3 text-text-secondary whitespace-nowrap">{d.points}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <section class="py-12 px-8 max-w-[1100px] mx-auto">
-    <SectionHeader number="03" label="Grading" title="How the grade is built" />
+    <SectionHeader number="04" label="Grading" title="How the grade is built" />
     <div class="grid md:grid-cols-[1fr_260px] gap-6 fade-in">
       <div class="grid gap-3">
         {grading.map((g) => (
@@ -90,7 +116,7 @@ const milestones: Record<number, string> = { 5: 'Competition launches', 8: 'Comp
   </section>
 
   <section class="py-12 px-8 max-w-[1100px] mx-auto">
-    <SectionHeader number="04" label="Assessments" title="What each piece is, and how it is graded" />
+    <SectionHeader number="05" label="Assessments" title="What each piece is, and how it is graded" />
     <div class="grid gap-6">
       {assessments.map((a) => (
         <div class="bg-bg-card border border-border-subtle rounded-2xl p-7 fade-in">
@@ -109,7 +135,7 @@ const milestones: Record<number, string> = { 5: 'Competition launches', 8: 'Comp
   </section>
 
   <section class="py-12 px-8 max-w-[1100px] mx-auto">
-    <SectionHeader number="05" label="Materials & Tools" title="Everything is free" />
+    <SectionHeader number="06" label="Materials & Tools" title="Everything is free" />
     <div class="grid md:grid-cols-2 gap-6 fade-in">
       <div class="grid gap-3">
         {materials.map((m) => (<a href={m.url} target="_blank" rel="noopener" class="bg-bg-card border border-border-subtle rounded-xl p-5 no-underline hover:border-accent-cyan/30"><div class="text-sm font-semibold text-text-primary mb-1">{m.title}</div><div class="text-sm text-text-secondary">{m.note}</div></a>))}
@@ -123,7 +149,7 @@ const milestones: Record<number, string> = { 5: 'Competition launches', 8: 'Comp
   </section>
 
   <section class="py-12 px-8 max-w-[1100px] mx-auto">
-    <SectionHeader number="06" label="Policies" title="Course Policies" />
+    <SectionHeader number="07" label="Policies" title="Course Policies" />
     <div class="grid gap-6 md:grid-cols-2 fade-in">
       {policies.map((policy) => (
         <div class="bg-bg-card border border-border-subtle rounded-2xl p-8">
