@@ -19,7 +19,7 @@ export interface Deadline {
 
 export const deadlines: Deadline[] = [
   { id: 'hw1', iso: '2026-10-06T03:59:59Z', date: 'Mon Oct 5', time: '11:59 PM', title: 'HW1 — EDA + baseline on Telco · Lab 0 Python Foundations Check', points: '100 · completion', what: 'notebooks (.ipynb)', canvas: `${CANVAS}/assignments/259280`, site: '/sessions/session-02#homework' },
-  { id: 'hw2', iso: '2026-10-20T03:59:59Z', date: 'Mon Oct 19', time: '11:59 PM', title: 'HW2 — Credit default: classification, ROC/PR, odds ratios', points: '100', what: 'notebook (.ipynb)', canvas: `${CANVAS}/assignments/261934`, site: '/sessions/session-04#homework' },
+  { id: 'hw2', iso: '2026-10-22T03:59:59Z', date: 'Wed Oct 21', time: '11:59 PM', title: 'HW2 — Credit default: classification, ROC/PR, odds ratios', points: '100', what: 'notebook (.ipynb)', canvas: `${CANVAS}/assignments/261934`, site: '/sessions/session-04#homework' },
   { id: 'm1', iso: '2026-11-03T04:59:59Z', date: 'Mon Nov 2', time: '11:59 PM', title: 'Project Milestone 1 — your problem and your dataset', points: '5 · pass/fail', what: 'one paragraph (discussion post)', canvas: `${CANVAS}/discussion_topics/202473`, site: '/project#milestones' },
   { id: 'mid-pred', iso: '2026-11-09T21:30:00Z', date: 'Mon Nov 9', time: '4:30 PM', title: 'Midterm competition closes — predictions file', points: '50', what: 'predictions (.csv), on Kaggle and on Canvas', canvas: `${CANVAS}/assignments/261936`, site: '/sessions/session-05#homework' },
   { id: 'mid-memo', iso: '2026-11-10T04:59:59Z', date: 'Mon Nov 9', time: '11:59 PM', title: 'Midterm competition memo', points: '50', what: 'one page (.pdf)', canvas: `${CANVAS}/assignments/261937`, site: '/sessions/session-08#homework' },

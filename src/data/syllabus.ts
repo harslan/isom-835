@@ -42,7 +42,7 @@ export const assessments = [
     ],
     items: [
       { label: 'HW1 — EDA + baseline on Telco', due: 'Mon Oct 5', session: 2 },
-      { label: 'HW2 — Credit default: classification (logistic, ROC/PR, odds ratios)', due: 'Mon Oct 19', session: 4 },
+      { label: 'HW2 — Credit default: classification (logistic, ROC/PR, odds ratios)', due: 'Wed Oct 21', session: 4 },
       { label: 'HW3 — Threshold/cost on the credit model + Ames regression pipeline (ridge/lasso)', due: 'Mon Nov 16', session: 5 },
     ],
   },

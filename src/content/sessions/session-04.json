@@ -98,7 +98,7 @@
       "duration": "15 minutes",
       "description": "We now have a probability for every customer. We have not decided what to do with it. predict() used 0.5 — who chose that? Next session: costs, thresholds, calibration, and profit curves. HW2 launches tonight.",
       "bulletPoints": [
-        "HW2 (due Mon Oct 19 — no class Oct 12): a credit-default classifier in a leak-proof pipeline, with ROC-AUC, PR-AUC, the confusion matrix, and odds ratios in plain English",
+        "HW2 (due Wed Oct 21, extended from Mon Oct 19): a credit-default classifier in a leak-proof pipeline, with ROC-AUC, PR-AUC, the confusion matrix, and odds ratios in plain English",
         "Reading: ISLP Chapter 4 (Classification), 4.1–4.4"
       ],
       "isBreak": false
@@ -289,7 +289,7 @@
   "homework": [
     {
       "label": "Homework #2 (launches tonight)",
-      "text": "Due Mon Oct 19, 11:59 PM, on Canvas (no class Oct 12 — October Break). Build a credit-default classifier on the Taiwan data in a leak-proof pipeline (logistic regression required; a second model of your choice optional). Split before you fit anything, stratified by the target. Report ROC-AUC and PR-AUC on the test set, show the confusion matrix next to the 'nobody defaults' baseline, and interpret the three largest odds ratios in plain English. Under every question, one short paragraph on what the number means for the bank. The threshold-and-cost part follows in Session 5 as HW3. Reading before Session 5: ISLP 4.1–4.4."
+      "text": "Due Wed Oct 21, 11:59 PM, on Canvas (extended from Mon Oct 19). Build a credit-default classifier on the Taiwan data in a leak-proof pipeline (logistic regression required; a second model of your choice optional). Split before you fit anything, stratified by the target. Report ROC-AUC and PR-AUC on the test set, show the confusion matrix next to the 'nobody defaults' baseline, and interpret the three largest odds ratios in plain English. Under every question, one short paragraph on what the number means for the bank. The threshold-and-cost part follows in Session 5 as HW3. Reading before Session 5: ISLP 4.1–4.4."
     }
   ],
   "nextSession": {
