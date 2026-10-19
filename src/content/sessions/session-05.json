@@ -215,7 +215,7 @@
     },
     {
       "title": "Kaggle — The ISOM 835 Midterm Model Competition",
-      "url": "https://www.kaggle.com/competitions",
+      "url": "https://www.kaggle.com/competitions/isom-835-fall-2026-hotel-cancellations",
       "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, download train.csv and test.csv from the Data tab, and read the rules — the leak columns are gone, but agent, company, and country deserve thought. Five submissions per day; leaderboard closes Mon Nov 9, 4:30 PM.",
       "icon": "trophy",
       "badge": "Competition",
