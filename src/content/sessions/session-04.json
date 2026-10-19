@@ -115,6 +115,15 @@
       "linkText": "Open in Colab"
     },
     {
+      "title": "Explainer — Precision, Recall, ROC and AUC, Plain and Simple",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-04/ISOM835_Explainer_Precision_Recall_ROC_AUC.ipynb",
+      "description": "Ten customers you can check by hand: the four boxes, precision (smoke alarm) and recall (fishing net), how the cutoff trades them off, the ROC curve dot by dot, and AUC as 'how often a leaver outranks a stayer', then the same ideas on the Telco data.",
+      "icon": "code",
+      "badge": "Start Here",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
       "title": "Explainer — Naive Bayes, Plain and Simple",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-04/ISOM835_Explainer_Naive_Bayes.ipynb",
       "description": "Naive Bayes as a counting game: work out a churn prediction by hand from a 14-customer table, check it against scikit-learn, then scale up to the Telco data and see when Naive Bayes is (and isn't) the right tool.",
