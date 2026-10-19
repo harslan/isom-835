@@ -126,7 +126,7 @@
     {
       "title": "Explainer — Logistic Regression, Plain and Simple",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-04/ISOM835_Explainer_Logistic_Regression.ipynb",
-      "description": "Start here if odds ratios lost you. No formulas: why a straight line fails for yes/no, the S-curve, using the model as a churn-probability calculator, and what the 0.5 cutoff does, all on the Telco data.",
+      "description": "The simplest possible start, in five short steps on the Telco data: why a straight line fails for yes/no, the S-curve, asking the model for any customer's chance of leaving, adding contract type, and what the 0.5 cutoff does. No formulas.",
       "icon": "code",
       "badge": "Start Here",
       "badgeType": "interactive",
