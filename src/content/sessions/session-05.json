@@ -153,7 +153,7 @@
     {
       "title": "Competition Starter Notebook — a leak-free submission in ten minutes",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-05/ISOM835_Competition_Starter.ipynb",
-      "description": "Loads the Kaggle files, builds the Session 3 pipeline, cross-validates (≈ 0.89 AUC), and writes submission.csv. It reproduces the logistic baseline on the leaderboard exactly; everything after that is yours.",
+      "description": "Opens in Colab and pulls the data straight from our Kaggle competition: join with the Canvas invitation link, paste your Kaggle API token once (kaggle.com → Settings → API → Create New Token), and run the cells. It builds the Session 3 pipeline, cross-validates (≈ 0.89 AUC), writes submission.csv, and reproduces the logistic baseline exactly. Section 4 lists your first easy wins.",
       "icon": "code",
       "badge": "Hands-On",
       "badgeType": "interactive",
@@ -243,7 +243,7 @@
     {
       "title": "Kaggle — The ISOM 835 Midterm Model Competition",
       "url": "https://www.kaggle.com/competitions/isom-835-fall-2026-hotel-cancellations",
-      "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, download train.csv and test.csv from the Data tab, and read the rules — the leak columns are gone, but agent, company, and country deserve thought. Five submissions per day; leaderboard closes Mon Nov 9, 4:30 PM.",
+      "description": "The invitation link is posted on Canvas. Join with your suffolk.edu Kaggle account, form a team of 2–3, open the starter notebook (it downloads train.csv and test.csv for you), and read the rules — the leak columns are gone, but agent, company, and country deserve thought. Five submissions per day; leaderboard closes Mon Nov 9, 4:30 PM.",
       "icon": "trophy",
       "badge": "Competition",
       "badgeType": "tool",
