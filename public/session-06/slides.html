@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISOM 835 · Session 6 · Regression: Predicting Numbers</title>
+<meta name="description" content="Session 6 slides for ISOM 835: predicting house prices with linear regression, the complexity tax of ridge and lasso, the log trick, and reading residual plots.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #07090f; --bg2: #0c0f17; --card: #0f131c; --text: #eef2f7; --text2: #a3adbd; --muted: #5f6a7d;
+          --teal: #2ee6c5; --peri: #7c8cff; --coral: #ff6b8b; --lime: #7ee787; --amber: #f5a524; --border: rgba(200,220,255,0.09); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6vh 8vw; gap: 3vh; }
+  .slide.active { display: flex; animation: fadeIn 0.45s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 4px; text-transform: uppercase; color: var(--teal); }
+  h1 { font-size: clamp(2.2rem, 6vw, 4.6rem); font-weight: 800; line-height: 1.08; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 3.4rem); font-weight: 800; line-height: 1.12; }
+  .grad { background: linear-gradient(90deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: clamp(1rem, 2vw, 1.5rem); color: var(--text2); max-width: 900px; line-height: 1.55; }
+  .big { font-size: clamp(3.2rem, 11vw, 8.5rem); font-weight: 800; line-height: 1; }
+  .cards { display: flex; gap: 1.4vw; flex-wrap: wrap; justify-content: center; max-width: 1240px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.4vh 1.6vw; min-width: 220px; max-width: 330px; flex: 1; text-align: left; }
+  .card .label { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  .card .title { font-weight: 700; font-size: clamp(0.95rem, 1.5vw, 1.2rem); margin-bottom: 8px; }
+  .card p { color: var(--text2); font-size: clamp(0.8rem, 1.2vw, 0.95rem); line-height: 1.5; }
+  .num { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; background: linear-gradient(135deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  pre { background: #0a0d15; border: 1px solid var(--border); border-radius: 14px; padding: 2.6vh 2vw; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1.3vw, 1.02rem); line-height: 1.6; color: #d8dee9; max-width: 940px; overflow: auto; }
+  pre .c { color: #6a737d; } pre .k { color: #ff7b72; } pre .s { color: #a5d6ff; } pre .f { color: #d2a8ff; }
+  .hud { position: fixed; bottom: 18px; right: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); z-index: 10; }
+  .brand { position: fixed; bottom: 18px; left: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; z-index: 10; }
+  .bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--peri)); transition: width 0.3s ease; z-index: 10; }
+  ul.list { text-align: left; max-width: 900px; color: var(--text2); font-size: clamp(0.95rem, 1.8vw, 1.3rem); line-height: 1.7; list-style: none; }
+  ul.list li { padding-left: 1.6em; position: relative; margin-bottom: 1.2vh; }
+  ul.list li::before { content: "▸"; position: absolute; left: 0; color: var(--teal); }
+  .pill { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.9rem); letter-spacing: 2px; padding: 8px 20px; border: 1px solid var(--teal); border-radius: 999px; color: var(--teal); }
+  .t { color: var(--teal); } .p { color: var(--peri); } .co { color: var(--coral); } .li { color: var(--lime); } .am { color: var(--amber); }
+  .row { display: flex; gap: 3vw; align-items: center; justify-content: center; flex-wrap: wrap; }
+  table.cm { border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
+  table.cm td, table.cm th { padding: 1.6vh 2.4vw; border: 1px solid var(--border); }
+  table.cm th { color: var(--muted); font-weight: 400; font-size: 0.8em; }
+  table.cm .g { background: rgba(126,231,135,0.12); color: var(--lime); } table.cm .b { background: rgba(255,107,139,0.14); color: var(--coral); } table.cm .a { background: rgba(245,165,36,0.12); color: var(--amber); }
+  .bars { display: flex; gap: 2.5vw; align-items: flex-end; height: 34vh; }
+  .bars div { width: clamp(70px, 9vw, 130px); background: linear-gradient(180deg, var(--teal), var(--peri)); border-radius: 10px 10px 4px 4px; position: relative; }
+  .bars div span { position: absolute; top: -2.6em; left: 0; right: 0; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .bars div small { position: absolute; bottom: -2.4em; left: 0; right: 0; color: var(--text2); font-size: 0.8rem; }
+  .notes { display: none; position: fixed; left: 24px; right: 24px; bottom: 48px; background: rgba(15,19,28,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--text2); text-align: left; z-index: 20; }
+  body.shownotes .notes { display: block; }
+  .timeline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.6vw; max-width: 1300px; width: 100%; }
+  .timeline div { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4vh 0.6vw; font-size: clamp(0.62rem, 1vw, 0.85rem); color: var(--text2); }
+  .timeline div b { display: block; color: var(--text); font-size: 1.05em; margin-bottom: 4px; }
+  .timeline div i { display: block; font-style: normal; font-family: 'IBM Plex Mono', monospace; font-size: 0.8em; color: var(--teal); margin-bottom: 4px; }
+
+  img.chart { display: block; max-width: min(92vw, 1100px); max-height: 50vh; width: auto; height: auto; border-radius: 14px; }
+  table.cm td { text-align: center; }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="brand">ISOM 835 · SESSION 6</div>
+<div class="hud" id="hud"></div>
+
+<section class="slide active" data-notes="Welcome back. One sentence for the night: five weeks of yes/no, tonight 'how much'. Everything we learned about pipelines, test sets and baselines carries over unchanged.">
+  <div class="kicker">ISOM 835 · Session 6 · Mon Oct 26</div>
+  <h1>What is this house <span class="grad">worth?</span></h1>
+  <p class="sub">Regression: predicting numbers</p>
+  <div class="pill">Prof. Hasan Arslan · 5:00–7:30 PM</div>
+</section>
+
+<section class="slide" data-notes="Ask: what number does YOUR job wish it could predict? Take two or three answers. Same lifecycle as classification; only the target and the grading change.">
+  <div class="kicker">From yes/no to how much</div>
+  <h2>Same recipe. A different kind of answer.</h2>
+  <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">Sessions 1–5 · classification</div><div class="title">Will this customer leave?</div><p>Answer: a probability, then <b>yes or no</b>.</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--teal)"><div class="label">Tonight · regression</div><div class="title">What is this house worth?</div><p>Answer: <b>a number</b>, in dollars.</p></div>
+  </div>
+  <div class="cards">
+    <div class="card"><div class="label">Retail</div><div class="title">Units sold next week</div></div>
+    <div class="card"><div class="label">Logistics</div><div class="title">Minutes until delivery</div></div>
+    <div class="card"><div class="label">Marketing</div><div class="title">Customer lifetime value</div></div>
+    <div class="card"><div class="label">Real estate</div><div class="title">Sale price</div></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Verified (CNN, Nov 2 2021): exit brought write-downs of more than $540 million; 25% of staff, about 2,000 jobs; CEO Rich Barton: 'the unpredictability in forecasting home prices far exceeds what we anticipated.' The Q3 write-down was for homes bought above what Zillow expected to resell them for. Tonight's model is a simple cousin of theirs.">
+  <div class="kicker">Why this matters · Zillow, November 2021</div>
+  <h2>A pricing model that overpaid</h2>
+  <div class="row">
+    <div class="card" style="min-width:260px; max-width:330px"><div class="num">$540M+</div><p>in write-downs when Zillow shut down its home-buying business.</p></div>
+    <div class="card" style="min-width:260px; max-width:330px"><div class="num">25%</div><p>of staff cut, about 2,000 jobs.</p></div>
+  </div>
+  <p class="sub">"The unpredictability in forecasting home prices far exceeds what we anticipated." <br><span style="color:var(--muted)">— Rich Barton, Zillow CEO</span></p>
+</section>
+
+<section class="slide" data-notes="Same four lines as Session 1, plus the baseline. Have them say the decision out loud: our offer price. Too high loses money; too low loses the deal.">
+  <div class="kicker">Frame it</div>
+  <h2>You price homes for a company that buys them</h2>
+  <div class="cards">
+    <div class="card"><div class="label">Unit</div><div class="title">One house</div></div>
+    <div class="card"><div class="label">Target</div><div class="title">Its sale price</div></div>
+    <div class="card"><div class="label">Decision</div><div class="title">Our offer</div><p>Too high: we lose money reselling. Too low: the seller walks.</p></div>
+    <div class="card"><div class="label">Baseline</div><div class="title">Guess the average</div><p>Every model must beat it.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="1,460 sales in Ames, Iowa, 2006–2010; 79 features; median $163,000, mean $180,921. 80/20 split: 1,168 train, 292 test. Data is hosted in our repo; the notebook loads it with one line.">
+  <div class="kicker">Meet the data · Ames, Iowa</div>
+  <h2><span class="t">1,460</span> houses · <span class="p">79</span> facts each · median <span class="am">$163K</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">GrLivArea</div><p>living area, sq ft</p></div>
+    <div class="card"><div class="label">OverallQual</div><p>quality, 1 to 10</p></div>
+    <div class="card"><div class="label">YearBuilt</div><p>year built</p></div>
+    <div class="card"><div class="label">GarageCars</div><p>garage size, in cars</p></div>
+    <div class="card"><div class="label">Neighborhood</div><p>one of 25</p></div>
+  </div>
+  <p class="sub">Train on <b class="t">1,168</b> houses. Test on <b class="co">292</b> the model has never seen.</p>
+</section>
+
+<section class="slide" data-notes="Do the arithmetic on the board. MAE: (10+10+100)/3 = 40. RMSE: squares are 100, 100, 10,000 (in $K²); average 3,400; root 58.3. Same misses, two numbers. RMSE screams about the one disaster.">
+  <div class="kicker">How do we grade a number?</div>
+  <h2>Residual = actual − predicted</h2>
+  <p class="sub">Three houses. We missed by <b>$10K</b>, <b>$10K</b> and <b class="co">$100K</b>.</p>
+  <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">MAE · mean absolute error</div><div class="num">$40K</div><p>Average the misses. <b>"On average we're off by $40K."</b></p></div>
+    <div class="card" style="min-width:300px; border-color: var(--coral)"><div class="label">RMSE · root mean squared error</div><div class="num">$58K</div><p>Square, average, square root. <b>Big misses count extra.</b></p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Baseline numbers from the notebook: guess $181,335 for every house; test MAE $55,268, RMSE $73,731, R² 0.00. R² literally measures improvement over this guess.">
+  <div class="kicker">The baseline</div>
+  <div class="row">
+    <div><div class="big" style="color: var(--muted)">$55K</div><p class="sub">average miss if we guess<br>$181K for every house</p></div>
+    <div><div class="big am">0.00</div><p class="sub">R²: "no better than<br>guessing the average"</p></div>
+  </div>
+  <h2>The bar every model must beat</h2>
+</section>
+
+<section class="slide" data-notes="3 minutes, on phones. Station 1 only: move the two sliders, try to get within 2% of least squares. Ask who got closest, and ask what the 'best-MAE line' twist means. Then reveal the least-squares line on the next slide. Stations 2–4 come back later tonight (memorizer, lasso dial, price a house).">
+  <div class="kicker">Game time · 3 minutes · on your phone</div>
+  <h2>Before the computer does it,<br><span class="grad">draw the line yourself</span></h2>
+  <div class="pill" style="font-size:clamp(0.9rem,1.8vw,1.3rem); padding:14px 28px"><a href="/explore/regression/#s1" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/regression</a></div>
+  <ul class="list">
+    <li>Station 1 · <b class="t">Beat the line</b>: two sliders, 1,168 real houses. Get within <b>2%</b> of the best possible RMSE.</li>
+    <li>Watch the <b class="co">red lines</b>: those are your misses. Turn on the squares: that's what least squares adds up.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Notebook Step 2. Least squares: the line that makes the sum of SQUARED red lines smallest. Read the slope as a business number: $107 per square foot. 2,000 sq ft → $232,799. Test R² 0.54, MAE $35,622. Point at the two giant cheap houses bottom right.">
+  <div class="kicker">One feature, one line</div>
+  <h2>price ≈ $19K + <span class="t">$107</span> × square feet</h2>
+  <img class="chart" src="img/line.png" alt="Scatter of Ames sale price against living area with the fitted line rising about $107 per square foot; red vertical lines show the misses for twelve test houses">
+  <p class="sub">Size alone: R² <b class="t">0.54</b> · average miss <b class="t">$36K</b> (from $55K)</p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 3. Size and quality move together (correlation 0.59). With only size, the slope paid for size AND the quality that comes with it. With both, $55 is the price of a square foot at equal quality. MAE drops to $27,449, R² 0.74. Then the warning: describe, don't claim causes.">
+  <div class="kicker">Holding everything else fixed</div>
+  <h2>Add quality, and a square foot gets <span class="co">cheaper</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:280px"><div class="label">Size only</div><div class="num">$107 / sq ft</div><p>Pays for the space <b>and</b> the better build that big houses tend to have.</p></div>
+    <div class="card" style="min-width:280px; border-color: var(--teal)"><div class="label">Size + quality</div><div class="num">$55 / sq ft</div><p>One more square foot, for two houses of the <b>same quality</b>.</p></div>
+  </div>
+  <p class="sub">⚠️ A coefficient is <b class="co">not a cause</b>. It's a pattern in past sales, not a promise that an addition pays $55 a foot.</p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 4. The Session 3 ColumnTransformer, now wrapped in prep() so each model gets a fresh copy. 36 number + 43 text columns become 255 columns. Linear regression on all of it: MAE $18,452, RMSE $30,725, R² 0.83.">
+  <div class="kicker">All 79 features · the Session 3 pipeline</div>
+  <h2>A prep station, then the model</h2>
+  <svg viewBox="0 0 1000 170" width="88%" style="max-width:1100px" role="img" aria-label="Pipeline: number columns are filled and scaled, text columns are filled and one-hot encoded, then all 255 columns go into linear regression">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7c8cff"/></marker></defs>
+    <g font-family="Manrope, sans-serif" font-size="18" font-weight="700" fill="#eef2f7" text-anchor="middle">
+      <rect x="10" y="10" width="250" height="60" rx="14" fill="#0f131c" stroke="#7c8cff"/><text x="135" y="36">36 number columns</text><text x="135" y="58" font-size="14" fill="#a3adbd" font-weight="400">fill blanks · same scale</text>
+      <rect x="10" y="100" width="250" height="60" rx="14" fill="#0f131c" stroke="#7c8cff"/><text x="135" y="126">43 text columns</text><text x="135" y="148" font-size="14" fill="#a3adbd" font-weight="400">fill "missing" · one-hot</text>
+      <rect x="380" y="55" width="220" height="60" rx="14" fill="#0f131c" stroke="#f5a524"/><text x="490" y="81">255 columns</text><text x="490" y="103" font-size="14" fill="#a3adbd" font-weight="400">all numbers now</text>
+      <rect x="720" y="55" width="270" height="60" rx="14" fill="#0f131c" stroke="#2ee6c5" stroke-width="2"/><text x="855" y="91">Linear regression</text>
+      <g stroke="#7c8cff" stroke-width="2" fill="none" marker-end="url(#ar)"><path d="M260,40 L375,78"/><path d="M260,130 L375,95"/><path d="M600,85 L715,85"/></g>
+    </g>
+  </svg>
+  <p class="sub">Average miss: <b class="t">$18K</b>. But that's <b class="am">255 knobs</b> for 1,168 houses…</p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 5. 100 training houses, about 150 columns after prep (154 or 155 depending on the scikit-learn version): more knobs than houses, so linear regression fits every training house exactly (training RMSE $0, R² 1.00). On the 292 test houses RMSE is about $300K and R² is −15.5 (negative = worse than guessing) — four times worse than guessing the average ($74K). Explorer Station 2 lets them slide the tax and see the U. Ridge on the same 100 houses: about $30K — about as good as plain linear regression on all 1,168 houses ($30.7K). A good tax is worth a lot of data.">
+  <div class="kicker">Overfitting</div>
+  <h2>The student who memorized the answer key</h2>
+  <p class="sub">Only <b>100 houses</b>, about <b>150 knobs</b>. Practice test: <b class="li">$0 error</b>, perfect. The real exam:</p>
+  <img class="chart" src="img/memorize.png" alt="Bar chart of test RMSE when trained on 100 houses: guess the average $74K, plain linear regression $300K, ridge $30K">
+</section>
+
+<section class="slide" data-notes="The idea of regularization in one sentence: big coefficients are taxed, so a coefficient only grows if it earns its keep across many houses. alpha is the tax rate. RidgeCV/LassoCV try many alphas with cross-validation on the TRAINING data only. On 100 houses, CV chose alpha ≈ 14.6.">
+  <div class="kicker">The cure: regularization</div>
+  <h2>A <span class="grad">complexity tax</span> on every coefficient</h2>
+  <ul class="list">
+    <li>Big coefficients pay a tax. A coefficient only grows if it <b class="t">earns its keep across many houses</b>.</li>
+    <li>The tax rate is called <b class="am">alpha</b>. Tiny alpha = plain linear regression. Huge alpha = everything squashed to zero.</li>
+    <li><b class="p">RidgeCV</b> and <b class="p">LassoCV</b> try many alphas and pick one by cross-validation, on the training data only.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Mixing-board analogy. Ridge turns every volume knob down a little. Lasso turns the useless knobs all the way off — feature selection for free. On all the houses, LassoCV kept 116 of 255 columns. Elastic net mixes the two; optional in HW3.">
+  <div class="kicker">Two kinds of tax</div>
+  <h2>Ridge <span class="t">shrinks</span>. Lasso <span class="co">selects</span>.</h2>
+  <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">Ridge</div><div class="title">Turns every knob down a little</div><p>All features stay in, none can shout.</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--coral)"><div class="label">Lasso</div><div class="title">Turns useless knobs off</div><p>Coefficients hit <b>exactly zero</b>: feature selection for free.</p></div>
+  </div>
+  <p class="sub">Elastic net does a bit of both.</p>
+</section>
+
+<section class="slide" data-notes="A $20K miss is 20% on a $100K house and 4% on a $500K house. Training on log(price) makes errors percentage errors and tames the long tail. Recipe: fit on np.log(y), predict, np.exp back to dollars BEFORE grading. log1p/expm1 in HW3 do the same job for prices.">
+  <div class="kicker">The log trick</div>
+  <h2>Think in <span class="t">percentages</span>, not dollars</h2>
+  <img class="chart" src="img/skew.png" alt="Two histograms: sale price has a long right tail; log of price is a symmetric hill">
+  <p class="sub">A $20K miss is <b class="co">20%</b> on a $100K house, only <b class="t">4%</b> on a $500K one.<br>Train on <b>np.log(price)</b> · turn back with <b>np.exp(…)</b> before grading.</p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 7. From the dial cell: alpha 0.001 keeps 86 columns ($21.7K RMSE); 0.005 keeps 34 ($24.5K); 0.01 keeps 21 ($25.2K); 0.05 keeps 10 ($32.4K). LassoCV picked ~0.0007 and 116 columns ($21.3K). The business call: one-page model vs a few thousand dollars of accuracy. Explorer Station 3 is this dial with every surviving feature on screen; 'last one standing' is quality.">
+  <div class="kicker">Lasso's alpha is a dial</div>
+  <h2>How simple can the model get?</h2>
+  <table class="cm">
+    <tr><th>alpha (the tax)</th><th>columns kept</th><th>test RMSE</th></tr>
+    <tr><td>chosen by CV</td><td>116</td><td class="g">$21.3K</td></tr>
+    <tr><td>0.005</td><td>34</td><td>$24.5K</td></tr>
+    <tr><td>0.01</td><td class="a">21</td><td class="a">$25.2K</td></tr>
+    <tr><td>0.05</td><td>10</td><td class="b">$32.4K</td></tr>
+  </table>
+  <p class="sub">21 features, about $4K less accurate. A model you can <b class="t">explain on one page</b>.<br><span style="color:var(--muted)">(We peek at the test set only to show the trade-off. In real work, cross-validation picks alpha.)</span></p>
+</section>
+
+<section class="slide" data-notes="The strict lasso (alpha 0.01). Coefficients on log price, numbers standardized, so each effect is per one standard deviation, holding everything else fixed: quality +1.4 points → +13.5%; +532 sq ft → +10.0%; +30 years newer → +7.4%; +0.8 garage cars → +5.7%; condition +1.1 → +3.9%; +0.6 fireplaces → +3.0%. Still descriptive, not causal.">
+  <div class="kicker">Read the model</div>
+  <h2>A realtor's checklist</h2>
+  <div class="cards">
+    <div class="card"><div class="label">Quality +1.4 points</div><div class="num">+13.5%</div></div>
+    <div class="card"><div class="label">+530 sq ft</div><div class="num">+10%</div></div>
+    <div class="card"><div class="label">30 years newer</div><div class="num">+7.4%</div></div>
+    <div class="card"><div class="label">+0.8 garage spaces</div><div class="num">+5.7%</div></div>
+  </div>
+  <p class="sub">Two houses alike in every other way. <b class="t">The most explainable strong model you will ever ship.</b></p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 8. Left: linear regression on dollars priced one house at $569K; it sold for $275K — an almost $300K overpayment, the Zillow nightmare in one dot. Ask: why? Reveal on the next slide. Right: lasso on log price, tighter, no disaster. How to read: random cloud = healthy; fan = use log; curve = a pattern a line can't bend to; far dots = look at those houses.">
+  <div class="kicker">Residual plots</div>
+  <h2>Every miss, on one picture</h2>
+  <img class="chart" src="img/residuals.png" alt="Residuals against predicted price: linear regression on dollars has one house priced at $569K that sold for $275K; lasso on log price has a tighter cloud and no disaster">
+  <p class="sub"><b class="li">Random cloud</b> = healthy · <b class="am">fan</b> = try log · <b class="p">curve</b> = missing pattern · <b class="co">far dot</b> = look at that house</p>
+</section>
+
+<section class="slide" data-notes="Verified in the notebook (Step 8 what-if cell): house 1423 has a 738 sq ft pool; only 5 of 1,168 training houses have a pool, all smaller (480–648 sq ft). Linear regression: $568,688 with the pool, $186,918 without. Lasso: $152,249 with, $190,925 without. Actual: $274,970. Linear regression's pool-area coefficient is about +$84K per 36 sq ft; lasso's is slightly negative. Five examples → the coefficient is a guess → multiplied by an out-of-range pool. Overfitting again, in a single column.">
+  <div class="kicker">Why did it miss by $300K?</div>
+  <h2>The house had a <span class="co">738 sq ft pool</span></h2>
+  <p class="sub">Only <b>5 of 1,168</b> training houses have a pool, all smaller than this one.</p>
+  <table class="cm">
+    <tr><th></th><th>with the pool</th><th>if it had no pool</th></tr>
+    <tr><th>linear regression</th><td class="b">$569K</td><td class="g">$187K</td></tr>
+    <tr><th>lasso</th><td class="a">$152K</td><td class="g">$191K</td></tr>
+  </table>
+  <p class="sub">Actual price: <b>$275K</b>. A feature almost no house has gets a <b class="co">wild coefficient</b>: overfitting, hiding in one column.</p>
+</section>
+
+<section class="slide" data-notes="The rest of the five biggest lasso misses: three are 'Partial' sales — new high-quality homes sold before they were finished; only ~100 in the training data. That is a segment. HW3 asks for their own. Close with the Zillow line.">
+  <div class="kicker">The biggest misses</div>
+  <h2>When one house fools every model,<br><span class="grad">look at the house</span></h2>
+  <ul class="list">
+    <li>A pool bigger than any the model had seen: <b class="am">a price far outside its experience</b>.</li>
+    <li>3 of lasso's 5 worst misses are <b class="p">new homes sold before they were finished</b>. Only ~100 in our data: a <b>segment</b> the model doesn't know.</li>
+    <li>The expensive end is where the model is least sure, and where a mistake <b class="co">costs the most</b>.</li>
+  </ul>
+  <p class="sub">A price without an error bar is a bet.</p>
+</section>
+
+<section class="slide" data-notes="The leaderboard from the notebook (test MAE): average $55,268 → size $35,622 → size+quality $27,449 → all features $18,452 → ridge $16,109 → ridge log $14,635 → lasso log $14,174 (8.1% MAPE). Strict lasso (21 features) $17,241.">
+  <div class="kicker">Tonight's leaderboard · average miss (MAE)</div>
+  <h2>From a <span style="color:var(--muted)">$55K</span> miss to a <span class="t">$14K</span> miss</h2>
+  <img class="chart" src="img/leaderboard.png" alt="Bar chart of test MAE: guess the average $55K, one feature $36K, two features $27K, all features $18K, ridge $16K, ridge log $15K, lasso log $14K, strict lasso with 21 features $17K">
+</section>
+
+<section class="slide" data-notes="One-line rule: the audience picks the metric. MAPE is fine for house prices (8.1% for our lasso) but breaks near zero: a $5 miss on a $1 item is 500%.">
+  <div class="kicker">The metric menu</div>
+  <h2>Same model, different audiences</h2>
+  <div class="cards">
+    <div class="card"><div class="label">MAE</div><div class="title">Average miss, in $</div><p>Sales, operations, a home seller: "on average we're off by $14K."</p></div>
+    <div class="card"><div class="label">RMSE</div><div class="title">Big misses count extra</div><p>Risk and finance: one $150K overpayment hurts more than ten $15K ones.</p></div>
+    <div class="card"><div class="label">MAPE</div><div class="title">Average miss, in %</div><p>Executives. ⚠️ Breaks when values can be near zero: $5 off on a $1 item = 500%.</p></div>
+    <div class="card"><div class="label">R²</div><div class="title">Share explained</div><p>Analysts comparing models on the same data.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="About 20 minutes. Q1 (drop Neighborhood) and Q3 (metric memo) for everyone; Q2 for those who finish; Q4 is optional. Walk the room.">
+  <div class="kicker">Your turn · in the notebook</div>
+  <h2>Four questions, Step 10</h2>
+  <ul class="list">
+    <li><b class="t">Location, location, location.</b> Drop <b>Neighborhood</b>. How many dollars does the average miss change? Why so little?</li>
+    <li><b class="p">Turn the dial.</b> Lasso with alpha = 0.02 and 0.005. Which would you show a client?</li>
+    <li><b class="am">Metric memo.</b> Three sentences: a home seller, a mortgage lender, your data-science lead.</li>
+    <li><b class="co">Challenge.</b> Gradient boosting on the same pipeline. Does it beat lasso here?</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Dates match the deadlines table. HW3 Part 2 is tonight's notebook on their own: pipeline, ridge/lasso/elastic net on log price, MAE and RMSE in dollars vs baseline, residual plot, one paragraph on the segment they get most wrong. Kaggle House Prices bonus +5%.">
+  <div class="kicker">Coming up</div>
+  <h2>What's due</h2>
+  <ul class="list">
+    <li><b class="t">Mon Nov 2</b> · Competition team formed + one submission on Kaggle · Project Milestone 1 (your problem and dataset, one paragraph)</li>
+    <li><b class="am">Mon Nov 9, 4:30 PM</b> · Competition leaderboard closes</li>
+    <li><b class="p">Mon Nov 16, 11:59 PM</b> · HW3: Part 1 thresholds (Session 5) + <b>Part 2 Ames regression</b> (tonight)</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Three takeaways, then the close. Next week: trees and random forests — the first model that needs no scaling at all.">
+  <div class="kicker">Three things to remember</div>
+  <h2>Tonight in three lines</h2>
+  <ul class="list">
+    <li>A coefficient is a <b class="t">slope in business units, holding everything else fixed</b>. Not a cause.</li>
+    <li><b class="p">Ridge shrinks, lasso selects.</b> A complexity tax stops memorizing; CV picks the rate.</li>
+    <li><b class="co">Always look at the residuals.</b> They show where the model is wrong, and where it will cost you.</li>
+  </ul>
+  <p class="sub">Before next Monday: price a house in <b class="t">Station 4</b> of the House Price Explorer.<br>Next Monday: decision trees and random forests.</p>
+</section>
+
+<div class="notes" id="notes"></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')]; let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    document.getElementById('hud').textContent = (i + 1) + ' / ' + slides.length + '  ·  ← → navigate · F fullscreen · N notes';
+    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+    document.getElementById('notes').textContent = slides[i].dataset.notes || '';
+    location.hash = i + 1;
+  }
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    else if (e.key.toLowerCase() === 'n') document.body.classList.toggle('shownotes');
+  });
+  addEventListener('click', (e) => { if (e.target.closest('a')) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+  show(parseInt(location.hash.slice(1) || '1', 10) - 1);
+</script>
+</body>
+</html>

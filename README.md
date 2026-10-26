@@ -23,8 +23,8 @@ npm run build    # production build to dist/
 - `src/data/course.ts` / `src/data/syllabus.ts` — course metadata, grading, policies
 - `src/data/questions.ts` — the practice question bank (misconception-tagged MCQs)
 - `public/session-XX/` — slides and Colab notebooks for each session
-- `public/data/` — datasets hosted for no-login loading from Colab (`telco_churn.csv`, `hotel_bookings.csv`)
-- `public/explore/` — interactive explorers (overfitting, threshold & profit, gradient boosting, k-means)
+- `public/data/` — datasets hosted for no-login loading from Colab (`telco_churn.csv`, `hotel_bookings.csv`, `ames_housing.csv`)
+- `public/explore/` — interactive explorers (overfitting, leakage, threshold & profit, house prices / regression, gradient boosting, conformal, k-means)
 - `public/refreshers/` — Prof. Arslan's ISOM 730 notebooks, hosted so they open in Colab from the Start Here page
 - `src/pages/start.astro`, `cheatsheet.astro`, `datasets.astro` — the student guide, the one-page reference, and the dataset loaders
 - `legacy/isom730/` — the professor's earlier ISOM 730 ML notebooks (refresher layer; not deployed)
