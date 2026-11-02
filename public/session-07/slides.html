@@ -223,6 +223,16 @@
   <p class="sub">Started at <b>0.468</b>. The tree is <b class="am">greedy</b>: the best question <i>now</i>, no planning ahead.</p>
 </section>
 
+<section class="slide" data-notes="3–4 minutes, on phones. Station 1: drag the cut on lead time or price, then 'Hold the audition'. The computer's best first question on this sample is lead time ≤ 25 days (Gini 0.469 → 0.431). Ask who matched it. If time: Station 2, slide max_depth to no limit (278 leaves, practice 1.00, exam 0.58), then raise min_samples_leaf.">
+  <div class="kicker">Game time · 4 minutes · on your phone</div>
+  <h2>Be the tree.<br><span class="grad">Race the computer</span> to the best question.</h2>
+  <div class="pill" style="font-size:clamp(0.9rem,1.8vw,1.3rem); padding:14px 28px"><a href="/explore/forest/#s1" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/forest</a></div>
+  <ul class="list">
+    <li>Station 1 · <b class="t">Be the tree</b>: drag one cut. Make both boxes as pure as you can, then hold the audition.</li>
+    <li>Station 2 · <b class="co">Too many questions</b>: slide max_depth to "no limit". Watch practice and exam split apart.</li>
+  </ul>
+</section>
+
 <section class="slide" data-notes="Give 20 seconds. Answer: B. A = 2×0.9×0.1 = 0.18; B = 2×0.5×0.5 = 0.50. The tree is hunting for boxes like A.">
   <div class="kicker">🧠 Quick check · 20 seconds</div>
   <h2>Which box is more mixed?</h2>
@@ -317,6 +327,16 @@
     <li><b class="p">Impurity</b>: "how much did this clue help on the training data?" ID-like columns offer <b>thousands of cut points</b>, and some look good by luck.</li>
     <li><b class="t">Permutation</b>: "scramble this column on new bookings. <b>How much worse does the model get?</b>"</li>
     <li>Your manager asks <i>"what drives cancellations?"</i> Give the permutation answer.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="3 minutes. Station 3: press '▶ grow' and watch 100 memorizing trees average into a smoother map (one tree 0.573 on average, the crowd about 0.65 on this two-clue sample). Station 4: shuffle the booking ID — it ranks #4 of 7 by impurity and last by permutation.">
+  <div class="kicker">Game time · 3 minutes · on your phone</div>
+  <h2>Plant a forest. <span class="grad">Catch the fake clue.</span></h2>
+  <div class="pill" style="font-size:clamp(0.9rem,1.8vw,1.3rem); padding:14px 28px"><a href="/explore/forest/#s3" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/forest</a></div>
+  <ul class="list">
+    <li>Station 3 · <b class="t">Plant a forest</b>: press ▶ grow. 100 memorizers, one wise crowd.</li>
+    <li>Station 4 · <b class="am">Shuffle a clue</b>: the fake booking ID ranks <b>#4 of 7</b> by impurity. Where does it land when you shuffle it?</li>
   </ul>
 </section>
 

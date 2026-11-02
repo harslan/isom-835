@@ -51,7 +51,8 @@
       "description": "'Non-refundable deposit?' 'Booked more than two weeks ahead?' 'Canceled before?' A tree is a flowchart learned from data: at each node it auditions every clue and cut point and keeps the question that most reduces impurity. Gini = the chance that two random guests from the box disagree on cancellation.",
       "bulletPoints": [
         "Greedy: the best split now, not the best tree overall",
-        "The manager's tree: six readable clues, three questions deep, the whole cancellation story on one screen (99% of non-refundable bookings cancel; 9% of bookings made a week or less ahead)"
+        "The manager's tree: six readable clues, three questions deep, the whole cancellation story on one screen (99% of non-refundable bookings cancel; 9% of bookings made a week or less ahead)",
+        "Play first: Station 1 of the Forest Explorer. Drag the cut and race the computer to the lowest Gini"
       ],
       "isBreak": false
     },
@@ -119,6 +120,15 @@
       "badge": "Slides",
       "badgeType": "interactive",
       "linkText": "Open slides"
+    },
+    {
+      "title": "The Forest Explorer — Four Games on Tonight's Ideas",
+      "url": "/explore/forest/",
+      "description": "Be the tree and race the computer to the purest first question; slide max_depth until a tree memorizes; plant memorizing trees one by one and watch the crowd get wise; shuffle each clue and catch the fake booking ID. Real hotel bookings, grown live in your browser. Works on your phone.",
+      "icon": "trees",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the explorer"
     },
     {
       "title": "Session 7 Notebook — Trees & Random Forests on Hotel Bookings",
