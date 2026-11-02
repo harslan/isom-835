@@ -31,12 +31,12 @@
   "agenda": [
     {
       "time": "5:00 PM - 5:20 PM",
-      "title": "HW3 Debrief & Meet the Data: Hotel Bookings",
+      "title": "Competition Check-In & Meet the Data: Hotel Bookings",
       "duration": "20 minutes",
-      "description": "Threshold choices from HW3 Part 1 — the range was 0.18 to 0.42, and the best memo explained why — and the residual plot that caught the most expensive houses in Part 2. Then the competition dataset: 83,573 hotel reservations from a city and a resort hotel in Portugal, 37% canceled, 32 columns — two of which are leaks.",
+      "description": "Where every team stands on the leaderboard, then tonight's data: the competition's 83,573 training bookings from a city hotel and a resort hotel in Portugal, 37% canceled, 32 columns. Three of them are leaks. A one-line crosstab shows reservation_status is the target in disguise: every Check-Out stayed, every Canceled or No-Show canceled, no exceptions.",
       "bulletPoints": [
         "reservation_status and reservation_status_date are the outcome in disguise: drop them or your leaderboard score is fiction",
-        "assigned_room_type vs. reserved_room_type: a mismatch is known only at check-in — think about whether that's leakage too"
+        "assigned_room_type is set at check-in. The test for every column: would I know this at the moment I predict?"
       ],
       "isBreak": false
     },
@@ -44,10 +44,10 @@
       "time": "5:20 PM - 5:40 PM",
       "title": "How a Tree Asks Questions",
       "duration": "20 minutes",
-      "description": "'Is lead_time > 90 days?' 'Is deposit_type non-refundable?' A tree is a flowchart learned from data: at each node it picks the question that most reduces impurity. Gini = probability that two random guests from this node disagree on cancellation.",
+      "description": "'Non-refundable deposit?' 'Booked more than two weeks ahead?' 'Canceled before?' A tree is a flowchart learned from data: at each node it auditions every clue and cut point and keeps the question that most reduces impurity. Gini = the chance that two random guests from the box disagree on cancellation.",
       "bulletPoints": [
         "Greedy: the best split now, not the best tree overall",
-        "plot_tree on a depth-3 model: the whole cancellation story on one screen"
+        "The manager's tree: six readable clues, three questions deep, the whole cancellation story on one screen (99% of non-refundable bookings cancel; 9% of bookings made a week or less ahead)"
       ],
       "isBreak": false
     },
@@ -55,10 +55,10 @@
       "time": "5:40 PM - 6:05 PM",
       "title": "Watching a Tree Overfit",
       "duration": "25 minutes",
-      "description": "Depth 1 → 3 → 6 → unlimited. Training accuracy climbs to 99%; test accuracy peaks around depth 8–10 and then falls. The tree has memorized the training bookings. A validation curve over max_depth makes the sweet spot visible.",
+      "description": "Depth 2 → 4 → 10 → unlimited on 28 columns. Training AUC climbs to a perfect 1.00 (99.7% accuracy) with 2,938 leaves for 24,000 bookings; test AUC peaks at 0.91 around depth 10 and falls to 0.81. The tree has memorized the training bookings. A validation curve over max_depth makes the sweet spot visible.",
       "bulletPoints": [
-        "Trees need no scaling and handle mixed types — but a single tree is high-variance: change 5% of the data and the tree changes shape",
-        "min_samples_leaf=50 is often a better knob than max_depth for business data"
+        "Trees need no scaling and no one-hot — but a single tree is high-variance: two trees grown on two random halves of the same data disagree on 21% of test bookings",
+        "min_samples_leaf=50 beats every max_depth here (0.916 with 274 leaves): a manager would never write a policy based on one guest"
       ],
       "isBreak": false
     },
@@ -74,10 +74,10 @@
       "time": "6:15 PM - 6:45 PM",
       "title": "From One Tree to a Forest",
       "duration": "30 minutes",
-      "description": "Bagging: fit 500 trees, each on a bootstrap sample, average their votes — variance drops. Random forest adds the twist: at every split, only a random subset of features is eligible, so the trees disagree more and the average improves more. Out-of-bag score: a free validation set built from the rows each tree never saw.",
+      "description": "Galton's ox (1906): 787 guesses, the middle one within 1% of the truth. Bagging: grow many trees, each on a bootstrap sample, and average their votes — variance drops. Random forest adds the twist: at every split, only a random handful of features is eligible, so the trees make different mistakes. Out-of-bag score: a free validation set built from the rows each tree never saw.",
       "bulletPoints": [
-        "Forests are hard to overfit by adding trees; n_estimators=500 is rarely worse than 100, just slower",
-        "Hotel bookings: a depth-limited single tree reaches ~0.90 AUC; the forest reaches ~0.95 with no tuning"
+        "Adding trees never hurts: 5 trees already beat the best single tree, and the curve is flat after about 100",
+        "Hotel bookings (30k slice): best single tree 0.916 AUC, random forest 0.942 with no tuning, out-of-bag 0.939; two forests on two random halves disagree on only 4% of bookings"
       ],
       "isBreak": false
     },
@@ -85,10 +85,10 @@
       "time": "6:45 PM - 7:15 PM",
       "title": "Which Features Matter — and How",
       "duration": "30 minutes",
-      "description": "feature_importances_ (impurity) vs. permutation_importance on the test set — and the zero-signal trap: a pure-noise column and a unique booking-ID column both land in the top third by impurity — ahead of real signals like previous cancellations — and dead last by permutation. Then PartialDependenceDisplay: how cancellation probability actually moves with lead time.",
+      "description": "feature_importances_ (impurity) vs. permutation_importance on the test set — and the zero-signal trap: a pure-noise column and a made-up booking-ID column land 10th and 11th of 30 by impurity, ahead of real signals like parking spaces and customer type, and in the bottom three by permutation. Then partial dependence: how cancellation probability actually moves with lead time, special requests and past cancellations.",
       "bulletPoints": [
         "Permutation importance answers 'if I scrambled this column, how much would the model get worse?' — the honest question",
-        "Partial dependence for lead_time on hotel data rises steeply to ~100 days and flattens: a curve a revenue manager can price"
+        "Partial dependence for lead_time rises steeply over the first month (22% → 39%) and then creeps to about 48% at 300 days: the danger zone starts early"
       ],
       "isBreak": false
     },
@@ -96,8 +96,9 @@
       "time": "7:15 PM - 7:30 PM",
       "title": "Wrap-Up & Competition Check-In",
       "duration": "15 minutes",
-      "description": "Every team should have a leak-free pipeline and a forest submission by tonight. Next week, gradient boosting — the model that will probably win — and the tabular foundation models that might beat it.",
+      "description": "Every team should have a leak-free pipeline and a forest submission by tonight: one cell swapped in the Competition Starter takes 5-fold AUC from about 0.89 to about 0.95. Next week, gradient boosting — the model that will probably win — and the tabular foundation models that might beat it.",
       "bulletPoints": [
+        "Project Milestone 1 (your problem and dataset, one paragraph) is due tonight, 11:59 PM",
         "Leaderboard closes Mon Nov 9, 4:30 PM — upload the same predictions file on Canvas by then; the memo is due that night at 11:59 PM",
         "Reading: ISLP Chapter 8 (Tree-Based Methods), 8.1–8.2"
       ],
@@ -106,9 +107,18 @@
   ],
   "resources": [
     {
+      "title": "Session 7 Slides — Will This Guest Show Up?",
+      "url": "/session-07/slides.html",
+      "description": "The deck from class: the leak check, the manager's tree, Gini, the memorizer tree, Galton's ox and the forest's two tricks, the fake-column importance trap, lead time's danger zone, and the competition cell. Arrow keys to navigate, F for fullscreen.",
+      "icon": "presentation",
+      "badge": "Slides",
+      "badgeType": "interactive",
+      "linkText": "Open slides"
+    },
+    {
       "title": "Session 7 Notebook — Trees & Random Forests on Hotel Bookings",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-07/ISOM835_Session7_Trees_Random_Forests.ipynb",
-      "description": "plot_tree, the depth validation curve, bagging vs. random forest, out-of-bag score, impurity vs. permutation importance (with the ID-column trap), and partial dependence plots.",
+      "description": "Step by step for first-timers: the leak check, the manager's tree, Gini as an audition, the memorizer tree and its two brakes, why one tree is fragile, the forest as a wisdom-of-the-crowd vote, out-of-bag scoring, impurity vs. permutation importance (with two planted fake columns), partial dependence, and a leaderboard of every model.",
       "icon": "code",
       "badge": "Hands-On",
       "badgeType": "interactive",
@@ -231,9 +241,9 @@
       ],
       "codeBlock": {
         "language": "python",
-        "code": "import pandas as pd, numpy as np\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.inspection import permutation_importance\nfrom sklearn.metrics import roc_auc_score\n\nurl = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/hotel_bookings.csv'\ndf = pd.read_csv(url).sample(30_000, random_state=835)          # subsample for speed in class\nleaks = ['reservation_status', 'reservation_status_date', 'assigned_room_type']\nX = df.drop(columns=['is_canceled'] + leaks)\nX = X.apply(lambda c: c.astype('category').cat.codes if c.dtype == object else c).fillna(-1)\nX['noise'] = np.random.default_rng(835).normal(size=len(X))       # a column with zero signal\ny = df['is_canceled']\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)\n\nrf = RandomForestClassifier(n_estimators=300, min_samples_leaf=5, oob_score=True, n_jobs=-1, random_state=835)\nrf.fit(X_tr, y_tr)\nprint(f'OOB AUC-ish (accuracy): {rf.oob_score_:.3f}   test AUC: {roc_auc_score(y_te, rf.predict_proba(X_te)[:, 1]):.3f}')\n\nimp = pd.DataFrame({'impurity': rf.feature_importances_}, index=X.columns)\nimp['permutation'] = permutation_importance(rf, X_te, y_te, scoring='roc_auc', n_repeats=5, random_state=835, n_jobs=-1).importances_mean\nprint(imp.sort_values('permutation', ascending=False).head(8).round(4))\nprint('noise column rank by impurity:', int((imp['impurity'] > imp.loc['noise', 'impurity']).sum()) + 1)"
+        "code": "import pandas as pd, numpy as np\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.inspection import permutation_importance\nfrom sklearn.metrics import roc_auc_score\n\nurl = 'https://raw.githubusercontent.com/harslan/isom-835/master/public/data/hotel_bookings.csv'\ndf = pd.read_csv(url).sample(30_000, random_state=835)          # subsample for speed in class\nleaks = ['reservation_status', 'reservation_status_date', 'assigned_room_type']\nX = df.drop(columns=['is_canceled'] + leaks)\ntext = X.select_dtypes(exclude='number').columns\nX[text] = X[text].apply(lambda c: c.astype('category').cat.codes)   # trees: code numbers are fine, no one-hot\nX = X.fillna(-1)\nX['noise'] = np.random.default_rng(835).normal(size=len(X))       # a column with zero signal\ny = df['is_canceled']\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=835)\n\nrf = RandomForestClassifier(n_estimators=300, min_samples_leaf=5, oob_score=True, n_jobs=-1, random_state=835)\nrf.fit(X_tr, y_tr)\nprint(f'out-of-bag AUC: {roc_auc_score(y_tr, rf.oob_decision_function_[:, 1]):.3f}   test AUC: {roc_auc_score(y_te, rf.predict_proba(X_te)[:, 1]):.3f}')\n\nimp = pd.DataFrame({'impurity': rf.feature_importances_}, index=X.columns)\nimp['permutation'] = permutation_importance(rf, X_te, y_te, scoring='roc_auc', n_repeats=5, random_state=835, n_jobs=-1).importances_mean\nprint(imp.sort_values('permutation', ascending=False).head(8).round(4))\nprint('noise column rank by impurity:', int((imp['impurity'] > imp.loc['noise', 'impurity']).sum()) + 1, 'of', len(imp))"
       },
-      "discussionNote": "The forest reaches an AUC around 0.94 on a 30k-row slice with no tuning and no scaling — that is why it is the first serious model most practitioners reach for. But look at the importance table: <code>deposit_type</code>, <code>lead_time</code>, and <code>country</code> lead by permutation, while the pure-noise column and a unique booking-ID column both sit in the top third by impurity. <em>Impurity importance rewards columns that offer many split points, not columns that predict.</em> If you report feature importance to a manager, report the permutation version."
+      "discussionNote": "The forest reaches an AUC around 0.94 on a 30k-row slice with no tuning and no scaling — that is why it is the first serious model most practitioners reach for. But look at the importance table: <code>country</code>, <code>deposit_type</code>, <code>market_segment</code>, <code>total_of_special_requests</code> and <code>lead_time</code> lead by permutation, while the pure-noise column sits in the top third by impurity, ahead of real signals like parking spaces. <em>Impurity importance rewards columns that offer many split points, not columns that predict.</em> If you report feature importance to a manager, report the permutation version."
     }
   ],
   "takeaways": [

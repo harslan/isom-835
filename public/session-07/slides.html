@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISOM 835 · Session 7 · Decision Trees &amp; Random Forests</title>
+<meta name="description" content="Session 7 slides for ISOM 835: predicting hotel cancellations with decision trees and random forests, Gini impurity, overfitting and its brakes, the wisdom of the crowd, and honest feature importance.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #07090f; --bg2: #0c0f17; --card: #0f131c; --text: #eef2f7; --text2: #a3adbd; --muted: #5f6a7d;
+          --teal: #2ee6c5; --peri: #7c8cff; --coral: #ff6b8b; --lime: #7ee787; --amber: #f5a524; --border: rgba(200,220,255,0.09); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6vh 8vw; gap: 3vh; }
+  .slide.active { display: flex; animation: fadeIn 0.45s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 4px; text-transform: uppercase; color: var(--teal); }
+  h1 { font-size: clamp(2.2rem, 6vw, 4.6rem); font-weight: 800; line-height: 1.08; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 3.4rem); font-weight: 800; line-height: 1.12; }
+  .grad { background: linear-gradient(90deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: clamp(1rem, 2vw, 1.5rem); color: var(--text2); max-width: 900px; line-height: 1.55; }
+  .big { font-size: clamp(3.2rem, 11vw, 8.5rem); font-weight: 800; line-height: 1; }
+  .cards { display: flex; gap: 1.4vw; flex-wrap: wrap; justify-content: center; max-width: 1240px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.4vh 1.6vw; min-width: 220px; max-width: 330px; flex: 1; text-align: left; }
+  .card .label { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  .card .title { font-weight: 700; font-size: clamp(0.95rem, 1.5vw, 1.2rem); margin-bottom: 8px; }
+  .card p { color: var(--text2); font-size: clamp(0.8rem, 1.2vw, 0.95rem); line-height: 1.5; }
+  .num { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; background: linear-gradient(135deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  pre { background: #0a0d15; border: 1px solid var(--border); border-radius: 14px; padding: 2.6vh 2vw; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1.3vw, 1.02rem); line-height: 1.6; color: #d8dee9; max-width: 940px; overflow: auto; }
+  pre .c { color: #6a737d; } pre .k { color: #ff7b72; } pre .s { color: #a5d6ff; } pre .f { color: #d2a8ff; }
+  .hud { position: fixed; bottom: 18px; right: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); z-index: 10; }
+  .brand { position: fixed; bottom: 18px; left: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; z-index: 10; }
+  .bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--peri)); transition: width 0.3s ease; z-index: 10; }
+  ul.list { text-align: left; max-width: 900px; color: var(--text2); font-size: clamp(0.95rem, 1.8vw, 1.3rem); line-height: 1.7; list-style: none; }
+  ul.list li { padding-left: 1.6em; position: relative; margin-bottom: 1.2vh; }
+  ul.list li::before { content: "▸"; position: absolute; left: 0; color: var(--teal); }
+  .pill { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.9rem); letter-spacing: 2px; padding: 8px 20px; border: 1px solid var(--teal); border-radius: 999px; color: var(--teal); }
+  .t { color: var(--teal); } .p { color: var(--peri); } .co { color: var(--coral); } .li { color: var(--lime); } .am { color: var(--amber); }
+  .row { display: flex; gap: 3vw; align-items: center; justify-content: center; flex-wrap: wrap; }
+  table.cm { border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
+  table.cm td, table.cm th { padding: 1.6vh 2.4vw; border: 1px solid var(--border); }
+  table.cm th { color: var(--muted); font-weight: 400; font-size: 0.8em; }
+  table.cm .g { background: rgba(126,231,135,0.12); color: var(--lime); } table.cm .b { background: rgba(255,107,139,0.14); color: var(--coral); } table.cm .a { background: rgba(245,165,36,0.12); color: var(--amber); }
+  .bars { display: flex; gap: 2.5vw; align-items: flex-end; height: 34vh; }
+  .bars div { width: clamp(70px, 9vw, 130px); background: linear-gradient(180deg, var(--teal), var(--peri)); border-radius: 10px 10px 4px 4px; position: relative; }
+  .bars div span { position: absolute; top: -2.6em; left: 0; right: 0; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .bars div small { position: absolute; bottom: -2.4em; left: 0; right: 0; color: var(--text2); font-size: 0.8rem; }
+  .notes { display: none; position: fixed; left: 24px; right: 24px; bottom: 48px; background: rgba(15,19,28,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--text2); text-align: left; z-index: 20; }
+  body.shownotes .notes { display: block; }
+  .timeline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.6vw; max-width: 1300px; width: 100%; }
+  .timeline div { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4vh 0.6vw; font-size: clamp(0.62rem, 1vw, 0.85rem); color: var(--text2); }
+  .timeline div b { display: block; color: var(--text); font-size: 1.05em; margin-bottom: 4px; }
+  .timeline div i { display: block; font-style: normal; font-family: 'IBM Plex Mono', monospace; font-size: 0.8em; color: var(--teal); margin-bottom: 4px; }
+
+  img.chart { display: block; max-width: min(92vw, 1100px); max-height: 50vh; width: auto; height: auto; border-radius: 14px; }
+  table.cm td { text-align: center; }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="brand">ISOM 835 · SESSION 7</div>
+<div class="hud" id="hud"></div>
+
+<section class="slide active" data-notes="Welcome. One sentence for the night: our model learns to ask questions like an experienced hotel manager, then we hire 300 of those managers and let them vote. It's also our competition data, so everything tonight goes straight into their submissions.">
+  <div class="kicker">ISOM 835 · Session 7 · Mon Nov 2</div>
+  <h1>Will this guest <span class="grad">show up?</span></h1>
+  <p class="sub">Decision trees &amp; random forests</p>
+  <div class="pill">Prof. Hasan Arslan · 5:00–7:30 PM</div>
+</section>
+
+<section class="slide" data-notes="Tonight's map. Break around 6:05. The notebook follows the same steps; Your Turn at the end includes getting a random forest onto the competition leaderboard tonight.">
+  <div class="kicker">Tonight</div>
+  <h2>One tree, then <span class="grad">three hundred</span></h2>
+  <div class="timeline" style="grid-template-columns: repeat(6, 1fr)">
+    <div><i>5:00</i><b>The data &amp; the leaks</b>Which columns are cheating?</div>
+    <div><i>5:20</i><b>How a tree asks</b>20 Questions, Gini</div>
+    <div><i>5:40</i><b>Too many questions</b>Overfitting, two brakes</div>
+    <div><i>6:15</i><b>The forest</b>Wisdom of the crowd</div>
+    <div><i>6:45</i><b>Which clues matter</b>Two answers that disagree</div>
+    <div><i>7:10</i><b>Your turn</b>A forest on Kaggle tonight</div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Set the business scene. Hotels lose money twice: an unsold room if a cancellation comes too late, or a 'walked' guest if they overbook too aggressively (pay for a room elsewhere, lose the customer). The prediction feeds the overbooking and deposit decisions.">
+  <div class="kicker">Why this matters</div>
+  <h2>More than <span class="co">1 in 3</span> bookings get canceled</h2>
+  <div class="row">
+    <div class="card" style="min-width:280px"><div class="label">Overbook too little</div><div class="title">Empty rooms</div><p>A late cancellation leaves a room nobody pays for.</p></div>
+    <div class="card" style="min-width:280px; border-color: var(--coral)"><div class="label">Overbook too much</div><div class="title">A guest with no room</div><p>You pay for a room at another hotel, and lose a customer.</p></div>
+  </div>
+  <p class="sub">Getting it right starts with one number per booking:<br><b class="t">how likely is this booking to be canceled?</b></p>
+</section>
+
+<section class="slide" data-notes="Same four lines as every session. Base rate 37% canceled. Metric is AUC (Session 4): the chance the model ranks a random canceler above a random stayer. It's also the Kaggle metric.">
+  <div class="kicker">Frame it</div>
+  <h2>You are the revenue manager</h2>
+  <div class="cards">
+    <div class="card"><div class="label">Unit</div><div class="title">One booking</div></div>
+    <div class="card"><div class="label">Target</div><div class="title">Canceled? 1 / 0</div><p>37% of bookings cancel.</p></div>
+    <div class="card"><div class="label">Decision</div><div class="title">Overbooking &amp; deposits</div></div>
+    <div class="card"><div class="label">Grade</div><div class="title">AUC</div><p>0.5 = coin flip · 1.0 = perfect. Same as Kaggle.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Antonio, de Almeida & Nunes (2019): a city hotel in Lisbon and a resort hotel in the Algarve. Our course file is the competition's training set: 83,573 bookings, 32 columns, 37.0% canceled. In class the notebook uses a random 30,000 for speed: 24,000 train, 6,000 test.">
+  <div class="kicker">Meet the data · two hotels in Portugal</div>
+  <h2><span class="t">83,573</span> bookings · <span class="p">32</span> columns · <span class="co">37%</span> canceled</h2>
+  <div class="cards">
+    <div class="card"><div class="label">lead_time</div><p>days booked ahead</p></div>
+    <div class="card"><div class="label">deposit_type</div><p>none · non-refundable · refundable</p></div>
+    <div class="card"><div class="label">previous_cancellations</div><p>has this guest canceled before?</p></div>
+    <div class="card"><div class="label">special requests</div><p>a crib, a quiet room…</p></div>
+  </div>
+  <p class="sub">The <b>same data as our Kaggle competition</b>. Tonight goes straight into your submission.</p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 0. Counts from the full file: Check-Out 52,616 all stayed; Canceled 30,128 and No-Show 829 all canceled. Zero exceptions. assigned_room_type is set at check-in. The test: would I know this value at the moment I predict? The Kaggle files already have all three removed.">
+  <div class="kicker">Before any model · leaks</div>
+  <h2>Predicting the game with <span class="co">tomorrow's newspaper</span></h2>
+  <table class="cm">
+    <tr><th>reservation_status</th><th>stayed</th><th>canceled</th></tr>
+    <tr><td>Check-Out</td><td class="g">52,616</td><td>0</td></tr>
+    <tr><td>Canceled</td><td>0</td><td class="b">30,128</td></tr>
+    <tr><td>No-Show</td><td>0</td><td class="b">829</td></tr>
+  </table>
+  <p class="sub">Drop it, its date, and <b>assigned_room_type</b> (known only at check-in).<br>The test: <b class="t">would I know this at the moment I predict?</b></p>
+</section>
+
+<section class="slide" data-notes="Big relief compared with Sessions 3–6. A tree only asks threshold questions, so units don't matter (scaling is pointless) and text can just become code numbers with OrdinalEncoder (City Hotel → 0, Resort Hotel → 1). Fit the dictionary on training data only.">
+  <div class="kicker">Good news</div>
+  <h2>Trees need <span class="t">no scaling</span> and <span class="t">no one-hot</span></h2>
+  <ul class="list">
+    <li>A tree only asks <b>"is lead time more than 30 days?"</b> Same answer in days or in weeks.</li>
+    <li>Text becomes code numbers with a small dictionary: <b class="p">City Hotel → 0, Resort Hotel → 1</b>.</li>
+    <li>The prep station: <b>fill blanks, turn text into codes</b>. That's it.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Ask: who has played 20 Questions? Each yes/no answer cuts the possibilities. A decision tree is that game, learned from data: the flowchart of questions that best separates cancelers from stayers. Try MLU-Explain Decision Trees on phones if time allows.">
+  <div class="kicker">Step 1 · how a tree thinks</div>
+  <h2>Remember <span class="grad">20 Questions?</span></h2>
+  <p class="sub">"Is it an animal?" "Does it fly?" Each answer cuts the possibilities.<br>A <b class="t">decision tree</b> is a flowchart of yes/no questions, <b>learned from data</b>.</p>
+  <div class="pill"><a href="https://mlu-explain.github.io/decision-tree/" style="color:inherit;text-decoration:none">Play: mlu-explain.github.io/decision-tree</a></div>
+</section>
+
+<section class="slide" data-notes="Notebook Step 1: depth 3, six manager clues, trained on 24,000 bookings. Shares are of training bookings. Non-refund box (12%) is 99.4% canceled; the real tree splits it once more (parking, lead time) but every leaf still says cancel except one booking, so it's drawn as one leaf here. ≤7 days: 9% cancel (16% of bookings); 8–14 days: 20% (6%); >14 days and canceled before: 96% (1.8%); >14 days, never canceled: 33% (64%). Test AUC 0.749 with only 6 clues and 3 questions.">
+  <div class="kicker">The manager's tree · 6 clues, 3 questions</div>
+  <svg viewBox="0 0 1100 450" width="92%" style="max-width:1150px" role="img" aria-label="Decision tree: non-refundable deposit leads to 99 percent cancel; otherwise booked 7 days or less ahead 9 percent, 8 to 14 days 20 percent; more than 14 days ahead and canceled before 96 percent, never canceled 33 percent">
+    <g font-family="Manrope, sans-serif" text-anchor="middle">
+      <g stroke="#5f6a7d" stroke-width="2" fill="none">
+        <path d="M550,82 L320,128"/><path d="M550,82 L940,128"/>
+        <path d="M320,200 L150,258"/><path d="M320,200 L490,258"/>
+        <path d="M150,330 L70,368"/><path d="M150,330 L230,368"/>
+        <path d="M490,330 L420,368"/><path d="M490,330 L590,368"/>
+      </g>
+      <g font-size="15" fill="#a3adbd" font-family="IBM Plex Mono, monospace">
+        <text x="415" y="96">no</text><text x="760" y="96">yes</text>
+        <text x="215" y="228">no</text><text x="425" y="228">yes</text>
+        <text x="95" y="352">yes</text><text x="210" y="352">no</text>
+        <text x="440" y="352">no</text><text x="565" y="352">yes</text>
+      </g>
+      <rect x="380" y="12" width="340" height="70" rx="14" fill="#0f131c" stroke="#7c8cff" stroke-width="2"/>
+      <text x="550" y="42" font-size="22" font-weight="800" fill="#eef2f7">Non-refundable deposit?</text>
+      <text x="550" y="68" font-size="15" fill="#a3adbd">all bookings · 37% cancel</text>
+      <rect x="815" y="128" width="250" height="72" rx="14" fill="rgba(255,107,139,0.16)" stroke="#ff6b8b" stroke-width="2"/>
+      <text x="940" y="164" font-size="28" font-weight="800" fill="#ff6b8b">99% cancel</text>
+      <text x="940" y="188" font-size="14" fill="#a3adbd">12% of bookings</text>
+      <rect x="145" y="128" width="350" height="72" rx="14" fill="#0f131c" stroke="#7c8cff" stroke-width="2"/>
+      <text x="320" y="158" font-size="20" font-weight="800" fill="#eef2f7">Booked more than 14 days ahead?</text>
+      <text x="320" y="184" font-size="15" fill="#a3adbd">29% cancel</text>
+      <rect x="10" y="258" width="280" height="72" rx="14" fill="#0f131c" stroke="#7c8cff" stroke-width="2"/>
+      <text x="150" y="288" font-size="19" font-weight="800" fill="#eef2f7">7 days ahead or less?</text>
+      <text x="150" y="314" font-size="15" fill="#a3adbd">12% cancel</text>
+      <rect x="335" y="258" width="310" height="72" rx="14" fill="#0f131c" stroke="#7c8cff" stroke-width="2"/>
+      <text x="490" y="288" font-size="19" font-weight="800" fill="#eef2f7">Canceled a booking before?</text>
+      <text x="490" y="314" font-size="15" fill="#a3adbd">34% cancel</text>
+      <rect x="0" y="368" width="140" height="70" rx="14" fill="rgba(46,230,197,0.12)" stroke="#2ee6c5" stroke-width="2"/>
+      <text x="70" y="402" font-size="24" font-weight="800" fill="#2ee6c5">9%</text><text x="70" y="425" font-size="13" fill="#a3adbd">cancel</text>
+      <rect x="160" y="368" width="140" height="70" rx="14" fill="rgba(46,230,197,0.12)" stroke="#2ee6c5" stroke-width="2"/>
+      <text x="230" y="402" font-size="24" font-weight="800" fill="#2ee6c5">20%</text><text x="230" y="425" font-size="13" fill="#a3adbd">cancel</text>
+      <rect x="350" y="368" width="140" height="70" rx="14" fill="rgba(46,230,197,0.12)" stroke="#2ee6c5" stroke-width="2"/>
+      <text x="420" y="402" font-size="24" font-weight="800" fill="#2ee6c5">33%</text><text x="420" y="425" font-size="13" fill="#a3adbd">cancel</text>
+      <rect x="520" y="368" width="140" height="70" rx="14" fill="rgba(255,107,139,0.16)" stroke="#ff6b8b" stroke-width="2"/>
+      <text x="590" y="402" font-size="24" font-weight="800" fill="#ff6b8b">96%</text><text x="590" y="425" font-size="13" fill="#a3adbd">cancel</text>
+    </g>
+  </svg>
+  <p class="sub" style="font-size:clamp(0.9rem,1.6vw,1.2rem)">A model you can <b class="t">print on one page and hand to a manager</b>.</p>
+</section>
+
+<section class="slide" data-notes="Read it out loud. The non-refund puzzle: 99% of non-refundable bookings cancel, which is backwards. Don't explain it away tonight: it's a great paragraph for their competition memo (the starter notebook raises it too). Last-minute bookers show up. Past cancelers cancel again.">
+  <div class="kicker">Read the tree out loud</div>
+  <h2>Three stories a manager already half-knows</h2>
+  <div class="cards">
+    <div class="card"><div class="label">Non-refundable deposit</div><div class="num">99%</div><p>cancel. <b class="co">Backwards!</b> Why cancel after paying? Ask why, in your memo.</p></div>
+    <div class="card"><div class="label">Booked ≤ 7 days ahead</div><div class="num">9%</div><p>cancel. Last-minute guests show up.</p></div>
+    <div class="card"><div class="label">Canceled before</div><div class="num">96%</div><p>cancel again (booked 2+ weeks ahead). Past behavior repeats.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Notebook Step 2. Gini = 2p(1−p) = the chance two random guests from the box disagree. Root: 37.3% cancel → 2 × 0.373 × 0.627 = 0.468. Draw two boxes on the board: all-cancel (0) and 50/50 (0.5).">
+  <div class="kicker">Step 2 · how does it pick the question?</div>
+  <h2>Gini: <span class="grad">pick two guests at random</span></h2>
+  <p class="sub">What's the chance that <b>one cancels and the other doesn't</b>?</p>
+  <div class="row">
+    <div class="card" style="min-width:240px"><div class="label">Everyone cancels</div><div class="num">0</div><p>Perfectly pure.</p></div>
+    <div class="card" style="min-width:240px"><div class="label">Our hotel · 37% cancel</div><div class="num">0.47</div><p>Very mixed.</p></div>
+    <div class="card" style="min-width:240px"><div class="label">50 / 50</div><div class="num">0.50</div><p>As mixed as it gets.</p></div>
+  </div>
+  <p class="sub" style="font-family:'IBM Plex Mono',monospace">Gini = 2 × p × (1 − p)</p>
+</section>
+
+<section class="slide" data-notes="From the audition cell. Before: 0.468. Non-refund: YES 99% / NO 29%, after 0.361 (drop 0.106). Canceled before: 92% / 34%, after 0.434 (drop 0.033). Booked ≤7 days: 10% / 43%, after 0.438 (drop 0.029). The tree tries every clue and every cut point, keeps the biggest drop, then repeats inside each box. Greedy: best question now, no planning ahead.">
+  <div class="kicker">The audition for the first question</div>
+  <h2>The biggest drop in Gini <span class="t">wins</span></h2>
+  <table class="cm">
+    <tr><th>question</th><th>YES box</th><th>NO box</th><th>Gini after</th></tr>
+    <tr><td>Non-refundable deposit?</td><td>99% cancel</td><td>29%</td><td class="g">0.361</td></tr>
+    <tr><td>Canceled before?</td><td>92%</td><td>34%</td><td>0.434</td></tr>
+    <tr><td>Booked ≤ 7 days ahead?</td><td>10%</td><td>43%</td><td>0.438</td></tr>
+  </table>
+  <p class="sub">Started at <b>0.468</b>. The tree is <b class="am">greedy</b>: the best question <i>now</i>, no planning ahead.</p>
+</section>
+
+<section class="slide" data-notes="Give 20 seconds. Answer: B. A = 2×0.9×0.1 = 0.18; B = 2×0.5×0.5 = 0.50. The tree is hunting for boxes like A.">
+  <div class="kicker">🧠 Quick check · 20 seconds</div>
+  <h2>Which box is more mixed?</h2>
+  <div class="row">
+    <div class="card" style="min-width:280px"><div class="label">Box A</div><div class="title">90% cancel</div></div>
+    <div class="card" style="min-width:280px"><div class="label">Box B</div><div class="title">50% cancel</div></div>
+  </div>
+  <p class="sub">…and which one would the tree rather find?</p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 3, all 28 columns. Train/test AUC by depth: 2: .730/.731; 4: .830/.834; 6: .886/.883; 8: .909/.900; 10: .928/.913 (best); 14: .960/.905; 20: .991/.854; no limit: 1.000/.813 with 2,938 leaves for 24,000 bookings (accuracy on training bookings 99.7%). Callback: the Session 6 memorizer with the answer key.">
+  <div class="kicker">Step 3 · a tree that asks too many questions</div>
+  <h2>The memorizer is back</h2>
+  <img class="chart" src="img/depth.png" alt="Training AUC rises to 1.00 as depth grows, while test AUC peaks at 0.91 at depth 10 and falls to 0.81 with no limit">
+  <p class="sub">No limit: <b class="am">2,938 leaves</b> for 24,000 bookings. Perfect on practice, <b class="co">0.81</b> on the exam.</p>
+</section>
+
+<section class="slide" data-notes="min_samples_leaf: 1 → 2,938 leaves, 0.813; 5 → 1,567, 0.880; 20 → 573, 0.911; 50 → 274, 0.916; 200 → 78, 0.893. Like the ridge tax: too little brake memorizes, too much underfits. Business framing: you'd never write a policy from one guest.">
+  <div class="kicker">Two brakes</div>
+  <h2>Stop the tree before it memorizes</h2>
+  <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">max_depth = 10</div><div class="title">At most 10 questions</div><div class="num">0.913</div></div>
+    <div class="card" style="min-width:300px; border-color: var(--teal)"><div class="label">min_samples_leaf = 50</div><div class="title">Every rule backed by ≥ 50 guests</div><div class="num">0.916</div><p>274 leaves instead of 2,938.</p></div>
+  </div>
+  <p class="sub">A manager would never write a policy based on <b>one guest</b>.</p>
+</section>
+
+<section class="slide" data-notes="10 minutes. Ask them to open the competition starter during the break if they haven't submitted yet.">
+  <div class="kicker">Break · 10 minutes</div>
+  <h1>☕</h1>
+  <p class="sub">Back at 6:15. Then: why one tree is fragile, and how 300 fix it.</p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 4. Training bookings split into two random halves of 12,000; one unlimited tree on each. On the 6,000 test bookings they give different yes/no answers for 21%. Nothing changed but which guests each tree saw. That is high variance. Like asking ONE colleague: their answer depends on the few cases they remember.">
+  <div class="kicker">Step 4 · the hidden weakness</div>
+  <h2>Two trees, two random halves of the same data</h2>
+  <div class="big co">21%</div>
+  <p class="sub">of test bookings get <b>"will cancel"</b> from one tree and <b>"will stay"</b> from the other.<br>That's <b class="am">high variance</b>: the answer swings with the luck of the data.</p>
+</section>
+
+<section class="slide" data-notes="Verified: Galton, 'Vox Populi', Nature 1907, about the 1906 West of England Fat Stock and Poultry Exhibition in Plymouth. 787 valid tickets; median 1,207 lb; the dressed ox weighed 1,198 lb. Off by under 1%. Individual errors point in different directions and cancel.">
+  <div class="kicker">The wisdom of the crowd · Plymouth, 1906</div>
+  <h2>787 fairgoers guess the weight of an ox</h2>
+  <div class="row">
+    <div class="card" style="min-width:260px"><div class="label">The middle guess</div><div class="num">1,207 lb</div></div>
+    <div class="card" style="min-width:260px; border-color: var(--teal)"><div class="label">The ox</div><div class="num">1,198 lb</div></div>
+  </div>
+  <p class="sub">Most guesses were far off. Their errors pointed in different directions, and <b class="t">cancelled out</b>.<br><span style="color:var(--muted)">Francis Galton, "Vox Populi", Nature, 1907</span></p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 5. Trick 1 = bootstrap (draw with replacement; about a third of bookings never drawn for a given tree). Averaging bootstrap trees = bagging. Trick 2 = each split may only consider a random subset of features (max_features='sqrt', about 5 of 28). Purpose: make trees' mistakes different, so they cancel. The newspaper line is the key intuition.">
+  <div class="kicker">Step 5 · random forest</div>
+  <h2>A crowd of trees, with <span class="grad">two tricks</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">Trick 1 · bootstrap</div><div class="title">Each tree studies different guests</div><p>Pull names from a hat, <b>put each back</b>. Some twice, a third never.</p></div>
+    <div class="card" style="min-width:300px"><div class="label">Trick 2 · random clues</div><div class="title">Each question sees a random handful of clues</div><p>No tree can lean on <b>deposit type</b> every time.</p></div>
+  </div>
+  <p class="sub">If 300 advisors read <b class="co">the same newspaper</b>, they're no wiser than one.</p>
+</section>
+
+<section class="slide" data-notes="Best single tree 0.916 → bagging (100 unlimited trees) 0.941 → random forest (300 trees, min_samples_leaf 5) 0.942. Bagging and forest nearly tie here; trick 1 does most of the work on this data. Fragility test with forests: 21% → 4% disagreement. That is variance reduction, watched.">
+  <div class="kicker">What the crowd buys you</div>
+  <h2>Better, and <span class="t">steadier</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:260px"><div class="label">Best single tree</div><div class="num">0.916</div><p>test AUC</p></div>
+    <div class="card" style="min-width:260px; border-color: var(--teal)"><div class="label">Random forest · 300 trees</div><div class="num">0.942</div><p>no tuning, no scaling</p></div>
+  </div>
+  <div class="row">
+    <div class="card" style="min-width:260px"><div class="label">Two trees disagree on</div><div class="num" style="background:none;color:var(--coral)">21%</div></div>
+    <div class="card" style="min-width:260px; border-color: var(--teal)"><div class="label">Two forests disagree on</div><div class="num">4%</div></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="1 tree 0.860; 2: 0.893; 5: 0.922 (already beats the best single tree, 0.916); 10: 0.932; 50: 0.940; 100–300: 0.942. More trees never hurt, only slower. OOB: each training booking graded only by trees that never saw it: OOB AUC 0.939 vs test AUC 0.942.">
+  <div class="kicker">How many trees?</div>
+  <h2>More trees <span class="t">never hurt</span>. They just take longer.</h2>
+  <img class="chart" src="img/ntrees.png" alt="Test AUC rises from 0.86 with one tree to 0.922 with five trees, above the best single tree at 0.916, and flattens at 0.942 from 100 trees on">
+  <p class="sub">Free exam: <b class="p">out-of-bag</b> AUC <b>0.939</b> vs test AUC <b>0.942</b>. Each booking graded by the trees that never saw it.</p>
+</section>
+
+<section class="slide" data-notes="Notebook Step 6. We planted two fake columns: random noise and a made-up booking ID. Impurity ranks them #11 and #10 of 30 — in the top third, ahead of real signals like parking spaces and customer type. Permutation ranks them #28 and #29: shuffling them costs nothing. Real story by permutation: country, market segment, deposit type, special requests, lead time (all about 0.04 AUC, country 0.09).">
+  <div class="kicker">Step 6 · which clues matter?</div>
+  <h2>Two answers, and one <span class="co">gets fooled</span></h2>
+  <img class="chart" src="img/importance.png" alt="Impurity importance ranks a fake booking ID and random noise 10th and 11th, above parking spaces; permutation importance gives both fakes zero">
+  <p class="sub"><b class="co">Red bars are fake clues</b> we planted. Impurity likes them. Shuffling them changes nothing.</p>
+</section>
+
+<section class="slide" data-notes="Why: a column with thousands of distinct values offers thousands of cut points; with enough tries, some cut looks good by luck on the training data. Permutation importance measures damage on test data when the column is scrambled: the honest question.">
+  <div class="kicker">The rule</div>
+  <h2>Report <span class="t">permutation importance</span> on test data</h2>
+  <ul class="list">
+    <li><b class="p">Impurity</b>: "how much did this clue help on the training data?" ID-like columns offer <b>thousands of cut points</b>, and some look good by luck.</li>
+    <li><b class="t">Permutation</b>: "scramble this column on new bookings. <b>How much worse does the model get?</b>"</li>
+    <li>Your manager asks <i>"what drives cancellations?"</i> Give the permutation answer.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Partial dependence: pretend every one of 3,000 test bookings was booked 0 days ahead, average the forest's predicted chance; repeat for each lead time. Lead time 0 → 22%; ~1 month → 39%; 300 days → 48%. The danger zone starts early. Special requests: 0 → 45%, 1+ → ~27%. Previous cancellations: 0 → 36%, 1+ → 66%.">
+  <div class="kicker">Step 7 · which way does a clue push?</div>
+  <h2>Lead time: the danger starts <span class="am">early</span></h2>
+  <img class="chart" src="img/leadtime.png" alt="Predicted chance of cancellation rises steeply from 22 percent at zero days to 39 percent at one month, then slowly to 48 percent at 300 days">
+  <p class="sub">Special requests: <b class="t">45% → 27%</b> with one or more · Canceled before: <b class="co">36% → 66%</b></p>
+</section>
+
+<section class="slide" data-notes="Same warning as Session 6. Guests who make special requests cancel less: a pattern. Asking every guest to make a request would not necessarily change anything; the request is a sign of commitment, not its cause.">
+  <div class="kicker">⚠️ Same warning as Session 6</div>
+  <h2>Describe. <span class="co">Don't claim causes.</span></h2>
+  <p class="sub">"Guests who make special requests cancel less" is a <b class="t">pattern</b>.<br>It does <b>not</b> mean that asking every guest for a request would cut cancellations.</p>
+</section>
+
+<section class="slide" data-notes="Test AUC on the same 6,000 bookings: baseline 0.500; manager's tree 0.749; unlimited tree 0.813; depth 10: 0.913; min_samples_leaf 50: 0.916; bagging 0.941; random forest 0.942.">
+  <div class="kicker">Tonight's leaderboard · test AUC</div>
+  <h2>From a coin flip to a <span class="t">forest</span></h2>
+  <img class="chart" src="img/leaderboard.png" alt="Leaderboard: same score 0.500, manager's tree 0.749, unlimited tree 0.813, depth 10 tree 0.913, min samples leaf 50 tree 0.916, bagging 0.941, random forest 0.942">
+</section>
+
+<section class="slide" data-notes="When to use which. Next week: gradient boosting — trees that learn from each other's mistakes instead of voting.">
+  <div class="kicker">One tree or a forest?</div>
+  <h2>Pick the tool for the job</h2>
+  <div class="row">
+    <div class="card" style="min-width:320px"><div class="label">One decision tree</div><div class="title">A rule a person can follow</div><p>Print it on one page. Good with a brake (0.92). Fragile.</p></div>
+    <div class="card" style="min-width:320px; border-color: var(--teal)"><div class="label">Random forest</div><div class="title">The best predictions, fast</div><p>0.94 with no tuning. Steady. Explain it with permutation importance and partial dependence.</p></div>
+  </div>
+  <p class="sub">Neither needs scaling or one-hot.</p>
+</section>
+
+<section class="slide" data-notes="About 20 minutes. Q1 (leak test) and Q3 (competition) for everyone; Q2 for those who finish; Q4 optional. Q1 answer: AUC barely moves (0.942 → 0.943), yet guests moved to a different room cancel only 6% vs 42% — because rooms are assigned at check-in, i.e. only for guests who showed up. Still a leak: drop it for timing, not for the score.">
+  <div class="kicker">Your turn · in the notebook</div>
+  <h2>Four questions, Step 8</h2>
+  <ul class="list">
+    <li><b class="t">Leak test.</b> Put <b>assigned_room_type</b> back. How much does AUC change? Would you know it at booking time?</li>
+    <li><b class="p">Two brakes at once.</b> max_depth + min_samples_leaf. Can a single tree beat 0.916?</li>
+    <li><b class="am">Competition.</b> A random forest in the Competition Starter, submitted tonight.</li>
+    <li><b class="co">Challenge.</b> The decorrelation dial: <b>max_features</b>.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Verified on all 83,573 training bookings: 5-fold AUC 0.951 ± 0.001 for this forest, vs about 0.889 for the starter's logistic baseline. Five forests take a few minutes in Colab. Replace the Section 2 cell, then run Section 3 to write submission.csv. Upload the same file on Canvas.">
+  <div class="kicker">Competition · tonight</div>
+  <h2>Swap one cell, gain <span class="grad">six points of AUC</span></h2>
+<pre><span class="c"># Competition Starter, Section 2: replace the prep + model cell</span>
+prep = ColumnTransformer([
+  (<span class="s">'num'</span>, SimpleImputer(strategy=<span class="s">'constant'</span>, fill_value=-1), num),
+  (<span class="s">'cat'</span>, Pipeline([
+      (<span class="s">'imp'</span>, SimpleImputer(strategy=<span class="s">'constant'</span>, fill_value=<span class="s">'missing'</span>)),
+      (<span class="s">'codes'</span>, <span class="f">OrdinalEncoder</span>(handle_unknown=<span class="s">'use_encoded_value'</span>,
+                                 unknown_value=-1))]), cat)])
+model = Pipeline([(<span class="s">'prep'</span>, prep),
+                  (<span class="s">'clf'</span>, <span class="f">RandomForestClassifier</span>(n_estimators=300,
+                           min_samples_leaf=5, n_jobs=-1))])</pre>
+  <p class="sub">Logistic baseline <b>≈ 0.89</b> → random forest <b class="t">≈ 0.95</b> (5-fold, all 83,573 bookings)<br><span style="color:var(--muted)">The full cell, with imports: notebook Step 8, Q3</span></p>
+</section>
+
+<section class="slide" data-notes="Dates match the deadlines table. Milestone 1 is due tonight. Leaderboard closes Mon Nov 9 at 4:30 PM — upload the same predictions file on Canvas; the memo that night. HW3 Nov 16.">
+  <div class="kicker">Coming up</div>
+  <h2>What's due</h2>
+  <ul class="list">
+    <li><b class="t">Tonight, Mon Nov 2, 11:59 PM</b> · Project Milestone 1: your problem and dataset, one paragraph</li>
+    <li><b class="am">Mon Nov 9, 4:30 PM</b> · Competition leaderboard closes · same predictions file on Canvas</li>
+    <li><b class="am">Mon Nov 9, 11:59 PM</b> · One-page competition memo: what you tried, what leaked, and why</li>
+    <li><b class="p">Mon Nov 16, 11:59 PM</b> · HW3: thresholds (Session 5) + Ames regression (Session 6)</li>
+    <li>Read <b>ISLP 8.2.3</b> (Boosting) before next class</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Three takeaways, then the close. Next week: gradient boosting, and the competition reveal.">
+  <div class="kicker">Three things to remember</div>
+  <h2>Tonight in three lines</h2>
+  <ul class="list">
+    <li>A tree is a <b class="t">flowchart of questions learned from data</b>. Easy to read, easy to overfit: use a brake.</li>
+    <li>A forest is a <b class="p">crowd of different trees</b>. Different mistakes cancel; more trees never hurt.</li>
+    <li><b class="co">Report permutation importance</b>, and show the shape with partial dependence. Describe, don't claim causes.</li>
+  </ul>
+  <p class="sub">Next Monday: <b class="t">gradient boosting</b>, trees that learn from each other's mistakes.</p>
+</section>
+
+<div class="notes" id="notes"></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')]; let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    document.getElementById('hud').textContent = (i + 1) + ' / ' + slides.length + '  ·  ← → navigate · F fullscreen · N notes';
+    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+    document.getElementById('notes').textContent = slides[i].dataset.notes || '';
+    location.hash = i + 1;
+  }
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    else if (e.key.toLowerCase() === 'n') document.body.classList.toggle('shownotes');
+  });
+  addEventListener('click', (e) => { if (e.target.closest('a')) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+  show(parseInt(location.hash.slice(1) || '1', 10) - 1);
+</script>
+</body>
+</html>
