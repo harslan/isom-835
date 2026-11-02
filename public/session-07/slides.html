@@ -72,12 +72,13 @@
 <section class="slide" data-notes="Tonight's map. Break around 6:05. The notebook follows the same steps; Your Turn at the end includes getting a random forest onto the competition leaderboard tonight.">
   <div class="kicker">Tonight</div>
   <h2>One tree, then <span class="grad">three hundred</span></h2>
-  <div class="timeline" style="grid-template-columns: repeat(6, 1fr)">
+  <div class="timeline" style="grid-template-columns: repeat(7, 1fr)">
     <div><i>5:00</i><b>The data &amp; the leaks</b>Which columns are cheating?</div>
     <div><i>5:20</i><b>How a tree asks</b>20 Questions, Gini</div>
     <div><i>5:40</i><b>Too many questions</b>Overfitting, two brakes</div>
     <div><i>6:15</i><b>The forest</b>Wisdom of the crowd</div>
     <div><i>6:45</i><b>Which clues matter</b>Two answers that disagree</div>
+    <div><i>7:00</i><b>Neural networks</b>The bridge</div>
     <div><i>7:10</i><b>Your turn</b>A forest on Kaggle tonight</div>
   </div>
 </section>
@@ -332,10 +333,42 @@
   <p class="sub">"Guests who make special requests cancel less" is a <b class="t">pattern</b>.<br>It does <b>not</b> mean that asking every guest for a request would cut cancellations.</p>
 </section>
 
-<section class="slide" data-notes="Test AUC on the same 6,000 bookings: baseline 0.500; manager's tree 0.749; unlimited tree 0.813; depth 10: 0.913; min_samples_leaf 50: 0.916; bagging 0.941; random forest 0.942.">
+<section class="slide" data-notes="Notebook Step 8. A tree's split looks at one column with a hard yes/no. A neuron computes a weighted sum of all inputs and passes it through a soft activation, so it answers 'how much yes'. Layers stack these, so later neurons use earlier neurons' answers as clues: the network invents its own features. Trained by gradient descent: all weights nudged together, not one greedy question at a time.">
+  <div class="kicker">Step 8 · the bridge to neural networks</div>
+  <h2>A tree asks about <span class="t">one clue</span>.<br>A neuron asks about <span class="p">a mix</span>.</h2>
+  <div class="row">
+    <div class="card" style="min-width:320px"><div class="label">A tree's question</div><div class="title">"Is lead time more than 14 days?"</div><p>One column. A hard <b>yes / no</b>. Chosen greedily, one box at a time.</p></div>
+    <div class="card" style="min-width:320px; border-color: var(--peri)"><div class="label">A neuron's question</div><div class="title">"Is 0.8 × lead time − 0.3 × price + 2 × requests more than 5?"</div><p>A weighted mix. A <b>soft</b> answer from 0 to 1. All weights learned together.</p></div>
+  </div>
+  <p class="sub">Stack layers of neurons and the network <b class="p">invents its own clues</b>.</p>
+</section>
+
+<section class="slide" data-notes="Each panel: every possible booking with only lead time and price, colored by predicted chance of cancellation (blue stays, red cancels). Tree: axis-aligned rectangles. Forest: 300 sets of rectangles averaged into a finer patchwork. Neural network: smooth curves, because each neuron cuts along a mix of the two clues. Two-clue test AUCs: tree 0.708, forest 0.773, network 0.705.">
+  <div class="kicker">Same two clues · three ways to carve the map</div>
+  <h2><span class="t">Rectangles</span>, a <span class="t">patchwork</span>, and <span class="p">curves</span></h2>
+  <img class="chart" src="img/map.png" alt="Three maps of lead time against price colored by predicted cancellation: the tree shows rectangles, the forest a fine patchwork, the neural network smooth curves">
+  <p class="sub"><b style="color:#6f8fe8">Blue</b> = stays · <b class="co">red</b> = cancels</p>
+</section>
+
+<section class="slide" data-notes="Same lessons carry over: big networks memorize; brakes are early stopping and weight decay; dropout randomly switches off neurons during training, and Srivastava et al. (JMLR 2014) describe it as approximately averaging an exponential number of thinned networks — a crowd inside one network. Head to head on the hotel table: network without scaling 0.863, with scaling + one-hot 0.929, forest 0.942 with no prep. Grinsztajn, Oyallon & Varoquaux (NeurIPS 2022): tree ensembles still usually beat deep learning on typical tabular data. Networks win on images, sound, text (Session 12). Next week: TabPFN.">
+  <div class="kicker">What carries over · and who wins on tables</div>
+  <h2>Same lessons. <span class="t">Forests still win on tables.</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:250px"><div class="label">Overfitting</div><div class="title">Big networks memorize too</div><p>Brakes: early stopping, weight decay.</p></div>
+    <div class="card" style="min-width:250px"><div class="label">The crowd</div><div class="title">Dropout</div><p>Switch off random neurons while training: many "thinned" networks averaged.</p></div>
+    <div class="card" style="min-width:250px"><div class="label">Explaining</div><div class="title">Permutation works on any model</div><p>Shuffle a column, watch the score.</p></div>
+  </div>
+  <div class="row">
+    <div class="card" style="min-width:230px"><div class="label">Network, no scaling</div><div class="num" style="background:none;color:var(--coral)">0.863</div></div>
+    <div class="card" style="min-width:230px"><div class="label">Network, scaled + one-hot</div><div class="num" style="background:none;color:var(--amber)">0.929</div></div>
+    <div class="card" style="min-width:230px; border-color: var(--teal)"><div class="label">Forest, no prep</div><div class="num">0.942</div></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Test AUC on the same 6,000 bookings: baseline 0.500; manager's tree 0.749; unlimited tree 0.813; depth 10: 0.913; min_samples_leaf 50: 0.916; bagging 0.941; random forest 0.942; neural network (scaled + one-hot) 0.929.">
   <div class="kicker">Tonight's leaderboard · test AUC</div>
   <h2>From a coin flip to a <span class="t">forest</span></h2>
-  <img class="chart" src="img/leaderboard.png" alt="Leaderboard: same score 0.500, manager's tree 0.749, unlimited tree 0.813, depth 10 tree 0.913, min samples leaf 50 tree 0.916, bagging 0.941, random forest 0.942">
+  <img class="chart" src="img/leaderboard.png" alt="Leaderboard: same score 0.500, manager's tree 0.749, unlimited tree 0.813, depth 10 tree 0.913, min samples leaf 50 tree 0.916, bagging 0.941, random forest 0.942, neural network 0.929">
 </section>
 
 <section class="slide" data-notes="When to use which. Next week: gradient boosting — trees that learn from each other's mistakes instead of voting.">
@@ -350,7 +383,7 @@
 
 <section class="slide" data-notes="About 20 minutes. Q1 (leak test) and Q3 (competition) for everyone; Q2 for those who finish; Q4 optional. Q1 answer: AUC barely moves (0.942 → 0.943), yet guests moved to a different room cancel only 6% vs 42% — because rooms are assigned at check-in, i.e. only for guests who showed up. Still a leak: drop it for timing, not for the score.">
   <div class="kicker">Your turn · in the notebook</div>
-  <h2>Four questions, Step 8</h2>
+  <h2>Four questions, Step 9</h2>
   <ul class="list">
     <li><b class="t">Leak test.</b> Put <b>assigned_room_type</b> back. How much does AUC change? Would you know it at booking time?</li>
     <li><b class="p">Two brakes at once.</b> max_depth + min_samples_leaf. Can a single tree beat 0.916?</li>
@@ -372,7 +405,7 @@ prep = ColumnTransformer([
 model = Pipeline([(<span class="s">'prep'</span>, prep),
                   (<span class="s">'clf'</span>, <span class="f">RandomForestClassifier</span>(n_estimators=300,
                            min_samples_leaf=5, n_jobs=-1))])</pre>
-  <p class="sub">Logistic baseline <b>≈ 0.89</b> → random forest <b class="t">≈ 0.95</b> (5-fold, all 83,573 bookings)<br><span style="color:var(--muted)">The full cell, with imports: notebook Step 8, Q3</span></p>
+  <p class="sub">Logistic baseline <b>≈ 0.89</b> → random forest <b class="t">≈ 0.95</b> (5-fold, all 83,573 bookings)<br><span style="color:var(--muted)">The full cell, with imports: notebook Step 9, Q3</span></p>
 </section>
 
 <section class="slide" data-notes="Dates match the deadlines table. Milestone 1 is due tonight. Leaderboard closes Mon Nov 9 at 4:30 PM — upload the same predictions file on Canvas; the memo that night. HW3 Nov 16.">
@@ -388,12 +421,13 @@ model = Pipeline([(<span class="s">'prep'</span>, prep),
 </section>
 
 <section class="slide" data-notes="Three takeaways, then the close. Next week: gradient boosting, and the competition reveal.">
-  <div class="kicker">Three things to remember</div>
-  <h2>Tonight in three lines</h2>
+  <div class="kicker">Four things to remember</div>
+  <h2>Tonight in four lines</h2>
   <ul class="list">
     <li>A tree is a <b class="t">flowchart of questions learned from data</b>. Easy to read, easy to overfit: use a brake.</li>
     <li>A forest is a <b class="p">crowd of different trees</b>. Different mistakes cancel; more trees never hurt.</li>
     <li><b class="co">Report permutation importance</b>, and show the shape with partial dependence. Describe, don't claim causes.</li>
+    <li>A neuron asks about <b class="am">a mix of clues</b>. Same lessons, but on tables, forests still usually win.</li>
   </ul>
   <p class="sub">Next Monday: <b class="t">gradient boosting</b>, trees that learn from each other's mistakes.</p>
 </section>

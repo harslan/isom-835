@@ -26,6 +26,10 @@
     {
       "title": "Measure Importance Honestly",
       "description": "Impurity importance is biased toward high-cardinality columns; permutation importance on held-out data is not. Partial dependence shows the shape of the effect."
+    },
+    {
+      "title": "Bridge to Neural Networks",
+      "description": "A tree asks about one clue with a hard yes/no; a neuron asks about a weighted mix with a soft answer. Overfitting, brakes and crowds (dropout) carry over — and on tables, tree ensembles still usually win."
     }
   ],
   "agenda": [
@@ -83,12 +87,13 @@
     },
     {
       "time": "6:45 PM - 7:15 PM",
-      "title": "Which Features Matter — and How",
+      "title": "Which Features Matter — and the Bridge to Neural Networks",
       "duration": "30 minutes",
-      "description": "feature_importances_ (impurity) vs. permutation_importance on the test set — and the zero-signal trap: a pure-noise column and a made-up booking-ID column land 10th and 11th of 30 by impurity, ahead of real signals like parking spaces and customer type, and in the bottom three by permutation. Then partial dependence: how cancellation probability actually moves with lead time, special requests and past cancellations.",
+      "description": "feature_importances_ (impurity) vs. permutation_importance on the test set — and the zero-signal trap: a pure-noise column and a made-up booking-ID column land 10th and 11th of 30 by impurity, ahead of real signals like parking spaces and customer type, and in the bottom three by permutation. Then partial dependence: how cancellation probability actually moves with lead time, special requests and past cancellations. Then the bridge: a tree asks about one clue, a neuron about a weighted mix; the same two clues drawn three ways (rectangles, a patchwork, curves); and why, on tables, the forest still beats a neural network.",
       "bulletPoints": [
         "Permutation importance answers 'if I scrambled this column, how much would the model get worse?' — the honest question",
-        "Partial dependence for lead_time rises steeply over the first month (22% → 39%) and then creeps to about 48% at 300 days: the danger zone starts early"
+        "Partial dependence for lead_time rises steeply over the first month (22% → 39%) and then creeps to about 48% at 300 days: the danger zone starts early",
+        "Neural network on the hotel table: 0.86 AUC without scaling, 0.93 with the full prep station, vs. 0.94 for the forest with none — as Grinsztajn et al. (NeurIPS 2022) found across 45 datasets"
       ],
       "isBreak": false
     },
@@ -109,7 +114,7 @@
     {
       "title": "Session 7 Slides — Will This Guest Show Up?",
       "url": "/session-07/slides.html",
-      "description": "The deck from class: the leak check, the manager's tree, Gini, the memorizer tree, Galton's ox and the forest's two tricks, the fake-column importance trap, lead time's danger zone, and the competition cell. Arrow keys to navigate, F for fullscreen.",
+      "description": "The deck from class: the leak check, the manager's tree, Gini, the memorizer tree, Galton's ox and the forest's two tricks, the fake-column importance trap, lead time's danger zone, the bridge to neural networks, and the competition cell. Arrow keys to navigate, F for fullscreen.",
       "icon": "presentation",
       "badge": "Slides",
       "badgeType": "interactive",
@@ -118,7 +123,7 @@
     {
       "title": "Session 7 Notebook — Trees & Random Forests on Hotel Bookings",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-07/ISOM835_Session7_Trees_Random_Forests.ipynb",
-      "description": "Step by step for first-timers: the leak check, the manager's tree, Gini as an audition, the memorizer tree and its two brakes, why one tree is fragile, the forest as a wisdom-of-the-crowd vote, out-of-bag scoring, impurity vs. permutation importance (with two planted fake columns), partial dependence, and a leaderboard of every model.",
+      "description": "Step by step for first-timers: the leak check, the manager's tree, Gini as an audition, the memorizer tree and its two brakes, why one tree is fragile, the forest as a wisdom-of-the-crowd vote, out-of-bag scoring, impurity vs. permutation importance (with two planted fake columns), partial dependence, the bridge to neural networks (three ways to carve the same map), and a leaderboard of every model.",
       "icon": "code",
       "badge": "Hands-On",
       "badgeType": "interactive",
