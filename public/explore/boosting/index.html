@@ -3,200 +3,272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Gradient Boosting Explorer · ISOM 835</title>
+<title>The Boosting Explorer · ISOM 835</title>
+<meta name="description" content="Two small games on real hotel bookings: be the trainee and fix the team's biggest miss with one question, then grow a boosted team tree by tree and watch it learn, overshoot, and memorize.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/explore/_shared.css">
 <style>
-  .lg-tr::before { color: var(--teal); } .lg-te::before { color: var(--coral); } .lg-fit::before { color: var(--peri); } .lg-res::before { color: var(--amber); } .lg-true::before { color: var(--lime); }
-  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text2); margin-top: 6px; cursor: pointer; }
-  .toggle input { accent-color: var(--teal); }
+  html { scroll-behavior: smooth; }
+  .stations { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 30px; }
+  .stations a { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); text-decoration: none; transition: all 0.25s; }
+  .stations a:hover { border-color: var(--teal); color: var(--teal); }
+  .stations a b { color: var(--teal); margin-right: 6px; }
+  section.station { margin: 0 0 60px; scroll-margin-top: 20px; }
+  .st-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
+  .st-num { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--bg); background: var(--teal); border-radius: 999px; padding: 3px 11px; font-weight: 700; }
+  h2 { font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 800; }
+  .prompt { color: var(--text2); line-height: 1.6; font-size: 0.95rem; max-width: 840px; margin-bottom: 16px; }
+  .prompt b { color: var(--text); }
+  .boxes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+  .box { border-radius: 12px; padding: 10px; border: 1px solid var(--border); background: var(--bg2); font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--text2); line-height: 1.5; }
+  .box b { display: block; font-size: 1.25rem; color: var(--text); margin: 2px 0; }
+  .box.up b { color: var(--coral); } .box.down b { color: var(--teal); }
+  .meter { height: 12px; border-radius: 6px; background: var(--bg2); overflow: hidden; margin: 6px 0 2px; border: 1px solid var(--border); }
+  .meter i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--teal), var(--peri)); transition: width 0.15s; }
+  .verdict { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--border); font-size: 0.86rem; line-height: 1.5; min-height: 3.2em; color: var(--text2); }
+  .verdict b { color: var(--text); }
+  .q { font-size: 1rem; font-weight: 700; margin-bottom: 8px; } .q span { color: var(--amber); }
+  .btn { font-size: 0.78rem; padding: 9px 14px; }
+  .btn:disabled { opacity: 0.35; cursor: default; }
+  .key { display: flex; gap: 14px; flex-wrap: wrap; font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem; color: var(--text2); margin-top: 8px; }
+  .key i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="/sessions/session-08">← ISOM 835 · Session 8</a>
   <div style="height:14px"></div>
-  <div class="kicker">Interactive · Fit the Residuals</div>
-  <h1>The Gradient Boosting <span class="grad">Explorer</span></h1>
+  <div class="kicker">Interactive · real hotel bookings</div>
+  <h1>The Boosting <span class="grad">Explorer</span></h1>
   <p class="sub">
-    Weekly demand for a product, seen through noisy weeks. Boosting starts with a flat guess, fits a <b>tiny tree to what it got wrong</b>,
-    adds it scaled by the learning rate, and repeats. Step through the ensemble and watch the fit sharpen — then watch the
-    <b>held-out error turn back up</b> when you keep going. That turning point is where early stopping stops.
+    A boosted model is a <b>team of trainees</b>. Each trainee is a tiny tree that looks at <b>what the team still gets wrong</b> and fixes a little of it.
+    Here you play with 1,600 real bookings and one clue: <b>how many days ahead the guest booked</b>. 800 bookings train the team. The other 800 are held back as a <b>mock exam</b>.
   </p>
+  <div class="stations"><a href="#s1"><b>1</b>Be the trainee</a><a href="#s2"><b>2</b>Grow the team</a><a href="/explore/boosting/classic/">The classic version (a demand curve)</a></div>
 
-  <div class="presets" id="presets">
-    <button data-p="0.3,2,0,0.18,60">Default (rate 0.3, stumps)</button>
-    <button data-p="0.05,2,0,0.18,60">Slow &amp; steady (rate 0.05)</button>
-    <button data-p="1.0,2,0,0.18,60">Overshoot (rate 1.0)</button>
-    <button data-p="0.3,4,0,0.18,60">Deeper trees (depth 4)</button>
-    <button data-p="0.3,2,0,0.35,60">Noisy data</button>
-    <button data-p="0.3,3,0,0.18,200">More data</button>
-  </div>
-
-  <div class="layout">
-    <div>
-      <div class="panel">
-        <div class="kicker" style="margin-bottom:6px">The ensemble so far — and the residuals it will fit next</div>
-        <canvas id="cv" width="820" height="400"></canvas>
-        <div class="legend"><span class="lg-tr">Training weeks</span><span class="lg-te">Held-out weeks</span><span class="lg-fit">Ensemble prediction</span><span class="lg-res">Next tree (fit to residuals)</span><span class="lg-true">True curve</span></div>
-        <div class="hoverbox" id="hoverbox">0 trees — the ensemble is a flat line at the mean</div>
-      </div>
-      <div style="height:14px"></div>
-      <div class="panel">
-        <div class="kicker" style="margin-bottom:6px">Error vs. number of trees</div>
-        <canvas id="cv2" width="820" height="230"></canvas>
-        <div class="legend"><span class="lg-tr">Train RMSE</span><span class="lg-te">Test RMSE</span><span style="color:var(--amber)">◆ early-stopping point (test minimum)</span></div>
-      </div>
-    </div>
-
-    <div>
-      <div class="panel controls">
-        <div class="row"><label>Learning rate <b id="v-lr">0.30</b></label><input type="range" id="lr" min="0.02" max="1.0" step="0.02" value="0.3"></div>
-        <div class="row"><label>Tree depth <b id="v-depth">2</b></label><input type="range" id="depth" min="1" max="5" step="1" value="2"></div>
-        <div class="row"><label>Noise <b id="v-noise">0.18</b></label><input type="range" id="noise" min="0.04" max="0.5" step="0.02" value="0.18"></div>
-        <div class="row"><label>Training weeks <b id="v-n">60</b></label><input type="range" id="n" min="20" max="200" step="10" value="60"></div>
-        <label class="toggle"><input type="checkbox" id="showtrue" checked> Show the true curve</label>
-        <label class="toggle"><input type="checkbox" id="shownext" checked> Show the next tree's contribution</label>
-        <div class="btnrow">
-          <button class="btn primary" id="step">Add 1 tree</button>
-          <button class="btn" id="step10">Add 10</button>
-          <button class="btn" id="run">Run to 300</button>
-          <button class="btn" id="reset">Reset</button>
-          <button class="btn" id="resample">Resample</button>
+  <section class="station" id="s1">
+    <div class="st-head"><span class="st-num">STATION 1</span><h2>Be the trainee</h2></div>
+    <p class="prompt">The team starts by giving every booking the same score: <b>38%</b>, the overall cancel rate. That is wrong for almost everyone.
+      You are the next trainee. You may ask <b>one question</b>: <i>"booked more than N days ahead?"</i> Drag the slider to choose N, then get hired.
+      <b>Hire 5 trainees and try to beat the computer's team.</b></p>
+    <div class="layout">
+      <div>
+        <div class="panel">
+          <div class="kicker" style="margin-bottom:6px">The team's score vs. what really happened</div>
+          <canvas id="c1" width="820" height="360"></canvas>
+          <div class="key"><span><i style="background:#ff6b8b"></i>what really happened (cancel rate)</span><span><i style="background:#2ee6c5"></i>the team's score now</span><span><i style="background:#f5a524"></i>the team's score if you are hired</span></div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel">
+          <div class="kicker" style="margin-bottom:6px">The miss = what happened − the team's score</div>
+          <canvas id="c1b" width="820" height="170"></canvas>
+          <div class="key"><span><i style="background:#ff6b8b"></i>team is too low here (push up)</span><span><i style="background:#2ee6c5"></i>team is too high here (push down)</span></div>
         </div>
       </div>
-      <div style="height:14px"></div>
-      <div class="panel readout">
-        <div class="kicker" style="margin-bottom:6px">Scorecard</div>
-        <div class="stat"><span>Trees in the ensemble</span><b id="ro-t">0</b></div>
-        <div class="stat"><span>Train RMSE</span><b id="ro-train">—</b></div>
-        <div class="stat"><span>Test RMSE</span><b id="ro-test">—</b></div>
-        <div class="stat"><span>Best test RMSE so far</span><b id="ro-best">—</b></div>
-        <div class="stat"><span>Early-stopping point</span><b id="ro-es">—</b></div>
-        <div id="ro-badges" style="margin-top:8px"></div>
-        <div class="note" id="ro-note"></div>
+      <div>
+        <div class="panel controls">
+          <div class="q">Your question: booked more than <span id="q-n">30</span> days ahead?</div>
+          <input type="range" id="cut" min="1" max="399" step="1" value="30" aria-label="Your cut point in days">
+          <div class="boxes">
+            <div class="box" id="boxL"></div>
+            <div class="box" id="boxR"></div>
+          </div>
+          <div class="stat"><span>How much your question fixes, vs. the best one</span><b id="pct">–</b></div>
+          <div class="meter"><i id="pctbar" style="width:0%"></i></div>
+          <div class="btnrow" style="margin-top:12px">
+            <button class="btn primary" id="hire">Hire my trainee</button>
+            <button class="btn" id="best">Show the best question</button>
+            <button class="btn" id="again">Start over</button>
+          </div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel readout">
+          <div class="kicker" style="margin-bottom:6px">Scoreboard · mock exam (800 held-back bookings)</div>
+          <div class="stat"><span>Trainees you hired</span><b id="g-n">0 / 5</b></div>
+          <div class="stat"><span>Your team's exam score (AUC)</span><b id="g-you">0.500</b></div>
+          <div class="stat"><span>Computer's team after the same number</span><b id="g-pc">0.500</b></div>
+          <div class="verdict" id="g-verdict">Look at the bottom chart. Where is the team <b>most wrong</b>? Put your cut where the bars change from teal to coral.</div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <p class="sub" style="margin-top:26px">
-    <b>The algorithm:</b> F₀ = mean(y). For t = 1…T: fit a small regression tree hₜ to the residuals y − Fₜ₋₁ on the training weeks,
-    then Fₜ = Fₜ₋₁ + η · hₜ. A small learning rate η needs more trees but lands smoother; deeper trees fit faster and overfit faster.
-    Early stopping picks the t where the held-out error was lowest — scikit-learn, LightGBM and XGBoost all do this for you with a validation set.
-  </p>
+  <section class="station" id="s2">
+    <div class="st-head"><span class="st-num">STATION 2</span><h2>Grow the team</h2></div>
+    <p class="prompt">Now let the computer hire. Add trainees one by one and watch the team's line follow the red dots.
+      Then keep going to 300. <b>Does the mock-exam score keep rising?</b> Try big steps, and bigger trainees.</p>
+    <div class="presets" id="presets">
+      <button data-p="0.3,1" class="active">Careful team (step 0.3, 1 question each)</button>
+      <button data-p="0.1,1">Tiny steps (step 0.1)</button>
+      <button data-p="1,1">Full power (step 1.0)</button>
+      <button data-p="1,3">Full power + big trainees (3 questions each)</button>
+    </div>
+    <div class="layout">
+      <div>
+        <div class="panel">
+          <div class="kicker" style="margin-bottom:6px">The team's score vs. what really happened</div>
+          <canvas id="c2" width="820" height="330"></canvas>
+          <div class="key"><span><i style="background:#ff6b8b"></i>what really happened</span><span><i style="background:#2ee6c5"></i>the team's score</span></div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel">
+          <div class="kicker" style="margin-bottom:6px">Score (AUC) as the team grows</div>
+          <canvas id="c2b" width="820" height="230"></canvas>
+          <div class="key"><span><i style="background:#7c8cff"></i>practice (the 800 training bookings)</span><span><i style="background:#ff6b8b"></i>mock exam (the 800 held-back bookings)</span><span><i style="background:#f5a524"></i>where the coach would stop</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel controls">
+          <div class="row"><label>Step size (learning rate) <b id="v-lr">0.30</b></label><input type="range" id="lr" min="0.05" max="1" step="0.05" value="0.3"></div>
+          <div class="row"><label>Questions per trainee (tree depth) <b id="v-d">1</b></label><input type="range" id="depth" min="1" max="3" step="1" value="1"></div>
+          <div class="btnrow">
+            <button class="btn primary" id="add1">Add 1 trainee</button>
+            <button class="btn" id="add10">Add 10</button>
+            <button class="btn" id="run">▶ Grow to 300</button>
+            <button class="btn" id="reset2">Reset</button>
+          </div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel readout">
+          <div class="kicker" style="margin-bottom:6px">Scorecard</div>
+          <div class="stat"><span>Trainees on the team</span><b id="r-t">0</b></div>
+          <div class="stat"><span>Practice score</span><b id="r-tr">–</b></div>
+          <div class="stat"><span>Mock-exam score</span><b id="r-te">–</b></div>
+          <div class="stat"><span>Best mock-exam score so far</span><b id="r-best">–</b></div>
+          <div id="r-badges" style="margin-top:8px"></div>
+          <div class="note" id="r-note">Press <b>Add 1 trainee</b> a few times. Each one adds a step where the team is still wrong.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <p class="sub">Real bookings from two hotels in Portugal (Antonio, de Almeida &amp; Nunes, 2019), a random 1,600 from the course file. One clue only, so scores here are lower than in class, where the models see all 28 columns.
+    Each trainee is a small regression tree fitted to the miss; the team adds <b>step size × the trainee's correction</b>.</p>
 </div>
 <script>
-// ---------- data ----------
-let seed = 835;
-function rng() { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }
-function gauss() { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
-const truth = x => 0.5 + 0.28 * Math.sin(2.4 * Math.PI * x + 0.3) - 0.25 * (x - 0.5) + 0.08 * Math.cos(7 * x);
-const state = { lr: 0.3, depth: 2, noise: 0.18, n: 60, draw: 1, showTrue: true, showNext: true };
-let train = [], test = [], F = [], Ft = [], trees = [], hist = [];
-const N_TEST = 80, MAX_T = 300;
-function sample() {
-  seed = 4242 + state.draw * 7919; train = []; test = [];
-  for (let i = 0; i < state.n; i++) { const x = rng(); train.push([x, truth(x) + state.noise * gauss()]); }
-  for (let i = 0; i < N_TEST; i++) { const x = rng(); test.push([x, truth(x) + state.noise * gauss()]); }
-  train.sort((a, b) => a[0] - b[0]); test.sort((a, b) => a[0] - b[0]);
-}
-// ---------- a tiny regression tree (1-D, greedy least squares) ----------
-function fitTree(xs, r, depth, lo, hi) {
-  const idx = []; for (let i = 0; i < xs.length; i++) if (xs[i] >= lo && xs[i] < hi) idx.push(i);
-  const mean = idx.length ? idx.reduce((s, i) => s + r[i], 0) / idx.length : 0;
-  if (depth === 0 || idx.length < 6) return { leaf: true, v: mean, lo, hi };
-  let best = null;
-  const cand = idx.map(i => xs[i]).sort((a, b) => a - b);
-  for (let k = 2; k < cand.length - 2; k++) {
-    const s = (cand[k] + cand[k - 1]) / 2; let nL = 0, sL = 0, nR = 0, sR = 0;
-    for (const i of idx) { if (xs[i] < s) { nL++; sL += r[i]; } else { nR++; sR += r[i]; } }
-    if (nL < 3 || nR < 3) continue;
-    const gain = sL * sL / nL + sR * sR / nR;
-    if (!best || gain > best.gain) best = { gain, s };
+const D = {"xt":[84,11,9,75,61,29,22,48,0,0,338,59,22,134,11,65,6,86,52,128,34,226,126,0,140,11,12,18,0,152,181,106,141,45,50,147,104,215,256,2,101,74,238,0,28,29,189,85,48,37,0,352,198,62,58,156,339,1,1,110,9,17,407,147,106,46,247,45,10,63,133,296,0,200,0,25,63,1,252,287,176,10,64,10,0,20,41,77,190,54,414,166,43,100,212,0,210,159,17,66,7,45,10,218,33,49,6,0,68,16,156,17,224,6,328,24,193,27,215,16,0,3,6,72,63,38,72,3,24,8,93,103,29,111,10,0,82,165,0,121,3,44,116,44,76,177,134,141,40,167,51,120,126,14,38,227,0,292,7,131,72,378,7,247,1,0,129,243,50,28,132,259,16,252,11,41,135,75,245,188,35,1,336,2,4,101,192,9,45,40,30,405,139,144,12,115,36,39,44,38,1,134,150,129,74,8,1,19,0,330,19,117,15,1,7,34,38,7,95,0,31,279,83,247,2,12,1,0,13,102,273,30,24,256,116,0,0,184,72,79,615,24,38,5,162,28,120,258,451,42,11,12,109,72,121,22,4,8,40,40,84,73,15,0,41,152,74,188,40,38,226,18,4,29,177,12,17,12,16,83,53,0,1,6,117,35,122,119,30,124,12,8,297,395,219,13,96,0,6,290,185,254,30,268,303,22,11,386,13,206,1,122,20,97,217,169,60,204,1,73,136,100,89,162,116,21,6,73,18,327,191,120,98,88,236,43,105,174,72,352,323,62,4,2,0,188,2,117,47,109,31,120,67,92,12,29,66,221,37,132,277,39,1,87,29,99,336,7,99,1,109,28,78,27,27,2,330,23,0,180,316,70,129,0,241,293,2,461,0,133,175,203,18,169,250,89,203,39,60,295,219,0,36,61,323,15,2,414,121,96,123,23,1,11,6,286,10,69,73,2,80,61,5,82,97,62,105,28,1,177,159,248,70,0,25,9,11,112,177,65,212,34,254,168,312,265,259,82,12,97,7,129,38,26,105,215,27,159,3,264,137,19,110,19,33,0,304,86,223,14,244,56,25,336,40,351,36,85,205,27,334,20,171,141,16,165,29,183,89,14,279,284,15,6,64,171,20,232,212,118,259,98,160,42,11,158,302,0,31,34,5,67,86,37,297,0,344,1,114,5,277,158,22,146,20,3,0,1,219,25,2,25,43,72,11,4,33,150,103,131,70,91,30,286,188,193,132,323,202,19,79,86,17,177,15,98,0,0,6,1,422,49,4,29,14,112,177,135,2,92,51,31,1,115,321,7,112,61,197,4,218,50,82,239,34,112,176,185,187,11,443,5,204,99,55,29,73,68,76,234,129,46,14,10,211,143,42,45,169,117,146,25,51,7,88,210,362,16,6,45,227,14,10,18,28,302,1,12,107,16,62,166,74,6,36,89,158,64,104,45,142,278,28,3,507,57,115,116,1,13,0,74,215,26,50,233,149,205,92,89,21,0,67,3,212,97,32,59,113,111,37,198,4,10,12,344,52,181,8,171,26,27,398,87,12,38,3,67,70,301,1,98,236,138,25,10,100,318,38,19,266,150,145,351,15,35,12,338,2,28,1,115,12,108,36,15,125,121,2,244,45,300,95,100,12,23,74,30,156,192,47,104,21,42,0,154,277,15,0,170,4,30,112,81,110,262,2,51,64,1,115,80,316,43,386,79,145,83,335,96,50,12,69,29,3,3,61,25,302,244,0,0,21,189,23,150,6,5,5,225,42,8,202,78,14,107,129,3,53,12,247,0,122,217,277,211,77,336,17,7],"yt":[0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,0,1,0,1,0,1,1,0,0,0,0,0,0,1,0,0,1,1,0,1,0,0,0,1,1,0,0,1,0,0,1,0,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,1,1,1,0,1,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,0,1,1,0,1,0,0,0,0,1,1,1,1,0,1,1,0,0,0,1,0,1,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1,1,0,0,1,0,1,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,1,1,0,1,0,0,1,0,1,1,1,0,0,1,0,0,1,0,0,1,0,0,1,1,0,0,0,1,1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,0,1,1,1,0,0,0,0,1,1,0,0,1,1,1,0,1,0,0,0,0,1,0,0,1,0,1,0,0,1,0,1,0,1,0,1,1,1,1,0,0,0,0,1,0,1,0,0,1,1,0,0,0,0,1,0,1,0,1,0,1,1,1,1,1,0,1,1,0,1,1,0,0,0,1,1,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,1,1,1,1,0,0,0,1,1,0,0,1,1,1,0,0,1,1,1,0,0,0,1,1,1,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,0,0,0,0,1,0,1,1,0,1,0,1,1,1,1,1,1,0,1,0,0,0,0,1,0,0,0,1,0,0,1,1,0,1,1,0,0,0,1,1,1,0,1,0,0,1,1,1,0,1,1,0,1,1,0,0,0,0,1,1,1,0,1,0,1,0,0,1,0,0,0,0,1,0,0,0,0,1,1,0,1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,0,0,1,1,1,0,0,1,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0,1,1,1,0,1,1,1,0,0,1,0,1,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,1,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,1,1,1,0,0,0,0,1,1,1,0,0,0,1,0,1,0,0,1,1,0,1,0,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0,1,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,1,0,0,0,1,0,0,0,0,1,0,0,1,1,0,1,1,0,0,0,0,1,1,1,0,0,0,1,1,1,0,1,1,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,1,0,1,1,0,1,1,1,1,1,0,0,1,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,1,0,0,0,0,1,1,1,0,1,1,0,0,0,0],"xe":[20,32,6,103,63,76,423,169,65,222,211,14,8,275,0,113,3,50,132,51,139,90,2,238,197,125,50,274,29,6,18,321,148,20,70,2,58,94,42,108,105,29,2,13,139,157,101,31,13,149,97,96,125,219,2,92,31,213,15,250,145,336,5,17,69,451,98,6,2,288,393,76,112,1,28,3,21,70,2,140,16,91,31,126,113,2,123,44,96,5,197,111,314,179,152,166,14,11,70,60,211,66,12,225,74,40,20,146,90,9,34,1,26,80,15,128,2,468,136,21,126,96,58,1,68,307,13,169,1,76,289,61,396,245,75,0,115,0,0,226,14,179,31,10,159,273,2,22,0,179,188,24,77,60,47,117,54,12,241,103,20,53,8,18,213,84,51,119,19,265,178,68,192,19,423,117,0,50,236,69,38,231,65,25,211,226,88,37,9,259,212,45,49,6,273,132,138,172,61,11,133,95,4,87,18,41,300,299,174,34,151,9,170,6,85,27,240,5,18,180,277,97,166,151,58,68,396,53,2,164,104,106,201,183,1,374,29,185,223,84,92,142,75,323,268,4,79,19,8,209,49,1,12,69,139,37,57,221,66,203,2,141,25,443,42,475,110,212,15,21,90,34,199,169,146,47,99,0,18,78,3,115,260,19,314,95,8,1,89,110,100,151,13,108,304,4,124,96,120,96,0,99,156,42,61,13,100,164,105,15,1,158,57,160,53,7,1,19,11,119,8,73,84,0,135,35,191,0,71,227,15,1,0,373,35,76,120,393,175,6,67,104,117,4,166,127,159,307,281,69,302,42,7,18,241,73,60,322,277,221,24,7,148,9,173,74,6,11,0,137,153,0,219,54,183,0,1,43,64,626,34,94,178,148,3,211,566,204,135,57,67,224,64,75,236,47,100,123,128,130,2,0,21,0,87,99,25,11,277,316,56,7,36,87,116,14,61,71,26,7,315,149,40,340,170,2,39,183,14,101,106,203,0,2,365,161,26,0,61,323,110,313,21,34,259,4,158,10,25,80,0,334,315,76,208,64,14,81,137,103,28,59,40,120,93,130,4,161,213,0,150,248,20,76,90,42,123,129,54,175,19,40,4,393,72,112,5,1,38,20,109,142,0,155,3,101,21,1,266,1,0,5,60,36,393,95,263,9,193,87,1,83,99,272,4,250,0,57,122,17,260,67,148,57,255,238,14,1,179,7,1,5,1,292,222,23,120,105,269,16,31,32,251,100,0,188,15,29,32,1,30,3,135,230,100,62,3,64,63,51,59,32,0,6,99,0,193,157,185,386,335,93,170,97,128,13,3,3,275,233,169,168,222,301,28,10,102,81,151,117,102,87,160,1,175,58,1,178,153,0,318,130,0,18,97,35,5,32,11,65,420,28,13,13,316,31,199,68,271,64,5,66,36,76,10,80,127,13,1,175,84,111,6,2,5,279,26,54,107,63,158,100,159,120,81,159,109,272,238,0,183,26,5,174,63,11,276,69,1,109,330,2,35,504,105,50,3,78,152,311,37,35,1,66,29,104,15,92,64,90,2,115,276,420,55,0,433,276,10,3,163,17,327,65,91,154,17,110,123,13,102,7,34,90,103,14,4,34,0,119,102,0,155,24,82,0,181,1,177,90,119,102,1,167,39,461,97,53,75,73,12,52,40,123,150,35,4,97,146,229,96,22,0,36,19,49,0,53,17,2,213,104,159,23,3,57,133,13,170,9,96,27,192,136,8,278,53,39,87,45,68,278,42,15,192,198,39,160,277,38,199,53,496,199,0,54,142,81,457,16,58,139,157,144,190,97,222,0,286,39],"ye":[0,0,1,1,0,1,0,0,1,0,1,0,0,1,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,1,0,0,1,1,0,1,0,1,1,0,1,0,1,0,0,1,1,0,0,0,1,1,1,0,0,0,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,1,0,1,0,0,1,0,0,0,0,0,0,1,1,0,0,0,1,0,1,0,1,1,1,1,0,1,1,1,1,1,0,0,1,0,0,1,0,1,0,0,0,1,0,1,0,1,1,0,1,1,0,0,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,0,1,0,0,0,0,0,0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,1,0,1,0,1,1,1,1,1,0,1,0,0,1,0,1,0,0,0,1,1,1,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0,1,1,0,1,1,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,1,1,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,0,1,0,0,1,1,1,0,1,0,0,0,0,1,0,0,1,0,1,1,0,0,1,1,0,0,1,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,1,1,0,0,1,1,1,0,1,0,0,1,0,0,0,0,1,1,0,0,0,0,1,1,0,0,1,0,0,0,0,1,0,0,1,1,0,0,1,1,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,0,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,1,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,0,1,0,1,0,1,1,0,0,1,0,0,1,1,1,1,0,0,0,0,1,1,0,0,1,0,0,0,0,1,0,0,0,0,1,1,0,1,1,1,1,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,1,0,0,1,1,0,1,0,0,1,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0,0,0,1,1,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,1,0,1,0,0,1,0,1,0,0,0,1,0,1,0,1,1,0,1,0,0,1,0,0,0,0,0,0,1,0,1,1,0,0,1,1,1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,1,1,0,0,1,0,1,0,0,1,0,0,1,1,0,0,0,0,1,0,0,1,0,0,1,1,0,1,1,0,1,0,0,0,0,1,0,0,0,1,1,1,0,1,1,0,1,1,1,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,1,0,1,1,0,0,0,1,0,0,0,1,0,0,1,0,1,0,1,0,1,1,0,0,0,0,0,0,0,1,0,1,0,1,1,0,0,0]};
+// ---- core (shared by the page and the node check) ----
+function fitTree(x, r, idx, depth, minLeaf) {
+  let s = 0; for (const i of idx) s += r[i];
+  const mean = idx.length ? s / idx.length : 0;
+  if (depth === 0 || idx.length < 2 * minLeaf) return { leaf: true, v: mean };
+  const ord = idx.slice().sort((a, b) => x[a] - x[b]);
+  let sL = 0, best = null;
+  for (let k = 0; k < ord.length - 1; k++) {
+    sL += r[ord[k]];
+    if (x[ord[k]] === x[ord[k + 1]]) continue;
+    const nL = k + 1, nR = ord.length - nL; if (nL < minLeaf || nR < minLeaf) continue;
+    const gain = sL * sL / nL + (s - sL) * (s - sL) / nR - s * s / ord.length;
+    if (!best || gain > best.gain) best = { gain, k, cut: (x[ord[k]] + x[ord[k + 1]]) / 2 };
   }
-  if (!best) return { leaf: true, v: mean, lo, hi };
-  return { leaf: false, s: best.s, L: fitTree(xs, r, depth - 1, lo, best.s), R: fitTree(xs, r, depth - 1, best.s, hi) };
+  if (!best || best.gain <= 1e-12) return { leaf: true, v: mean };
+  return { leaf: false, cut: best.cut, gain: best.gain, L: fitTree(x, r, ord.slice(0, best.k + 1), depth - 1, minLeaf), R: fitTree(x, r, ord.slice(best.k + 1), depth - 1, minLeaf) };
 }
-function predictTree(t, x) { while (!t.leaf) t = x < t.s ? t.L : t.R; return t.v; }
-function ensemble(x) { let v = base; for (const t of trees) v += state.lr * predictTree(t, x); return v; }
-let base = 0;
-function rmse(pts) { let s = 0; for (const [x, y] of pts) { const e = ensemble(x) - y; s += e * e; } return Math.sqrt(s / pts.length); }
-function reset() { trees = []; base = train.reduce((s, p) => s + p[1], 0) / train.length; hist = [{ t: 0, tr: rmse(train), te: rmse(test) }]; }
-function addTree() {
-  if (trees.length >= MAX_T) return false;
-  const xs = train.map(p => p[0]), r = train.map(p => p[1] - ensemble(p[0]));
-  trees.push(fitTree(xs, r, state.depth, -0.01, 1.01));
-  hist.push({ t: trees.length, tr: rmse(train), te: rmse(test) }); return true;
+function predTree(t, v) { while (!t.leaf) t = v <= t.cut ? t.L : t.R; return t.v; }
+function auc(score, y) {
+  const n = y.length, ord = [...Array(n).keys()].sort((a, b) => score[a] - score[b]);
+  let rankSum = 0, pos = 0, i = 0;
+  while (i < n) { let j = i; while (j + 1 < n && score[ord[j + 1]] === score[ord[i]]) j++;
+    const avg = (i + j) / 2 + 1; for (let k = i; k <= j; k++) if (y[ord[k]] === 1) { rankSum += avg; pos++; } i = j + 1; }
+  return (rankSum - pos * (pos + 1) / 2) / (pos * (n - pos));
 }
-function nextTree() { const xs = train.map(p => p[0]), r = train.map(p => p[1] - ensemble(p[0])); return fitTree(xs, r, state.depth, -0.01, 1.01); }
-// ---------- drawing ----------
-function hidpi(id, w, h) { const c = document.getElementById(id), dpr = Math.min(window.devicePixelRatio || 1, 2); c.width = w * dpr; c.height = h * dpr; const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); return { c, x, w, h }; }
-const A = hidpi('cv', 820, 400), B = hidpi('cv2', 820, 230);
-const PAD = { l: 46, r: 16, t: 14, b: 32 }, Y0 = -0.15, Y1 = 1.2;
-const px = x => PAD.l + x * (A.w - PAD.l - PAD.r), py = y => A.h - PAD.b - (y - Y0) / (Y1 - Y0) * (A.h - PAD.t - PAD.b);
-function drawMain() {
-  const { x, w, h } = A; x.clearRect(0, 0, w, h);
-  x.strokeStyle = 'rgba(200,220,255,0.08)'; for (let i = 0; i <= 4; i++) { const yy = py(Y0 + (Y1 - Y0) * i / 4); x.beginPath(); x.moveTo(PAD.l, yy); x.lineTo(w - PAD.r, yy); x.stroke(); }
-  x.fillStyle = '#5f6a7d'; x.font = '11px IBM Plex Mono, monospace'; x.fillText('week of the year →', w - PAD.r - 130, h - 10); x.save(); x.translate(12, 150); x.rotate(-Math.PI / 2); x.fillText('units →', 0, 0); x.restore();
-  if (state.showTrue) { x.strokeStyle = 'rgba(126,231,135,0.5)'; x.lineWidth = 2; x.setLineDash([6, 5]); x.beginPath(); for (let i = 0; i <= 200; i++) { const xx = i / 200; i ? x.lineTo(px(xx), py(truth(xx))) : x.moveTo(px(xx), py(truth(xx))); } x.stroke(); x.setLineDash([]); }
-  if (state.showNext && trees.length < MAX_T) { const nt = nextTree(); x.strokeStyle = 'rgba(245,165,36,0.85)'; x.lineWidth = 1.5; x.beginPath(); for (let i = 0; i <= 400; i++) { const xx = i / 400; const yy = ensemble(xx) + state.lr * predictTree(nt, xx); i ? x.lineTo(px(xx), py(yy)) : x.moveTo(px(xx), py(yy)); } x.stroke(); }
-  x.strokeStyle = '#7c8cff'; x.lineWidth = 2.5; x.beginPath(); for (let i = 0; i <= 400; i++) { const xx = i / 400; const yy = Math.max(Y0 - 0.3, Math.min(Y1 + 0.3, ensemble(xx))); i ? x.lineTo(px(xx), py(yy)) : x.moveTo(px(xx), py(yy)); } x.stroke();
-  for (const [xx, yy] of test) { x.fillStyle = 'rgba(255,107,139,0.8)'; x.beginPath(); x.arc(px(xx), py(yy), 3, 0, 7); x.fill(); }
-  for (const [xx, yy] of train) { x.fillStyle = '#2ee6c5'; x.beginPath(); x.arc(px(xx), py(yy), 3.6, 0, 7); x.fill(); }
-}
-function drawCurve() {
-  const { x, w, h } = B; x.clearRect(0, 0, w, h);
-  const L = 50, R = 14, T = 12, Bt = 30, W = w - L - R, H = h - T - Bt;
-  const maxT = Math.max(20, hist.length - 1), maxE = Math.max(...hist.map(p => Math.max(p.tr, p.te))) * 1.05;
-  const qx = t => L + t / maxT * W, qy = e => T + H - e / maxE * H;
-  const line = (k, col) => { x.strokeStyle = col; x.lineWidth = 2.2; x.beginPath(); hist.forEach((p, i) => i ? x.lineTo(qx(p.t), qy(p[k])) : x.moveTo(qx(p.t), qy(p[k]))); x.stroke(); };
-  line('tr', '#2ee6c5'); line('te', '#ff6b8b');
-  const best = hist.reduce((a, p) => p.te < a.te ? p : a);
-  x.fillStyle = '#f5a524'; x.beginPath(); x.moveTo(qx(best.t), qy(best.te) - 7); x.lineTo(qx(best.t) + 6, qy(best.te)); x.lineTo(qx(best.t), qy(best.te) + 7); x.lineTo(qx(best.t) - 6, qy(best.te)); x.closePath(); x.fill();
-  x.fillStyle = '#5f6a7d'; x.font = '10px IBM Plex Mono, monospace'; for (let k = 0; k <= 5; k++) x.fillText(Math.round(maxT * k / 5), qx(maxT * k / 5) - 6, h - 10); x.fillText(maxE.toFixed(2), 6, T + 10); x.fillText('0', 6, T + H); x.fillText('trees →', w - R - 50, h - 10);
-}
-// ---------- controls ----------
+function mse(score, y) { let s = 0; for (let i = 0; i < y.length; i++) s += (y[i] - score[i]) ** 2; return s / y.length; }
+function stumpGain(x, r, cut) { let sL = 0, nL = 0, s = 0; for (let i = 0; i < x.length; i++) { s += r[i]; if (x[i] <= cut) { sL += r[i]; nL++; } } const nR = x.length - nL; if (!nL || !nR) return { gain: 0, mL: 0, mR: 0, nL, nR }; return { gain: sL * sL / nL + (s - sL) ** 2 / nR - s * s / x.length, mL: sL / nL, mR: (s - sL) / nR, nL, nR }; }
+function Team(D) { this.D = D; this.reset(); }
+Team.prototype.reset = function () { const D = this.D; this.base = D.yt.reduce((a, b) => a + b, 0) / D.yt.length; this.Ft = D.xt.map(() => this.base); this.Fe = D.xe.map(() => this.base); this.trees = []; this.hist = [{ t: 0, tr: auc(this.Ft, D.yt), te: auc(this.Fe, D.ye) }]; };
+Team.prototype.resid = function () { return this.D.yt.map((y, i) => y - this.Ft[i]); };
+Team.prototype.add = function (tree, lr) { const D = this.D; for (let i = 0; i < D.xt.length; i++) this.Ft[i] += lr * predTree(tree, D.xt[i]); for (let i = 0; i < D.xe.length; i++) this.Fe[i] += lr * predTree(tree, D.xe[i]); this.trees.push({ tree, lr }); this.hist.push({ t: this.trees.length, tr: auc(this.Ft, D.yt), te: auc(this.Fe, D.ye) }); };
+Team.prototype.grow = function (lr, depth, minLeaf) { this.add(fitTree(this.D.xt, this.resid(), [...this.D.xt.keys()], depth, minLeaf), lr); };
+Team.prototype.score = function (v) { let s = this.base; for (const { tree, lr } of this.trees) s += lr * predTree(tree, v); return s; };
+
+// ---------- shared drawing ----------
 const $ = id => document.getElementById(id);
-function readout() {
-  const last = hist[hist.length - 1], best = hist.reduce((a, p) => p.te < a.te ? p : a);
-  $('ro-t').textContent = trees.length; $('ro-train').textContent = last.tr.toFixed(3); $('ro-test').textContent = last.te.toFixed(3); $('ro-best').textContent = best.te.toFixed(3); $('ro-es').textContent = trees.length ? 'tree ' + best.t : '—';
-  const badges = [];
-  if (trees.length === 0) badges.push('<span class="badge dim">nothing learned yet</span>');
-  else if (trees.length > best.t + 30 && last.te > best.te * 1.03) badges.push('<span class="badge bad">PAST THE MINIMUM · fitting noise</span>');
-  else if (Math.abs(trees.length - best.t) <= 10 && trees.length > 5) badges.push('<span class="badge good">NEAR THE EARLY-STOPPING POINT</span>');
-  else badges.push('<span class="badge warn">still improving</span>');
-  if (state.lr >= 0.8) badges.push('<span class="badge warn">high learning rate</span>');
-  $('ro-badges').innerHTML = badges.join(' ');
-  let note;
-  if (trees.length === 0) note = '<b>Tree 0 is the mean.</b> The amber curve shows what the first tree will add: a step function fit to the residuals, scaled by the learning rate. Press <b>Add 1 tree</b>.';
-  else if (state.lr >= 0.8) note = '<b>Rate 1.0 overshoots.</b> Each tree corrects the residuals fully, so the ensemble jumps around and the test error is jagged. Lower the rate: smaller steps, more trees, a smoother path down.';
-  else if (state.depth >= 4) note = '<b>Deep trees fit fast and overfit fast.</b> With depth 4 the training error collapses in a handful of trees and the test minimum arrives early. Boosting wants weak learners.';
-  else if (trees.length > best.t + 30) note = '<b>Training error keeps falling; test error is rising.</b> Every tree now fits noise in the training weeks. Early stopping would have frozen the ensemble at tree ' + best.t + ' — that is the model to ship.';
-  else if (trees.length < 8) note = '<b>Watch the residuals shrink.</b> Each tree takes one bite out of what the ensemble still gets wrong, starting with the biggest systematic error.';
-  else note = '<b>Rate × trees is the key trade-off.</b> A lower learning rate needs more trees but lands closer to the true curve. Compare the "slow & steady" preset with the default at the same number of trees.';
-  $('ro-note').innerHTML = note; $('hoverbox').textContent = trees.length + ' trees · train RMSE ' + last.tr.toFixed(3) + ' · test RMSE ' + last.te.toFixed(3);
+const XMAX = 400, clip = v => Math.min(v, XMAX);
+function hidpi(id) { const c = $(id), w = c.width, h = c.height, dpr = Math.min(window.devicePixelRatio || 1, 2); c.width = w * dpr; c.height = h * dpr; const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); return { x, w, h }; }
+const PAD = { l: 48, r: 14, t: 14, b: 34 };
+// 16 equal-count groups of training bookings, for the red dots
+const order = [...D.xt.keys()].sort((a, b) => D.xt[a] - D.xt[b]), NB = 16, bins = [];
+for (let b = 0; b < NB; b++) { const idx = order.slice(Math.round(b * order.length / NB), Math.round((b + 1) * order.length / NB)); bins.push({ idx, x: idx.reduce((s, i) => s + clip(D.xt[i]), 0) / idx.length, y: idx.reduce((s, i) => s + D.yt[i], 0) / idx.length }); }
+function frame(C, y0, y1, ylab, fmt) {
+  const { x, w, h } = C; x.clearRect(0, 0, w, h);
+  const px = v => PAD.l + clip(v) / XMAX * (w - PAD.l - PAD.r), py = v => h - PAD.b - (v - y0) / (y1 - y0) * (h - PAD.t - PAD.b);
+  x.font = '11px IBM Plex Mono, monospace'; x.fillStyle = '#5f6a7d'; x.strokeStyle = 'rgba(200,220,255,0.08)'; x.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) { const v = y0 + (y1 - y0) * i / 4, yy = py(v); x.beginPath(); x.moveTo(PAD.l, yy); x.lineTo(w - PAD.r, yy); x.stroke(); x.textAlign = 'right'; x.fillText(fmt(v), PAD.l - 6, yy + 4); }
+  x.textAlign = 'center'; for (const v of [0, 100, 200, 300, 400]) x.fillText(v === 400 ? '400+' : v, px(v), h - PAD.b + 16);
+  x.fillText('days booked ahead (lead time)', (PAD.l + w - PAD.r) / 2, h - 4);
+  return { px, py };
 }
-function redraw() { drawMain(); drawCurve(); readout(); }
-function sync() { $('v-lr').textContent = state.lr.toFixed(2); $('v-depth').textContent = state.depth; $('v-noise').textContent = state.noise.toFixed(2); $('v-n').textContent = state.n; $('lr').value = state.lr; $('depth').value = state.depth; $('noise').value = state.noise; $('n').value = state.n; $('showtrue').checked = state.showTrue; $('shownext').checked = state.showNext; }
-function clearActive() { document.querySelectorAll('#presets button').forEach(b => b.classList.remove('active')); }
-$('lr').addEventListener('input', e => { state.lr = +e.target.value; clearActive(); sync(); reset(); redraw(); });
-$('depth').addEventListener('input', e => { state.depth = +e.target.value; clearActive(); sync(); reset(); redraw(); });
-$('noise').addEventListener('input', e => { state.noise = +e.target.value; clearActive(); sync(); sample(); reset(); redraw(); });
-$('n').addEventListener('input', e => { state.n = +e.target.value; clearActive(); sync(); sample(); reset(); redraw(); });
-$('showtrue').addEventListener('change', e => { state.showTrue = e.target.checked; redraw(); });
-$('shownext').addEventListener('change', e => { state.showNext = e.target.checked; redraw(); });
-$('step').addEventListener('click', () => { addTree(); redraw(); });
-$('step10').addEventListener('click', () => { for (let i = 0; i < 10; i++) addTree(); redraw(); });
-let runTimer = null;
-$('run').addEventListener('click', () => { if (runTimer) return; runTimer = setInterval(() => { for (let i = 0; i < 3; i++) if (!addTree()) { clearInterval(runTimer); runTimer = null; break; } redraw(); }, 60); });
-$('reset').addEventListener('click', () => { if (runTimer) { clearInterval(runTimer); runTimer = null; } reset(); redraw(); });
-$('resample').addEventListener('click', () => { state.draw++; sample(); reset(); redraw(); });
-document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => {
-  const [lr, depth, _, noise, n] = b.dataset.p.split(',').map(Number); state.lr = lr; state.depth = depth; state.noise = noise; state.n = n;
-  clearActive(); b.classList.add('active'); sync(); sample(); reset(); for (let i = 0; i < 30; i++) addTree(); redraw();
-}));
-sample(); sync(); reset(); redraw();
+function drawFit(C, team, extra) {
+  const { x } = C, { px, py } = frame(C, 0, 0.9, '', v => Math.round(v * 100) + '%');
+  if (extra && extra.cut != null) { x.strokeStyle = 'rgba(245,165,36,0.9)'; x.lineWidth = 2; x.setLineDash([5, 4]); x.beginPath(); x.moveTo(px(extra.cut), PAD.t); x.lineTo(px(extra.cut), C.h - PAD.b); x.stroke(); x.setLineDash([]); }
+  const line = (f, color, lw) => { x.strokeStyle = color; x.lineWidth = lw; x.beginPath(); for (let v = 0; v <= XMAX; v++) { const yy = py(Math.max(-0.05, Math.min(0.95, f(v)))); v ? x.lineTo(px(v), yy) : x.moveTo(px(v), yy); } x.stroke(); };
+  if (extra && extra.preview) line(extra.preview, '#f5a524', 2);
+  line(v => team.score(v), '#2ee6c5', 3);
+  x.fillStyle = '#ff6b8b'; for (const b of bins) { x.beginPath(); x.arc(px(b.x), py(b.y), 5, 0, 7); x.fill(); }
+}
+// ---------- station 1: be the trainee ----------
+const A = hidpi('c1'), A2 = hidpi('c1b'), STEP = 0.3, GOAL = 5;
+let me = new Team(D), pc = new Team(D), hired = 0;
+function bestStump(team) { return fitTree(D.xt, team.resid(), [...D.xt.keys()], 1, 10); }
+function myTree(cut, g) { return { leaf: false, cut, L: { leaf: true, v: g.mL }, R: { leaf: true, v: g.mR } }; }
+function draw1() {
+  const cut = +$('cut').value + 0.5, r = me.resid(), g = stumpGain(D.xt, r, cut), best = bestStump(me), t = myTree(cut, g);
+  drawFit(A, me, { cut, preview: v => me.score(v) + STEP * predTree(t, v) });
+  const { x } = A2, { px, py } = frame(A2, -0.4, 0.4, '', v => (v > 0 ? '+' : '') + v.toFixed(1));
+  x.strokeStyle = '#5f6a7d'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(PAD.l, py(0)); x.lineTo(A2.w - PAD.r, py(0)); x.stroke();
+  bins.forEach((b, k) => { const miss = b.idx.reduce((s, i) => s + r[i], 0) / b.idx.length, x0 = px(k ? (bins[k - 1].x + b.x) / 2 : 0), x1 = px(k < NB - 1 ? (b.x + bins[k + 1].x) / 2 : XMAX); x.fillStyle = miss >= 0 ? 'rgba(255,107,139,0.8)' : 'rgba(46,230,197,0.8)'; const m = Math.max(-0.4, Math.min(0.4, miss)); x.fillRect(x0 + 1, Math.min(py(0), py(m)), Math.max(2, x1 - x0 - 2), Math.abs(py(m) - py(0))); });
+  x.strokeStyle = 'rgba(245,165,36,0.9)'; x.lineWidth = 2; x.setLineDash([5, 4]); x.beginPath(); x.moveTo(px(cut), PAD.t); x.lineTo(px(cut), A2.h - PAD.b); x.stroke(); x.setLineDash([]);
+  $('q-n').textContent = $('cut').value;
+  const box = (el, who, n, m) => { el.className = 'box ' + (m >= 0 ? 'up' : 'down'); el.innerHTML = who + ' · ' + n + ' guests<b>' + (m >= 0 ? '+' : '−') + Math.abs(m).toFixed(2) + '</b>average miss. ' + (m >= 0 ? 'Raise' : 'Lower') + ' their score by ' + Math.abs(STEP * m).toFixed(2) + '.'; };
+  box($('boxL'), 'NO: ' + $('cut').value + ' days or less', g.nL, g.mL); box($('boxR'), 'YES: more than ' + $('cut').value, g.nR, g.mR);
+  const pct = best.leaf || !best.gain ? 0 : Math.max(0, Math.min(100, Math.round(100 * g.gain / best.gain)));
+  $('pct').textContent = pct + '%'; $('pctbar').style.width = pct + '%';
+  $('g-n').textContent = hired + ' / ' + GOAL; $('g-you').textContent = me.hist[me.hist.length - 1].te.toFixed(3); $('g-pc').textContent = pc.hist[pc.hist.length - 1].te.toFixed(3);
+  $('hire').disabled = hired >= GOAL;
+}
+$('cut').addEventListener('input', draw1);
+$('hire').onclick = () => {
+  if (hired >= GOAL) return; const cut = +$('cut').value + 0.5, g = stumpGain(D.xt, me.resid(), cut);
+  me.add(myTree(cut, g), STEP); pc.add(bestStump(pc), STEP); hired++;
+  const you = me.hist[hired].te, comp = pc.hist[hired].te, v = $('g-verdict');
+  if (hired < GOAL) v.innerHTML = 'Hired! The team\'s score moved. <b>The miss chart changed too</b>: look again and find what is still wrong. ' + (GOAL - hired) + ' to go.';
+  else v.innerHTML = (you > comp + 0.0005 ? '🏆 <b>You beat the computer</b> (' + you.toFixed(3) + ' vs ' + comp.toFixed(3) + '). The computer always takes the best question <i>right now</i>. It is greedy, and greedy is not always best.' : you > comp - 0.0005 ? '🤝 <b>A tie</b> at ' + you.toFixed(3) + '. You think like the algorithm.' : 'The computer wins this time (' + comp.toFixed(3) + ' vs your ' + you.toFixed(3) + '). Press <b>Start over</b>: try five <b>different</b> cut points, each where the bars change color.') + ' That was boosting: <b>miss, trainee, add, repeat</b>.';
+  draw1();
+};
+$('best').onclick = () => { const b = bestStump(me); if (!b.leaf) { $('cut').value = Math.max(1, Math.min(399, Math.floor(b.cut))); draw1(); } };
+$('again').onclick = () => { me = new Team(D); pc = new Team(D); hired = 0; $('cut').value = 30; $('g-verdict').innerHTML = 'Look at the bottom chart. Where is the team <b>most wrong</b>? Put your cut where the bars change from teal to coral.'; draw1(); };
+// ---------- station 2: grow the team ----------
+const B = hidpi('c2'), B2 = hidpi('c2b'), MAXT = 300; let team = new Team(D), timer = null;
+const cfg = () => ({ lr: +$('lr').value, d: +$('depth').value });
+function bestOf(h) { return h.slice(1).reduce((a, p) => p.te > a.te ? p : a, h[1] || h[0]); }
+function draw2() {
+  drawFit(B, team);
+  const { x, w, h } = B2, hist = team.hist, y0 = 0.5, y1 = 0.95; x.clearRect(0, 0, w, h);
+  const px = t => PAD.l + t / MAXT * (w - PAD.l - PAD.r), py = v => h - PAD.b - (v - y0) / (y1 - y0) * (h - PAD.t - PAD.b);
+  x.font = '11px IBM Plex Mono, monospace'; x.fillStyle = '#5f6a7d'; x.strokeStyle = 'rgba(200,220,255,0.08)';
+  for (let i = 0; i <= 3; i++) { const v = y0 + (y1 - y0) * i / 3, yy = py(v); x.beginPath(); x.moveTo(PAD.l, yy); x.lineTo(w - PAD.r, yy); x.stroke(); x.textAlign = 'right'; x.fillText(v.toFixed(2), PAD.l - 6, yy + 4); }
+  x.textAlign = 'center'; for (const t of [0, 100, 200, 300]) x.fillText(t, px(t), h - PAD.b + 16); x.fillText('trainees on the team', (PAD.l + w - PAD.r) / 2, h - 4);
+  const ln = (k, c) => { x.strokeStyle = c; x.lineWidth = 2.5; x.beginPath(); hist.forEach((p, i) => i ? x.lineTo(px(p.t), py(p[k])) : x.moveTo(px(p.t), py(p[k]))); x.stroke(); };
+  ln('tr', '#7c8cff'); ln('te', '#ff6b8b');
+  const n = team.trees.length, last = hist[n], b = bestOf(hist);
+  if (n > 0) { x.fillStyle = '#f5a524'; x.beginPath(); x.arc(px(b.t), py(b.te), 6, 0, 7); x.fill(); x.textAlign = 'left'; x.fillText('best: trainee ' + b.t, Math.min(px(b.t) + 10, w - 130), py(b.te) - 10); }
+  $('r-t').textContent = n; $('r-tr').textContent = n ? last.tr.toFixed(3) : '–'; $('r-te').textContent = n ? last.te.toFixed(3) : '–'; $('r-best').textContent = n ? b.te.toFixed(3) + ' (trainee ' + b.t + ')' : '–';
+  const bad = n > b.t + 25 && last.te < b.te - 0.008, gap = n ? last.tr - last.te : 0;
+  $('r-badges').innerHTML = !n ? '<span class="badge dim">nobody hired yet</span>' : bad ? '<span class="badge bad">MEMORIZING · practice up, exam down</span>' : n <= b.t + 5 ? '<span class="badge warn">still learning</span>' : '<span class="badge good">PAST ITS BEST · the coach would have stopped</span>';
+  $('r-note').innerHTML = !n ? 'Press <b>Add 1 trainee</b> a few times. Each one adds a step where the team is still wrong.'
+    : bad ? 'The team has stopped learning patterns and started <b>memorizing the 800 training bookings</b>. Practice is ' + last.tr.toFixed(2) + ', the mock exam has dropped to ' + last.te.toFixed(2) + '. The coach would have stopped at <b>trainee ' + b.t + '</b>. That is <b>early stopping</b>.'
+    : n <= b.t + 5 ? 'Each new trainee still helps on the mock exam. Keep adding.'
+    : 'The mock-exam score peaked at <b>trainee ' + b.t + '</b> and is not improving any more. The gap between practice and exam is ' + gap.toFixed(2) + '. Keep going to 300 and watch it.';
+}
+function stop() { if (timer) { cancelAnimationFrame(timer); timer = null; $('run').textContent = '▶ Grow to 300'; } }
+function addN(k) { const { lr, d } = cfg(); for (let i = 0; i < k && team.trees.length < MAXT; i++) team.grow(lr, d, 3); draw2(); }
+function reset2() { stop(); team = new Team(D); $('v-lr').textContent = (+$('lr').value).toFixed(2); $('v-d').textContent = $('depth').value; draw2(); }
+$('add1').onclick = () => { stop(); addN(1); }; $('add10').onclick = () => { stop(); addN(10); }; $('reset2').onclick = reset2;
+$('run').onclick = () => { if (timer) return stop(); $('run').textContent = '❚❚ Pause'; const tick = () => { addN(3); if (team.trees.length < MAXT) timer = requestAnimationFrame(tick); else stop(); }; timer = requestAnimationFrame(tick); };
+const clearPresets = () => document.querySelectorAll('#presets button').forEach(b => b.classList.remove('active'));
+$('lr').addEventListener('input', () => { clearPresets(); reset2(); }); $('depth').addEventListener('input', () => { clearPresets(); reset2(); });
+document.querySelectorAll('#presets button').forEach(b => b.onclick = () => { const [lr, d] = b.dataset.p.split(','); $('lr').value = lr; $('depth').value = d; clearPresets(); b.classList.add('active'); reset2(); });
+draw1(); draw2();
 </script>
 </body>
 </html>

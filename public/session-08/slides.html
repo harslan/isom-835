@@ -56,6 +56,11 @@
   img.chart { display: block; max-width: min(92vw, 1100px); max-height: 50vh; width: auto; height: auto; border-radius: 14px; }
   table.cm td { text-align: center; }
   table.cm.small td, table.cm.small th { padding: 1.1vh 1.5vw; font-size: clamp(0.75rem, 1.35vw, 1.05rem); }
+  .card p { font-size: clamp(0.95rem, 1.45vw, 1.2rem); }
+  .card .label { font-size: clamp(0.72rem, 0.95vw, 0.9rem); }
+  .card .title { font-size: clamp(1.05rem, 1.7vw, 1.35rem); }
+  .card p.real { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1vw, 0.9rem); color: var(--amber); margin-top: 8px; }
+  svg text { font-family: Manrope, sans-serif; }
 </style>
 </head>
 <body>
@@ -91,7 +96,7 @@
     <div class="card" style="min-width:300px"><div class="label">Public leaderboard</div><div class="title">The mock exam</div><p>You saw this score after every submission. You could retake it again and again.</p></div>
     <div class="card" style="min-width:300px; border-color: var(--teal)"><div class="label">Private leaderboard</div><div class="title">The real final</div><p>Bookings nobody has been graded on. <b>This one decides.</b></p></div>
   </div>
-  <p class="sub">If your rank drops tonight, you studied <b class="co">the mock exam</b>, not the subject.</p>
+  <p class="sub">Kaggle kept part of the test bookings <b>hidden the whole time</b>.<br>If your rank drops tonight, you studied <b class="co">the mock exam</b>, not the subject.</p>
 </section>
 
 <section class="slide" data-notes="Three minutes per team, strict. Three prompts on screen. Listen for: leaks found, pipeline discipline, forests. The usual pattern: clean pipelines beat clever models. Memo due tonight 11:59 PM.">
@@ -115,13 +120,33 @@
   <p class="sub">But in a forest, the trees <b class="co">never talk to each other</b>.<br>What if each tree could see what the others got wrong?</p>
 </section>
 
+<section class="slide" data-notes="Thirty-second reminder from Session 4, because every number tonight is an AUC. Pick one booking that canceled and one that did not. AUC is how often the model gives the canceler the higher score. 0.5 is a coin flip, 1.0 is perfect. So the forest's 0.942 means it ranks the pair correctly about 94 times out of 100.">
+  <div class="kicker">Reminder · how we keep score</div>
+  <h2>Every number tonight is an <span class="grad">AUC</span></h2>
+  <p class="sub">Pick one guest who <b class="co">canceled</b> and one who <b class="t">stayed</b>.<br>How often does the model give the canceler the <b>higher score</b>?</p>
+  <div class="row">
+    <div class="card" style="min-width:240px"><div class="label">A coin flip</div><div class="num" style="background:none;color:var(--muted)">0.50</div></div>
+    <div class="card" style="min-width:240px; border-color: var(--peri)"><div class="label">Last week's forest</div><div class="num">0.942</div><p>Right about 94 times out of 100.</p></div>
+    <div class="card" style="min-width:240px"><div class="label">Perfect</div><div class="num" style="background:none;color:var(--lime)">1.00</div></div>
+  </div>
+</section>
+
 <section class="slide" data-notes="The central picture of the night. Forest = committee: everyone works alone, in parallel, then they average. Boosting = relay team: one after another, each runner starts where the last one stopped. Forest trees are big (memorizers); boosting trees are small (a few questions). Forest averages; boosting adds corrections.">
   <div class="kicker">Two ways to use many trees</div>
   <h2>A committee, or a <span class="grad">relay team</span></h2>
-  <div class="row">
-    <div class="card" style="min-width:330px; border-color: var(--peri)"><div class="label">🌲 Random forest</div><div class="title">A committee that votes</div><p>300 <b>big</b> trees, built at the same time, each alone. <b>Average</b> their answers.</p></div>
-    <div class="card" style="min-width:330px; border-color: var(--teal)"><div class="label">🚀 Gradient boosting</div><div class="title">A relay team</div><p>Many <b>small</b> trees, built one after another. Each one <b>fixes what is left</b>. <b>Add up</b> the corrections.</p></div>
-  </div>
+  <svg viewBox="0 0 1100 285" width="94%" style="max-width:1200px" role="img" aria-label="Left: five big trees each send a vote down to one box that averages them. Right: four small trees in a chain, each passing what is still wrong to the next, and their corrections are added up.">
+    <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#5f6a7d"/></marker><marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#f5a524"/></marker></defs>
+    <text x="260" y="30" text-anchor="middle" font-size="27" font-weight="800" fill="#7c8cff">🌲 Random forest: a committee</text>
+    <polygon points="70,61 44.5,112.0 95.5,112.0" fill="#7c8cff" opacity="0.9"/><rect x="65.92" y="112.0" width="8.16" height="13.600000000000001" fill="#5f6a7d"/><path d="M70,128 L70,168" stroke="#5f6a7d" stroke-width="2" marker-end="url(#ar)"/><polygon points="165,61 139.5,112.0 190.5,112.0" fill="#7c8cff" opacity="0.9"/><rect x="160.92" y="112.0" width="8.16" height="13.600000000000001" fill="#5f6a7d"/><path d="M165,128 L165,168" stroke="#5f6a7d" stroke-width="2" marker-end="url(#ar)"/><polygon points="260,61 234.5,112.0 285.5,112.0" fill="#7c8cff" opacity="0.9"/><rect x="255.92" y="112.0" width="8.16" height="13.600000000000001" fill="#5f6a7d"/><path d="M260,128 L260,168" stroke="#5f6a7d" stroke-width="2" marker-end="url(#ar)"/><polygon points="355,61 329.5,112.0 380.5,112.0" fill="#7c8cff" opacity="0.9"/><rect x="350.92" y="112.0" width="8.16" height="13.600000000000001" fill="#5f6a7d"/><path d="M355,128 L355,168" stroke="#5f6a7d" stroke-width="2" marker-end="url(#ar)"/><polygon points="450,61 424.5,112.0 475.5,112.0" fill="#7c8cff" opacity="0.9"/><rect x="445.92" y="112.0" width="8.16" height="13.600000000000001" fill="#5f6a7d"/><path d="M450,128 L450,168" stroke="#5f6a7d" stroke-width="2" marker-end="url(#ar)"/>
+    <rect x="50" y="176" width="420" height="50" rx="12" fill="#0f131c" stroke="#7c8cff" stroke-width="2"/><text x="260" y="208" text-anchor="middle" font-size="24" font-weight="700" fill="#eef2f7">average the votes</text>
+    <text x="260" y="262" text-anchor="middle" font-size="21" fill="#a3adbd">big trees · all at once · each works alone</text>
+    <line x1="550" y1="10" x2="550" y2="275" stroke="rgba(200,220,255,0.12)" stroke-width="2"/>
+    <text x="828" y="30" text-anchor="middle" font-size="27" font-weight="800" fill="#2ee6c5">🚀 Gradient boosting: a relay team</text>
+    <polygon points="640,92 625.0,122.0 655.0,122.0" fill="#2ee6c5" opacity="0.9"/><rect x="637.6" y="122.0" width="4.8" height="8.0" fill="#5f6a7d"/><polygon points="765,92 750.0,122.0 780.0,122.0" fill="#2ee6c5" opacity="0.9"/><rect x="762.6" y="122.0" width="4.8" height="8.0" fill="#5f6a7d"/><polygon points="890,92 875.0,122.0 905.0,122.0" fill="#2ee6c5" opacity="0.9"/><rect x="887.6" y="122.0" width="4.8" height="8.0" fill="#5f6a7d"/><polygon points="1015,92 1000.0,122.0 1030.0,122.0" fill="#2ee6c5" opacity="0.9"/><rect x="1012.6" y="122.0" width="4.8" height="8.0" fill="#5f6a7d"/><path d="M662,112 L738,112" stroke="#f5a524" stroke-width="2.5" marker-end="url(#ar2)"/><path d="M787,112 L863,112" stroke="#f5a524" stroke-width="2.5" marker-end="url(#ar2)"/><path d="M912,112 L988,112" stroke="#f5a524" stroke-width="2.5" marker-end="url(#ar2)"/>
+    <text x="828" y="80" text-anchor="middle" font-size="20" fill="#f5a524">each passes on what is still wrong</text>
+    <rect x="618" y="176" width="420" height="50" rx="12" fill="#0f131c" stroke="#2ee6c5" stroke-width="2"/><text x="828" y="208" text-anchor="middle" font-size="24" font-weight="700" fill="#eef2f7">add up the corrections</text>
+    <text x="828" y="262" text-anchor="middle" font-size="21" fill="#a3adbd">small trees · one after another · each fixes what is left</text>
+  </svg>
 </section>
 
 <section class="slide" data-notes="Ask the room: how do you study for a final? Nobody retakes the same practice exam from zero 300 times. You look at what you got wrong and study that. That is boosting.">
@@ -138,9 +163,9 @@
   <h2>Miss, trainee, add. <span class="grad">Repeat.</span></h2>
   <div class="cards">
     <div class="card"><div class="label">Round 0</div><div class="title">Same score for everyone</div><p>The overall cancel rate: <b>37%</b>.</p></div>
-    <div class="card"><div class="label">The miss</div><div class="title">What happened − our score</div><p>Canceled: <b class="co">+0.63</b> · Stayed: <b class="t">−0.37</b></p></div>
-    <div class="card"><div class="label">The trainee</div><div class="title">A tiny tree learns the miss</div><p>Not "who cancels?" but <b>"where are we still wrong?"</b></p></div>
-    <div class="card"><div class="label">Add</div><div class="title">Keep part of its correction</div><p>Then compute the new miss, and hire the next trainee.</p></div>
+    <div class="card"><div class="label">The miss</div><div class="title">What happened − our score</div><p>Canceled: <b class="co">+0.63</b> · Stayed: <b class="t">−0.37</b></p><p class="real">real name: residual</p></div>
+    <div class="card"><div class="label">The trainee</div><div class="title">A tiny tree learns the miss</div><p>Not "who cancels?" but <b>"where are we still wrong?"</b></p><p class="real">real name: weak learner</p></div>
+    <div class="card"><div class="label">Add</div><div class="title">Keep part of its correction</div><p>Then compute the new miss, and hire the next trainee.</p><p class="real">the team = an ensemble</p></div>
   </div>
 </section>
 
@@ -154,6 +179,26 @@
   <p class="sub">What is each guest's <b class="t">miss</b>? Which way will the first trainee push each score?</p>
 </section>
 
+<section class="slide" data-notes="The answer. The miss has a size and a direction. Positive miss: we were too low, push up. Negative miss: we were too high, push down.">
+  <div class="kicker">🧠 Answer</div>
+  <h2>The miss has a <span class="t">size</span> and a <span class="p">direction</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:320px; border-color: var(--coral)"><div class="label">Guest A · canceled (a 1)</div><div class="num" style="background:none;color:var(--coral)">1 − 0.37 = +0.63</div><p>We were too low. Push the score <b>up</b> ↑</p></div>
+    <div class="card" style="min-width:320px; border-color: var(--teal)"><div class="label">Guest B · stayed (a 0)</div><div class="num">0 − 0.37 = −0.37</div><p>We were too high. Push the score <b>down</b> ↓</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Two minutes, no technology. Draw a wavy line across the whiteboard: that is the truth. Volunteer 1 may draw only ONE flat line (the average): round 0. Each next volunteer may add only ONE step up or down, wherever the drawing is most wrong. After five volunteers the staircase follows the curve. Ask: who was the smartest volunteer? Nobody: the team was. That is boosting. Then show the real version on the next slide.">
+  <div class="kicker">Try it · 2 minutes · five volunteers at the board</div>
+  <h2>Human <span class="grad">boosting</span></h2>
+  <ul class="list">
+    <li>I draw a <b class="co">wavy line</b>. That is the truth.</li>
+    <li>Volunteer 1 draws <b>one flat line</b> through the middle. Everyone gets the same score.</li>
+    <li>Each next volunteer may add <b class="t">just one step</b>, up or down, where the drawing is <b>most wrong</b>.</li>
+  </ul>
+  <p class="sub">After five of you: who was the smartest volunteer?</p>
+</section>
+
 <section class="slide" data-notes="Notebook Step 1. One clue only (lead time), trainees that ask ONE question each, 30% of each correction. Red dots: the real cancel rate in 25 groups of training bookings. First trainee's question: booked more than 25 days ahead? One step. Then each new trainee adds a small step exactly where the team is still wrong. After 100: a staircase hugging the dots. No single trainee is smart; the team is. Term: weak learners.">
   <div class="kicker">One clue, one picture · lead time</div>
   <h2>Each trainee adds <span class="t">one small step</span></h2>
@@ -161,19 +206,34 @@
   <p class="sub">No single trainee is smart. <b class="t">The team is.</b></p>
 </section>
 
-<section class="slide" data-notes="4 minutes, on phones or laptops. The Explorer uses a small made-up demand curve. Press 'Add 1 tree' five times and watch the orange line: that is the next trainee's correction. Then 'Run to 300' and look at the bottom chart: where is the early-stopping diamond? Then the 'Overshoot (rate 1.0)' preset. We come back to both ideas after the break.">
+<section class="slide" data-notes="4 minutes, on phones or laptops. Station 1 of the new Boosting Explorer: 800 real bookings, one clue (lead time). The team starts at 38 percent for everyone. Students drag the cut to where the miss bars change color, read the two boxes (average miss on each side), and press Hire. Five trainees. The computer's greedy team scores 0.668 on the mock exam; a student who picks five different sensible cuts (for example 14, 233, 98, 50, 300 days) scores 0.672 and wins. Lesson: the computer takes the best question right now; greedy is not always best. Ask who beat it.">
   <div class="kicker">Game time · 4 minutes · on your phone</div>
-  <h2>Hire the trainees <span class="grad">one at a time</span></h2>
-  <div class="pill" style="font-size:clamp(0.9rem,1.8vw,1.3rem); padding:14px 28px"><a href="/explore/boosting/" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/boosting</a></div>
+  <h2>Be the trainee. <span class="grad">Beat the computer.</span></h2>
+  <div class="pill" style="font-size:clamp(0.9rem,1.8vw,1.3rem); padding:14px 28px"><a href="/explore/boosting/#s1" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/boosting</a></div>
   <ul class="list">
-    <li>Press <b class="t">Add 1 tree</b> five times. The orange line is the next trainee's correction.</li>
-    <li>Press <b class="p">Run to 300</b>. In the bottom chart, where does the test error stop falling?</li>
-    <li>Try the <b class="co">Overshoot (rate 1.0)</b> button. What changes?</li>
+    <li>The team gives every booking <b>38%</b>. The bottom chart shows <b class="co">where it is wrong</b>.</li>
+    <li>Drag the cut. Ask <b>one question</b>: "booked more than N days ahead?" Press <b class="t">Hire my trainee</b>.</li>
+    <li>Hire <b>5 trainees</b>. The computer's team scores <b class="am">0.668</b>. Can yours do better?</li>
   </ul>
 </section>
 
+<section class="slide" data-notes="Notebook Step 2, first row of the table. A real booking: 510 days ahead, non-refundable deposit, and it canceled, so the truth is 1. Start 0.37, miss 0.63. Trainee 1 looks at guests like this one and says: raise by 0.62. We keep 30 percent of that: +0.19, new score 0.56. New miss 0.44. Trainee 2 says raise by 0.44, we keep +0.13: 0.69. Trainee 3 says 0.31, we keep +0.09: 0.78. Nobody jumps to the answer; three small steps, each in the right direction.">
+  <div class="kicker">Step 2 · by hand · follow one real guest</div>
+  <h2>Booked 510 days ahead, non-refundable. <span class="co">Canceled.</span></h2>
+  <svg viewBox="0 0 1100 262" width="94%" style="max-width:1200px" role="img" aria-label="A number line from 0 to 1. One guest who canceled starts at a score of 0.37 and moves to 0.56, 0.69 and 0.78 after three trainees, getting closer to 1.">
+    <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2ee6c5"/></marker></defs>
+    <line x1="60" y1="150" x2="1010" y2="150" stroke="#5f6a7d" stroke-width="3"/>
+    <text x="70" y="194" text-anchor="middle" font-size="19" fill="#a3adbd">← 0 = stays</text>
+    <circle cx="1010" cy="150" r="14" fill="#ff6b8b"/><text x="1010" y="194" text-anchor="middle" font-size="27" font-weight="800" fill="#ff6b8b">1</text><text x="985" y="220" text-anchor="middle" font-size="19" fill="#ff6b8b">the truth: canceled</text>
+    <path d="M237.2,150 Q353.73333333333335,72 470.2666666666667,150" fill="none" stroke="#2ee6c5" stroke-width="3" marker-end="url(#ar3)"/><text x="353.73333333333335" y="64" text-anchor="middle" font-size="26" font-weight="800" fill="#2ee6c5">+0.19</text><text x="353.73333333333335" y="36" text-anchor="middle" font-size="18" fill="#a3adbd">trainee 1</text><path d="M470.2666666666667,150 Q550.0,88 629.7333333333332,150" fill="none" stroke="#2ee6c5" stroke-width="3" marker-end="url(#ar3)"/><text x="550.0" y="80" text-anchor="middle" font-size="26" font-weight="800" fill="#2ee6c5">+0.13</text><text x="550.0" y="52" text-anchor="middle" font-size="18" fill="#a3adbd">trainee 2</text><path d="M629.7333333333332,150 Q684.9333333333333,100 740.1333333333333,150" fill="none" stroke="#2ee6c5" stroke-width="3" marker-end="url(#ar3)"/><text x="684.9333333333333" y="94" text-anchor="middle" font-size="26" font-weight="800" fill="#2ee6c5">+0.09</text><text x="684.9333333333333" y="66" text-anchor="middle" font-size="18" fill="#a3adbd">trainee 3</text><circle cx="237.2" cy="150" r="9" fill="#5f6a7d"/><text x="237.2" y="194" text-anchor="middle" font-size="27" font-weight="800" fill="#eef2f7">0.37</text><circle cx="470.2666666666667" cy="150" r="9" fill="#2ee6c5"/><text x="470.2666666666667" y="194" text-anchor="middle" font-size="27" font-weight="800" fill="#eef2f7">0.56</text><circle cx="629.7333333333332" cy="150" r="9" fill="#2ee6c5"/><text x="629.7333333333332" y="194" text-anchor="middle" font-size="27" font-weight="800" fill="#eef2f7">0.69</text><circle cx="740.1333333333333" cy="150" r="9" fill="#2ee6c5"/><text x="740.1333333333333" y="194" text-anchor="middle" font-size="27" font-weight="800" fill="#eef2f7">0.78</text>
+    <text x="237.2" y="220" text-anchor="middle" font-size="19" fill="#a3adbd">start</text>
+    <text x="600" y="250" text-anchor="middle" font-size="21" fill="#f5a524">the miss shrinks:  0.63  →  0.44  →  0.31  →  0.22</text>
+  </svg>
+  <p class="sub">Trainee 1 says <b>"raise this guest by 0.62"</b>. We keep 30% of that: <b class="t">+0.19</b>. Then we measure the miss again.</p>
+</section>
+
 <section class="slide" data-notes="Notebook Step 2: all 28 columns, trainees with 3 questions, 30% steps. Six real training bookings. Rows 1–2: non-refundable, long lead time, canceled: 0.37 → 0.56 → 0.69 → 0.78. Row 3 is the hard case: canceled, but looks like a guest who stays (no deposit, 24 days), so the team pushes it the wrong way; a later trainee has to fix that. Last row: booked the same day, stayed: 0.37 → 0.16. Test AUC after 1, 2, 3 trainees: 0.785, 0.862, 0.871.">
-  <div class="kicker">Step 2 · by hand, all the clues · six real guests</div>
+  <div class="kicker">Now six real guests · same three trainees</div>
   <h2>Watch the scores <span class="grad">move</span></h2>
   <table class="cm small">
     <tr><th>lead time</th><th>deposit</th><th>canceled?</th><th>round 0</th><th>round 1</th><th>round 2</th><th>round 3</th></tr>
@@ -189,7 +249,7 @@
 
 <section class="slide" data-notes="The whole algorithm. Read the three lines out loud: miss, trainee, add. STEP is 0.3. This is real, runnable code from the notebook. Emphasize: the tree is a Regressor because it predicts a number (the miss), not yes/no.">
   <div class="kicker">The whole algorithm</div>
-  <h2>You just built <span class="grad">gradient boosting</span></h2>
+  <h2>Three lines. You just built <span class="grad">gradient boosting</span></h2>
 <pre>team = <span class="s">37%</span> for every booking                 <span class="c"># round 0</span>
 <span class="k">for</span> round <span class="k">in</span> range(100):
     miss    = what_happened - team             <span class="c"># 1. what is still wrong?</span>
@@ -208,12 +268,19 @@
 <section class="slide" data-notes="Why 'gradient'. Walking downhill in fog: you can't see the bottom, you feel the slope and take a small step. The hill is total error. The miss tells each booking's score which way is downhill: that direction is the gradient. Each tree = one small step. Same idea trains neural networks (last week's bridge): a network nudges weights downhill; boosting adds a small tree per step.">
   <div class="kicker">Why is it called <i>gradient</i> boosting?</div>
   <h2>Walking downhill <span class="grad">in the fog</span></h2>
+  <svg viewBox="0 0 920 250" width="72%" style="max-width:900px" role="img" aria-label="A valley-shaped curve of error. Dots step down the left slope toward the bottom, each step smaller than the last.">
+    <defs><marker id="ar4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2ee6c5"/></marker></defs>
+    <polyline points="60,40.0 70,47.5 80,54.9 90,62.1 100,69.1 110,76.0 120,82.7 130,89.2 140,95.6 150,101.8 160,107.8 170,113.7 180,119.4 190,124.9 200,130.3 210,135.5 220,140.6 230,145.4 240,150.2 250,154.7 260,159.1 270,163.3 280,167.4 290,171.2 300,175.0 310,178.5 320,181.9 330,185.1 340,188.2 350,191.1 360,193.8 370,196.4 380,198.8 390,201.0 400,203.1 410,205.0 420,206.7 430,208.3 440,209.7 450,210.9 460,212.0 470,212.9 480,213.7 490,214.3 500,214.7 510,214.9 520,215.0 530,214.9 540,214.7 550,214.3 560,213.7 570,212.9 580,212.0 590,210.9 600,209.7 610,208.3 620,206.7 630,205.0 640,203.1 650,201.0 660,198.8 670,196.4 680,193.8 690,191.1 700,188.2 710,185.1 720,181.9 730,178.5 740,175.0 750,171.2 760,167.4 770,163.3 780,159.1 790,154.7 800,150.2 810,145.4 820,140.6 830,135.5 840,130.3 850,124.9 860,119.4" fill="none" stroke="#5f6a7d" stroke-width="3"/>
+    <text x="92" y="34" font-size="21" fill="#a3adbd">start: 37% for everyone (big error)</text>
+    <text x="520" y="242" text-anchor="middle" font-size="21" fill="#7ee787">lowest error</text>
+    <text x="350" y="92" font-size="22" font-weight="700" fill="#2ee6c5">each step = one small tree</text>
+    <path d="M60,26.0 L215,124.1" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#ar4)"/><path d="M215,124.1 L320,167.9" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#ar4)"/><path d="M320,167.9 L392,187.4" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#ar4)"/><path d="M392,187.4 L442,196.0" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#ar4)"/><path d="M442,196.0 L476,199.4" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#ar4)"/><path d="M476,199.4 L499,200.6" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#ar4)"/><circle cx="60" cy="26.0" r="7" fill="#2ee6c5"/><circle cx="215" cy="124.1" r="7" fill="#2ee6c5"/><circle cx="320" cy="167.9" r="7" fill="#2ee6c5"/><circle cx="392" cy="187.4" r="7" fill="#2ee6c5"/><circle cx="442" cy="196.0" r="7" fill="#2ee6c5"/><circle cx="476" cy="199.4" r="7" fill="#2ee6c5"/><circle cx="499" cy="200.6" r="7" fill="#2ee6c5"/>
+  </svg>
   <ul class="list">
-    <li>You can't see the bottom. You can feel <b>which way is downhill</b>. Take a small step. Feel again.</li>
     <li>The <b class="co">hill</b> is the model's total error. The <b class="t">miss</b> says which way is downhill for every booking. That direction is the <b>gradient</b>.</li>
     <li>Each small tree is <b class="p">one step down the hill</b>.</li>
   </ul>
-  <p class="sub">The same idea trains <b class="p">neural networks</b>: they nudge weights downhill. Boosting adds a tree.</p>
+  <p class="sub" style="font-size:clamp(0.9rem,1.6vw,1.2rem)">You can't see the bottom, but you can feel the slope. The same idea trains <b class="p">neural networks</b>: they nudge weights downhill.</p>
 </section>
 
 <section class="slide" data-notes="10 minutes. After the break: the real tool, and the surprise that boosting can have too many trees.">
@@ -225,6 +292,7 @@
 <section class="slide" data-notes="Notebook Step 3. Hist = histogram: each number column is sorted into at most 255 buckets (like age groups instead of exact ages), so trees try 255 cut points instead of thousands. Handles blanks itself. Default settings: 100 trees, learning rate 0.1, trained in under a second: test AUC 0.942, tying the 300-tree forest with no tuning.">
   <div class="kicker">Step 3 · the real tool</div>
   <h2><span class="t">Hist</span><span class="p">GradientBoosting</span>Classifier</h2>
+  <p class="sub" style="font-size:clamp(0.9rem,1.6vw,1.2rem)">A long name for the thing we just built by hand. It comes with scikit-learn.</p>
   <div class="cards">
     <div class="card"><div class="label">Hist</div><div class="title">Buckets</div><p>Every number goes into one of 255 buckets, like age groups. <b>Very fast.</b></p></div>
     <div class="card"><div class="label">Gradient Boosting</div><div class="title">What we just built</div><p>Miss, small tree, add.</p></div>
@@ -246,13 +314,23 @@
   <p class="sub">Your colleague just trained a boosted model with <b class="co">5,000 trees</b>.<br>What do you tell them?</p>
 </section>
 
+<section class="slide" data-notes="The answer. That rule is for forests. A forest's trees vote independently, so extra trees only steady the vote. A boosted team's trees keep fixing leftover mistakes on the training bookings, so after a point they fit quirks, not patterns. Boosting needs a stopping rule: next slide.">
+  <div class="kicker">🧠 Answer</div>
+  <h2>That rule is for <span class="p">forests</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:330px; border-color: var(--peri)"><div class="label">🌲 Forest</div><div class="title">Extra trees = extra voters</div><p>The vote gets steadier. It never memorizes more.</p></div>
+    <div class="card" style="min-width:330px; border-color: var(--coral)"><div class="label">🚀 Boosting</div><div class="title">Extra trees keep "fixing"</div><p>When the real patterns are done, they start fixing <b>quirks of single bookings</b>.</p></div>
+  </div>
+  <p class="sub">Boosting needs to know <b class="t">when to stop</b>.</p>
+</section>
+
 <section class="slide" data-notes="Notebook Step 5. The coach analogy: keep studying while mock exam scores improve; when they stop, stop. validation_fraction=0.15 is the mock exam, carved out of the TRAINING bookings; n_iter_no_change=50 is the patience. The test set stays untouched.">
   <div class="kicker">Step 5 · early stopping</div>
   <h2>The coach says: <span class="grad">stop cramming</span></h2>
   <div class="cards">
-    <div class="card"><div class="label">1 · Mock exam</div><p>Set aside <b>15% of the training bookings</b>. The model never trains on them.</p></div>
+    <div class="card"><div class="label">1 · Mock exam</div><p>Set aside <b>15% of the training bookings</b>. The model never trains on them.</p><p class="real">real name: validation set</p></div>
     <div class="card"><div class="label">2 · Grade every tree</div><p>After each new tree, score the team on the mock exam.</p></div>
-    <div class="card" style="border-color: var(--teal)"><div class="label">3 · Stop</div><p>No improvement for <b>50 trees in a row</b>? Stop.</p></div>
+    <div class="card" style="border-color: var(--teal)"><div class="label">3 · Stop</div><p>No improvement for <b>50 trees in a row</b>? Stop.</p><p class="real">real name: early stopping</p></div>
   </div>
   <p class="sub">The real exam stays <b class="t">untouched</b>.</p>
 </section>
@@ -267,24 +345,39 @@
 <section class="slide" data-notes="Notebook Step 6. The 0.3 in our by-hand loop is the learning rate. Golf: full power every shot gets close fast, then flies past the hole and back. Careful putts each cover part of the remaining distance. Why not trust each trainee 100%: part of every correction is real pattern, part is luck in the training data; small steps let later trainees fix earlier luck.">
   <div class="kicker">Step 6 · the learning rate</div>
   <h2>Big swings or <span class="grad">careful putts?</span></h2>
-  <div class="row">
-    <div class="card" style="min-width:320px; border-color: var(--coral)"><div class="label">Big learning rate</div><div class="title">Full power, every shot ⛳</div><p>Close fast. Then past the hole, and back, and past again.</p></div>
-    <div class="card" style="min-width:320px; border-color: var(--teal)"><div class="label">Small learning rate</div><div class="title">A series of careful putts</div><p>Each covers <b>part of the remaining distance</b>. More shots, but you land close.</p></div>
-  </div>
-  <p class="sub">Every trainee's correction is part pattern, part <b class="am">luck</b>. Small steps let the next trainee fix the luck.</p>
+  <svg viewBox="0 0 1000 250" width="88%" style="max-width:1100px" role="img" aria-label="Two golf paths to the same hole. With big swings the ball flies past the hole and back several times. With careful putts each shot covers part of the remaining distance and the ball settles next to the hole.">
+    <defs><marker id="g1" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#ff6b8b"/></marker><marker id="g2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="#2ee6c5"/></marker></defs>
+    <text x="20" y="28" font-size="22" font-weight="800" fill="#ff6b8b">Big learning rate: full power every shot</text>
+    <line x1="60" y1="105" x2="960" y2="105" stroke="#2a3140" stroke-width="3"/><line x1="700" y1="105" x2="700" y2="57" stroke="#eef2f7" stroke-width="2.5"/><polygon points="700,57 732,66 700,75" fill="#f5a524"/><ellipse cx="700" cy="107" rx="13" ry="4" fill="#000" stroke="#5f6a7d"/><path d="M80,105 Q505.0,43 930,105" fill="none" stroke="#ff6b8b" stroke-width="2.5" marker-end="url(#g1)"/><path d="M930,105 Q725.0,43 520,105" fill="none" stroke="#ff6b8b" stroke-width="2.5" marker-end="url(#g1)"/><path d="M520,105 Q685.0,43 850,105" fill="none" stroke="#ff6b8b" stroke-width="2.5" marker-end="url(#g1)"/><path d="M850,105 Q720.0,43 590,105" fill="none" stroke="#ff6b8b" stroke-width="2.5" marker-end="url(#g1)"/><circle cx="80" cy="105" r="6" fill="#eef2f7"/>
+    <text x="700" y="132" text-anchor="middle" font-size="18" fill="#ff6b8b">past the hole … and back … and past again</text>
+    <text x="20" y="160" font-size="22" font-weight="800" fill="#2ee6c5">Small learning rate: careful putts</text>
+    <line x1="60" y1="232" x2="960" y2="232" stroke="#2a3140" stroke-width="3"/><line x1="700" y1="232" x2="700" y2="184" stroke="#eef2f7" stroke-width="2.5"/><polygon points="700,184 732,193 700,202" fill="#f5a524"/><ellipse cx="700" cy="234" rx="13" ry="4" fill="#000" stroke="#5f6a7d"/><path d="M80,232 Q173.0,183 266,232" fill="none" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#g2)"/><path d="M266,232 Q331.0,194 396,232" fill="none" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#g2)"/><path d="M396,232 Q441.5,202 487,232" fill="none" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#g2)"/><path d="M487,232 Q519.0,207 551,232" fill="none" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#g2)"/><path d="M551,232 Q573.5,211 596,232" fill="none" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#g2)"/><path d="M596,232 Q611.5,214 627,232" fill="none" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#g2)"/><path d="M627,232 Q638.0,216 649,232" fill="none" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#g2)"/><path d="M649,232 Q656.5,217 664,232" fill="none" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#g2)"/><path d="M664,232 Q669.5,218 675,232" fill="none" stroke="#2ee6c5" stroke-width="2.5" marker-end="url(#g2)"/><circle cx="80" cy="232" r="6" fill="#eef2f7"/>
+  </svg>
+  <p class="sub">The <b class="t">learning rate</b> is how much of each trainee's correction we keep. Ours was <b>0.3</b>.<br>Small steps: more shots, but you <b>land close</b>.</p>
 </section>
 
 <section class="slide" data-notes="Early stopping chose the number of trees each time. Rate 1.0: 55 trees, 0.921. 0.5: 70 trees, 0.937. 0.1: 346 trees, 0.945. 0.03: 836 trees, 0.945. Smaller steps need more trees; below 0.1 the score barely moves but it takes more than twice the trees. Professional recipe: 0.03 to 0.1, max_iter high, early stopping.">
   <div class="kicker">Four learning rates · early stopping picks the trees</div>
   <h2>Smaller steps need <span class="t">more trees</span></h2>
   <table class="cm">
-    <tr><th>learning rate</th><th>trees used</th><th>test AUC</th></tr>
+    <tr><th>learning rate (step size)</th><th>trees the coach kept</th><th>exam score (AUC)</th></tr>
     <tr><td>1.0</td><td>55</td><td class="b">0.921</td></tr>
     <tr><td>0.5</td><td>70</td><td class="a">0.937</td></tr>
     <tr><td>0.1</td><td>346</td><td class="g">0.945</td></tr>
     <tr><td>0.03</td><td>836</td><td class="g">0.945</td></tr>
   </table>
   <p class="sub">The recipe: a rate of <b class="t">0.03 to 0.1</b>, lots of trees allowed, and <b class="t">early stopping</b>.</p>
+</section>
+
+<section class="slide" data-notes="3 minutes. Station 2. First the Careful team preset (step 0.3, one question each), press Grow to 300: the mock-exam score peaks at 0.682 at trainee 13 and then slides to 0.664 while practice keeps rising to 0.761. Then the last preset, Full power + big trainees (step 1.0, three questions each): the team's line goes wild, practice reaches 0.907 and the mock exam falls to 0.598; the coach would have stopped at trainee 6 (0.648). Ask them to describe the top chart: that zigzag is what memorizing looks like.">
+  <div class="kicker">Game time · 3 minutes · Station 2</div>
+  <h2>Grow the team. <span class="co">Watch it memorize.</span></h2>
+  <div class="pill" style="font-size:clamp(0.9rem,1.8vw,1.3rem); padding:14px 28px"><a href="/explore/boosting/#s2" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/boosting</a></div>
+  <ul class="list">
+    <li><b class="t">Careful team</b>, then <b>▶ Grow to 300</b>. At which trainee would the coach stop?</li>
+    <li><b class="co">Full power + big trainees</b>, then grow again. What happens to the team's line?</li>
+    <li>Compare the two scores at the end: <b class="p">practice</b> and <b class="co">mock exam</b>.</li>
+  </ul>
 </section>
 
 <section class="slide" data-notes="Notebook Step 7. XGBoost: Tianqi Chen, 2014; made boosting famous on Kaggle. LightGBM: Microsoft, 2017; built for speed, popularized histogram buckets. Same bookings, learning rate 0.1, early stopping: XGBoost stopped at 350 trees, 0.946; LightGBM at 240 trees, 0.946; scikit-learn 346 trees, 0.945. Same idea, different dial names (max_iter vs n_estimators). The brand matters less than the habits.">
@@ -302,10 +395,10 @@
   <div class="kicker">Step 8 · new in 2026</div>
   <h2>Models that have <span class="grad">"read" millions of tables</span></h2>
   <ul class="list">
+    <li><b class="am">Tabular</b> just means a table: rows and columns, like a spreadsheet.</li>
     <li>Every model so far <b>starts from zero</b>. It knows nothing until it sees your bookings.</li>
     <li>ChatGPT read much of the internet first. That is a <b class="p">foundation model</b>.</li>
-    <li>Now the same idea works for <b class="t">tables</b>: <b>TabPFN</b> and <b>TabICL</b> practiced on millions of made-up tables in advance.</li>
-    <li>Hand one your bookings. It predicts <b>right away</b>. No trees, no dials.</li>
+    <li>Now the same idea works for <b class="t">tables</b>: <b>TabPFN</b> and <b>TabICL</b> practiced on millions of made-up tables in advance. Hand one your bookings and it predicts <b>right away</b>.</li>
   </ul>
 </section>
 
@@ -313,8 +406,8 @@
   <div class="kicker">Which one?</div>
   <h2>In 2026, a good analyst <span class="t">tries both</span></h2>
   <div class="row">
-    <div class="card" style="min-width:330px; border-color: var(--teal)"><div class="label">🚀 Gradient boosting</div><div class="title">The workhorse</div><p>Fast, cheap, runs on any laptop, any size of table. Needs early stopping and a few dials.</p></div>
-    <div class="card" style="min-width:330px; border-color: var(--peri)"><div class="label">🧠 Tabular foundation model</div><div class="title">The new challenger</div><p><b>Zero tuning.</b> Often matches or beats tuned boosting on benchmarks. Slower to score, wants a GPU, <b>check the license</b>.</p></div>
+    <div class="card" style="min-width:330px; border-color: var(--teal)"><div class="label">🚀 Gradient boosting</div><div class="title">The workhorse</div><p>Fast, cheap, runs on any laptop, any size of table. Needs early stopping and a few settings.</p></div>
+    <div class="card" style="min-width:330px; border-color: var(--peri)"><div class="label">🧠 Tabular foundation model</div><div class="title">The new challenger</div><p><b>Zero tuning.</b> Often matches or beats tuned boosting on benchmarks. Slower, needs a powerful computer, and some are <b>free only for research</b>.</p></div>
   </div>
 </section>
 
@@ -325,6 +418,17 @@
   <p class="sub">An honest reading: boosting wins by about <b>0.003</b>. Real, but small.</p>
 </section>
 
+<section class="slide" data-notes="The so-what slide, from the notebook cell after the leaderboard. Each model picks the 2,000 test bookings it is MOST sure will show up: the rooms a revenue manager would count on. How many of those canceled anyway? Best single tree: 45. Random forest: 30. Boosting with early stopping: 15. Same 6,000 test bookings, one split, so treat it as an illustration, not a law. A small AUC gain shows up at the confident end, which is exactly where overbooking decisions are made.">
+  <div class="kicker">So what? · the 2,000 bookings each model is most sure will show up</div>
+  <h2>How many <span class="co">canceled anyway?</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:250px"><div class="label">Best single tree</div><div class="num" style="background:none;color:var(--coral)">45</div><p>surprises</p></div>
+    <div class="card" style="min-width:250px; border-color: var(--peri)"><div class="label">Random forest</div><div class="num" style="background:none;color:var(--amber)">30</div><p>surprises</p></div>
+    <div class="card" style="min-width:250px; border-color: var(--teal)"><div class="label">Boosting + early stopping</div><div class="num">15</div><p>surprises</p></div>
+  </div>
+  <p class="sub">A small gain in AUC, <b class="t">half the nasty surprises</b> where the manager is counting on the room.<br><span style="color:var(--muted)">Our 6,000 test bookings. One split: an illustration, not a law.</span></p>
+</section>
+
 <section class="slide" data-notes="When to use which. Forest: strong, safe, one line, almost no dials; more trees never hurt. Boosting: usually a bit better when tuned, very fast on big tables, handles blanks, but can memorize: use early stopping. Both explained the same way: permutation importance and partial dependence.">
   <div class="kicker">Forest or boosting?</div>
   <h2>Pick the tool for the job</h2>
@@ -332,7 +436,7 @@
     <div class="card" style="min-width:330px; border-color: var(--peri)"><div class="label">🌲 Random forest</div><div class="title">Strong and safe, in one line</div><p>Almost no dials. More trees never hurt. 0.942 here.</p></div>
     <div class="card" style="min-width:330px; border-color: var(--teal)"><div class="label">🚀 Gradient boosting</div><div class="title">The best score, with ten minutes of care</div><p>Fast on big tables, handles blanks. <b>Use early stopping.</b> 0.945 here.</p></div>
   </div>
-  <p class="sub">Neither needs scaling or one-hot. Explain both with permutation importance.</p>
+  <p class="sub">Not sure? <b>Start with the forest.</b> Then try boosting with early stopping and keep the better one.</p>
 </section>
 
 <section class="slide" data-notes="About 20 minutes. Q1 and Q2 for everyone; Q3 for those who finish; Q4 optional. Answers: Q1: 0.3 → 122 trees, 0.943; 0.01 → 1,643 trees, 0.944. Q2: 3 leaves → 2,213 trees, 0.939; 7 → 0.944; 15 → 0.945; 31 → 0.945; 63 → 236 trees, 0.947 (best); 127 → 0.946. Q3: forest 0.952, boosting 0.955 (881 trees), boosting trains faster. Q4: the lead-time rule costs about 0.002 (0.943 vs 0.945); a manager may want it because every prediction then agrees with business sense and is easier to defend.">
@@ -340,7 +444,7 @@
   <h2>Four questions, Step 9</h2>
   <ul class="list">
     <li><b class="t">The learning-rate dial.</b> Try 0.3 and 0.01. What happens to the trees and the score?</li>
-    <li><b class="p">The size of each trainee.</b> <b>max_leaf_nodes</b> from 3 to 127. Is bigger better?</li>
+    <li><b class="p">The size of each trainee.</b> Tiny trees or bigger trees (<b>max_leaf_nodes</b>). Is bigger better?</li>
     <li><b class="am">All the bookings.</b> Forest vs boosting on all 83,573. Who wins, who is faster?</li>
     <li><b class="co">Challenge.</b> A business rule: longer lead time may never lower the risk.</li>
   </ul>
@@ -355,6 +459,20 @@
     <li><b class="p">Mon Nov 23</b> · Project Milestone 2: a baseline model, scored with the metric your decision needs</li>
     <li>For your project: after the baseline, <b>early-stopped boosting</b> is the model to try</li>
   </ul>
+</section>
+
+<section class="slide" data-notes="Our plain words and the real names students will meet in documentation, job ads and Kaggle. Miss = residual. Trainee = weak learner (a small tree). The team = ensemble. Step size = learning rate. Mock exam = validation set. The coach = early stopping.">
+  <div class="kicker">Tonight's words · and their real names</div>
+  <h2>You already know the <span class="grad">jargon</span></h2>
+  <table class="cm small">
+    <tr><th>what we said</th><th>the real name</th><th>what it means</th></tr>
+    <tr><td>the miss</td><td class="g">residual</td><td>what happened − our score</td></tr>
+    <tr><td>a trainee</td><td class="g">weak learner</td><td>one small tree</td></tr>
+    <tr><td>the team</td><td class="g">ensemble</td><td>all the small trees, added up</td></tr>
+    <tr><td>step size</td><td class="g">learning rate</td><td>how much of each correction we keep</td></tr>
+    <tr><td>the mock exam</td><td class="g">validation set</td><td>training bookings held back to check progress</td></tr>
+    <tr><td>the coach</td><td class="g">early stopping</td><td>stop when the mock exam stops improving</td></tr>
+  </table>
 </section>
 
 <section class="slide" data-notes="Five takeaways, then the close. Next week: tuning honestly, explaining one prediction to one customer (SHAP), and saying how sure the model is.">

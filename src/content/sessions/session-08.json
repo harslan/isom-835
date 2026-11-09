@@ -47,7 +47,7 @@
       "description": "A forest is a committee that votes; boosting is a relay team. Round 0 gives every booking 37%. Each booking's miss is what happened minus our score. A tiny tree learns the miss, we add part of its correction, and repeat. With lead time alone, the team's score goes from one step to a staircase that follows the real cancel rates.",
       "bulletPoints": [
         "A canceled booking's miss is +0.63, a kept booking's is −0.37: a size and a direction",
-        "Game: add trees one at a time in the Gradient Boosting Explorer"
+        "Game: be the trainee in the Boosting Explorer and beat the computer's team of five"
       ],
       "isBreak": false
     },
@@ -119,7 +119,7 @@
     {
       "title": "Session 8 Slides — Learn from Your Mistakes",
       "url": "/session-08/slides.html",
-      "description": "The deck from class: the two leaderboards, committee versus relay team, the miss-trainee-add recipe, boosting by hand on six real guests, walking downhill in the fog, too many trees, the coach who stops the cramming, big swings versus careful putts, the famous cousins, and tabular foundation models. Arrow keys to navigate, F for fullscreen, N for speaker notes.",
+      "description": "The deck from class: the two leaderboards, committee versus relay team, the miss-trainee-add recipe, human boosting at the board, one real guest followed round by round, walking downhill in the fog, too many trees, the coach who stops the cramming, big swings versus careful putts, what 0.003 of AUC buys a hotel, and tabular foundation models. Arrow keys to navigate, F for fullscreen, N for speaker notes.",
       "icon": "presentation",
       "badge": "Slides",
       "badgeType": "interactive",
@@ -135,9 +135,9 @@
       "linkText": "Open in Colab"
     },
     {
-      "title": "The Gradient Boosting Explorer",
+      "title": "The Boosting Explorer — Two Games on Tonight's Ideas",
       "url": "/explore/boosting/",
-      "description": "Add small trees one at a time and watch each one correct what the team still gets wrong. Drag the learning rate and tree depth, run to 300 trees, and see the held-out error turn back up: early stopping as a picture.",
+      "description": "Be the trainee: ask one question about lead time, fix the team's biggest miss, and try to beat the computer's team of five. Then grow a team to 300 trees with big steps and big trainees and watch it memorize: practice up, mock exam down. Real hotel bookings, grown live in your browser. Works on your phone.",
       "icon": "zap",
       "badge": "Play",
       "badgeType": "interactive",

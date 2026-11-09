@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Gradient Boosting Explorer · ISOM 835</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/explore/_shared.css">
+<style>
+  .lg-tr::before { color: var(--teal); } .lg-te::before { color: var(--coral); } .lg-fit::before { color: var(--peri); } .lg-res::before { color: var(--amber); } .lg-true::before { color: var(--lime); }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text2); margin-top: 6px; cursor: pointer; }
+  .toggle input { accent-color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/sessions/session-08">← ISOM 835 · Session 8</a>
+  <div style="height:14px"></div>
+  <div class="kicker">Interactive · Fit the Residuals</div>
+  <h1>The Gradient Boosting <span class="grad">Explorer</span></h1>
+  <p class="sub">
+    Weekly demand for a product, seen through noisy weeks. Boosting starts with a flat guess, fits a <b>tiny tree to what it got wrong</b>,
+    adds it scaled by the learning rate, and repeats. Step through the ensemble and watch the fit sharpen — then watch the
+    <b>held-out error turn back up</b> when you keep going. That turning point is where early stopping stops.
+  </p>
+
+  <div class="presets" id="presets">
+    <button data-p="0.3,2,0,0.18,60">Default (rate 0.3, stumps)</button>
+    <button data-p="0.05,2,0,0.18,60">Slow &amp; steady (rate 0.05)</button>
+    <button data-p="1.0,2,0,0.18,60">Overshoot (rate 1.0)</button>
+    <button data-p="0.3,4,0,0.18,60">Deeper trees (depth 4)</button>
+    <button data-p="0.3,2,0,0.35,60">Noisy data</button>
+    <button data-p="0.3,3,0,0.18,200">More data</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="panel">
+        <div class="kicker" style="margin-bottom:6px">The ensemble so far — and the residuals it will fit next</div>
+        <canvas id="cv" width="820" height="400"></canvas>
+        <div class="legend"><span class="lg-tr">Training weeks</span><span class="lg-te">Held-out weeks</span><span class="lg-fit">Ensemble prediction</span><span class="lg-res">Next tree (fit to residuals)</span><span class="lg-true">True curve</span></div>
+        <div class="hoverbox" id="hoverbox">0 trees — the ensemble is a flat line at the mean</div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="panel">
+        <div class="kicker" style="margin-bottom:6px">Error vs. number of trees</div>
+        <canvas id="cv2" width="820" height="230"></canvas>
+        <div class="legend"><span class="lg-tr">Train RMSE</span><span class="lg-te">Test RMSE</span><span style="color:var(--amber)">◆ early-stopping point (test minimum)</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel controls">
+        <div class="row"><label>Learning rate <b id="v-lr">0.30</b></label><input type="range" id="lr" min="0.02" max="1.0" step="0.02" value="0.3"></div>
+        <div class="row"><label>Tree depth <b id="v-depth">2</b></label><input type="range" id="depth" min="1" max="5" step="1" value="2"></div>
+        <div class="row"><label>Noise <b id="v-noise">0.18</b></label><input type="range" id="noise" min="0.04" max="0.5" step="0.02" value="0.18"></div>
+        <div class="row"><label>Training weeks <b id="v-n">60</b></label><input type="range" id="n" min="20" max="200" step="10" value="60"></div>
+        <label class="toggle"><input type="checkbox" id="showtrue" checked> Show the true curve</label>
+        <label class="toggle"><input type="checkbox" id="shownext" checked> Show the next tree's contribution</label>
+        <div class="btnrow">
+          <button class="btn primary" id="step">Add 1 tree</button>
+          <button class="btn" id="step10">Add 10</button>
+          <button class="btn" id="run">Run to 300</button>
+          <button class="btn" id="reset">Reset</button>
+          <button class="btn" id="resample">Resample</button>
+        </div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="panel readout">
+        <div class="kicker" style="margin-bottom:6px">Scorecard</div>
+        <div class="stat"><span>Trees in the ensemble</span><b id="ro-t">0</b></div>
+        <div class="stat"><span>Train RMSE</span><b id="ro-train">—</b></div>
+        <div class="stat"><span>Test RMSE</span><b id="ro-test">—</b></div>
+        <div class="stat"><span>Best test RMSE so far</span><b id="ro-best">—</b></div>
+        <div class="stat"><span>Early-stopping point</span><b id="ro-es">—</b></div>
+        <div id="ro-badges" style="margin-top:8px"></div>
+        <div class="note" id="ro-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sub" style="margin-top:26px">
+    <b>The algorithm:</b> F₀ = mean(y). For t = 1…T: fit a small regression tree hₜ to the residuals y − Fₜ₋₁ on the training weeks,
+    then Fₜ = Fₜ₋₁ + η · hₜ. A small learning rate η needs more trees but lands smoother; deeper trees fit faster and overfit faster.
+    Early stopping picks the t where the held-out error was lowest — scikit-learn, LightGBM and XGBoost all do this for you with a validation set.
+  </p>
+</div>
+<script>
+// ---------- data ----------
+let seed = 835;
+function rng() { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }
+function gauss() { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const truth = x => 0.5 + 0.28 * Math.sin(2.4 * Math.PI * x + 0.3) - 0.25 * (x - 0.5) + 0.08 * Math.cos(7 * x);
+const state = { lr: 0.3, depth: 2, noise: 0.18, n: 60, draw: 1, showTrue: true, showNext: true };
+let train = [], test = [], F = [], Ft = [], trees = [], hist = [];
+const N_TEST = 80, MAX_T = 300;
+function sample() {
+  seed = 4242 + state.draw * 7919; train = []; test = [];
+  for (let i = 0; i < state.n; i++) { const x = rng(); train.push([x, truth(x) + state.noise * gauss()]); }
+  for (let i = 0; i < N_TEST; i++) { const x = rng(); test.push([x, truth(x) + state.noise * gauss()]); }
+  train.sort((a, b) => a[0] - b[0]); test.sort((a, b) => a[0] - b[0]);
+}
+// ---------- a tiny regression tree (1-D, greedy least squares) ----------
+function fitTree(xs, r, depth, lo, hi) {
+  const idx = []; for (let i = 0; i < xs.length; i++) if (xs[i] >= lo && xs[i] < hi) idx.push(i);
+  const mean = idx.length ? idx.reduce((s, i) => s + r[i], 0) / idx.length : 0;
+  if (depth === 0 || idx.length < 6) return { leaf: true, v: mean, lo, hi };
+  let best = null;
+  const cand = idx.map(i => xs[i]).sort((a, b) => a - b);
+  for (let k = 2; k < cand.length - 2; k++) {
+    const s = (cand[k] + cand[k - 1]) / 2; let nL = 0, sL = 0, nR = 0, sR = 0;
+    for (const i of idx) { if (xs[i] < s) { nL++; sL += r[i]; } else { nR++; sR += r[i]; } }
+    if (nL < 3 || nR < 3) continue;
+    const gain = sL * sL / nL + sR * sR / nR;
+    if (!best || gain > best.gain) best = { gain, s };
+  }
+  if (!best) return { leaf: true, v: mean, lo, hi };
+  return { leaf: false, s: best.s, L: fitTree(xs, r, depth - 1, lo, best.s), R: fitTree(xs, r, depth - 1, best.s, hi) };
+}
+function predictTree(t, x) { while (!t.leaf) t = x < t.s ? t.L : t.R; return t.v; }
+function ensemble(x) { let v = base; for (const t of trees) v += state.lr * predictTree(t, x); return v; }
+let base = 0;
+function rmse(pts) { let s = 0; for (const [x, y] of pts) { const e = ensemble(x) - y; s += e * e; } return Math.sqrt(s / pts.length); }
+function reset() { trees = []; base = train.reduce((s, p) => s + p[1], 0) / train.length; hist = [{ t: 0, tr: rmse(train), te: rmse(test) }]; }
+function addTree() {
+  if (trees.length >= MAX_T) return false;
+  const xs = train.map(p => p[0]), r = train.map(p => p[1] - ensemble(p[0]));
+  trees.push(fitTree(xs, r, state.depth, -0.01, 1.01));
+  hist.push({ t: trees.length, tr: rmse(train), te: rmse(test) }); return true;
+}
+function nextTree() { const xs = train.map(p => p[0]), r = train.map(p => p[1] - ensemble(p[0])); return fitTree(xs, r, state.depth, -0.01, 1.01); }
+// ---------- drawing ----------
+function hidpi(id, w, h) { const c = document.getElementById(id), dpr = Math.min(window.devicePixelRatio || 1, 2); c.width = w * dpr; c.height = h * dpr; const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); return { c, x, w, h }; }
+const A = hidpi('cv', 820, 400), B = hidpi('cv2', 820, 230);
+const PAD = { l: 46, r: 16, t: 14, b: 32 }, Y0 = -0.15, Y1 = 1.2;
+const px = x => PAD.l + x * (A.w - PAD.l - PAD.r), py = y => A.h - PAD.b - (y - Y0) / (Y1 - Y0) * (A.h - PAD.t - PAD.b);
+function drawMain() {
+  const { x, w, h } = A; x.clearRect(0, 0, w, h);
+  x.strokeStyle = 'rgba(200,220,255,0.08)'; for (let i = 0; i <= 4; i++) { const yy = py(Y0 + (Y1 - Y0) * i / 4); x.beginPath(); x.moveTo(PAD.l, yy); x.lineTo(w - PAD.r, yy); x.stroke(); }
+  x.fillStyle = '#5f6a7d'; x.font = '11px IBM Plex Mono, monospace'; x.fillText('week of the year →', w - PAD.r - 130, h - 10); x.save(); x.translate(12, 150); x.rotate(-Math.PI / 2); x.fillText('units →', 0, 0); x.restore();
+  if (state.showTrue) { x.strokeStyle = 'rgba(126,231,135,0.5)'; x.lineWidth = 2; x.setLineDash([6, 5]); x.beginPath(); for (let i = 0; i <= 200; i++) { const xx = i / 200; i ? x.lineTo(px(xx), py(truth(xx))) : x.moveTo(px(xx), py(truth(xx))); } x.stroke(); x.setLineDash([]); }
+  if (state.showNext && trees.length < MAX_T) { const nt = nextTree(); x.strokeStyle = 'rgba(245,165,36,0.85)'; x.lineWidth = 1.5; x.beginPath(); for (let i = 0; i <= 400; i++) { const xx = i / 400; const yy = ensemble(xx) + state.lr * predictTree(nt, xx); i ? x.lineTo(px(xx), py(yy)) : x.moveTo(px(xx), py(yy)); } x.stroke(); }
+  x.strokeStyle = '#7c8cff'; x.lineWidth = 2.5; x.beginPath(); for (let i = 0; i <= 400; i++) { const xx = i / 400; const yy = Math.max(Y0 - 0.3, Math.min(Y1 + 0.3, ensemble(xx))); i ? x.lineTo(px(xx), py(yy)) : x.moveTo(px(xx), py(yy)); } x.stroke();
+  for (const [xx, yy] of test) { x.fillStyle = 'rgba(255,107,139,0.8)'; x.beginPath(); x.arc(px(xx), py(yy), 3, 0, 7); x.fill(); }
+  for (const [xx, yy] of train) { x.fillStyle = '#2ee6c5'; x.beginPath(); x.arc(px(xx), py(yy), 3.6, 0, 7); x.fill(); }
+}
+function drawCurve() {
+  const { x, w, h } = B; x.clearRect(0, 0, w, h);
+  const L = 50, R = 14, T = 12, Bt = 30, W = w - L - R, H = h - T - Bt;
+  const maxT = Math.max(20, hist.length - 1), maxE = Math.max(...hist.map(p => Math.max(p.tr, p.te))) * 1.05;
+  const qx = t => L + t / maxT * W, qy = e => T + H - e / maxE * H;
+  const line = (k, col) => { x.strokeStyle = col; x.lineWidth = 2.2; x.beginPath(); hist.forEach((p, i) => i ? x.lineTo(qx(p.t), qy(p[k])) : x.moveTo(qx(p.t), qy(p[k]))); x.stroke(); };
+  line('tr', '#2ee6c5'); line('te', '#ff6b8b');
+  const best = hist.reduce((a, p) => p.te < a.te ? p : a);
+  x.fillStyle = '#f5a524'; x.beginPath(); x.moveTo(qx(best.t), qy(best.te) - 7); x.lineTo(qx(best.t) + 6, qy(best.te)); x.lineTo(qx(best.t), qy(best.te) + 7); x.lineTo(qx(best.t) - 6, qy(best.te)); x.closePath(); x.fill();
+  x.fillStyle = '#5f6a7d'; x.font = '10px IBM Plex Mono, monospace'; for (let k = 0; k <= 5; k++) x.fillText(Math.round(maxT * k / 5), qx(maxT * k / 5) - 6, h - 10); x.fillText(maxE.toFixed(2), 6, T + 10); x.fillText('0', 6, T + H); x.fillText('trees →', w - R - 50, h - 10);
+}
+// ---------- controls ----------
+const $ = id => document.getElementById(id);
+function readout() {
+  const last = hist[hist.length - 1], best = hist.reduce((a, p) => p.te < a.te ? p : a);
+  $('ro-t').textContent = trees.length; $('ro-train').textContent = last.tr.toFixed(3); $('ro-test').textContent = last.te.toFixed(3); $('ro-best').textContent = best.te.toFixed(3); $('ro-es').textContent = trees.length ? 'tree ' + best.t : '—';
+  const badges = [];
+  if (trees.length === 0) badges.push('<span class="badge dim">nothing learned yet</span>');
+  else if (trees.length > best.t + 30 && last.te > best.te * 1.03) badges.push('<span class="badge bad">PAST THE MINIMUM · fitting noise</span>');
+  else if (Math.abs(trees.length - best.t) <= 10 && trees.length > 5) badges.push('<span class="badge good">NEAR THE EARLY-STOPPING POINT</span>');
+  else badges.push('<span class="badge warn">still improving</span>');
+  if (state.lr >= 0.8) badges.push('<span class="badge warn">high learning rate</span>');
+  $('ro-badges').innerHTML = badges.join(' ');
+  let note;
+  if (trees.length === 0) note = '<b>Tree 0 is the mean.</b> The amber curve shows what the first tree will add: a step function fit to the residuals, scaled by the learning rate. Press <b>Add 1 tree</b>.';
+  else if (state.lr >= 0.8) note = '<b>Rate 1.0 overshoots.</b> Each tree corrects the residuals fully, so the ensemble jumps around and the test error is jagged. Lower the rate: smaller steps, more trees, a smoother path down.';
+  else if (state.depth >= 4) note = '<b>Deep trees fit fast and overfit fast.</b> With depth 4 the training error collapses in a handful of trees and the test minimum arrives early. Boosting wants weak learners.';
+  else if (trees.length > best.t + 30) note = '<b>Training error keeps falling; test error is rising.</b> Every tree now fits noise in the training weeks. Early stopping would have frozen the ensemble at tree ' + best.t + ' — that is the model to ship.';
+  else if (trees.length < 8) note = '<b>Watch the residuals shrink.</b> Each tree takes one bite out of what the ensemble still gets wrong, starting with the biggest systematic error.';
+  else note = '<b>Rate × trees is the key trade-off.</b> A lower learning rate needs more trees but lands closer to the true curve. Compare the "slow & steady" preset with the default at the same number of trees.';
+  $('ro-note').innerHTML = note; $('hoverbox').textContent = trees.length + ' trees · train RMSE ' + last.tr.toFixed(3) + ' · test RMSE ' + last.te.toFixed(3);
+}
+function redraw() { drawMain(); drawCurve(); readout(); }
+function sync() { $('v-lr').textContent = state.lr.toFixed(2); $('v-depth').textContent = state.depth; $('v-noise').textContent = state.noise.toFixed(2); $('v-n').textContent = state.n; $('lr').value = state.lr; $('depth').value = state.depth; $('noise').value = state.noise; $('n').value = state.n; $('showtrue').checked = state.showTrue; $('shownext').checked = state.showNext; }
+function clearActive() { document.querySelectorAll('#presets button').forEach(b => b.classList.remove('active')); }
+$('lr').addEventListener('input', e => { state.lr = +e.target.value; clearActive(); sync(); reset(); redraw(); });
+$('depth').addEventListener('input', e => { state.depth = +e.target.value; clearActive(); sync(); reset(); redraw(); });
+$('noise').addEventListener('input', e => { state.noise = +e.target.value; clearActive(); sync(); sample(); reset(); redraw(); });
+$('n').addEventListener('input', e => { state.n = +e.target.value; clearActive(); sync(); sample(); reset(); redraw(); });
+$('showtrue').addEventListener('change', e => { state.showTrue = e.target.checked; redraw(); });
+$('shownext').addEventListener('change', e => { state.showNext = e.target.checked; redraw(); });
+$('step').addEventListener('click', () => { addTree(); redraw(); });
+$('step10').addEventListener('click', () => { for (let i = 0; i < 10; i++) addTree(); redraw(); });
+let runTimer = null;
+$('run').addEventListener('click', () => { if (runTimer) return; runTimer = setInterval(() => { for (let i = 0; i < 3; i++) if (!addTree()) { clearInterval(runTimer); runTimer = null; break; } redraw(); }, 60); });
+$('reset').addEventListener('click', () => { if (runTimer) { clearInterval(runTimer); runTimer = null; } reset(); redraw(); });
+$('resample').addEventListener('click', () => { state.draw++; sample(); reset(); redraw(); });
+document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => {
+  const [lr, depth, _, noise, n] = b.dataset.p.split(',').map(Number); state.lr = lr; state.depth = depth; state.noise = noise; state.n = n;
+  clearActive(); b.classList.add('active'); sync(); sample(); reset(); for (let i = 0; i < 30; i++) addTree(); redraw();
+}));
+sample(); sync(); reset(); redraw();
+</script>
+</body>
+</html>
