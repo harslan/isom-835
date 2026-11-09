@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISOM 835 · Session 8 · The Saturday Night Problem</title>
+<meta name="description" content="The story behind Session 8 of ISOM 835: you run a 200-room hotel where 37 percent of bookings cancel. An overbooking game, the non-refundable deposit puzzle, and what a better prediction model is worth.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #07090f; --bg2: #0c0f17; --card: #0f131c; --text: #eef2f7; --text2: #a3adbd; --muted: #5f6a7d;
+          --teal: #2ee6c5; --peri: #7c8cff; --coral: #ff6b8b; --lime: #7ee787; --amber: #f5a524; --border: rgba(200,220,255,0.09); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6vh 8vw; gap: 3vh; }
+  .slide.active { display: flex; animation: fadeIn 0.45s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 4px; text-transform: uppercase; color: var(--teal); }
+  h1 { font-size: clamp(2.2rem, 6vw, 4.6rem); font-weight: 800; line-height: 1.08; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 3.4rem); font-weight: 800; line-height: 1.12; }
+  .grad { background: linear-gradient(90deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: clamp(1rem, 2vw, 1.5rem); color: var(--text2); max-width: 900px; line-height: 1.55; }
+  .big { font-size: clamp(3.2rem, 11vw, 8.5rem); font-weight: 800; line-height: 1; }
+  .cards { display: flex; gap: 1.4vw; flex-wrap: wrap; justify-content: center; max-width: 1240px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.4vh 1.6vw; min-width: 220px; max-width: 330px; flex: 1; text-align: left; }
+  .card .label { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  .card .title { font-weight: 700; font-size: clamp(0.95rem, 1.5vw, 1.2rem); margin-bottom: 8px; }
+  .card p { color: var(--text2); font-size: clamp(0.8rem, 1.2vw, 0.95rem); line-height: 1.5; }
+  .num { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; background: linear-gradient(135deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  pre { background: #0a0d15; border: 1px solid var(--border); border-radius: 14px; padding: 2.6vh 2vw; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1.3vw, 1.02rem); line-height: 1.6; color: #d8dee9; max-width: 940px; overflow: auto; }
+  pre .c { color: #6a737d; } pre .k { color: #ff7b72; } pre .s { color: #a5d6ff; } pre .f { color: #d2a8ff; }
+  .hud { position: fixed; bottom: 18px; right: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); z-index: 10; }
+  .brand { position: fixed; bottom: 18px; left: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; z-index: 10; }
+  .bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--peri)); transition: width 0.3s ease; z-index: 10; }
+  ul.list { text-align: left; max-width: 900px; color: var(--text2); font-size: clamp(0.95rem, 1.8vw, 1.3rem); line-height: 1.7; list-style: none; }
+  ul.list li { padding-left: 1.6em; position: relative; margin-bottom: 1.2vh; }
+  ul.list li::before { content: "▸"; position: absolute; left: 0; color: var(--teal); }
+  .pill { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.9rem); letter-spacing: 2px; padding: 8px 20px; border: 1px solid var(--teal); border-radius: 999px; color: var(--teal); }
+  .t { color: var(--teal); } .p { color: var(--peri); } .co { color: var(--coral); } .li { color: var(--lime); } .am { color: var(--amber); }
+  .row { display: flex; gap: 3vw; align-items: center; justify-content: center; flex-wrap: wrap; }
+  table.cm { border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
+  table.cm td, table.cm th { padding: 1.6vh 2.4vw; border: 1px solid var(--border); }
+  table.cm th { color: var(--muted); font-weight: 400; font-size: 0.8em; }
+  table.cm .g { background: rgba(126,231,135,0.12); color: var(--lime); } table.cm .b { background: rgba(255,107,139,0.14); color: var(--coral); } table.cm .a { background: rgba(245,165,36,0.12); color: var(--amber); }
+  .bars { display: flex; gap: 2.5vw; align-items: flex-end; height: 34vh; }
+  .bars div { width: clamp(70px, 9vw, 130px); background: linear-gradient(180deg, var(--teal), var(--peri)); border-radius: 10px 10px 4px 4px; position: relative; }
+  .bars div span { position: absolute; top: -2.6em; left: 0; right: 0; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .bars div small { position: absolute; bottom: -2.4em; left: 0; right: 0; color: var(--text2); font-size: 0.8rem; }
+  .notes { display: none; position: fixed; left: 24px; right: 24px; bottom: 48px; background: rgba(15,19,28,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--text2); text-align: left; z-index: 20; }
+  body.shownotes .notes { display: block; }
+  .timeline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.6vw; max-width: 1300px; width: 100%; }
+  .timeline div { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4vh 0.6vw; font-size: clamp(0.62rem, 1vw, 0.85rem); color: var(--text2); }
+  .timeline div b { display: block; color: var(--text); font-size: 1.05em; margin-bottom: 4px; }
+  .timeline div i { display: block; font-style: normal; font-family: 'IBM Plex Mono', monospace; font-size: 0.8em; color: var(--teal); margin-bottom: 4px; }
+
+  img.chart { display: block; max-width: min(92vw, 1100px); max-height: 50vh; width: auto; height: auto; border-radius: 14px; }
+  table.cm td { text-align: center; }
+  table.cm.small td, table.cm.small th { padding: 1.1vh 1.5vw; font-size: clamp(0.75rem, 1.35vw, 1.05rem); }
+  .card p { font-size: clamp(0.95rem, 1.45vw, 1.2rem); }
+  .card .label { font-size: clamp(0.72rem, 0.95vw, 0.9rem); }
+  .card .title { font-size: clamp(1.05rem, 1.7vw, 1.35rem); }
+  .card p.real { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1vw, 0.9rem); color: var(--amber); margin-top: 8px; }
+  svg text { font-family: Manrope, sans-serif; }
+  .game { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 2.4vw; align-items: center; width: min(94vw, 1180px); text-align: left; }
+  .game canvas { width: 100%; height: auto; border-radius: 14px; background: #0a0d15; border: 1px solid var(--border); }
+  .game input[type=range] { width: 100%; accent-color: var(--teal); cursor: pointer; height: 34px; }
+  .gbtn { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.8rem, 1.2vw, 1rem); padding: 10px 18px; border-radius: 999px; border: 1px solid var(--teal); background: var(--teal); color: var(--bg); font-weight: 700; cursor: pointer; margin: 6px 8px 0 0; }
+  .gbtn.ghost { background: transparent; color: var(--teal); }
+  .gline { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.85rem, 1.35vw, 1.1rem); padding: 7px 0; border-bottom: 1px dashed var(--border); color: var(--text2); }
+  .gline b { color: var(--text); }
+  .gsell { font-size: clamp(1.1rem, 2vw, 1.6rem); font-weight: 800; margin-bottom: 4px; } .gsell span { color: var(--amber); }
+  .gverdict { margin-top: 10px; font-size: clamp(0.9rem, 1.4vw, 1.15rem); color: var(--text2); min-height: 3em; line-height: 1.45; } .gverdict b { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="brand">ISOM 835 · SESSION 8 · THE STORY</div>
+<div class="hud" id="hud"></div>
+
+<section class="slide active" data-notes="A short story deck to run before the main Session 8 slides. It sets up WHY we predict cancellations: a hotel manager has to decide how many rooms to sell. About ten minutes with the game and the pair discussion.">
+  <div class="kicker">ISOM 835 · Session 8 · the story behind tonight's numbers</div>
+  <h1>The <span class="grad">Saturday night</span> problem</h1>
+  <p class="sub">You run a hotel. Some guests will not show up. How many rooms do you sell?</p>
+  <div class="pill">Prof. Hasan Arslan</div>
+</section>
+
+<section class="slide" data-notes="Hands up. Then: who booked at the last minute and canceled? Almost nobody. That is the strongest clue in our data. Real numbers from our training bookings: booked in the last 7 days, about 10 percent cancel; booked 6 to 12 months ahead, 56 percent cancel. Lead time is something they have all done themselves.">
+  <div class="kicker">Hands up</div>
+  <h2>Who has booked a hotel <span class="grad">months ahead</span>…<br>and then canceled?</h2>
+  <div class="row">
+    <div class="card" style="min-width:300px; border-color: var(--teal)"><div class="label">Booked in the last week</div><div class="num">10%</div><p>cancel. Last-minute guests show up.</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--coral)"><div class="label">Booked 6 to 12 months ahead</div><div class="num" style="background:none;color:var(--coral)">56%</div><p>cancel. Plans change.</p></div>
+  </div>
+  <p class="sub">You just discovered our strongest clue: <b class="t">lead time</b>.</p>
+</section>
+
+<section class="slide" data-notes="The data: Hotel Booking Demand, Antonio, de Almeida and Nunes (2019). Real bookings from a city hotel in Lisbon and a resort hotel in the Algarve, arrivals 2015 to 2017. Our course file is the competition's training set: 83,573 bookings, 37 percent canceled. Same data as the Kaggle competition.">
+  <div class="kicker">Meet the hotels · real bookings from Portugal</div>
+  <h2>A city hotel in <span class="p">Lisbon</span>. A resort in the <span class="t">Algarve</span>.</h2>
+  <div class="row">
+    <div class="card" style="min-width:240px"><div class="label">Bookings</div><div class="num">83,573</div></div>
+    <div class="card" style="min-width:240px; border-color: var(--coral)"><div class="label">Canceled</div><div class="num" style="background:none;color:var(--coral)">37%</div><p>More than 1 in 3.</p></div>
+    <div class="card" style="min-width:240px"><div class="label">You are</div><div class="title" style="font-size:clamp(1.2rem,2.2vw,1.8rem)">the revenue manager</div></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Ask for numbers out loud and write five or six on the board. Typical answers: 200 (safe), 240, 274 (200 plus 37 percent), 300, 317 (200 divided by 0.63). Do not reveal anything yet. Simplification for the game: every booking cancels independently with a 37 percent chance, too late to resell. Real hotels resell early cancellations, so the real problem is gentler, but the trade-off is the same.">
+  <div class="kicker">Your first decision as manager</div>
+  <h2>200 rooms. <span class="co">37%</span> of bookings cancel.</h2>
+  <div class="big grad" style="font-size:clamp(2.4rem,7vw,5.5rem)">How many do you sell?</div>
+  <p class="sub">It is a sold-out Saturday in July. Call out a number.</p>
+</section>
+
+<section class="slide" data-notes="The two ways to lose. Empty room: about 100 euros, roughly the average nightly rate in our data. Walked guest: we assume 250 euros (a room at another hotel, the taxi, and a customer who may never come back). These two costs are assumptions for the game; change them and the best answer changes. The point: both mistakes cost money, and they are not equally expensive.">
+  <div class="kicker">Two ways to lose money</div>
+  <h2>Sell too few, or sell <span class="co">too many</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:330px"><div class="label">Too few bookings</div><div class="title">🛏️ An empty room</div><div class="num" style="background:none;color:var(--amber)">−€100</div><p>A night nobody pays for.</p></div>
+    <div class="card" style="min-width:330px; border-color: var(--coral)"><div class="label">Too many bookings</div><div class="title">🧳 A guest with no room</div><div class="num" style="background:none;color:var(--coral)">−€250</div><p>You pay for another hotel, and maybe lose the customer.</p></div>
+  </div>
+  <p class="sub" style="color:var(--muted)">The two prices are our assumptions for tonight's game.</p>
+</section>
+
+<section class="slide" data-notes="The game. Drag the slider to the number the class called out, press Play one Saturday a few times: the outcome changes every night, that is the gamble. Then press Average of 1,000 Saturdays to see the long-run cost. Try 200 (about 74 empty rooms, about 7,400 euros lost per night), 317 (fills the hotel on average, but about 3 guests walked and about 1,200 euros lost), and around 308 to 312, where the average cost is lowest (about 1,000 euros) under our two prices. Punchline: even the best single number loses about 1,000 euros a night, because we treat every booking the same. What if we knew WHICH bookings will cancel?">
+  <div class="kicker">Play it · your hotel, one Saturday</div>
+  <div class="game nonav">
+    <div>
+      <canvas id="hotel" width="640" height="400" role="img" aria-label="A grid of 200 hotel rooms. Occupied rooms are teal, empty rooms are dark, and guests with no room appear as coral squares below."></canvas>
+    </div>
+    <div>
+      <div class="gsell">You sell <span id="g-n">250</span> bookings</div>
+      <input type="range" id="g-slider" min="200" max="360" step="1" value="250" aria-label="Number of bookings to sell">
+      <div><button class="gbtn" id="g-one">Play one Saturday</button><button class="gbtn ghost" id="g-many">Average of 1,000 Saturdays</button></div>
+      <div style="height:10px"></div>
+      <div class="gline"><span>Guests who show up</span><b id="g-show">–</b></div>
+      <div class="gline"><span>🛏️ Empty rooms</span><b id="g-empty">–</b></div>
+      <div class="gline"><span>🧳 Guests with no room</span><b id="g-walk">–</b></div>
+      <div class="gline"><span>Money lost tonight</span><b id="g-cost">–</b></div>
+      <div class="gverdict" id="g-verdict">Drag the slider, then play a Saturday.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Bridge. One number for the whole hotel treats a last-minute booking and a booking made a year ago the same. But we just saw they are very different (10 percent versus 56 percent). If each booking had its own chance of cancellation, the manager would know how many guests to expect tonight, and which rooms are safe to count on. That one number per booking is exactly what tonight's models produce.">
+  <div class="kicker">The real problem</div>
+  <h2>The slider treats every booking <span class="co">the same</span></h2>
+  <p class="sub">But a booking made <b class="t">yesterday</b> and a booking made <b class="co">a year ago</b> are not the same.</p>
+  <div class="big grad" style="font-size:clamp(1.8rem,5vw,4rem); line-height:1.15">What if every booking had<br>its own chance of canceling?</div>
+  <p class="sub">That one number per booking is what we build tonight.</p>
+</section>
+
+<section class="slide" data-notes="Two-minute pair discussion. In our data about 12 percent of bookings have a non-refundable deposit, and about 99 percent of those cancel. That sounds backwards: why cancel after paying money you cannot get back? Let pairs argue, then collect three or four theories before the next slide.">
+  <div class="kicker">A puzzle · 2 minutes with your neighbor</div>
+  <h2>Guests who paid a <span class="am">non-refundable</span> deposit</h2>
+  <div class="big co">99%</div>
+  <p class="sub">of them <b>cancel</b>. They paid money they cannot get back.<br><b class="t">Why would that happen?</b></p>
+</section>
+
+<section class="slide" data-notes="Closure, with honesty. A common explanation among people who study this dataset: many of these are not individual tourists but block bookings made through travel agents and groups, booked far ahead and later released; the deposit label may not mean what we imagine. The data alone cannot prove it. Three lessons: a pattern can be real without being what it seems; ask how the data was recorded before you trust a column; and a model will happily use this clue, so a human has to ask why.">
+  <div class="kicker">A likely story · not a proven one</div>
+  <h2>Probably not tourists <span class="grad">losing their money</span></h2>
+  <ul class="list">
+    <li>Many of these look like <b>block bookings</b> by travel agents and groups, made far ahead and later released.</li>
+    <li>The label "non-refundable" may not mean what we imagine. <b class="am">The data cannot tell us for sure.</b></li>
+    <li>The lesson: before you trust a clue, ask <b class="t">how it got into the data</b>. A model will use it without asking.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="The payoff, from tonight's notebook. Each model picks the 2,000 test bookings it is most sure will show up: the rooms a manager would count on. How many canceled anyway? Best single tree 45, random forest 30, boosting with early stopping 15. One split of 6,000 test bookings: an illustration, not a law. Tie back to the game: fewer surprises among the safe bookings means you can sell closer to full with a smaller gamble. That is what a better model is worth to the hotel.">
+  <div class="kicker">What a better model is worth · the 2,000 bookings each model calls "safe"</div>
+  <h2>How many <span class="co">canceled anyway?</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:250px"><div class="label">One decision tree</div><div class="num" style="background:none;color:var(--coral)">45</div><p>surprises</p></div>
+    <div class="card" style="min-width:250px; border-color: var(--peri)"><div class="label">Random forest · last week</div><div class="num" style="background:none;color:var(--amber)">30</div><p>surprises</p></div>
+    <div class="card" style="min-width:250px; border-color: var(--teal)"><div class="label">Gradient boosting · tonight</div><div class="num">15</div><p>surprises</p></div>
+  </div>
+  <p class="sub">Fewer surprises = <b class="t">a smaller gamble</b> every Saturday night.<br><span style="color:var(--muted)">Our 6,000 test bookings. One split: an illustration, not a law.</span></p>
+</section>
+
+<section class="slide" data-notes="Close and hand over to the main deck. The link opens the Session 8 slides at the recap of last week.">
+  <div class="kicker">Tonight</div>
+  <h2>Let's build the model that gets it down to <span class="grad">15</span></h2>
+  <p class="sub">A team of small trees that <b>learns from its own mistakes</b>.</p>
+  <div class="pill" style="font-size:clamp(0.9rem,1.8vw,1.3rem); padding:14px 28px"><a href="slides.html#5" style="color:inherit;text-decoration:none">Continue to the Session 8 slides →</a></div>
+</section>
+
+<div class="notes" id="notes"></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')]; let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    document.getElementById('hud').textContent = (i + 1) + ' / ' + slides.length + '  ·  ← → navigate · F fullscreen · N notes';
+    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+    document.getElementById('notes').textContent = slides[i].dataset.notes || '';
+    location.hash = i + 1;
+  }
+  addEventListener('keydown', (e) => {
+    if (e.target.closest && e.target.closest('input, button')) return;
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    else if (e.key.toLowerCase() === 'n') document.body.classList.toggle('shownotes');
+  });
+  addEventListener('click', (e) => { if (e.target.closest('a, .nonav')) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+  show(parseInt(location.hash.slice(1) || '1', 10) - 1);
+</script>
+
+<script>
+  // ---- the Saturday game ----
+  (function () {
+    const ROOMS = 200, P_SHOW = 0.63, EMPTY = 100, WALK = 250, $ = id => document.getElementById(id);
+    const c = $('hotel'), dpr = Math.min(window.devicePixelRatio || 1, 2), W = 640, H = 400; c.width = W * dpr; c.height = H * dpr; const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const night = n => { let s = 0; for (let i = 0; i < n; i++) if (Math.random() < P_SHOW) s++; return s; };
+    const euro = v => '€' + Math.round(v).toLocaleString('en-US');
+    function draw(shows) {
+      x.clearRect(0, 0, W, H); const cols = 25, size = 20, gap = 4, x0 = (W - cols * (size + gap) + gap) / 2, y0 = 34;
+      x.font = '700 14px IBM Plex Mono, monospace'; x.fillStyle = '#a3adbd'; x.textAlign = 'left'; x.fillText('YOUR 200 ROOMS', x0, 22);
+      for (let i = 0; i < ROOMS; i++) { const cx = x0 + (i % cols) * (size + gap), cy = y0 + Math.floor(i / cols) * (size + gap); x.fillStyle = shows == null ? '#161b27' : i < shows ? '#2ee6c5' : '#161b27'; x.strokeStyle = 'rgba(200,220,255,0.12)'; x.beginPath(); x.roundRect(cx, cy, size, size, 4); x.fill(); x.stroke(); }
+      const walked = shows == null ? 0 : Math.max(0, shows - ROOMS), yw = y0 + 8 * (size + gap) + 34;
+      x.fillStyle = walked ? '#ff6b8b' : '#5f6a7d'; x.fillText(walked ? 'GUESTS WITH NO ROOM: ' + walked : 'GUESTS WITH NO ROOM: none', x0, yw - 10);
+      for (let i = 0; i < Math.min(walked, 75); i++) { x.fillStyle = '#ff6b8b'; x.beginPath(); x.roundRect(x0 + (i % cols) * (size + gap), yw + Math.floor(i / cols) * (size + gap), size, size, 4); x.fill(); }
+    }
+    function show(n, shows, empty, walk, avg) {
+      const cost = empty * EMPTY + walk * WALK, f = v => avg ? v.toFixed(1) : v;
+      $('g-show').textContent = f(shows); $('g-empty').textContent = f(empty); $('g-walk').textContent = f(walk); $('g-cost').textContent = euro(cost);
+      $('g-verdict').innerHTML = avg ? 'On an average Saturday, selling <b>' + n + '</b> costs you about <b>' + euro(cost) + '</b>. Try another number. Can you get lower?'
+        : walk > 0 ? '<b>' + walk + ' guest' + (walk > 1 ? 's' : '') + '</b> arrived to a full hotel. You pay <b>' + euro(walk * WALK) + '</b>. Play again: the same number gives a different night.'
+        : empty > 0 ? '<b>' + empty + ' room' + (empty > 1 ? 's' : '') + '</b> stayed empty. You lost <b>' + euro(empty * EMPTY) + '</b>. Play again: the same number gives a different night.'
+        : '<b>A perfect night.</b> Every room full, nobody turned away. Play again: was it skill or luck?';
+    }
+    const N = () => +$('g-slider').value;
+    $('g-slider').addEventListener('input', () => { $('g-n').textContent = N(); draw(null); ['g-show', 'g-empty', 'g-walk', 'g-cost'].forEach(id => $(id).textContent = '–'); $('g-verdict').textContent = 'Now play a Saturday.'; });
+    $('g-one').onclick = () => { const n = N(), sh = night(n); draw(sh); show(n, sh, Math.max(0, ROOMS - sh), Math.max(0, sh - ROOMS), false); };
+    $('g-many').onclick = () => { const n = N(), T = 1000; let s = 0, e = 0, w = 0; for (let t = 0; t < T; t++) { const sh = night(n); s += sh; e += Math.max(0, ROOMS - sh); w += Math.max(0, sh - ROOMS); } draw(Math.round(s / T)); show(n, s / T, e / T, w / T, true); };
+    draw(null);
+  })();
+</script>
+</body>
+</html>

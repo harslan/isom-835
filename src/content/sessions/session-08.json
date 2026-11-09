@@ -117,6 +117,15 @@
   ],
   "resources": [
     {
+      "title": "The Saturday Night Problem — the Story Deck",
+      "url": "/session-08/story.html",
+      "description": "The story behind tonight's numbers, in eleven slides: you run a 200-room hotel where 37% of bookings cancel. Play the overbooking game, argue about the non-refundable deposit puzzle, and see what a better model is worth to the manager. Arrow keys to navigate, F for fullscreen, N for speaker notes.",
+      "icon": "presentation",
+      "badge": "Slides",
+      "badgeType": "interactive",
+      "linkText": "Open the story"
+    },
+    {
       "title": "Session 8 Slides — Learn from Your Mistakes",
       "url": "/session-08/slides.html",
       "description": "The deck from class: the two leaderboards, committee versus relay team, the miss-trainee-add recipe, one real guest followed round by round, walking downhill in the fog, too many trees, the coach who stops the cramming, big swings versus careful putts, what 0.003 of AUC buys a hotel, and tabular foundation models. Arrow keys to navigate, F for fullscreen, N for speaker notes.",
