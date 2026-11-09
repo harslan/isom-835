@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISOM 835 · AUC, the head-to-head game</title>
+<meta name="description" content="AUC explained in plain language for ISOM 835: a head-to-head game between one guest who canceled and one who stayed, a line-up you can play with, why AUC needs no cutoff, why lopsided data cannot fool it, and the one thing it does not tell you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #07090f; --bg2: #0c0f17; --card: #0f131c; --text: #eef2f7; --text2: #a3adbd; --muted: #5f6a7d;
+          --teal: #2ee6c5; --peri: #7c8cff; --coral: #ff6b8b; --lime: #7ee787; --amber: #f5a524; --border: rgba(200,220,255,0.09); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6vh 8vw; gap: 3vh; }
+  .slide.active { display: flex; animation: fadeIn 0.45s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 4px; text-transform: uppercase; color: var(--teal); }
+  h1 { font-size: clamp(2.2rem, 6vw, 4.6rem); font-weight: 800; line-height: 1.08; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 3.4rem); font-weight: 800; line-height: 1.12; }
+  .grad { background: linear-gradient(90deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: clamp(1rem, 2vw, 1.5rem); color: var(--text2); max-width: 900px; line-height: 1.55; }
+  .big { font-size: clamp(3.2rem, 11vw, 8.5rem); font-weight: 800; line-height: 1; }
+  .cards { display: flex; gap: 1.4vw; flex-wrap: wrap; justify-content: center; max-width: 1240px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.4vh 1.6vw; min-width: 220px; max-width: 330px; flex: 1; text-align: left; }
+  .card .label { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  .card .title { font-weight: 700; font-size: clamp(0.95rem, 1.5vw, 1.2rem); margin-bottom: 8px; }
+  .card p { color: var(--text2); font-size: clamp(0.8rem, 1.2vw, 0.95rem); line-height: 1.5; }
+  .num { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; background: linear-gradient(135deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  pre { background: #0a0d15; border: 1px solid var(--border); border-radius: 14px; padding: 2.6vh 2vw; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1.3vw, 1.02rem); line-height: 1.6; color: #d8dee9; max-width: 940px; overflow: auto; }
+  pre .c { color: #6a737d; } pre .k { color: #ff7b72; } pre .s { color: #a5d6ff; } pre .f { color: #d2a8ff; }
+  .hud { position: fixed; bottom: 18px; right: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); z-index: 10; }
+  .brand { position: fixed; bottom: 18px; left: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; z-index: 10; }
+  .bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--peri)); transition: width 0.3s ease; z-index: 10; }
+  ul.list { text-align: left; max-width: 900px; color: var(--text2); font-size: clamp(0.95rem, 1.8vw, 1.3rem); line-height: 1.7; list-style: none; }
+  ul.list li { padding-left: 1.6em; position: relative; margin-bottom: 1.2vh; }
+  ul.list li::before { content: "▸"; position: absolute; left: 0; color: var(--teal); }
+  .pill { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.9rem); letter-spacing: 2px; padding: 8px 20px; border: 1px solid var(--teal); border-radius: 999px; color: var(--teal); }
+  .t { color: var(--teal); } .p { color: var(--peri); } .co { color: var(--coral); } .li { color: var(--lime); } .am { color: var(--amber); }
+  .row { display: flex; gap: 3vw; align-items: center; justify-content: center; flex-wrap: wrap; }
+  table.cm { border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
+  table.cm td, table.cm th { padding: 1.6vh 2.4vw; border: 1px solid var(--border); }
+  table.cm th { color: var(--muted); font-weight: 400; font-size: 0.8em; }
+  table.cm .g { background: rgba(126,231,135,0.12); color: var(--lime); } table.cm .b { background: rgba(255,107,139,0.14); color: var(--coral); } table.cm .a { background: rgba(245,165,36,0.12); color: var(--amber); }
+  .bars { display: flex; gap: 2.5vw; align-items: flex-end; height: 34vh; }
+  .bars div { width: clamp(70px, 9vw, 130px); background: linear-gradient(180deg, var(--teal), var(--peri)); border-radius: 10px 10px 4px 4px; position: relative; }
+  .bars div span { position: absolute; top: -2.6em; left: 0; right: 0; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .bars div small { position: absolute; bottom: -2.4em; left: 0; right: 0; color: var(--text2); font-size: 0.8rem; }
+  .notes { display: none; position: fixed; left: 24px; right: 24px; bottom: 48px; background: rgba(15,19,28,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--text2); text-align: left; z-index: 20; }
+  body.shownotes .notes { display: block; }
+  .timeline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.6vw; max-width: 1300px; width: 100%; }
+  .timeline div { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4vh 0.6vw; font-size: clamp(0.62rem, 1vw, 0.85rem); color: var(--text2); }
+  .timeline div b { display: block; color: var(--text); font-size: 1.05em; margin-bottom: 4px; }
+  .timeline div i { display: block; font-style: normal; font-family: 'IBM Plex Mono', monospace; font-size: 0.8em; color: var(--teal); margin-bottom: 4px; }
+
+  img.chart { display: block; max-width: min(92vw, 1100px); max-height: 50vh; width: auto; height: auto; border-radius: 14px; }
+  table.cm td { text-align: center; }
+  table.cm.small td, table.cm.small th { padding: 1.1vh 1.5vw; font-size: clamp(0.75rem, 1.35vw, 1.05rem); }
+  .card p { font-size: clamp(0.95rem, 1.45vw, 1.2rem); }
+  .card .label { font-size: clamp(0.72rem, 0.95vw, 0.9rem); }
+  .card .title { font-size: clamp(1.05rem, 1.7vw, 1.35rem); }
+  .card p.real { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1vw, 0.9rem); color: var(--amber); margin-top: 8px; }
+  svg text { font-family: Manrope, sans-serif; }
+  .game { width: min(94vw, 1150px); }
+  .game canvas { width: 100%; height: auto; border-radius: 14px; background: #0a0d15; border: 1px solid var(--border); }
+  .game input[type=range] { width: 100%; accent-color: var(--teal); cursor: pointer; height: 30px; }
+  .gbtn { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.8rem, 1.2vw, 1rem); padding: 10px 18px; border-radius: 999px; border: 1px solid var(--teal); background: var(--teal); color: var(--bg); font-weight: 700; cursor: pointer; margin: 0 8px 0 0; }
+  .gbtn.ghost { background: transparent; color: var(--teal); }
+  .grow { display: grid; grid-template-columns: 1fr 1fr; gap: 2vw; align-items: center; margin-top: 1.4vh; text-align: left; }
+  .gmsg { font-size: clamp(0.95rem, 1.5vw, 1.25rem); color: var(--text2); min-height: 2.9em; line-height: 1.4; } .gmsg b { color: var(--text); }
+  .glab { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.75rem, 1.1vw, 0.95rem); color: var(--text2); }
+  .gauc { font-family: 'IBM Plex Mono', monospace; font-size: clamp(1.4rem, 2.6vw, 2.2rem); font-weight: 700; color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="brand">ISOM 835 · AUC IN PLAIN WORDS</div>
+<div class="hud" id="hud"></div>
+
+<section class="slide active" data-notes="A five-minute refresher on AUC, in plain words. Use it whenever a student (or the professor) forgets what the number means. One sentence to land: AUC is how often the model ranks a real canceler above a real stayer.">
+  <div class="kicker">ISOM 835 · the number on every leaderboard</div>
+  <h1>AUC is the score in a<br><span class="grad">head-to-head game</span></h1>
+  <p class="sub">No formulas. One game, one picture, one sentence to remember.</p>
+</section>
+
+<section class="slide" data-notes="The rules of the game. One guest who really canceled, one who really stayed. The model does not know which is which; it only has its own risk scores. Whoever has the higher score is the one the model calls riskier. If that is the canceler, the model wins the round. Play it with two students: one is the canceler, one the stayer.">
+  <div class="kicker">The game · one round</div>
+  <h2>Two guests. <span class="grad">Who is riskier?</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:270px; border-color: var(--coral)"><div class="label">Guest A</div><div class="title">Really canceled</div><p>The model does not know that.</p></div>
+    <div class="card" style="min-width:270px; border-color: var(--teal)"><div class="label">Guest B</div><div class="title">Really stayed</div><p>The model does not know that either.</p></div>
+  </div>
+  <p class="sub">Ask the model: <b>"which of these two is riskier?"</b><br>If it points at the <b class="co">canceler</b>, it <b class="t">wins the round</b>.</p>
+</section>
+
+<section class="slide" data-notes="Definition, in one line. Every possible pair of one canceler and one stayer is a round. AUC is the share of rounds the model wins. That is the whole idea. (A tie counts as half a win.)">
+  <div class="kicker">The definition</div>
+  <h2>Play every possible pair</h2>
+  <div class="big grad" style="font-size:clamp(2rem,5.6vw,4.6rem); line-height:1.15">AUC = the share of<br>rounds the model wins</div>
+  <p class="sub">Every canceler against every stayer. That is all it is.</p>
+</section>
+
+<section class="slide" data-notes="Interactive. 40 guests lined up by the model's risk score: safest on the left, riskiest on the right. Coral guests really canceled, teal guests really stayed. Press Play one round a few times: a random canceler and a random stayer light up; the model wins if the canceler stands to the right. Then Play every pair to get the exact AUC. Now drag the slider: at the far left the model knows nothing, the colors are mixed, and AUC is about 0.5. At the far right every stayer is on the left and every canceler on the right: AUC 1.00. The key sentence: every canceler standing to the left of a stayer is a lost round.">
+  <div class="kicker">Play it · 40 guests, lined up by the model's risk score</div>
+  <div class="game nonav">
+    <canvas id="lineup" width="1100" height="230" role="img" aria-label="Forty guests in a row ordered by the model's risk score, safest on the left and riskiest on the right. Guests who canceled are coral and guests who stayed are teal. A random pair is highlighted for each round."></canvas>
+    <div class="grow">
+      <div>
+        <div class="glab"><span>The model knows nothing</span><span>The model is perfect</span></div>
+        <input type="range" id="a-q" min="0" max="100" step="1" value="72" aria-label="How good the model is">
+        <div style="margin-top:8px"><button class="gbtn" id="a-one">Play one round</button><button class="gbtn ghost" id="a-all">Play every pair</button></div>
+      </div>
+      <div>
+        <div class="gauc" id="a-score">Rounds won: 0 of 0</div>
+        <div class="gmsg" id="a-msg">Press <b>Play one round</b>. The model wins if the <b style="color:var(--coral)">canceler</b> stands to the right of the <b style="color:var(--teal)">stayer</b>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Three anchor numbers. 0.50: wins half the rounds, a coin flip, the model knows nothing. 0.942: last week's random forest on the hotel bookings, right about 94 times out of 100. 1.00: never gets a pair wrong (on real data, be suspicious: it usually means a leak).">
+  <div class="kicker">Three numbers to remember</div>
+  <h2>How to read an AUC</h2>
+  <div class="row">
+    <div class="card" style="min-width:260px"><div class="label">A coin flip</div><div class="num" style="background:none;color:var(--muted)">0.50</div><p>Wins half the rounds. It knows nothing.</p></div>
+    <div class="card" style="min-width:260px; border-color: var(--peri)"><div class="label">Last week's forest</div><div class="num">0.942</div><p>Picks the right guest about <b>94 times out of 100</b>.</p></div>
+    <div class="card" style="min-width:260px"><div class="label">Perfect</div><div class="num" style="background:none;color:var(--lime)">1.00</div><p>Never gets a pair wrong. (On real data: look for a leak.)</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Why it is useful, part 1. Accuracy needs a cutoff before it can be computed: above 50 percent we call it a cancel. Change the cutoff and accuracy changes. AUC needs no cutoff: it grades the ranking itself. So you can compare models fairly first, and choose the cutoff later from the costs, as in Session 5.">
+  <div class="kicker">Why it is useful · 1</div>
+  <h2>No cutoff <span class="t">needed</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:330px"><div class="label">Accuracy</div><div class="title">"First draw a line"</div><p>Above 50% counts as a cancel? Or 30%? Move the line and the grade changes.</p></div>
+    <div class="card" style="min-width:330px; border-color: var(--teal)"><div class="label">AUC</div><div class="title">Grades the line-up itself</div><p>Compare models first. Choose the cutoff later, <b>from the costs</b> (Session 5).</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Why it is useful, part 2. Imagine a hotel where only 5 guests in 100 cancel. A lazy model that says nobody cancels is right 95 times out of 100: 95 percent accuracy, and completely useless. In the head-to-head game it gives everyone the same score, so every round is a tie: AUC 0.50. Lopsided data cannot fool AUC.">
+  <div class="kicker">Why it is useful · 2</div>
+  <h2>It can't be fooled by <span class="am">lopsided data</span></h2>
+  <p class="sub">A hotel where only <b>5 in 100</b> guests cancel. A lazy model says: <b>"nobody cancels."</b></p>
+  <div class="row">
+    <div class="card" style="min-width:280px"><div class="label">Its accuracy</div><div class="num" style="background:none;color:var(--amber)">95%</div><p>Sounds great. Finds zero cancelers.</p></div>
+    <div class="card" style="min-width:280px; border-color: var(--teal)"><div class="label">Its AUC</div><div class="num">0.50</div><p>Same score for everyone: it cannot rank anybody.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Why we use it for the hotel. The manager's decisions are ranking decisions: which bookings are safest to count on, which riskiest ones get a deposit request or a reminder call. A cleaner line-up serves all of those. And it is the metric of our Kaggle competition.">
+  <div class="kicker">Why we use it for the hotel</div>
+  <h2>A manager's decisions are <span class="grad">ranking decisions</span></h2>
+  <ul class="list">
+    <li>"Which bookings are <b class="t">safest</b> to count on?" The left end of the line-up.</li>
+    <li>"Which <b class="co">riskiest</b> guests get a deposit request or a reminder call?" The right end.</li>
+    <li>A cleaner line-up serves every one of these. And it is the score <b>Kaggle</b> used for our competition.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="The honest limit. AUC checks the order, not the numbers. If a model says 90 percent for every risky guest when the truth is 60 percent, the line-up is identical and AUC does not move. But a manager who multiplies those probabilities by money would be badly off. That is calibration, from Session 5, and why next week adds more checks.">
+  <div class="kicker">The one thing AUC does not tell you</div>
+  <h2>It checks the <span class="t">order</span>, not the <span class="co">numbers</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:330px"><div class="label">The model says</div><div class="num" style="background:none;color:var(--coral)">90%</div><p>for its riskiest guests.</p></div>
+    <div class="card" style="min-width:330px"><div class="label">In truth</div><div class="num" style="background:none;color:var(--amber)">60%</div><p>of them cancel. <b>Same line-up, same AUC.</b></p></div>
+  </div>
+  <p class="sub">Are the percentages themselves right? That is <b>calibration</b> (Session 5).</p>
+</section>
+
+<section class="slide" data-notes="The sentence to remember. Say it together. Then back to the Session 8 slides.">
+  <div class="kicker">The sentence to remember</div>
+  <div class="big grad" style="font-size:clamp(1.9rem,5vw,4.2rem); line-height:1.2">AUC is how often the model<br>ranks a real canceler<br>above a real stayer.</div>
+  <div class="pill" style="font-size:clamp(0.85rem,1.5vw,1.15rem); padding:12px 24px"><a href="slides.html#6" style="color:inherit;text-decoration:none">Back to the Session 8 slides →</a></div>
+</section>
+
+<div class="notes" id="notes"></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')]; let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    document.getElementById('hud').textContent = (i + 1) + ' / ' + slides.length + '  ·  ← → navigate · F fullscreen · N notes';
+    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+    document.getElementById('notes').textContent = slides[i].dataset.notes || '';
+    location.hash = i + 1;
+  }
+  addEventListener('keydown', (e) => {
+    if (e.target.closest && e.target.closest('input, button')) return;
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    else if (e.key.toLowerCase() === 'n') document.body.classList.toggle('shownotes');
+  });
+  addEventListener('click', (e) => { if (e.target.closest('a, .nonav')) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+  show(parseInt(location.hash.slice(1) || '1', 10) - 1);
+</script>
+
+<script>
+  // ---- the head-to-head game ----
+  (function () {
+    const $ = id => document.getElementById(id), N = 40, NC = 16;
+    let seed = 2026; const rnd = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+    const guests = [...Array(N)].map((_, i) => ({ y: i < NC ? 1 : 0, u: rnd() }));
+    const c = $('lineup'), dpr = Math.min(window.devicePixelRatio || 1, 2), W = 1100, H = 230; c.width = W * dpr; c.height = H * dpr; const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+    let order = [], won = 0, played = 0, pair = null;
+    const k = () => +$('a-q').value / 100 * 1.05;
+    function lineup() { const kk = k(); guests.forEach(g => g.s = kk * g.y + g.u); order = guests.slice().sort((a, b) => a.s - b.s); order.forEach((g, i) => g.pos = i); }
+    function exact() { let w = 0, t = 0; for (const a of guests) if (a.y) for (const b of guests) if (!b.y) { t++; if (a.s > b.s) w++; } return [w, t]; }
+    const px = i => 46 + i * (W - 92) / (N - 1), CY = 118;
+    function draw() {
+      x.clearRect(0, 0, W, H); x.font = '700 15px IBM Plex Mono, monospace'; x.fillStyle = '#a3adbd';
+      x.textAlign = 'left'; x.fillText('← the model says: SAFEST', 30, 28); x.textAlign = 'right'; x.fillText('the model says: RISKIEST →', W - 30, 28);
+      x.textAlign = 'left'; x.fillStyle = '#ff6b8b'; x.fillText('● really canceled', 30, H - 16); x.fillStyle = '#2ee6c5'; x.fillText('● really stayed', 230, H - 16);
+      order.forEach((g, i) => { x.fillStyle = g.y ? '#ff6b8b' : '#2ee6c5'; x.globalAlpha = pair && g !== pair[0] && g !== pair[1] ? 0.3 : 1; x.beginPath(); x.arc(px(i), CY, 10.5, 0, 7); x.fill(); }); x.globalAlpha = 1;
+      if (pair) { const [a, b] = pair, win = a.s > b.s, col = win ? '#7ee787' : '#f5a524'; x.strokeStyle = col; x.lineWidth = 3;
+        for (const g of pair) { x.beginPath(); x.arc(px(g.pos), CY, 16, 0, 7); x.stroke(); }
+        const x1 = px(a.pos), x2 = px(b.pos); x.beginPath(); x.moveTo(x1, CY - 18); x.quadraticCurveTo((x1 + x2) / 2, CY - 78, x2, CY - 18); x.stroke();
+        x.fillStyle = col; x.textAlign = 'center'; x.font = '800 17px Manrope, sans-serif'; x.fillText(win ? 'WIN: the canceler is ranked riskier' : 'LOST: the canceler is ranked safer', Math.max(190, Math.min(W - 190, (x1 + x2) / 2)), CY - 62); }
+    }
+    function score() { $('a-score').textContent = 'Rounds won: ' + won + ' of ' + played + (played ? '  =  ' + (won / played).toFixed(2) : ''); }
+    function reset(msg) { won = 0; played = 0; pair = null; lineup(); draw(); score(); $('a-msg').innerHTML = msg; }
+    $('a-q').addEventListener('input', () => { const [w, t] = exact.call(null, lineup()); reset('New line-up. If you played every pair, the model would win <b>' + w + ' of ' + t + '</b>: AUC <b>' + (w / t).toFixed(2) + '</b>.'); });
+    $('a-one').onclick = () => { const cs = guests.filter(g => g.y), ss = guests.filter(g => !g.y); pair = [cs[Math.floor(Math.random() * cs.length)], ss[Math.floor(Math.random() * ss.length)]]; played++; const win = pair[0].s > pair[1].s; if (win) won++; draw(); score(); $('a-msg').innerHTML = win ? 'The model gave the <b style="color:var(--coral)">canceler</b> the higher risk score. <b>It wins this round.</b>' : 'The model thought the <b style="color:var(--teal)">stayer</b> was riskier. <b>It loses this round.</b>'; };
+    $('a-all').onclick = () => { const [w, t] = exact(); won = w; played = t; pair = null; draw(); $('a-score').textContent = 'AUC = ' + (w / t).toFixed(2); $('a-msg').innerHTML = 'All <b>' + t + '</b> pairs played. The model won <b>' + w + '</b>. Every <b style="color:var(--coral)">canceler</b> standing left of a <b style="color:var(--teal)">stayer</b> is a lost round.'; };
+    reset($('a-msg').innerHTML);
+    window.__auc = () => { const [w, t] = exact(); return w / t; };
+  })();
+</script>
+</body>
+</html>

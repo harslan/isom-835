@@ -135,6 +135,15 @@
       "linkText": "Open slides"
     },
     {
+      "title": "AUC in Plain Words — the Head-to-Head Game",
+      "url": "/session-08/auc.html",
+      "description": "Ten slides, no formulas: AUC is how often the model ranks a real canceler above a real stayer. Play the rounds on a line-up of 40 guests, drag the model from clueless to perfect, and see why AUC needs no cutoff, why lopsided data cannot fool it, and the one thing it does not tell you.",
+      "icon": "presentation",
+      "badge": "Slides",
+      "badgeType": "interactive",
+      "linkText": "Open the AUC deck"
+    },
+    {
       "title": "Session 8 Notebook — Gradient Boosting on Hotel Bookings",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-08/ISOM835_Session8_Gradient_Boosting.ipynb",
       "description": "Step by step for first-timers: last week's forest as the score to beat, boosting with one clue as a picture, boosting by hand in six lines, HistGradientBoosting, the too-many-trees curve, early stopping, the learning rate, optional XGBoost, LightGBM and TabICL cells, a leaderboard, and four Your Turn questions with starter cells.",
