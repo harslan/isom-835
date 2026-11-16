@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISOM 835 · Session 9 · Trust, but Verify</title>
+<meta name="description" content="Session 9 slides for ISOM 835: five questions a boss asks before trusting a model. Cross-validation, honest hyperparameter tuning, SHAP explanations, conformal prediction, slices and the model card, on hotel cancellations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #07090f; --bg2: #0c0f17; --card: #0f131c; --text: #eef2f7; --text2: #a3adbd; --muted: #5f6a7d;
+          --teal: #2ee6c5; --peri: #7c8cff; --coral: #ff6b8b; --lime: #7ee787; --amber: #f5a524; --border: rgba(200,220,255,0.09); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6vh 8vw; gap: 3vh; }
+  .slide.active { display: flex; animation: fadeIn 0.45s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 4px; text-transform: uppercase; color: var(--teal); }
+  h1 { font-size: clamp(2.2rem, 6vw, 4.6rem); font-weight: 800; line-height: 1.08; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 3.4rem); font-weight: 800; line-height: 1.12; }
+  .grad { background: linear-gradient(90deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: clamp(1rem, 2vw, 1.5rem); color: var(--text2); max-width: 900px; line-height: 1.55; }
+  .big { font-size: clamp(3.2rem, 11vw, 8.5rem); font-weight: 800; line-height: 1; }
+  .cards { display: flex; gap: 1.4vw; flex-wrap: wrap; justify-content: center; max-width: 1240px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.4vh 1.6vw; min-width: 220px; max-width: 330px; flex: 1; text-align: left; }
+  .card .label { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  .card .title { font-weight: 700; font-size: clamp(0.95rem, 1.5vw, 1.2rem); margin-bottom: 8px; }
+  .card p { color: var(--text2); font-size: clamp(0.8rem, 1.2vw, 0.95rem); line-height: 1.5; }
+  .num { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; background: linear-gradient(135deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  pre { background: #0a0d15; border: 1px solid var(--border); border-radius: 14px; padding: 2.6vh 2vw; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1.3vw, 1.02rem); line-height: 1.6; color: #d8dee9; max-width: 940px; overflow: auto; }
+  pre .c { color: #6a737d; } pre .k { color: #ff7b72; } pre .s { color: #a5d6ff; } pre .f { color: #d2a8ff; }
+  .hud { position: fixed; bottom: 18px; right: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); z-index: 10; }
+  .brand { position: fixed; bottom: 18px; left: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; z-index: 10; }
+  .bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--peri)); transition: width 0.3s ease; z-index: 10; }
+  ul.list { text-align: left; max-width: 900px; color: var(--text2); font-size: clamp(0.95rem, 1.8vw, 1.3rem); line-height: 1.7; list-style: none; }
+  ul.list li { padding-left: 1.6em; position: relative; margin-bottom: 1.2vh; }
+  ul.list li::before { content: "▸"; position: absolute; left: 0; color: var(--teal); }
+  .pill { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.9rem); letter-spacing: 2px; padding: 8px 20px; border: 1px solid var(--teal); border-radius: 999px; color: var(--teal); }
+  .t { color: var(--teal); } .p { color: var(--peri); } .co { color: var(--coral); } .li { color: var(--lime); } .am { color: var(--amber); }
+  .row { display: flex; gap: 3vw; align-items: center; justify-content: center; flex-wrap: wrap; }
+  table.cm { border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
+  table.cm td, table.cm th { padding: 1.6vh 2.4vw; border: 1px solid var(--border); }
+  table.cm th { color: var(--muted); font-weight: 400; font-size: 0.8em; }
+  table.cm .g { background: rgba(126,231,135,0.12); color: var(--lime); } table.cm .b { background: rgba(255,107,139,0.14); color: var(--coral); } table.cm .a { background: rgba(245,165,36,0.12); color: var(--amber); }
+  .bars { display: flex; gap: 2.5vw; align-items: flex-end; height: 34vh; }
+  .bars div { width: clamp(70px, 9vw, 130px); background: linear-gradient(180deg, var(--teal), var(--peri)); border-radius: 10px 10px 4px 4px; position: relative; }
+  .bars div span { position: absolute; top: -2.6em; left: 0; right: 0; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .bars div small { position: absolute; bottom: -2.4em; left: 0; right: 0; color: var(--text2); font-size: 0.8rem; }
+  .notes { display: none; position: fixed; left: 24px; right: 24px; bottom: 48px; background: rgba(15,19,28,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--text2); text-align: left; z-index: 20; }
+  body.shownotes .notes { display: block; }
+  .timeline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.6vw; max-width: 1300px; width: 100%; }
+  .timeline div { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4vh 0.6vw; font-size: clamp(0.62rem, 1vw, 0.85rem); color: var(--text2); }
+  .timeline div b { display: block; color: var(--text); font-size: 1.05em; margin-bottom: 4px; }
+  .timeline div i { display: block; font-style: normal; font-family: 'IBM Plex Mono', monospace; font-size: 0.8em; color: var(--teal); margin-bottom: 4px; }
+
+  img.chart { display: block; max-width: min(92vw, 1100px); max-height: 50vh; width: auto; height: auto; border-radius: 14px; }
+  table.cm td { text-align: center; }
+  table.cm.small td, table.cm.small th { padding: 1.1vh 1.5vw; font-size: clamp(0.75rem, 1.35vw, 1.05rem); }
+  .card p { font-size: clamp(0.95rem, 1.45vw, 1.2rem); }
+  .card .label { font-size: clamp(0.72rem, 0.95vw, 0.9rem); }
+  .card .title { font-size: clamp(1.05rem, 1.7vw, 1.35rem); }
+  .card p.real { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1vw, 0.9rem); color: var(--amber); margin-top: 8px; }
+  svg text { font-family: Manrope, sans-serif; }
+
+  .q { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.8rem, 1.3vw, 1.05rem); letter-spacing: 3px; text-transform: uppercase; color: var(--amber); }
+  .folds { display: grid; grid-template-columns: auto repeat(5, 1fr); gap: 0.7vh 0.5vw; width: min(86vw, 900px); align-items: center; font-size: clamp(0.8rem, 1.3vw, 1.05rem); }
+  .folds span { color: var(--text2); font-family: 'IBM Plex Mono', monospace; padding-right: 1vw; text-align: right; }
+  .folds div { border-radius: 8px; padding: 1.1vh 0; background: rgba(124,140,255,0.16); color: #aab4ff; }
+  .folds div.x { background: var(--coral); color: #1a0810; font-weight: 800; }
+  .rc { display: grid; grid-template-columns: minmax(250px, 1.25fr) 2fr auto; gap: 0.9vh 1.2vw; width: min(90vw, 1050px); align-items: center; text-align: left; font-size: clamp(0.85rem, 1.45vw, 1.15rem); }
+  .rc .n { color: var(--text2); } .rc .n b { color: var(--text); }
+  .rc .track { position: relative; height: 3.2vh; background: rgba(200,220,255,0.04); border-radius: 6px; }
+  .rc .track i { position: absolute; top: 0; bottom: 0; border-radius: 6px; }
+  .rc .v { font-family: 'IBM Plex Mono', monospace; font-weight: 700; text-align: right; min-width: 4.5em; }
+  .hb { display: grid; grid-template-columns: auto 1fr auto; gap: 1vh 1.2vw; width: min(86vw, 900px); align-items: center; font-size: clamp(0.85rem, 1.45vw, 1.15rem); text-align: right; }
+  .hb .track { height: 3vh; } .hb .track i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--peri), var(--teal)); }
+  .hb .v { font-family: 'IBM Plex Mono', monospace; color: var(--text2); }
+  .piles { display: flex; width: min(88vw, 1000px); height: 11vh; border-radius: 14px; overflow: hidden; font-weight: 800; font-size: clamp(0.9rem, 1.7vw, 1.4rem); }
+  .piles div { display: flex; align-items: center; justify-content: center; color: #07090f; }
+  .card.label-card { border-style: dashed; }
+  .mc { text-align: left; width: min(90vw, 1040px); background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.2vh 2vw; font-size: clamp(0.85rem, 1.45vw, 1.2rem); line-height: 1.6; color: var(--text2); }
+  .mc b { color: var(--text); } .mc .h { font-family: 'IBM Plex Mono', monospace; letter-spacing: 2px; color: var(--teal); font-size: 0.85em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="brand">ISOM 835 · SESSION 9</div>
+<div class="hud" id="hud"></div>
+
+<section class="slide active" data-notes="Welcome. One sentence for the night: last week we built a model that scores 0.945. Tonight we find out whether to believe it. Remind everyone: HW3 is due tonight at 11:59 PM.">
+<div class="kicker">ISOM 835 · Session 9 · Mon Nov 16</div>
+  <h1>Trust, but <span class="grad">verify</span></h1>
+  <p class="sub">Five questions your boss will ask before trusting your model</p>
+  <div class="pill">Prof. Hasan Arslan · 5:00–7:30 PM</div>
+</section>
+
+<section class="slide" data-notes="Tonight's map. Five questions, one tool for each. Break around 6:05. The notebook follows exactly the same steps, 0 to 11.">
+<div class="kicker">Tonight</div>
+  <h2>Five questions, <span class="grad">five answers</span></h2>
+  <div class="timeline" style="grid-template-columns: repeat(7, 1fr)">
+    <div><i>5:00</i><b>The setup</b>You tell your boss: 0.945</div>
+    <div><i>5:10</i><b>Is it real?</b>Five exams, and the right exam</div>
+    <div><i>5:45</i><b>Can it be better?</b>Turning the dials, honestly</div>
+    <div><i>6:15</i><b>Why?</b>A receipt for every prediction</div>
+    <div><i>6:45</i><b>How sure?</b>A model that says "not sure"</div>
+    <div><i>7:05</i><b>For everyone?</b>Slices and the model card</div>
+    <div><i>7:15</i><b>Your turn</b>Four questions</div>
+  </div>
+  <p class="sub">Break at <b>6:05</b>. Tonight you play first: <b class="t">four small games</b>, one before each idea.</p>
+</section>
+
+<section class="slide" data-notes="Recap in two numbers, same 6,000 test bookings. Forest 0.942, boosting with early stopping 0.945. Reminder of AUC: pick one canceler and one stayer; how often does the canceler get the higher score. Now imagine you walk into your boss's office with 0.945.">
+<div class="kicker">Where we are</div>
+  <h2>You built a model. It scores <span class="grad">0.945</span>.</h2>
+  <div class="row">
+    <div class="card" style="min-width:260px"><div class="label">Session 7 · Random forest</div><div class="num">0.942</div><p>A committee of 300 trees that vote.</p></div>
+    <div class="card" style="min-width:260px; border-color: var(--teal)"><div class="label">Session 8 · Gradient boosting</div><div class="num">0.945</div><p>A relay team, with early stopping.</p></div>
+  </div>
+  <p class="sub">AUC: pick one guest who canceled and one who stayed.<br>The model gives the canceler the higher score about <b>94 times in 100</b>.</p>
+</section>
+
+<section class="slide" data-notes="The spine of the night. A good boss does not say great. A good boss asks five questions. Read them aloud. Each one has a tool with a real name; we will learn the plain idea first and the name second. These five are also exactly Project Milestone 3.">
+<div class="kicker">You say: "our model scores 0.945"</div>
+  <h2>A good boss asks <span class="grad">five questions</span></h2>
+  <div class="cards" style="flex-wrap:nowrap; max-width:94vw">
+    <div class="card" style="min-width:0"><div class="label">1</div><div class="title">"Is that score real?"</div><p class="real">cross-validation</p></div>
+    <div class="card" style="min-width:0"><div class="label">2</div><div class="title">"Can we make it better?"</div><p class="real">hyperparameter tuning</p></div>
+    <div class="card" style="min-width:0"><div class="label">3</div><div class="title">"Why did it say that?"</div><p class="real">SHAP</p></div>
+    <div class="card" style="min-width:0"><div class="label">4</div><div class="title">"How sure is it?"</div><p class="real">conformal prediction</p></div>
+    <div class="card" style="min-width:0"><div class="label">5</div><div class="title">"Does it work for everyone?"</div><p class="real">slices · model card</p></div>
+  </div>
+  <p class="sub">One idea all night: <b>a score is a claim. Check it before you trust it.</b></p>
+</section>
+
+<section class="slide" data-notes="Question 1. About 35 minutes. Notebook Steps 1 to 3.">
+<div class="q">Question 1 of 5 · your boss asks</div>
+  <h2 style="font-size:clamp(2.2rem,6vw,4.6rem)">“Is that score <span class="grad">real</span>?”</h2>
+  <p class="sub">Or did the model just get an easy exam?</p>
+</section>
+
+<section class="slide" data-notes="The analogy. One exam, one score: is she a 94.5 student, or did the exam happen to ask what she studied? With one exam you cannot tell. Our 0.945 comes from one exam: the 6,000 bookings the random split happened to set aside.">
+<div class="kicker">Step 1 · the problem</div>
+  <h2>One exam is partly <span class="co">luck</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">A student</div><div class="title">One exam: 94.5</div><p>Is she a 94.5 student? Or did the exam ask the questions she studied?</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--peri)"><div class="label">Our model</div><div class="title">One exam: 0.945</div><p>One random split set aside 6,000 bookings. A different shuffle sets aside different ones.</p></div>
+  </div>
+  <p class="sub">So let's reshuffle <b>eight times</b>. Same model, same data, a different exam each time.</p>
+</section>
+
+<section class="slide" data-notes="Send everyone to the Trust Explorer, Station 1. Ask them to GUESS before each press. Give 3 minutes, then ask the room: what was your lowest? your highest? did anyone press The real job yet? (Tell them to wait for that button.) Then show the next slide as the debrief.">
+<div class="kicker">🎮 Game time · 3 minutes · on your phone or laptop</div>
+  <h2>Station 1: <span class="grad">the exam lottery</span></h2>
+  <p class="sub" style="font-size:clamp(1.1rem,2.3vw,1.7rem); color:var(--text)">We told the boss 0.945. <b>Guess where the next score lands</b>, then reshuffle the exam. Do it ten times.</p>
+  <div class="row" style="align-items:center; gap:3vw; flex-wrap:nowrap">
+    <svg style="width:min(22vh,200px);height:min(22vh,200px);border-radius:12px;flex:none" viewBox="0 0 246 246" class="segno"><g transform="scale(6)"><path fill="#eef2f7" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#07090f" d="M4 4.5h7m1 0h4m2 0h1m3 0h7m1 0h7m-33 1h1m5 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m4 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m6 0h1m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m6 0h2m2 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m3 0h2m1 0h1m4 0h2m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h3m3 0h2m2 0h1m1 0h1m1 0h1m-23 1h7m2 0h1m1 0h2m1 0h3m5 0h2m2 0h2m3 0h1m-31 1h4m2 0h2m1 0h1m1 0h1m4 0h7m1 0h2m1 0h4m-33 1h1m1 0h1m1 0h1m1 0h6m1 0h1m1 0h1m2 0h1m9 0h1m1 0h2m-32 1h5m2 0h4m1 0h1m3 0h1m1 0h2m1 0h1m6 0h4m-32 1h4m2 0h1m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h4m2 0h2m-27 1h3m5 0h1m1 0h2m1 0h9m1 0h1m3 0h3m-33 1h1m5 0h3m2 0h3m4 0h1m1 0h1m4 0h3m2 0h2m-30 1h1m1 0h1m4 0h1m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m2 0h6m-30 1h1m3 0h3m2 0h3m1 0h2m1 0h1m2 0h1m3 0h2m1 0h3m2 0h1m-33 1h2m3 0h1m2 0h1m4 0h1m1 0h9m2 0h2m1 0h2m1 0h1m-33 1h2m1 0h4m1 0h1m1 0h1m1 0h1m1 0h5m1 0h3m2 0h4m1 0h2m-29 1h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h4m3 0h4m1 0h1m-33 1h1m1 0h2m2 0h1m3 0h1m2 0h1m3 0h1m4 0h4m2 0h2m1 0h2m-33 1h4m1 0h1m4 0h1m2 0h3m1 0h3m1 0h3m2 0h1m3 0h1m1 0h1m-33 1h1m1 0h1m1 0h1m1 0h3m1 0h3m2 0h1m2 0h1m1 0h3m1 0h1m1 0h1m3 0h2m-32 1h1m1 0h1m1 0h2m1 0h6m3 0h1m2 0h7m4 0h2m-32 1h1m3 0h1m1 0h4m2 0h3m4 0h1m4 0h5m2 0h2m-25 1h1m1 0h1m1 0h1m2 0h1m2 0h4m2 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m1 0h3m2 0h1m3 0h2m4 0h2m1 0h1m1 0h1m1 0h1m-31 1h1m5 0h1m1 0h1m5 0h3m1 0h7m3 0h3m-31 1h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h1m2 0h1m4 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h4m2 0h1m2 0h1m1 0h1m2 0h2m1 0h1m2 0h2m2 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m3 0h1m1 0h1m6 0h1m1 0h4m1 0h1m-30 1h1m5 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h2m1 0h3m-31 1h7m3 0h1m2 0h1m6 0h1m1 0h6m3 0h1"/></g></svg>
+    <div style="text-align:left"><div class="pill" style="font-size:clamp(0.95rem,1.9vw,1.5rem); padding:14px 30px"><a href="/explore/trust/#s1" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/trust</a></div>
+    <p class="sub" style="font-size:clamp(0.85rem,1.4vw,1.1rem); margin-top:1.5vh">Scan with your phone camera, or type the link.<br>Play first. We name the tool after.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Run notebook Step 1. Each dot is the same recipe graded on a different exam. Scores run from 0.938 to 0.947: a gap of 0.009, and nothing about the model changed. Our 0.945 sits near the top: we got a slightly easy exam. Punchline: last week's headline was boosting beats the forest by 0.003. The luck of the shuffle is three times bigger. So was last week's win real? Hold that thought.">
+<div class="kicker">Step 1 · same model, eight shuffles</div>
+  <h2>Eight exams, <span class="grad">eight scores</span></h2>
+  <svg viewBox="0 0 1100 215" width="92%" style="max-width:1150px" role="img" aria-label="Eight dots between 0.938 and 0.947 on an AUC axis; a dashed line marks 0.945, the score we reported, near the top of the dots">
+    <line x1="60" y1="165" x2="1050" y2="165" stroke="#5f6a7d" stroke-width="2"/><line x1="80" y1="165" x2="80" y2="175" stroke="#5f6a7d" stroke-width="2"/><text x="80" y="202" text-anchor="middle" font-size="22" fill="#a3adbd">0.936</text><line x1="237" y1="165" x2="237" y2="175" stroke="#5f6a7d" stroke-width="2"/><text x="237" y="202" text-anchor="middle" font-size="22" fill="#a3adbd">0.938</text><line x1="393" y1="165" x2="393" y2="175" stroke="#5f6a7d" stroke-width="2"/><text x="393" y="202" text-anchor="middle" font-size="22" fill="#a3adbd">0.940</text><line x1="550" y1="165" x2="550" y2="175" stroke="#5f6a7d" stroke-width="2"/><text x="550" y="202" text-anchor="middle" font-size="22" fill="#a3adbd">0.942</text><line x1="707" y1="165" x2="707" y2="175" stroke="#5f6a7d" stroke-width="2"/><text x="707" y="202" text-anchor="middle" font-size="22" fill="#a3adbd">0.944</text><line x1="863" y1="165" x2="863" y2="175" stroke="#5f6a7d" stroke-width="2"/><text x="863" y="202" text-anchor="middle" font-size="22" fill="#a3adbd">0.946</text><line x1="1020" y1="165" x2="1020" y2="175" stroke="#5f6a7d" stroke-width="2"/><text x="1020" y="202" text-anchor="middle" font-size="22" fill="#a3adbd">0.948</text>
+    <line x1="785" y1="40" x2="785" y2="165" stroke="#ff6b8b" stroke-width="3" stroke-dasharray="9 7"/>
+    <text x="773" y="38" text-anchor="end" font-size="24" font-weight="700" fill="#ff6b8b">what we told the boss: 0.945</text>
+    <circle cx="855" cy="120" r="17" fill="#7c8cff" opacity="0.8"/><circle cx="754" cy="120" r="17" fill="#7c8cff" opacity="0.8"/><circle cx="942" cy="120" r="17" fill="#7c8cff" opacity="0.8"/><circle cx="213" cy="120" r="17" fill="#7c8cff" opacity="0.8"/><circle cx="338" cy="120" r="17" fill="#7c8cff" opacity="0.8"/><circle cx="526" cy="120" r="17" fill="#7c8cff" opacity="0.8"/><circle cx="479" cy="120" r="17" fill="#7c8cff" opacity="0.8"/><circle cx="738" cy="120" r="17" fill="#7c8cff" opacity="0.8"/>
+  </svg>
+  <p class="sub">Lowest <b>0.938</b>, highest <b>0.947</b>. A gap of <b class="co">0.009</b>, from the shuffle alone.<br>Last week: "boosting beats the forest by <b>0.003</b>". Was that real, or luck?</p>
+</section>
+
+<section class="slide" data-notes="The fix is what schools do: more exams. Cut the 24,000 training bookings into five parts, called folds. Five rounds; every part takes one turn as the exam. Report the average and the spread. Point at the picture row by row. Key detail: the 6,000 test bookings are NOT in this picture. They stay locked away. Real name: 5-fold cross-validation.">
+<div class="kicker">Step 2 · the fix · <span class="am">cross-validation</span></div>
+  <h2>Five exams instead of one</h2>
+  <div class="folds">
+    <span>round 1</span><div class="x">EXAM</div><div>train</div><div>train</div><div>train</div><div>train</div>
+    <span>round 2</span><div>train</div><div class="x">EXAM</div><div>train</div><div>train</div><div>train</div>
+    <span>round 3</span><div>train</div><div>train</div><div class="x">EXAM</div><div>train</div><div>train</div>
+    <span>round 4</span><div>train</div><div>train</div><div>train</div><div class="x">EXAM</div><div>train</div>
+    <span>round 5</span><div>train</div><div>train</div><div>train</div><div>train</div><div class="x">EXAM</div>
+  </div>
+  <p class="sub">Cut the <b>training</b> bookings into 5 parts (<b>folds</b>). Every part takes one turn as the exam.<br>Report the <b>average</b> and the <b>spread</b>. The test bookings stay <b class="t">locked away</b>.</p>
+</section>
+
+<section class="slide" data-notes="Run notebook Step 2 (about half a minute: ten models). Numbers on your screen can differ from the slide by 0.001 depending on library versions; the story is the same. One line of code: cross_val_score. Both models took the same five exams. Boosting's honest score: 0.941 give or take 0.003, a bit lower than the 0.945 we told the boss. And boosting beats the forest on 5 exams out of 5. One win could be luck; five out of five on the same exams is a pattern. Last week's result was real, and now we know it instead of hoping.">
+<div class="kicker">Step 2 · forest vs boosting on the same five exams</div>
+  <h2>Boosting wins <span class="grad">5 out of 5</span></h2>
+  <table class="cm small">
+    <tr><th></th><th>exam 1</th><th>exam 2</th><th>exam 3</th><th>exam 4</th><th>exam 5</th><th>average</th></tr>
+    <tr><td>🌲 random forest</td><td>0.935</td><td>0.936</td><td>0.936</td><td>0.942</td><td>0.939</td><td class="a">0.938</td></tr>
+    <tr><td>🚀 boosting</td><td>0.939</td><td>0.942</td><td>0.938</td><td>0.945</td><td>0.943</td><td class="g">0.941</td></tr>
+    <tr><td>boosting wins by</td><td class="g">+0.004</td><td class="g">+0.006</td><td class="g">+0.002</td><td class="g">+0.003</td><td class="g">+0.003</td><td class="g">+0.003</td></tr>
+  </table>
+  <p class="sub">The honest way to say it: <b>"0.941, give or take 0.003."</b><br>One win can be luck. Five out of five is a <b class="t">pattern</b>.</p>
+</section>
+
+<section class="slide" data-notes="Quick check, 60 seconds, ask the room. Answer: she reported her luckiest exam. The honest number is the average: 0.92, with a spread of about 0.015. She should write: about 0.92, give or take 0.015.">
+<div class="kicker">🧠 Quick check</div>
+  <h2>What should she report?</h2>
+  <p class="sub">A teammate ran 5-fold cross-validation and got</p>
+  <div class="big" style="font-size:clamp(1.6rem,4.6vw,3.6rem)"><span class="p">0.91 · 0.93 · 0.92 · 0.94 · 0.90</span></div>
+  <p class="sub">Her report says: <b>"Our model scores 0.94."</b><br>What is wrong, and what should she write?</p>
+</section>
+
+<section class="slide" data-notes="The most important idea of the night. All five exams were made by shuffling: 2015, 2016 and 2017 mixed together in training and exam. But next month the model will score bookings from a future it has never seen. Driving test: passing in an empty parking lot says little about Boston traffic. The exam must look like the job.">
+<div class="kicker">Step 3 · a deeper question</div>
+  <h2>Does the exam look like the <span class="grad">real job</span>?</h2>
+  <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">🅿️ The exam we gave</div><div class="title">An empty parking lot</div><p>Shuffle all bookings. 2015, 2016 and 2017 are mixed in training <b>and</b> in the exam.</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--coral)"><div class="label">🚦 The real job</div><div class="title">Boston traffic</div><p>Learn from the <b>past</b>. Get judged on a <b>future</b> the model has never seen.</p></div>
+  </div>
+  <p class="sub">So: train on arrivals in <b>2015–2016</b>. Exam: every booking that arrives in <b>2017</b>.</p>
+</section>
+
+<section class="slide" data-notes="Run notebook Step 3. Same model, same number of bookings (about 20,000 to train, 10,000 as the exam). Shuffled: 0.94. Past to future: 0.88. That drop is far bigger than anything tuning will win back tonight. Two reasons. Twins: 25 percent of our bookings have an identical twin (a tour operator books 20 identical rooms); shuffling puts one twin in training and the other in the exam, so the model has seen the answer. And the world moves: new agents, new prices. Neither score is wrong; they answer different questions. Your boss is asking the second one.">
+<div class="kicker">Step 3 · same model, same number of bookings</div>
+  <h2>The exam changes <span class="co">everything</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:280px"><div class="label">Shuffled exam</div><div class="num">0.94</div><p>"How well does it fill gaps in data it already knows?"</p></div>
+    <div class="card" style="min-width:280px; border-color: var(--coral)"><div class="label">Learn 2015–16, predict 2017</div><div class="num" style="background:none;color:var(--coral)">0.88</div><p>"How well will it do <b>next year</b>?"</p></div>
+  </div>
+  <ul class="list" style="font-size:clamp(0.9rem,1.6vw,1.2rem)">
+    <li><b class="am">Twins.</b> 25% of our bookings have an identical twin. Shuffling puts one in training and one in the exam.</li>
+    <li><b class="p">The world moves.</b> New agents, new prices, a new season. 2017 is not a copy of 2016.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="The rule to take away. Before you choose a model, choose the exam. Ask: when this model is in use, what will be new to it? Then hold out exactly that. Three cases and the scikit-learn names. Mention the bank quick check in the notebook: 12 monthly rows per customer, shuffled: the same customer is on both sides; hold out whole customers. For the rest of tonight we keep the shuffled exam so numbers stay comparable with the last two weeks, and we tell the truth in the model card.">
+<div class="kicker">Step 3 · the rule</div>
+  <h2>Choose the exam <span class="grad">before</span> the model</h2>
+  <p class="sub">Ask: <b>"When this model is in use, what will be new to it?"</b> Then hold out exactly that.</p>
+  <table class="cm small">
+    <tr><th>in real life, what is new?</th><th>so hold out…</th><th>the real name</th></tr>
+    <tr><td>future dates</td><td>the most recent period</td><td class="g">TimeSeriesSplit</td></tr>
+    <tr><td>new customers (many rows each)</td><td>whole customers</td><td class="g">GroupKFold</td></tr>
+    <tr><td>nothing special</td><td>random parts</td><td class="g">StratifiedKFold</td></tr>
+  </table>
+</section>
+
+<section class="slide" data-notes="Question 2. About 20 minutes. Notebook Steps 4 and 5.">
+<div class="q">Question 2 of 5 · your boss asks</div>
+  <h2 style="font-size:clamp(2.2rem,6vw,4.6rem)">“Can we make it <span class="grad">better</span>?”</h2>
+  <p class="sub">Turning the dials, honestly</p>
+</section>
+
+<section class="slide" data-notes="Dials: students turned two of them by hand last week (learning rate, tree size). The real name is hyperparameter: a setting YOU choose before training. Finding good settings is tuning. Cake analogy: temperature, time, sugar. Which cakes do we bake? Grid search: every combination, 125 cakes. Random search: 12 random ones; sounds lazy but usually lands close to the best for a tenth of the work.">
+<div class="kicker">Step 4 · dials have a real name: <span class="am">hyperparameters</span></div>
+  <h2>Tuning is like perfecting a <span class="grad">cake</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:290px"><div class="label">The dials</div><div class="title">Temperature · time · sugar</div><p><b>learning_rate</b> · <b>max_leaf_nodes</b> · <b>min_samples_leaf</b></p></div>
+    <div class="card" style="min-width:290px"><div class="label">Grid search</div><div class="title">Bake every combination</div><p>5 × 5 × 5 = <b>125 cakes</b>. Thorough, slow.</p></div>
+    <div class="card" style="min-width:290px; border-color: var(--teal)"><div class="label">Random search</div><div class="title">Bake 12 at random</div><p>Usually lands close to the best, for <b>a tenth of the work</b>.</p></div>
+  </div>
+  <p class="sub">To find the best cake you bake several and <b>taste</b> them. But <b class="co">who tastes?</b></p>
+</section>
+
+<section class="slide" data-notes="Who tastes? Not the customer. The test bookings are the customer. We taste in the kitchen: cross-validation inside the training bookings. Walk through the code: the menu of values, n_iter 12 recipes, cv 3 exams each, fit on training bookings only. 36 models, about a minute: run notebook Step 4 now and talk while it bakes.">
+<div class="kicker">Step 4 · the honest way</div>
+  <h2>Taste in the kitchen, <span class="co">not at the customer's table</span></h2>
+  <pre><span class="c"># the values each dial is allowed to take</span>
+menu = {<span class="s">'learning_rate'</span>:    [0.03, 0.05, 0.1, 0.2, 0.3],
+        <span class="s">'max_leaf_nodes'</span>:   [7, 15, 31, 63, 127],
+        <span class="s">'min_samples_leaf'</span>: [5, 10, 20, 50, 100]}
+
+search = <span class="f">RandomizedSearchCV</span>(new_boost(), menu,
+            n_iter=12,   <span class="c"># try 12 random recipes</span>
+            cv=3)        <span class="c"># taste each one with 3 exams</span>
+search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training bookings only</span></pre>
+  <p class="sub">12 recipes × 3 exams = <b>36 models</b>. About a minute.</p>
+</section>
+
+<section class="slide" data-notes="Read the table in the notebook together. Top: small steps (0.03 to 0.1), medium or big trees. Bottom: tiny trees and big steps, just as the golf picture said. The gain: about 0.001 (0.940 to 0.941). Honest truth: tuning is the last few percent, not the first. Compare with Step 3: the exam choice moved the score by 0.06. Optuna (optional cell): a tuner that learns from each cake where to look next; it lands in the same neighborhood (0.942). It earns its keep when each model takes hours.">
+<div class="kicker">Step 4 · the result</div>
+  <h2>Tuning is the <span class="grad">last few percent</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:250px"><div class="label">Default dials</div><div class="num" style="background:none;color:var(--muted)">0.940</div><p>cross-validation score</p></div>
+    <div class="card" style="min-width:250px; border-color: var(--teal)"><div class="label">Best of 12 random recipes</div><div class="num">0.941</div><p>step 0.05 · 63 leaves · min 10</p></div>
+    <div class="card" style="min-width:250px"><div class="label">Optuna · 15 smart trials</div><div class="num" style="background:none;color:var(--peri)">0.942</div><p>learns where to look next</p></div>
+  </div>
+  <p class="sub">Winners: <b>small steps, bigger trees</b>. Just what the golf picture said.<br>Clean data, no leaks and the right exam matter <b>far more</b> than the dials.</p>
+</section>
+
+<section class="slide" data-notes="Station 2. Let them discover the two levers themselves: more guessers, smaller exam. Ask: who got the highest champion? (0.75 or more is possible with 1,000 guessers and 20 bookings.) Then: send your champion to fresh bookings. What happened? Everyone says 0.50. That is the debrief on the next slide.">
+<div class="kicker">🎮 Game time · 3 minutes · on your phone or laptop</div>
+  <h2>Station 2: <span class="grad">crown the luckiest</span></h2>
+  <p class="sub" style="font-size:clamp(1.1rem,2.3vw,1.7rem); color:var(--text)">These models know <b>nothing</b>. Your mission: make one of them <b>look like a real model (0.65 or more)</b>.</p>
+  <div class="row" style="align-items:center; gap:3vw; flex-wrap:nowrap">
+    <svg style="width:min(22vh,200px);height:min(22vh,200px);border-radius:12px;flex:none" viewBox="0 0 246 246" class="segno"><g transform="scale(6)"><path fill="#eef2f7" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#07090f" d="M4 4.5h7m3 0h2m2 0h1m3 0h7m1 0h7m-33 1h1m5 0h1m1 0h2m1 0h1m1 0h1m1 0h2m5 0h3m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m2 0h3m6 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h2m5 0h1m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h3m4 0h2m1 0h4m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h3m3 0h1m2 0h3m1 0h1m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-23 1h3m1 0h7m3 0h1m-24 1h3m1 0h2m2 0h1m1 0h1m5 0h3m1 0h3m6 0h2m-30 1h4m2 0h2m1 0h1m6 0h7m1 0h2m1 0h4m-30 1h1m2 0h2m4 0h1m1 0h1m2 0h1m2 0h2m1 0h2m1 0h4m1 0h2m-32 1h2m1 0h1m3 0h1m1 0h1m2 0h1m1 0h1m6 0h1m1 0h2m1 0h1m1 0h1m-28 1h5m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m1 0h4m2 0h2m-30 1h3m1 0h1m3 0h7m4 0h1m2 0h1m4 0h1m1 0h1m1 0h1m-31 1h2m1 0h1m1 0h1m2 0h4m2 0h1m3 0h4m1 0h1m1 0h1m1 0h1m-27 1h3m2 0h1m1 0h1m1 0h3m1 0h2m2 0h1m1 0h2m2 0h6m-31 1h2m1 0h1m2 0h1m1 0h3m4 0h1m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h1m-31 1h1m2 0h1m1 0h1m1 0h4m1 0h2m3 0h1m2 0h1m2 0h4m1 0h2m1 0h2m-33 1h2m1 0h4m1 0h3m1 0h7m1 0h3m2 0h4m1 0h2m-31 1h2m4 0h2m1 0h1m1 0h1m1 0h1m7 0h1m1 0h1m1 0h1m1 0h1m-28 1h2m3 0h4m2 0h4m2 0h2m1 0h1m1 0h1m3 0h1m1 0h2m1 0h1m-33 1h4m3 0h1m3 0h3m1 0h5m1 0h3m2 0h1m3 0h1m1 0h1m-30 1h8m3 0h1m2 0h1m4 0h2m3 0h1m1 0h1m1 0h2m-32 1h1m3 0h1m1 0h2m2 0h3m2 0h1m1 0h1m1 0h1m2 0h1m3 0h2m-29 1h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h4m4 0h1m4 0h5m2 0h2m-25 1h4m1 0h2m4 0h1m3 0h2m3 0h2m-30 1h7m3 0h1m1 0h1m1 0h3m2 0h1m1 0h4m1 0h1m1 0h1m2 0h1m-32 1h1m5 0h1m1 0h1m1 0h1m4 0h3m1 0h6m3 0h3m-31 1h1m1 0h3m1 0h1m2 0h2m2 0h3m2 0h1m1 0h9m1 0h2m-32 1h1m1 0h3m1 0h1m1 0h1m3 0h3m1 0h2m3 0h1m1 0h2m2 0h1m1 0h4m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h2m2 0h1m5 0h1m1 0h4m1 0h1m-30 1h1m5 0h1m1 0h1m4 0h3m1 0h1m6 0h2m1 0h2m3 0h1m-33 1h7m2 0h1m1 0h2m3 0h1m1 0h4m1 0h1m2 0h1m1 0h1m1 0h1"/></g></svg>
+    <div style="text-align:left"><div class="pill" style="font-size:clamp(0.95rem,1.9vw,1.5rem); padding:14px 30px"><a href="/explore/trust/#s2" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/trust</a></div>
+    <p class="sub" style="font-size:clamp(0.85rem,1.4vw,1.1rem); margin-top:1.5vh">Scan with your phone camera, or type the link.<br>Play first. We name the tool after.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Run notebook Step 5. Why so strict about the test set? 200 models that know nothing: each writes a random number for every booking. Average score 0.50, a coin flip. But the best of the 200 scores 0.62 on a small exam of 200 bookings. It looks like it knows something. On 5,800 fresh bookings it falls back to 0.50. It was never good; it was lucky, and we picked it because it was lucky. This is exactly what happened to teams that climbed the public leaderboard and dropped on the private one.">
+<div class="kicker">Step 5 · the trap</div>
+  <h2>The best of <span class="co">200 guessers</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:250px"><div class="label">200 models that know nothing</div><div class="num" style="background:none;color:var(--muted)">0.50</div><p>the average guesser: a coin flip</p></div>
+    <div class="card" style="min-width:250px; border-color: var(--coral)"><div class="label">The "champion" · small exam</div><div class="num" style="background:none;color:var(--coral)">0.62</div><p>it looks like it knows something!</p></div>
+    <div class="card" style="min-width:250px"><div class="label">Same champion · fresh bookings</div><div class="num" style="background:none;color:var(--muted)">0.50</div><p>it was never good. It was <b>lucky</b>.</p></div>
+  </div>
+  <p class="sub">Try many things, keep the best score on the same exam, and you keep <b class="co">the luckiest</b>.<br>That is the public leaderboard story from last week.</p>
+</section>
+
+<section class="slide" data-notes="The rule in two parts. Choose with cross-validation. Open the test set once, at the very end, only to report. We have chosen, so now we open it: 0.945 becomes 0.947, with fewer trees. The test set agrees with what cross-validation promised: a small, real gain. No surprise on exam day. Quick check in the notebook: the teammate who tried 60 models on the test set. Then BREAK, 10 minutes.">
+<div class="kicker">Step 5 · the rule</div>
+  <h2>Choose with CV. Open the test set <span class="grad">once</span>.</h2>
+  <div class="row">
+    <div class="card" style="min-width:280px"><div class="label">Last week's champion</div><div class="num" style="background:none;color:var(--muted)">0.945</div><p>default dials</p></div>
+    <div class="card" style="min-width:280px; border-color: var(--teal)"><div class="label">Tonight's tuned model</div><div class="num">0.947</div><p>dials chosen by cross-validation</p></div>
+  </div>
+  <p class="sub">A small, <b>real</b> gain, and no surprise on exam day.</p>
+  <div class="pill">☕ Break · back at 6:15</div>
+</section>
+
+<section class="slide" data-notes="Question 3. About 30 minutes. Notebook Steps 6 and 7. Make sure everyone ran the pip install cell at the top (shap).">
+<div class="q">Question 3 of 5 · your boss asks</div>
+  <h2 style="font-size:clamp(2.2rem,6vw,4.6rem)">“Why did it say <span class="grad">that</span>?”</h2>
+  <p class="sub">A receipt for every prediction</p>
+</section>
+
+<section class="slide" data-notes="The front-desk manager calls: your model says booking 438 has an 87 percent chance of canceling. Why? Our model is about 300 trees added together; nobody can read that. But we can give a receipt. Restaurant: starts at zero, each dish adds, lines add up to the total. SHAP: starts at the average booking (37 percent), each clue adds or subtracts points, lines add up to this guest's score. How it decides what a clue is worth: splitting a taxi fare fairly among friends who got in at different stops. Lloyd Shapley, Nobel prize in economics 2012. SHAP = SHapley Additive exPlanations.">
+<div class="kicker">Step 6 · the idea · <span class="am">SHAP</span></div>
+  <h2>Every prediction gets a <span class="grad">receipt</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:310px"><div class="label">🧾 A restaurant receipt</div><div class="title">Starts at $0</div><p>Each dish <b>adds</b> to the bill. The lines add up to the total.</p></div>
+    <div class="card" style="min-width:310px; border-color: var(--teal)"><div class="label">🧾 A SHAP receipt</div><div class="title">Starts at the average: 37%</div><p>Each clue <b>adds or subtracts</b> points. The lines add up to this guest's score.</p></div>
+  </div>
+  <p class="sub">How much is each clue "worth"? Like <b>splitting a taxi fare fairly</b> among friends.<br><span style="color:var(--muted)">The idea is from Lloyd <b>Shap</b>ley, Nobel prize in economics.</span></p>
+</section>
+
+<section class="slide" data-notes="Station 3. Eight real bookings. For each clue students call the direction, then reveal the model's real receipt. Give 4 minutes; most will get through three or four bookings. Ask: which clue surprised you? (Changing the booking LOWERS the risk. A non-refundable deposit RAISES it: hold that thought for the warning slide.) Booking 1 in the game is booking 438, the one on the next slide.">
+<div class="kicker">🎮 Game time · 3 minutes · on your phone or laptop</div>
+  <h2>Station 3: <span class="grad">guess the receipt</span></h2>
+  <p class="sub" style="font-size:clamp(1.1rem,2.3vw,1.7rem); color:var(--text)">You are the model. For each clue: does it make this guest <b class="co">more</b> or <b class="p">less</b> likely to cancel? Then reveal.</p>
+  <div class="row" style="align-items:center; gap:3vw; flex-wrap:nowrap">
+    <svg style="width:min(22vh,200px);height:min(22vh,200px);border-radius:12px;flex:none" viewBox="0 0 246 246" class="segno"><g transform="scale(6)"><path fill="#eef2f7" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#07090f" d="M4 4.5h7m1 0h1m2 0h1m3 0h2m1 0h2m3 0h2m1 0h7m-33 1h1m5 0h1m1 0h2m1 0h1m2 0h1m1 0h1m2 0h6m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h4m3 0h2m1 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h1m3 0h4m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m9 0h6m1 0h2m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m2 0h1m1 0h1m1 0h2m2 0h1m2 0h1m-24 1h2m1 0h1m1 0h2m1 0h1m1 0h5m1 0h1m2 0h5m1 0h1m1 0h5m-33 1h4m3 0h3m2 0h1m4 0h1m2 0h3m2 0h3m4 0h1m-33 1h1m2 0h2m1 0h2m1 0h3m2 0h1m1 0h1m1 0h1m1 0h3m3 0h2m2 0h3m-33 1h4m4 0h4m1 0h2m1 0h2m3 0h1m1 0h3m2 0h1m-28 1h1m3 0h2m1 0h1m4 0h2m3 0h1m2 0h1m1 0h5m1 0h1m2 0h1m-33 1h2m1 0h3m5 0h1m3 0h2m3 0h3m2 0h2m2 0h1m2 0h1m-33 1h1m1 0h1m1 0h1m1 0h1m2 0h3m1 0h2m3 0h1m2 0h2m2 0h1m2 0h1m1 0h3m-33 1h3m1 0h2m3 0h1m2 0h1m4 0h2m2 0h4m1 0h3m2 0h1m-31 1h1m1 0h7m2 0h1m2 0h3m3 0h2m1 0h3m2 0h1m-26 1h1m2 0h3m1 0h3m1 0h3m2 0h3m1 0h4m3 0h2m-33 1h3m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m10 0h1m4 0h3m-30 1h1m1 0h1m3 0h2m1 0h2m1 0h1m2 0h5m1 0h2m1 0h2m2 0h2m-30 1h1m2 0h1m2 0h2m3 0h3m1 0h1m1 0h2m1 0h5m1 0h1m1 0h1m-31 1h1m1 0h1m3 0h1m3 0h1m2 0h1m1 0h1m1 0h1m2 0h2m1 0h3m2 0h1m1 0h2m-33 1h1m1 0h2m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h1m5 0h1m2 0h2m1 0h3m-32 1h4m2 0h4m2 0h1m3 0h2m1 0h3m6 0h1m-30 1h1m1 0h2m2 0h2m2 0h4m1 0h2m2 0h4m1 0h5m2 0h1m-24 1h4m1 0h1m1 0h1m1 0h1m2 0h2m1 0h2m3 0h2m1 0h2m-33 1h7m1 0h1m6 0h2m1 0h1m1 0h5m1 0h1m1 0h1m1 0h1m1 0h1m-33 1h1m5 0h1m3 0h3m1 0h4m2 0h3m1 0h1m3 0h1m2 0h1m-32 1h1m1 0h3m1 0h1m1 0h1m1 0h6m1 0h2m1 0h2m2 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m2 0h1m2 0h2m1 0h2m5 0h1m1 0h1m3 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h2m1 0h1m3 0h2m2 0h2m2 0h2m2 0h1m-33 1h1m5 0h1m1 0h2m1 0h1m3 0h1m1 0h1m1 0h3m2 0h1m1 0h1m1 0h1m2 0h1m-32 1h7m2 0h1m3 0h4m4 0h1m1 0h3m2 0h1m2 0h2"/></g></svg>
+    <div style="text-align:left"><div class="pill" style="font-size:clamp(0.95rem,1.9vw,1.5rem); padding:14px 30px"><a href="/explore/trust/#s3" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/trust</a></div>
+    <p class="sub" style="font-size:clamp(0.85rem,1.4vw,1.1rem); margin-top:1.5vh">Scan with your phone camera, or type the link.<br>Play first. We name the tool after.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Run notebook Step 6 (about half a minute to compute 500 receipts), then the receipt cell with i = 438. This is booking 1 from the game, line for line. Read the receipt top to bottom: start at 37. Booked 312 days ahead: plus 24. No special requests: plus 10. Came through an online travel agency: plus 10. Changed the booking twice: MINUS 10 (people who bother to change a booking usually intend to come). Travel agent number 9: plus 8. Arriving in 2017: plus 6, a callback to Question 1: the model learned that 2017 bookings cancel more, the world moves. Total 87. The notebook also draws SHAP's standard picture, the waterfall: same information, read from the bottom up; red pushes up, blue pushes down; +0.24 means +24 points. The model was right: this booking was canceled.">
+<div class="kicker">Step 6 · booking 438 · the model says 87%</div>
+  <h2>The receipt, <span class="grad">line by line</span></h2>
+  <div class="rc">
+    <div class="n"><b>START · the average booking</b></div><div class="track"><i style="left:0.0%;width:37.2%;background:#5f6a7d"></i></div><div class="v" style="color:#a3adbd">37</div>
+    <div class="n"><b>Booked 312 days ahead</b></div><div class="track"><i style="left:37.2%;width:23.8%;background:#ff6b8b"></i></div><div class="v" style="color:#ff6b8b">+24</div>
+    <div class="n"><b>No special requests</b></div><div class="track"><i style="left:61.0%;width:10.1%;background:#ff6b8b"></i></div><div class="v" style="color:#ff6b8b">+10</div>
+    <div class="n"><b>Booked through an online travel agency</b></div><div class="track"><i style="left:71.1%;width:10.1%;background:#ff6b8b"></i></div><div class="v" style="color:#ff6b8b">+10</div>
+    <div class="n"><b>Changed the booking 2 times</b></div><div class="track"><i style="left:71.2%;width:10.0%;background:#7c8cff"></i></div><div class="v" style="color:#7c8cff">-10</div>
+    <div class="n"><b>Booked through travel agent no. 9</b></div><div class="track"><i style="left:71.2%;width:7.7%;background:#ff6b8b"></i></div><div class="v" style="color:#ff6b8b">+8</div>
+    <div class="n"><b>Arriving in 2017</b></div><div class="track"><i style="left:78.9%;width:6.1%;background:#ff6b8b"></i></div><div class="v" style="color:#ff6b8b">+6</div>
+    <div class="n"><b>all the other clues together</b></div><div class="track"><i style="left:85.0%;width:2.0%;background:#ff6b8b"></i></div><div class="v" style="color:#ff6b8b">+2</div>
+    <div class="n"><b>TOTAL · the model's score</b></div><div class="track"><i style="left:0;width:87.1%;background:linear-gradient(90deg,#2ee6c5,#7c8cff)"></i></div><div class="v" style="color:#2ee6c5">87</div>
+  </div>
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">The first booking from the game. <b class="co">Pink</b> pushes the chance of canceling up, <b class="p">blue</b> pushes it down.<br>"Arriving in 2017": the model learned that 2017 bookings cancel more. <b>The world moves</b> (Question 1).</p>
+</section>
+
+<section class="slide" data-notes="Turn the receipt into one sentence a manager can use. Read it aloud. Then the vocabulary: this is a LOCAL explanation, about one booking; another guest gets a different receipt. Next: the GLOBAL view. Mention the House Price Explorer Station 4 from Session 6: same receipt idea in dollars.">
+<div class="kicker">Step 6 · say it to the manager</div>
+  <h2>One sentence, <span class="grad">no math</span></h2>
+  <p class="sub" style="max-width:1000px; font-size:clamp(1.05rem,2.1vw,1.6rem); color:var(--text)">"Every booking starts at 37%. This one scores 87% mainly because the guest <b class="co">booked 312 days ahead</b>, made <b class="co">no special requests</b> and came through an <b class="co">online travel agency</b>. One thing pulls the other way: they already <b class="p">changed the booking twice</b>."</p>
+  <div class="row">
+    <div class="card" style="min-width:290px"><div class="label">Local explanation</div><div class="title">Why this booking?</div><p>One receipt, one guest.</p></div>
+    <div class="card" style="min-width:290px"><div class="label">Global explanation</div><div class="title">What drives the model?</div><p>All the receipts together. Next.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Run the first cell of notebook Step 7. We have 500 receipts. For each clue, take the average size of its push, ignoring the sign. Two clues lead: country (about 11 points on a typical booking) and deposit type (9). Then a group of four at 5 to 6 points: special requests, travel agent, market segment, lead time. The other 20 clues move the score only a little. Ask the room: are you comfortable that COUNTRY is the number-one clue? Park that; it comes back in Question 5.">
+<div class="kicker">Step 7 · the whole book · 500 receipts together</div>
+  <h2>What drives the model?</h2>
+  <div class="hb"><div><b>Country</b></div><div class="track"><i style="width:100%"></i></div><div class="v">11.3</div><div><b>Deposit type</b></div><div class="track"><i style="width:80%"></i></div><div class="v">9.0</div><div><b>Special requests</b></div><div class="track"><i style="width:53%"></i></div><div class="v">6.0</div><div><b>Travel agent</b></div><div class="track"><i style="width:49%"></i></div><div class="v">5.5</div><div><b>How they booked</b></div><div class="track"><i style="width:47%"></i></div><div class="v">5.3</div><div><b>Days booked ahead</b></div><div class="track"><i style="width:47%"></i></div><div class="v">5.3</div><div><b>Asked for parking</b></div><div class="track"><i style="width:27%"></i></div><div class="v">3.0</div><div><b>Canceled before</b></div><div class="track"><i style="width:25%"></i></div><div class="v">2.8</div></div>
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">Average push on the score, in points (up or down). The other 20 clues each move it only a little.</p>
+</section>
+
+<section class="slide" data-notes="The beeswarm: SHAP's famous picture. The bar chart said how much; this says in which direction. Each dot is one booking. Left or right is the push. Color is the clue's value: pink high, blue low. Read ONE ROW AT A TIME. Lead time: pink dots on the right, booking far ahead raises the risk. Special requests: pink on the left, guests who ask for things are committed. Parking space: pink far left, a guest who asked for parking almost never cancels. Canceled before: pink on the right. Changes to the booking: pink on the left. The notebook draws the library's own version of this picture.">
+<div class="kicker">Step 7 · which direction? · the <span class="am">beeswarm</span></div>
+  <h2>Each dot is <span class="grad">one booking</span></h2>
+  <img class="chart" src="img/beeswarm.png" alt="For five clues, each booking is a dot placed by how many points that clue pushed its score. Long lead times push right, toward canceling. Special requests, a parking space and booking changes push left. Previous cancellations push far right.">
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)"><b>Right</b> = pushed toward "cancels". <b class="co">Pink</b> = a high value of that clue. Read one row at a time.</p>
+</section>
+
+<section class="slide" data-notes="The warning label; give it time. Run the deposit cell. Common sense: a guest who paid a non-refundable deposit will show up. The data: non-refundable bookings were canceled 99.4 percent of the time (3,632 bookings). So the model learned non-refundable means will cancel, and SHAP honestly reports a big push up. Now the owner says: then let's stop asking for non-refundable deposits! That would be a mistake. The deposit does not cause the cancellation; most likely these rows are bulk bookings by tour operators, booked and canceled in blocks. SHAP answers why did the model give this score. It does not answer what will happen if I change this. For that you need an experiment, an A/B test. Quick check in the notebook: country = PRT, +12 points, sentence (a) or (b)? Answer (b).">
+<div class="kicker">Step 7 · ⚠️ the warning label</div>
+  <h2>SHAP explains the <span class="grad">model</span>, not the <span class="co">world</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:270px"><div class="label">No deposit</div><div class="num" style="background:none;color:var(--muted)">29%</div><p>canceled · 26,328 bookings</p></div>
+    <div class="card" style="min-width:270px; border-color: var(--coral)"><div class="label">Non-refundable deposit</div><div class="num" style="background:none;color:var(--coral)">99%</div><p>canceled · 3,632 bookings</p></div>
+  </div>
+  <ul class="list" style="font-size:clamp(0.9rem,1.6vw,1.2rem)">
+    <li>The owner: <i>"Then let's stop asking for deposits!"</i> <b class="co">A mistake.</b> These are mostly bulk bookings, canceled in blocks.</li>
+    <li>SHAP answers <b class="t">"why this score?"</b> It does not answer <b class="co">"what if I change this?"</b> That needs an experiment.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Question 4. About 20 minutes. Notebook Step 8.">
+<div class="q">Question 4 of 5 · your boss asks</div>
+  <h2 style="font-size:clamp(2.2rem,6vw,4.6rem)">“How <span class="grad">sure</span> is it?”</h2>
+  <p class="sub">Teaching the model to say "I'm not sure"</p>
+</section>
+
+<section class="slide" data-notes="So far the model answers every booking with total confidence, even when it is guessing. A good employee says one of three things: will stay, will cancel, or I am not sure, somebody should look. And we want a promise: the truth is inside my answer at least 90 percent of the time. Not sure means stay or cancel, so the truth is always inside that one. Weather forecaster: if she says 90 percent sure and over the year she was right 90 percent of the time, you can plan around her. Real name: conformal prediction.">
+<div class="kicker">Step 8 · the idea · <span class="am">conformal prediction</span></div>
+  <h2>A good employee has <span class="grad">three answers</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:250px; border-color: var(--teal)"><div class="label">✅</div><div class="title">"This one will stay."</div></div>
+    <div class="card" style="min-width:250px; border-color: var(--coral)"><div class="label">❌</div><div class="title">"This one will cancel."</div></div>
+    <div class="card" style="min-width:250px; border-color: var(--amber)"><div class="label">🤔</div><div class="title">"I'm not sure. Somebody should look."</div></div>
+  </div>
+  <p class="sub">Plus a <b>promise</b>: "The truth is inside my answer <b class="t">at least 90% of the time</b>."<br>Like a weather forecaster with a track record you can check.</p>
+</section>
+
+<section class="slide" data-notes="Station 4. Students drag the promise and watch the not-sure zone open in the middle of the scores. The answer to the mission is about 91.5 percent (589 bookings). Ask: what happens at 99 percent? (almost half go to a person.) At 80 percent? (the model refuses to answer some bookings.) And look at the table: who fills the not-sure pile? Online-agency bookings. That is the bridge to Question 5.">
+<div class="kicker">🎮 Game time · 3 minutes · on your phone or laptop</div>
+  <h2>Station 4: <span class="grad">set the promise</span></h2>
+  <p class="sub" style="font-size:clamp(1.1rem,2.3vw,1.7rem); color:var(--text)">Your staff can check <b>600 bookings</b> by hand. <b>What is the strongest promise you can afford?</b></p>
+  <div class="row" style="align-items:center; gap:3vw; flex-wrap:nowrap">
+    <svg style="width:min(22vh,200px);height:min(22vh,200px);border-radius:12px;flex:none" viewBox="0 0 246 246" class="segno"><g transform="scale(6)"><path fill="#eef2f7" d="M0 0h41v41h-41z"/><path class="qrline" stroke="#07090f" d="M4 4.5h7m2 0h1m3 0h1m2 0h3m2 0h1m2 0h1m1 0h7m-33 1h1m5 0h1m6 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m4 0h3m3 0h2m1 0h4m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h6m1 0h1m4 0h5m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h2m1 0h4m1 0h1m5 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h1m1 0h1m4 0h1m1 0h1m3 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m7 0h2m3 0h2m-24 1h2m3 0h1m5 0h1m1 0h2m3 0h2m1 0h1m1 0h1m1 0h2m1 0h1m-30 1h1m1 0h1m2 0h1m2 0h2m1 0h2m2 0h1m3 0h2m1 0h2m2 0h1m2 0h1m1 0h2m-32 1h1m2 0h3m3 0h1m2 0h1m1 0h6m1 0h2m1 0h2m2 0h2m1 0h1m-33 1h1m1 0h1m1 0h2m1 0h2m5 0h3m2 0h1m4 0h1m2 0h3m1 0h1m-32 1h1m4 0h4m1 0h3m2 0h1m1 0h3m4 0h1m1 0h1m4 0h2m-33 1h2m1 0h3m2 0h3m2 0h3m1 0h1m1 0h2m1 0h2m2 0h2m3 0h2m-33 1h8m2 0h1m3 0h1m1 0h4m2 0h2m3 0h4m1 0h1m-33 1h1m3 0h1m3 0h1m4 0h1m1 0h1m2 0h2m2 0h1m1 0h3m1 0h2m-28 1h1m1 0h1m1 0h3m2 0h3m2 0h1m2 0h1m2 0h3m1 0h2m3 0h1m-32 1h2m1 0h3m2 0h2m2 0h1m3 0h2m1 0h2m1 0h3m1 0h1m2 0h1m2 0h1m-31 1h3m1 0h2m2 0h3m1 0h2m2 0h2m1 0h1m1 0h1m3 0h1m1 0h2m1 0h1m-33 1h2m2 0h1m2 0h1m2 0h3m4 0h1m2 0h1m1 0h3m3 0h2m2 0h1m-33 1h1m3 0h6m1 0h2m4 0h4m3 0h1m1 0h1m-25 1h2m1 0h1m3 0h1m1 0h1m1 0h5m1 0h1m2 0h3m1 0h2m4 0h1m-33 1h4m1 0h3m5 0h2m1 0h4m1 0h1m1 0h3m2 0h3m1 0h1m-30 1h3m1 0h1m2 0h3m3 0h1m1 0h3m1 0h2m1 0h1m1 0h1m3 0h1m-32 1h3m2 0h3m1 0h4m2 0h3m2 0h1m1 0h8m-22 1h1m1 0h1m6 0h1m1 0h2m3 0h1m3 0h1m3 0h1m-33 1h7m3 0h2m1 0h1m2 0h1m2 0h2m1 0h1m1 0h1m1 0h1m1 0h5m-33 1h1m5 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h3m3 0h2m-30 1h1m1 0h3m1 0h1m7 0h1m2 0h4m2 0h6m-29 1h1m1 0h3m1 0h1m3 0h3m4 0h3m1 0h5m1 0h4m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m3 0h2m1 0h1m1 0h2m2 0h2m2 0h2m2 0h2m-33 1h1m5 0h1m1 0h1m4 0h1m6 0h1m2 0h7m-30 1h7m4 0h1m2 0h1m1 0h2m1 0h1m4 0h1m2 0h3m2 0h1"/></g></svg>
+    <div style="text-align:left"><div class="pill" style="font-size:clamp(0.95rem,1.9vw,1.5rem); padding:14px 30px"><a href="/explore/trust/#s4" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">isom-835.vercel.app/explore/trust</a></div>
+    <p class="sub" style="font-size:clamp(0.85rem,1.4vw,1.1rem); margin-top:1.5vh">Scan with your phone camera, or type the link.<br>Play first. We name the tool after.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="The recipe, four steps, no new model and no heavy math. 1: set aside a track-record pile the model never trains on (a quarter of the training bookings); real name calibration set. 2: for each, measure the surprise: how little chance did the model give to what really happened. Guest canceled and the model said 95 percent cancel: surprise 0.05. Model said 10 percent: surprise 0.90. 3: find the bar that 90 percent of the surprises stay under. 4: for a new booking keep every answer that would surprise less than the bar. One kept: the model commits. Both kept: not sure. In the notebook this is about ten lines; the library that does it for you is MAPIE.">
+<div class="kicker">Step 8 · the recipe</div>
+  <h2>Four steps, <span class="grad">no new model</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">1 · Track record</div><div class="title">Set aside a pile</div><p>Bookings the model never trains on.</p><p class="real">calibration set</p></div>
+    <div class="card"><div class="label">2 · Surprise</div><div class="title">How wrong-footed was it?</div><p>1 − the chance it gave to what really happened.</p></div>
+    <div class="card"><div class="label">3 · The bar</div><div class="title">Where 90% stay under</div><p>90% of its past surprises were smaller than this.</p></div>
+    <div class="card"><div class="label">4 · New booking</div><div class="title">Keep what fits under the bar</div><p>One answer kept: it commits. <b>Both kept: "not sure".</b></p><p class="real">prediction set</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Make it concrete with two bookings. At a 90 percent promise the bar comes out at 0.58 (some screens say 0.59: version differences). Booking A: the model says 80 percent cancel. If the guest cancels, the model's surprise is 0.20: under the bar, keep cancel. If the guest stays, its surprise is 0.80: over the bar, drop stay. Only one answer is left: will cancel. Booking B: the model says 50 percent. Either way the surprise is 0.50: both under the bar, both kept: not sure. Punchline: the bar turns into a zone in the middle of the scores, 42 to 58 percent. Everything in the zone gets not sure. That is the amber zone they dragged open in Station 4. Then run notebook Step 8; the cell prints the bar and the zone.">
+<div class="kicker">Step 8 · two bookings · the bar at a 90% promise: <span class="am">0.58</span></div>
+  <h2>The bar becomes a <span class="grad">zone</span></h2>
+  <table class="cm small">
+    <tr><th></th><th>the model says</th><th>surprise if it cancels</th><th>surprise if it stays</th><th>the answer</th></tr>
+    <tr><td>Booking A</td><td>80% cancel</td><td class="g">0.20 ✓</td><td class="b">0.80 ✗</td><td class="b">❌ "will cancel"</td></tr>
+    <tr><td>Booking B</td><td>50% cancel</td><td class="g">0.50 ✓</td><td class="g">0.50 ✓</td><td class="a">🤔 "not sure"</td></tr>
+  </table>
+  <div class="piles" style="height:7vh; margin-top:1vh">
+    <div style="width:42%; background:var(--teal)">"will stay"</div>
+    <div style="width:16%; background:var(--amber)">"not sure"</div>
+    <div style="width:42%; background:var(--coral)">"will cancel"</div>
+  </div>
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">0% ← the model's chance of canceling → 100% &nbsp;·&nbsp; between <b class="am">42% and 58%</b>: "not sure". The zone from the game.</p>
+</section>
+
+<section class="slide" data-notes="Run notebook Step 8. The promise was 90 percent; on 6,000 bookings the model has never seen, the truth was inside its answer 90 percent of the time (89.9 or 90.1 on your screen: 6,000 bookings is a sample). Not by luck: the method guarantees it for any model, as long as new bookings look like the track-record bookings. The model commits on more than 9 bookings in 10 and says not sure on the rest (6 or 7 in 100). That pile is gold for a business: the short list for a human. Call the guest, ask for a deposit, look closer. The model handles the easy cases; people handle the hard ones.">
+<div class="kicker">Step 8 · the promise: 90% · kept: 90%</div>
+  <h2>The promise is <span class="grad">kept</span></h2>
+  <div class="piles">
+    <div style="width:62.2%; background:var(--teal)">will stay · 62%</div>
+    <div style="width:6.4%; background:var(--amber)">?</div>
+    <div style="width:31.5%; background:var(--coral)">will cancel · 32%</div>
+  </div>
+  <p class="sub">On 6,000 new bookings the model <b>commits on more than 9 in 10</b>.<br>The rest, <b class="am">about 1 in 15: "not sure"</b>. That is the short list for a <b>human</b>.</p>
+</section>
+
+<section class="slide" data-notes="Run the next cell. Every promise is kept. Certainty has a price: at 90 percent the model says not sure about 1 booking in 15; at 95, 1 in 5; at 99, almost half. And a reward (last column): the more often it may say not sure, the more you can trust it when it commits: 89, 93, 98 percent. This is a business decision, not a math one: how much is a wrong call worth, and how many bookings can staff review by hand? Quick check: the boss wants 99.9 percent sure and never not sure. You cannot have both; that needs a better model or better data. For numbers the same trick gives a range: this house is worth between 190 and 240 thousand. Conformal Explorer link is in the notebook.">
+<div class="kicker">Step 8 · turn up the promise</div>
+  <h2>Certainty has a <span class="co">price</span>, and a <span class="grad">reward</span></h2>
+  <table class="cm small">
+    <tr><th>the promise</th><th>kept</th><th>says "not sure"</th><th>right when it commits</th></tr>
+    <tr><td>90%</td><td class="g">90%</td><td class="a">about 1 in 15</td><td>89%</td></tr>
+    <tr><td>95%</td><td class="g">95%</td><td class="a">about 1 in 5</td><td>93%</td></tr>
+    <tr><td>99%</td><td class="g">99%</td><td class="a">almost half</td><td>98%</td></tr>
+  </table>
+  <p class="sub">How sure do you need to be? How many bookings can your staff check by hand?<br><b>The model gives you the menu. You choose.</b></p>
+</section>
+
+<section class="slide" data-notes="Question 5. About 10 minutes. Notebook Steps 9 and 10.">
+<div class="q">Question 5 of 5 · your boss asks</div>
+  <h2 style="font-size:clamp(2.2rem,6vw,4.6rem)">“Does it work for <span class="grad">everyone</span>?”</h2>
+  <p class="sub">Slices, and the label on the box</p>
+</section>
+
+<section class="slide" data-notes="The average grade is a B plus. Sounds fine, but what if one group is failing and the rest get A's? An average can hide a group that is badly served. So we slice: compute the mistakes separately for each group. Reminder from Sessions 4 and 5: two kinds of mistake. Missed cancel (real name false negative): we said stay, the guest canceled: an empty room. False alarm (false positive): we said cancel, the guest came: we may have given the room away or treated a good guest with suspicion. Overall: the model misses 1 cancel in 5 and raises a false alarm for 1 arriving guest in 12.">
+<div class="kicker">Step 9 · <span class="am">slices</span></div>
+  <h2>An average can <span class="co">hide a group</span></h2>
+  <p class="sub">"The class average is a B+." Fine. Unless one group is failing.</p>
+  <table class="cm small">
+    <tr><th>the mistake</th><th>in plain words</th><th>real name</th><th>all guests</th></tr>
+    <tr><td class="b">missed cancel</td><td>we said "stays", the guest canceled → an empty room</td><td>false negative</td><td class="b">20%</td></tr>
+    <tr><td class="a">false alarm</td><td>we said "cancels", the guest came → a good guest, badly treated</td><td>false positive</td><td class="a">8.5%</td></tr>
+  </table>
+  <p class="sub">Now the same two numbers, <b>group by group</b>.</p>
+</section>
+
+<section class="slide" data-notes="Run notebook Step 9. By how they booked: groups and offline agents, excellent. Online travel agencies, the biggest segment: the most false alarms (1 arriving guest in 7) and 3 cancels in 10 missed. Direct bookings: it misses 6 cancels in 10; those guests rarely cancel so the model almost never dares to flag one. By country: opposite treatment. Guests booking from Portugal get more false alarms (11 percent against 8): among guests who DID show up, a Portuguese guest was about one and a half times as likely to be flagged. For other countries it misses a third of the cancels. It learned Portugal means cancels (the number-one clue in Step 7). If flagged means we give your room away or ask for a deposit, guests from one country are treated worse for the same behavior. That is a fairness problem and no overall score would show it.">
+<div class="kicker">Step 9 · the model's mistakes, group by group</div>
+  <h2>Same model, <span class="co">very different service</span></h2>
+  <img class="chart" src="img/slices.png" alt="Missed cancels and false alarms by market segment and by country. Online travel agency 30% and 14%; offline travel agent 8% and 4%; groups 4% and 6%; direct 59% and 1%; corporate 33% and 0.5%. Portugal 13% and 11%; other countries 33% and 8%.">
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">Among guests who <b>did show up</b>, a guest from Portugal was <b class="am">about 1.5× as likely</b> to be flagged as a canceler.</p>
+</section>
+
+<section class="slide" data-notes="What do you do about it? There is no button; these are management decisions. Know it: you cannot manage a gap you never measured. Decide what the model is allowed to do: send a reminder email to flagged bookings harms nobody; cancel flagged bookings does. Route the weak slices to people: online-agency bookings in the not-sure pile go to a human. Write it down. In lending, hiring, insurance and health care this is not optional: regulators ask for it (EU AI Act: high-risk uses).">
+<div class="kicker">Step 9 · so what do we do?</div>
+  <h2>There is no button. There are <span class="grad">decisions</span>.</h2>
+  <ul class="list">
+    <li><b class="t">Know it.</b> You cannot manage a gap you never measured.</li>
+    <li><b class="p">Decide what the model may do.</b> "Send a reminder email" harms nobody. "Cancel the booking" does.</li>
+    <li><b class="am">Route the weak slices to people.</b> Use the "not sure" pile.</li>
+    <li><b class="co">Write it down</b>, so the next person knows.</li>
+  </ul>
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">In lending, hiring, insurance and health care, regulators <b>require</b> this check.</p>
+</section>
+
+<section class="slide" data-notes="The model card: a nutrition label for a model. One page that tells the truth, written for the person who will USE the model. Every line comes from tonight: walk the five questions. The two warning lines and the weakest-on lines are the most valuable on the page; they protect the hotel and you when something goes wrong. A model card is not marketing. The final project includes a half-page model card; the full template is in notebook Step 10.">
+<div class="kicker">Step 10 · the label on the box · <span class="am">model card</span></div>
+  <h2>One honest page</h2>
+  <div class="mc">
+    <span class="h">For</span> ranking bookings by cancellation risk. <b>Not for</b> canceling a guest's booking without a person.<br>
+    <span class="h">Q1–2 · How good?</span> AUC <b>0.947</b> shuffled (CV 0.94 ± 0.003). ⚠️ Predicting next year: about <b>0.88</b>. Expect this one.<br>
+    <span class="h">Q3 · Why?</span> Country, deposit type, special requests, agent, segment, lead time. Explains scores, <b>not causes</b>.<br>
+    <span class="h">Q4 · How sure?</span> With a 90% promise it commits on more than 9 in 10. The rest go to a person.<br>
+    <span class="h">Q5 · For everyone?</span> ⚠️ Most false alarms: online agencies, guests from Portugal. Misses most cancels: direct bookings.<br>
+    <span class="h">After launch</span> Re-check monthly. Retrain when it slips. <b>Owner:</b> ______ · <b>Next review:</b> ______
+  </div>
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">A model card is not marketing. The ⚠️ lines are the most valuable lines on the page.</p>
+</section>
+
+<section class="slide" data-notes="About 15 minutes. Q1 and Q3 for everyone; Q2 needs the SHAP cells. Answers. Q1: 10 exams: average 0.942 (5 exams: 0.941), spread still about 0.003, but single scores run from 0.936 to 0.948: each exam now has 2,400 bookings instead of 4,800, so each one is luckier; the average barely moves. Q2: booking 2: 0 percent, asked for a parking space (minus 22). Booking 7: between 40 and 50 percent, torn: Austria minus 21 against no requests plus 12 and online agency plus 10; the guest showed up. Booking 103: 98 percent and WRONG, the guest showed up: Portugal plus 35, lead time 339 days plus 18. Q3: at 0.97 not sure on 30 percent. At 0.80 no not sure at all; instead 12 percent get NO ANSWER: the model is right about 87 percent by itself, so to be right only 80 percent it must refuse some. Q4: customer_type: Transient 21 percent missed, 10.5 percent false alarms; Transient-Party 18 and 4. arrival_date_year: false alarms 4 percent in 2015, 7 in 2016, 14 in 2017.">
+<div class="kicker">Your turn · in the notebook</div>
+  <h2>Four questions, Step 11</h2>
+  <ul class="list">
+    <li><b class="t">More exams.</b> 10 parts instead of 5. Does the average change? The spread?</li>
+    <li><b class="p">Explain another booking.</b> Try 2, 7 or 103. Write the sentence for the manager.</li>
+    <li><b class="am">Change the promise.</b> Try 0.97, then 0.80. What happens to the "not sure" pile?</li>
+    <li><b class="co">Slice it your way.</b> Mistakes by customer type, or by arrival year.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Dates match the deadlines table. HW3 tonight 11:59 PM. Milestone 2 Mon Nov 23. Milestone 3 Mon Nov 30 is exactly tonight: a tuned model with dials chosen inside cross-validation, SHAP receipts for three cases, mistakes by the slices that matter, and a half-page model card. Tell them: copy tonight's pattern onto your own data.">
+<div class="kicker">Coming up</div>
+  <h2>What's due</h2>
+  <ul class="list">
+    <li><b class="t">Tonight, Mon Nov 16, 11:59 PM</b> · HW3: thresholds (Session 5) + Ames regression (Session 6)</li>
+    <li><b class="am">Mon Nov 23, 11:59 PM</b> · Project Milestone 2: a baseline and a first model, scored with the metric your decision needs</li>
+    <li><b class="p">Mon Nov 30, 11:59 PM</b> · Project Milestone 3: a <b>tuned</b> model, <b>SHAP</b> for three cases, mistakes by <b>slice</b>, a half-page <b>model card</b></li>
+    <li>Milestone 3 is <b>tonight's notebook on your own data</b>. Copy the pattern.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Our plain words and the real names students will meet in documentation and job interviews.">
+<div class="kicker">Tonight's words · and their real names</div>
+  <h2>You already know the <span class="grad">jargon</span></h2>
+  <table class="cm small">
+    <tr><th>what we said</th><th>the real name</th><th>what it means</th></tr>
+    <tr><td>five exams</td><td class="g">k-fold cross-validation</td><td>every part takes one turn as the exam</td></tr>
+    <tr><td>a dial</td><td class="g">hyperparameter</td><td>a setting you choose before training</td></tr>
+    <tr><td>the receipt</td><td class="g">SHAP values</td><td>each clue's push, adding up to the score</td></tr>
+    <tr><td>the track-record pile</td><td class="g">calibration set</td><td>held-back data to measure surprise</td></tr>
+    <tr><td>"stay", "cancel", "not sure"</td><td class="g">prediction set</td><td>the answers the model cannot rule out</td></tr>
+    <tr><td>the promise</td><td class="g">coverage</td><td>how often the truth is inside the answer</td></tr>
+    <tr><td>a group of guests</td><td class="g">slice</td><td>a part of the data you check separately</td></tr>
+  </table>
+</section>
+
+<section class="slide" data-notes="Five takeaways, one per question, then the close. Next week: learning without answers: clustering customers into segments, seeing many columns at once, and spotting what does not belong.">
+<div class="kicker">Five questions, five answers</div>
+  <h2>Tonight in five lines</h2>
+  <ul class="list">
+    <li><b class="t">Is it real?</b> Five exams, not one. And an exam that looks like the job: 0.945 → 0.94 → 0.88.</li>
+    <li><b class="p">Can it be better?</b> Choose with cross-validation. Open the test set <b>once</b>.</li>
+    <li><b class="co">Why?</b> SHAP gives every prediction a receipt. It explains the model, not the world.</li>
+    <li><b class="am">How sure?</b> Let the model say "not sure", and send that pile to a human.</li>
+    <li><b class="li">For everyone?</b> Slice the mistakes by group. Write it on one page: the model card.</li>
+  </ul>
+  <p class="sub">Next Monday: <b class="t">learning without answers</b>. Segments, structure and anomalies.</p>
+</section>
+
+<div class="notes" id="notes"></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')]; let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    document.getElementById('hud').textContent = (i + 1) + ' / ' + slides.length + '  ·  ← → navigate · F fullscreen · N notes';
+    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+    document.getElementById('notes').textContent = slides[i].dataset.notes || '';
+    location.hash = i + 1;
+  }
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    else if (e.key.toLowerCase() === 'n') document.body.classList.toggle('shownotes');
+  });
+  addEventListener('click', (e) => { if (e.target.closest('a')) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+  show(parseInt(location.hash.slice(1) || '1', 10) - 1);
+</script>
+</body>
+</html>

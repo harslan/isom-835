@@ -2,7 +2,7 @@
   "number": 9,
   "slug": "session-09",
   "title": "Trust, but Verify: Tuning, Explaining & Uncertainty",
-  "subtitle": "Cross-validation that doesn't lie, hyperparameter search with Optuna, SHAP for one customer and the whole book, conformal intervals that keep their promise, fairness slices, and the one-page model card",
+  "subtitle": "You told your boss the model scores 0.945. Tonight: the five questions a good boss asks next. Is that score real? Can we make it better? Why did it say that? How sure is it? Does it work for everyone? Cross-validation, honest tuning, SHAP, conformal prediction, slices and the model card",
   "duration": "150 Minutes",
   "icon": "shield",
   "tags": [
@@ -12,53 +12,53 @@
   ],
   "objectives": [
     {
-      "title": "Choose a Cross-Validation Scheme That Matches Production",
-      "description": "StratifiedKFold for rare labels, GroupKFold when the same customer appears many times, TimeSeriesSplit when tomorrow must be predicted from yesterday. The wrong splitter is the most common way a great offline score becomes a bad live one."
+      "title": "Report a Score You Can Stand Behind",
+      "description": "One exam is partly luck: the same model scores anywhere from 0.938 to 0.947 depending on the shuffle. Five-fold cross-validation gives an average and a spread. And the exam must look like the real job: tested on next year's bookings, the same model scores about 0.88."
     },
     {
       "title": "Tune Without Fooling Yourself",
-      "description": "RandomizedSearchCV, HalvingRandomSearchCV, and a ten-line Optuna study — tuned on training folds, judged once on a test set you never touched."
+      "description": "Dials are hyperparameters. Random search tries a dozen recipes and cross-validation does the tasting, with Optuna as the smarter optional version. The test set is opened once, at the end, because the best of many on the same exam is the luckiest."
     },
     {
       "title": "Explain a Prediction With SHAP",
-      "description": "TreeExplainer on the boosted hotel model: a waterfall for one booking, a beeswarm for the whole book, and the sentence you say to an executive about each."
+      "description": "Every prediction gets a receipt: start at the average booking, add each clue's push, arrive at the score. One booking explained in a sentence a manager can use, then the whole book. SHAP explains the model, not the world."
     },
     {
-      "title": "Attach Honest Uncertainty and Check Fairness",
-      "description": "Conformal prediction with MAPIE turns any model into one with 90% intervals — a promise you can keep. Then slice every metric by group, and write the model card that says what the model is for and where it fails."
+      "title": "Say How Sure, and Check Who It Works For",
+      "description": "Conformal prediction lets the model answer \"will stay\", \"will cancel\" or \"not sure\", with a promise it keeps. Slicing the mistakes by group shows who the model serves badly. The model card puts all of it on one honest page."
     }
   ],
   "agenda": [
     {
-      "time": "5:00 PM - 5:20 PM",
-      "title": "Why Great Offline Scores Go Bad",
-      "duration": "20 minutes",
-      "description": "Three true stories: a support-ticket model that memorized customers (plain KFold on repeated customers), a demand forecast that saw the future (random split on time series), and a competition team that tuned on the public leaderboard. All three had the same disease — the validation didn't match production.",
+      "time": "5:00 PM - 5:10 PM",
+      "title": "Five Questions From Your Boss",
+      "duration": "10 minutes",
+      "description": "Last week's champion scores 0.945. You tell your boss. A good boss does not say \"great\": a good boss asks five questions. Tonight you learn to answer each one with evidence.",
       "bulletPoints": [
-        "The unit the model faces in production must be the unit that is held out: a new customer, a future week",
-        "GroupKFold, StratifiedGroupKFold, TimeSeriesSplit — pick the splitter before the model"
+        "A score is a claim: check it before you trust it",
+        "Tonight you play first: four small games in the Trust Explorer, one before each idea"
       ],
       "isBreak": false
     },
     {
-      "time": "5:20 PM - 5:45 PM",
-      "title": "Hyperparameter Search: Random, Halving, Optuna",
-      "duration": "25 minutes",
-      "description": "Grid search is exhaustive and slow; random search finds a near-best point in a tenth of the budget; successive halving spends the budget on promising configurations; Optuna learns from each trial. A ten-line Optuna objective on the hotel GBM, with the CV inside and the test set outside.",
+      "time": "5:10 PM - 5:45 PM",
+      "title": "Question 1: Is That Score Real?",
+      "duration": "35 minutes",
+      "description": "Reshuffle the data eight times and the same model scores anywhere from 0.938 to 0.947. Five-fold cross-validation replaces one lucky exam with five and settles last week's question: boosting beats the forest on five exams out of five. Then the exam that looks like the real job: learn from 2015–16, predict 2017. The score drops to about 0.88.",
       "bulletPoints": [
-        "Tune the two or three knobs that matter (learning rate, leaves, min_samples_leaf); the rest is noise",
-        "Nested CV is the honest answer when the dataset is small; a single held-out test set is the practical one when it isn't"
+        "Report the average and the spread, not the luckiest exam",
+        "Choose the exam before the model: what will be new when the model is in use?"
       ],
       "isBreak": false
     },
     {
       "time": "5:45 PM - 6:05 PM",
-      "title": "SHAP I: One Booking, Explained",
+      "title": "Question 2: Can We Make It Better?",
       "duration": "20 minutes",
-      "description": "Shapley values split a prediction fairly among the features. TreeExplainer computes them exactly for boosted trees in milliseconds. A waterfall plot for booking #4,117: base rate 37% → non-refundable deposit +28 points → 200-day lead time +9 → repeat guest −6 → 68% cancellation probability.",
+      "description": "Dials have a real name: hyperparameters. Random search bakes twelve recipes and cross-validation tastes them. Then the trap: the best of 200 models that know nothing scores 0.62 on a small exam and 0.50 on fresh bookings.",
       "bulletPoints": [
-        "Local explanation: 'why this booking?' — the sentence a hotel manager, a loan officer, or a regulator asks",
-        "SHAP explains the model, not the world: it attributes, it does not intervene"
+        "Choose with cross-validation; open the test set once",
+        "Tuning is the last few percent: 0.945 becomes 0.947"
       ],
       "isBreak": false
     },
@@ -71,44 +71,62 @@
       "isBreak": true
     },
     {
-      "time": "6:15 PM - 6:40 PM",
-      "title": "SHAP II: The Whole Book & Partial Dependence",
-      "duration": "25 minutes",
-      "description": "The beeswarm: every booking, every feature, colored by value — the global picture in one plot. Mean |SHAP| as the honest importance ranking. Then PartialDependenceDisplay with ICE lines: the shape of lead time's effect, and where individual bookings deviate from the average.",
-      "bulletPoints": [
-        "Beeswarm reading: long tails to the right are the features that push cancellations up; color tells you which direction of the feature does it",
-        "Dependence plots reveal interactions: lead time hurts far more for non-refundable deposits"
-      ],
-      "isBreak": false
-    },
-    {
-      "time": "6:40 PM - 7:10 PM",
-      "title": "Conformal Prediction: Intervals That Keep Their Promise",
+      "time": "6:15 PM - 6:45 PM",
+      "title": "Question 3: Why Did It Say That?",
       "duration": "30 minutes",
-      "description": "A point forecast is a bet. Conformal prediction uses a calibration set's residuals to wrap any model in intervals with guaranteed coverage — 90% means 90%, no distributional assumptions. MAPIE's SplitConformalRegressor on Ames prices, SplitConformalClassifier on hotel cancellations (prediction sets: {cancel}, {stay}, or {both} when the model is unsure).",
+      "description": "SHAP gives every prediction a receipt. Booking 438 scores 87%: it starts at the average of 37%, booking 312 days ahead adds 24 points, two changes to the booking take 10 away. Then all the receipts together: which clues drive the model, and in which direction.",
       "bulletPoints": [
-        "Coverage is a promise about the long run, valid for GBDTs, neural nets, anything — given exchangeable data",
-        "A set-valued prediction of {both} is the model saying 'send this one to a human'"
+        "Local explanation: why this booking? Global explanation: what drives the model?",
+        "SHAP explains the model, not the world: the non-refundable deposit puzzle"
       ],
       "isBreak": false
     },
     {
-      "time": "7:10 PM - 7:30 PM",
-      "title": "Fairness Slices, the Model Card & Milestone 3",
+      "time": "6:45 PM - 7:05 PM",
+      "title": "Question 4: How Sure Is It?",
       "duration": "20 minutes",
-      "description": "Equal accuracy can hide unequal harm: compute false-negative and false-positive rates by group (customer type, market segment, country) and look for gaps. Then the one-page model card — intended use, data, metrics by slice, known failure modes, owner. Milestone 3 of the final project is assigned in full — tonight is where your tuned model and error analysis come from.",
+      "description": "Conformal prediction in four steps, by hand: a track-record pile, the model's surprise, the bar, and three possible answers. With a 90% promise the model commits on more than nine bookings in ten and says \"not sure\" on the rest.",
       "bulletPoints": [
-        "Credit scoring and hiring are 'high-risk' uses under the EU AI Act; explanation and human review are the direction of travel everywhere",
-        "Milestone 2 (baseline + metric) due Mon Nov 23; Milestone 3 (tuned model + error analysis) due Mon Nov 30 — both pass/fail"
+        "The \"not sure\" pile is the short list for a human",
+        "More certainty costs more \"not sure\": a business choice, not a math one"
+      ],
+      "isBreak": false
+    },
+    {
+      "time": "7:05 PM - 7:30 PM",
+      "title": "Question 5: Does It Work for Everyone? Your Turn",
+      "duration": "25 minutes",
+      "description": "An average can hide a group. Missed cancels and false alarms by booking channel and by country, and what a manager does about the gaps. Everything from tonight goes on one page: the model card. Then four questions in the notebook.",
+      "bulletPoints": [
+        "Guests booking from Portugal get more false alarms; direct bookings get most cancels missed",
+        "HW3 is due tonight; Milestone 2 Mon Nov 23, Milestone 3 Mon Nov 30"
       ],
       "isBreak": false
     }
   ],
   "resources": [
     {
+      "title": "Session 9 Slides — Trust, but Verify",
+      "url": "/session-09/slides.html",
+      "description": "The deck from class: five questions a good boss asks, one exam is partly luck, five exams instead of one, the parking lot and Boston traffic, tasting in the kitchen, the best of 200 guessers, a receipt for booking 438, the non-refundable deposit warning, a model with three answers, the price of certainty, mistakes group by group, and the model card. Arrow keys to navigate, F for fullscreen, N for speaker notes.",
+      "icon": "presentation",
+      "badge": "Slides",
+      "badgeType": "interactive",
+      "linkText": "Open slides"
+    },
+    {
+      "title": "The Trust Explorer",
+      "url": "/explore/trust/",
+      "description": "Four small games on tonight's hotel bookings, played before each idea. Reshuffle the exam and guess where the score lands. Make a model that knows nothing look like a real one. Call each clue up or down, then reveal the model's real receipt. And set the promise that decides which bookings go to a human. Works on your phone.",
+      "icon": "zap",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the explorer"
+    },
+    {
       "title": "Session 9 Notebook — Tuning, Explaining & Uncertainty",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-09/ISOM835_Session9_Tuning_Explaining_Uncertainty.ipynb",
-      "description": "GroupKFold and TimeSeriesSplit demos, an Optuna study on the hotel GBM, SHAP waterfall and beeswarm, partial dependence with ICE, MAPIE conformal intervals and prediction sets, fairness slices, and a model-card template.",
+      "description": "Written for first-timers: five questions, eleven steps. Eight shuffles and five-fold cross-validation, the past-to-future exam, random search with an optional Optuna cell, the best-of-200-guessers trap, SHAP receipts for one booking and for the whole book, conformal prediction by hand, mistakes sliced by group, and a filled-in model card. Every step says what the cell does and how to read the output, with quick checks and four Your Turn questions.",
       "icon": "code",
       "badge": "Hands-On",
       "badgeType": "interactive",
@@ -198,7 +216,7 @@
     {
       "title": "MAPIE — Model-Agnostic Prediction Interval Estimator",
       "url": "https://mapie.readthedocs.io/",
-      "description": "scikit-learn-contrib's conformal prediction library. The 1.x API (SplitConformalRegressor, CrossConformalRegressor, SplitConformalClassifier) is what we use; the theory pages are short and readable.",
+      "description": "scikit-learn-contrib's conformal prediction library. Tonight we build conformal prediction by hand in ten lines; MAPIE is what you use at work (SplitConformalClassifier for yes/no, SplitConformalRegressor for numbers). The theory pages are short and readable.",
       "icon": "wrench",
       "badge": "Tool",
       "badgeType": "tool",
@@ -207,7 +225,7 @@
     {
       "title": "Optuna — Hyperparameter Optimization Framework",
       "url": "https://optuna.org/",
-      "description": "Define an objective, call study.optimize, read study.best_params. The tutorial's first example is the ten lines we write in class.",
+      "description": "Define an objective, call study.optimize, read study.best_params. The optional cell in tonight's notebook is the tutorial's first example, applied to the hotel model.",
       "icon": "sliders-horizontal",
       "badge": "Tool",
       "badgeType": "tool",
@@ -255,50 +273,50 @@
       "number": 1,
       "icon": "shield",
       "title": "Explain It, Bound It, Slice It",
-      "description": "Take the early-stopped hotel GBM from Session 8. Explain ten bookings with SHAP, wrap the model in 90% conformal prediction sets, and check whether the error rates differ between city and resort guests.",
+      "description": "Take tonight's tuned hotel model. Check its score with ten exams instead of five, explain a booking of your choice with a SHAP receipt, change the conformal promise, and slice the mistakes by a column you are curious about. Each question has a starter cell in the notebook.",
       "steps": [
         {
-          "title": "Explain",
-          "description": "shap.TreeExplainer(gbm) → shap_values on the test set. Waterfall for one booking, beeswarm for all. Write one sentence for each."
+          "title": "More exams",
+          "description": "Run cross-validation with 10 parts instead of 5. Does the average change? Does the spread?"
         },
         {
-          "title": "Bound",
-          "description": "Split the training data into fit and calibration halves. MAPIE SplitConformalClassifier with confidence_level=0.9. Count how many test bookings get a two-label set — those are the ones to route to a human."
+          "title": "Explain",
+          "description": "Print the receipt for booking 2, 7 or 103 and write the sentence you would say to the front-desk manager."
+        },
+        {
+          "title": "Change the promise",
+          "description": "Try a promise of 0.97, then 0.80. What happens to the \"not sure\" pile, and what new answer appears at 0.80?"
         },
         {
           "title": "Slice",
-          "description": "False-negative rate and false-positive rate at your chosen threshold, by hotel type and by customer_type. Any gap above 5 points gets a sentence in the model card."
-        },
-        {
-          "title": "Document",
-          "description": "Fill the model-card template: intended use, training data, metrics overall and by slice, known failure modes, owner, review date."
+          "description": "Missed cancels and false alarms by customer_type, deposit_type or arrival_date_year. Which group does the model serve worst?"
         }
       ],
       "codeBlock": {
         "language": "python",
-        "code": "import shap, numpy as np, pandas as pd\nfrom mapie.classification import SplitConformalClassifier\nfrom sklearn.model_selection import train_test_split\n\n# gbm, X_tr, X_te, y_tr, y_te: the early-stopped HistGradientBoosting model and split from Session 8\nexplainer = shap.TreeExplainer(gbm)\nsv = explainer(X_te.iloc[:2000])\nshap.plots.waterfall(sv[0])          # one booking: base rate → each feature's push → prediction\nshap.plots.beeswarm(sv, max_display=12)   # the whole book\n\n# Conformal prediction sets: fit on one half, calibrate on the other, 90% coverage\nX_fit, X_cal, y_fit, y_cal = train_test_split(X_tr, y_tr, test_size=0.3, stratify=y_tr, random_state=835)\ncp = SplitConformalClassifier(estimator=gbm, confidence_level=0.9, prefit=True)\ncp.conformalize(X_cal, y_cal)\ny_pred, y_sets = cp.predict_set(X_te)\nn_labels = y_sets[:, :, 0].sum(axis=1)\nprint(f'coverage: {np.mean(y_sets[np.arange(len(y_te)), y_te.values, 0]):.3f}   '\n      f'singletons: {np.mean(n_labels == 1):.1%}   ambiguous {{both}}: {np.mean(n_labels == 2):.1%}')\n\n# Fairness slice: error rates by hotel type at threshold 0.5\npred = gbm.predict(X_te)\nfor grp, idx in X_te.groupby('hotel', observed=True).groups.items():\n    yt, yp = y_te.loc[idx], pd.Series(pred, index=X_te.index).loc[idx]\n    fnr = ((yt == 1) & (yp == 0)).sum() / (yt == 1).sum(); fpr = ((yt == 0) & (yp == 1)).sum() / (yt == 0).sum()\n    print(f'{grp:13s} FNR {fnr:.3f}   FPR {fpr:.3f}')"
+        "code": "# Q1 · cross-validation with more parts\nexams = StratifiedKFold(n_splits=10, shuffle=True, random_state=835)\nscores = cross_val_score(new_boost(), X_tr, y_tr, cv=exams, scoring='roc_auc')\nprint(f'average {scores.mean():.3f}, give or take {scores.std():.3f}')\n\n# Q2 · a receipt for a booking you choose\nprint(receipt(7).to_string())\nshap.plots.waterfall(sv[7], max_display=8)\n\n# Q3 · a different promise\nanswer, truth_inside = answers(0.97)\nprint(answer.value_counts(normalize=True).round(3))\n\n# Q4 · the model's mistakes by a column you choose\nprint(slice_by(X_te_raw['customer_type']).to_string())"
       },
-      "discussionNote": "Three questions an executive will ask, three tools. <em>Why did it say that?</em> — the SHAP waterfall. <em>How sure is it?</em> — the conformal set; the bookings labeled {both} are exactly the ones a human should look at. <em>Is it fair?</em> — the sliced error rates. A model that can answer all three is one you can defend in front of a regulator, a customer, or a board. The model card is where the answers live."
+      "discussionNote": "Five questions a boss will ask, five tools. <em>Is the score real?</em> Cross-validation, on an exam that looks like the job. <em>Can it be better?</em> Tuning, judged by cross-validation. <em>Why did it say that?</em> The SHAP receipt. <em>How sure is it?</em> The conformal answer; the bookings labeled \"not sure\" are exactly the ones a human should look at. <em>Does it work for everyone?</em> The sliced mistakes. The model card is where the answers live."
     }
   ],
   "takeaways": [
     {
       "icon": "split",
-      "text": "<strong>Match the splitter to production:</strong> GroupKFold when units repeat, TimeSeriesSplit when time matters, stratify when labels are rare. Tune on the training folds; touch the test set once."
+      "text": "<strong>A score is a claim. Check it.</strong> One exam is partly luck: use cross-validation and report the average and the spread. And make the exam look like the real job: 0.945 shuffled is about 0.88 on next year's bookings."
     },
     {
       "icon": "eye",
-      "text": "<strong>SHAP answers 'why this prediction?'</strong> locally and 'what drives the model?' globally. It attributes the model's output; it does not tell you what happens if you change the input."
+      "text": "<strong>Choose with cross-validation, open the test set once.</strong> SHAP then gives every prediction a receipt. It explains the model's score; it does not tell you what happens if you change a policy."
     },
     {
       "icon": "shield",
-      "text": "<strong>Conformal prediction turns any model into one with guaranteed coverage</strong>, and sliced error rates turn 'is it fair?' into a table. Together with a model card, that is what 'trustworthy' means in practice."
+      "text": "<strong>Let the model say \"not sure\", and check who it works for.</strong> Conformal prediction keeps an honest promise, slices show the groups an average hides, and the model card puts it all on one page."
     }
   ],
   "homework": [
     {
       "label": "Project Milestones 2 & 3",
-      "text": "Milestone 2, due Mon Nov 23, 11:59 PM, on Canvas: your project data loaded, split before anything is fitted, the naive baseline computed, and a first model scored with the metric your decision needs. Milestone 3, due Mon Nov 30, 11:59 PM: a tuned model (two or three hyperparameters inside cross-validation), a calibration plot if you classify, SHAP for three cases a decision-maker would recognize, error rates by the slices that matter, and a half-page model card. Both are pass/fail: run top to bottom, split before fit, and the pieces present. Practice, ungraded: tonight's hotel notebook has every piece — early-stopped boosting, Optuna, SHAP waterfalls and beeswarm, MAPIE prediction sets — run it end to end on the hotel data before you try it on your own."
+      "text": "Milestone 2, due Mon Nov 23, 11:59 PM, on Canvas: your project data loaded, split before anything is fitted, the naive baseline computed, and a first model scored with the metric your decision needs. Milestone 3, due Mon Nov 30, 11:59 PM: a tuned model (two or three hyperparameters inside cross-validation), a calibration plot if you classify, SHAP for three cases a decision-maker would recognize, error rates by the slices that matter, and a half-page model card. Both are pass/fail: run top to bottom, split before fit, and the pieces present. HW3 is due tonight, Mon Nov 16, 11:59 PM. Practice, ungraded: tonight's hotel notebook has every piece of Milestone 3 (cross-validation, tuning, SHAP receipts, the \"not sure\" pile, slices, a model card). Run it end to end on the hotel data before you try it on your own."
     }
   ],
   "nextSession": {
