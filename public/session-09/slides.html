@@ -100,7 +100,7 @@
   <div class="timeline" style="grid-template-columns: repeat(7, 1fr)">
     <div><i>5:00</i><b>The setup</b>You tell your boss: 0.945</div>
     <div><i>5:10</i><b>Is it real?</b>Five exams, and the right exam</div>
-    <div><i>5:45</i><b>Can it be better?</b>Turning the dials, honestly</div>
+    <div><i>5:45</i><b>Can it be better?</b>Turning the dials, and a model with none</div>
     <div><i>6:15</i><b>Why?</b>A receipt for every prediction</div>
     <div><i>6:45</i><b>How sure?</b>A model that says "not sure"</div>
     <div><i>7:05</i><b>For everyone?</b>Slices and the model card</div>
@@ -116,7 +116,7 @@
     <div class="card" style="min-width:260px"><div class="label">Session 7 · Random forest</div><div class="num">0.942</div><p>A committee of 300 trees that vote.</p></div>
     <div class="card" style="min-width:260px; border-color: var(--teal)"><div class="label">Session 8 · Gradient boosting</div><div class="num">0.945</div><p>A relay team, with early stopping.</p></div>
   </div>
-  <p class="sub">AUC: pick one guest who canceled and one who stayed.<br>The model gives the canceler the higher score about <b>94 times in 100</b>.</p>
+  <p class="sub">AUC 0.945: pick a guest who canceled and one who stayed.<br>The model ranks the canceler higher <b>94 times in 100</b>.</p>
 </section>
 
 <section class="slide" data-notes="The spine of the night. A good boss does not say great. A good boss asks five questions. Read them aloud. Each one has a tool with a real name; we will learn the plain idea first and the name second. These five are also exactly Project Milestone 3.">
@@ -142,10 +142,10 @@
 <div class="kicker">Step 1 · the problem</div>
   <h2>One exam is partly <span class="co">luck</span></h2>
   <div class="row">
-    <div class="card" style="min-width:300px"><div class="label">A student</div><div class="title">One exam: 94.5</div><p>Is she a 94.5 student? Or did the exam ask the questions she studied?</p></div>
-    <div class="card" style="min-width:300px; border-color: var(--peri)"><div class="label">Our model</div><div class="title">One exam: 0.945</div><p>One random split set aside 6,000 bookings. A different shuffle sets aside different ones.</p></div>
+    <div class="card" style="min-width:300px"><div class="label">A student</div><div class="title">One exam: 94.5</div><p>A 94.5 student, or a lucky exam?</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--peri)"><div class="label">Our model</div><div class="title">One exam: 0.945</div><p>One random set of 6,000 test bookings. A good model, or a lucky exam?</p></div>
   </div>
-  <p class="sub">So let's reshuffle <b>eight times</b>. Same model, same data, a different exam each time.</p>
+  <p class="sub">So: reshuffle <b>eight times</b>. Same model, a different exam each time.</p>
 </section>
 
 <section class="slide" data-notes="Send everyone to the Trust Explorer, Station 1. Ask them to GUESS before each press. Give 3 minutes, then ask the room: what was your lowest? your highest? did anyone press The real job yet? (Tell them to wait for that button.) Then show the next slide as the debrief.">
@@ -181,7 +181,7 @@
     <span>round 4</span><div>train</div><div>train</div><div>train</div><div class="x">EXAM</div><div>train</div>
     <span>round 5</span><div>train</div><div>train</div><div>train</div><div>train</div><div class="x">EXAM</div>
   </div>
-  <p class="sub">Cut the <b>training</b> bookings into 5 parts (<b>folds</b>). Every part takes one turn as the exam.<br>Report the <b>average</b> and the <b>spread</b>. The test bookings stay <b class="t">locked away</b>.</p>
+  <p class="sub">5 parts (<b>folds</b>). Each takes one turn as the exam.<br>Report the <b>average</b> and the <b>spread</b>.</p>
 </section>
 
 <section class="slide" data-notes="Run notebook Step 2 (about half a minute: ten models). Numbers on your screen can differ from the slide by 0.001 depending on library versions; the story is the same. One line of code: cross_val_score. Both models took the same five exams. Boosting's honest score: 0.941 give or take 0.003, a bit lower than the 0.945 we told the boss. And boosting beats the forest on 5 exams out of 5. One win could be luck; five out of five on the same exams is a pattern. Last week's result was real, and now we know it instead of hoping.">
@@ -208,22 +208,22 @@
 <div class="kicker">Step 3 · a deeper question</div>
   <h2>Does the exam look like the <span class="grad">real job</span>?</h2>
   <div class="row">
-    <div class="card" style="min-width:300px"><div class="label">🅿️ The exam we gave</div><div class="title">An empty parking lot</div><p>Shuffle all bookings. 2015, 2016 and 2017 are mixed in training <b>and</b> in the exam.</p></div>
-    <div class="card" style="min-width:300px; border-color: var(--coral)"><div class="label">🚦 The real job</div><div class="title">Boston traffic</div><p>Learn from the <b>past</b>. Get judged on a <b>future</b> the model has never seen.</p></div>
+    <div class="card" style="min-width:300px"><div class="label">🅿️ The exam we gave</div><div class="title">An empty parking lot</div><p>2015, 2016 and 2017 shuffled together.</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--coral)"><div class="label">🚦 The real job</div><div class="title">Boston traffic</div><p>Learn from the <b>past</b>. Predict the <b>future</b>.</p></div>
   </div>
-  <p class="sub">So: train on arrivals in <b>2015–2016</b>. Exam: every booking that arrives in <b>2017</b>.</p>
+  <p class="sub">The real exam: learn <b>2015–16</b>, predict <b>2017</b>.</p>
 </section>
 
 <section class="slide" data-notes="Run notebook Step 3. Same model, same number of bookings (about 20,000 to train, 10,000 as the exam). Shuffled: 0.94. Past to future: 0.88. That drop is far bigger than anything tuning will win back tonight. Two reasons. Twins: 25 percent of our bookings have an identical twin (a tour operator books 20 identical rooms); shuffling puts one twin in training and the other in the exam, so the model has seen the answer. And the world moves: new agents, new prices. Neither score is wrong; they answer different questions. Your boss is asking the second one.">
 <div class="kicker">Step 3 · same model, same number of bookings</div>
   <h2>The exam changes <span class="co">everything</span></h2>
   <div class="row">
-    <div class="card" style="min-width:280px"><div class="label">Shuffled exam</div><div class="num">0.94</div><p>"How well does it fill gaps in data it already knows?"</p></div>
-    <div class="card" style="min-width:280px; border-color: var(--coral)"><div class="label">Learn 2015–16, predict 2017</div><div class="num" style="background:none;color:var(--coral)">0.88</div><p>"How well will it do <b>next year</b>?"</p></div>
+    <div class="card" style="min-width:280px"><div class="label">Shuffled exam</div><div class="num">0.94</div><p>the parking lot</p></div>
+    <div class="card" style="min-width:280px; border-color: var(--coral)"><div class="label">Learn 2015–16, predict 2017</div><div class="num" style="background:none;color:var(--coral)">0.88</div><p>Boston traffic: <b>next year</b></p></div>
   </div>
   <ul class="list" style="font-size:clamp(0.9rem,1.6vw,1.2rem)">
-    <li><b class="am">Twins.</b> 25% of our bookings have an identical twin. Shuffling puts one in training and one in the exam.</li>
-    <li><b class="p">The world moves.</b> New agents, new prices, a new season. 2017 is not a copy of 2016.</li>
+    <li><b class="am">Twins.</b> 1 booking in 4 has an identical twin. Shuffling puts one on each side.</li>
+    <li><b class="p">The world moves.</b> 2017 is not a copy of 2016.</li>
   </ul>
 </section>
 
@@ -239,7 +239,7 @@
   </table>
 </section>
 
-<section class="slide" data-notes="Question 2. About 20 minutes. Notebook Steps 4 and 5.">
+<section class="slide" data-notes="Question 2. About 25 minutes. Notebook Steps 4, 5 and 5b. The last part is the Tabular Frontier we did not reach in Session 8.">
 <div class="q">Question 2 of 5 · your boss asks</div>
   <h2 style="font-size:clamp(2.2rem,6vw,4.6rem)">“Can we make it <span class="grad">better</span>?”</h2>
   <p class="sub">Turning the dials, honestly</p>
@@ -249,11 +249,11 @@
 <div class="kicker">Step 4 · dials have a real name: <span class="am">hyperparameters</span></div>
   <h2>Tuning is like perfecting a <span class="grad">cake</span></h2>
   <div class="row">
-    <div class="card" style="min-width:290px"><div class="label">The dials</div><div class="title">Temperature · time · sugar</div><p><b>learning_rate</b> · <b>max_leaf_nodes</b> · <b>min_samples_leaf</b></p></div>
-    <div class="card" style="min-width:290px"><div class="label">Grid search</div><div class="title">Bake every combination</div><p>5 × 5 × 5 = <b>125 cakes</b>. Thorough, slow.</p></div>
-    <div class="card" style="min-width:290px; border-color: var(--teal)"><div class="label">Random search</div><div class="title">Bake 12 at random</div><p>Usually lands close to the best, for <b>a tenth of the work</b>.</p></div>
+    <div class="card" style="min-width:290px"><div class="label">The dials</div><div class="title">Temperature · time · sugar</div><p>step size · tree size · smallest group</p></div>
+    <div class="card" style="min-width:290px"><div class="label">Grid search</div><div class="title">Bake every combination</div><p><b>125 cakes.</b> Slow.</p></div>
+    <div class="card" style="min-width:290px; border-color: var(--teal)"><div class="label">Random search</div><div class="title">Bake 12 at random</div><p>Nearly as good, <b>10× less work</b>.</p></div>
   </div>
-  <p class="sub">To find the best cake you bake several and <b>taste</b> them. But <b class="co">who tastes?</b></p>
+  <p class="sub">But <b class="co">who tastes the cakes?</b></p>
 </section>
 
 <section class="slide" data-notes="Who tastes? Not the customer. The test bookings are the customer. We taste in the kitchen: cross-validation inside the training bookings. Walk through the code: the menu of values, n_iter 12 recipes, cv 3 exams each, fit on training bookings only. 36 models, about a minute: run notebook Step 4 now and talk while it bakes.">
@@ -276,10 +276,10 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
   <h2>Tuning is the <span class="grad">last few percent</span></h2>
   <div class="row">
     <div class="card" style="min-width:250px"><div class="label">Default dials</div><div class="num" style="background:none;color:var(--muted)">0.940</div><p>cross-validation score</p></div>
-    <div class="card" style="min-width:250px; border-color: var(--teal)"><div class="label">Best of 12 random recipes</div><div class="num">0.941</div><p>step 0.05 · 63 leaves · min 10</p></div>
+    <div class="card" style="min-width:250px; border-color: var(--teal)"><div class="label">Best of 12 random recipes</div><div class="num">0.941</div><p>cross-validation score</p></div>
     <div class="card" style="min-width:250px"><div class="label">Optuna · 15 smart trials</div><div class="num" style="background:none;color:var(--peri)">0.942</div><p>learns where to look next</p></div>
   </div>
-  <p class="sub">Winners: <b>small steps, bigger trees</b>. Just what the golf picture said.<br>Clean data, no leaks and the right exam matter <b>far more</b> than the dials.</p>
+  <p class="sub">Winners: <b>small steps, bigger trees</b>.<br>The right exam matters <b>far more</b> than the dials.</p>
 </section>
 
 <section class="slide" data-notes="Station 2. Let them discover the two levers themselves: more guessers, smaller exam. Ask: who got the highest champion? (0.75 or more is possible with 1,000 guessers and 20 bookings.) Then: send your champion to fresh bookings. What happened? Everyone says 0.50. That is the debrief on the next slide.">
@@ -297,11 +297,11 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
 <div class="kicker">Step 5 · the trap</div>
   <h2>The best of <span class="co">200 guessers</span></h2>
   <div class="row">
-    <div class="card" style="min-width:250px"><div class="label">200 models that know nothing</div><div class="num" style="background:none;color:var(--muted)">0.50</div><p>the average guesser: a coin flip</p></div>
-    <div class="card" style="min-width:250px; border-color: var(--coral)"><div class="label">The "champion" · small exam</div><div class="num" style="background:none;color:var(--coral)">0.62</div><p>it looks like it knows something!</p></div>
-    <div class="card" style="min-width:250px"><div class="label">Same champion · fresh bookings</div><div class="num" style="background:none;color:var(--muted)">0.50</div><p>it was never good. It was <b>lucky</b>.</p></div>
+    <div class="card" style="min-width:250px"><div class="label">200 models that know nothing</div><div class="num" style="background:none;color:var(--muted)">0.50</div><p>a coin flip</p></div>
+    <div class="card" style="min-width:250px; border-color: var(--coral)"><div class="label">The "champion" · small exam</div><div class="num" style="background:none;color:var(--coral)">0.62</div><p>looks smart!</p></div>
+    <div class="card" style="min-width:250px"><div class="label">Same champion · fresh bookings</div><div class="num" style="background:none;color:var(--muted)">0.50</div><p>it was just <b>lucky</b></p></div>
   </div>
-  <p class="sub">Try many things, keep the best score on the same exam, and you keep <b class="co">the luckiest</b>.<br>That is the public leaderboard story from last week.</p>
+  <p class="sub">Keep the best of many on one exam, and you keep <b class="co">the luckiest</b>.</p>
 </section>
 
 <section class="slide" data-notes="The rule in two parts. Choose with cross-validation. Open the test set once, at the very end, only to report. We have chosen, so now we open it: 0.945 becomes 0.947, with fewer trees. The test set agrees with what cross-validation promised: a small, real gain. No surprise on exam day. Quick check in the notebook: the teammate who tried 60 models on the test set. Then BREAK, 10 minutes.">
@@ -312,6 +312,26 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
     <div class="card" style="min-width:280px; border-color: var(--teal)"><div class="label">Tonight's tuned model</div><div class="num">0.947</div><p>dials chosen by cross-validation</p></div>
   </div>
   <p class="sub">A small, <b>real</b> gain, and no surprise on exam day.</p>
+</section>
+
+<section class="slide" data-notes="The Tabular Frontier, the part of Session 8 we did not reach. Every model so far starts from zero. ChatGPT does not: it read a large part of the internet first. Foundation model = trained once on huge data, reused. Since 2025 this works for tables: TabPFN (Prior Labs; first version 2022; TabPFN-3.5 released Sept 2026, which its makers recommend for up to a million rows) and TabICL (Inria, open source; v2 in Feb 2026). Pretrained on millions of synthetic tables; you hand over training rows and it predicts immediately. Tie it to tonight: tuning bought us 0.002. These models need no tuning at all.">
+<div class="kicker">Step 5b · new in 2026 · the Tabular Frontier</div>
+  <h2>A model with <span class="grad">no dials at all</span></h2>
+    <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">Every model so far</div><div class="title">Starts from zero</div><p>Learns only from <b>your</b> bookings.</p></div>
+    <div class="card" style="min-width:300px"><div class="label">ChatGPT</div><div class="title">Read the internet first</div><p>A <b>foundation model</b>.</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--teal)"><div class="label">Since 2025 · TabPFN, TabICL</div><div class="title">Read millions of <i>tables</i> first</div><p>Predicts <b>right away</b>. <b>No dials.</b></p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Balanced view. On public benchmarks (TabArena) the newest foundation models often match or beat tuned boosting with zero tuning. They are slower to score new rows, want a GPU, and each has its own license terms: check before commercial use. Boosting: fast, cheap, runs anywhere, no license question. The field moves every few months. For the full 14-slide version with the Opening Day race, click the link on this slide (frontier.html) and open the Tabular Frontier notebook from the Session 9 page. Tie to the honesty rule: one small exam is partly luck, so judge the gap the way we judged it in Question 1. Then the break.">
+<div class="kicker">Step 5b · which one?</div>
+  <h2>In 2026, a good analyst <span class="grad">tries both</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:320px"><div class="label">🚀 Gradient boosting</div><div class="title">The workhorse</div><p>Fast, cheap, any laptop, any size. A few dials.</p></div>
+    <div class="card" style="min-width:320px; border-color: var(--teal)"><div class="label">🧠 Tabular foundation model</div><div class="title">The new challenger</div><p>No dials. Often matches or beats boosting. Slower, wants a GPU.</p></div>
+  </div>
+    <p class="sub" style="font-size:clamp(0.85rem,1.4vw,1.1rem)">Full story, with a race on our data: <a href="frontier.html" style="color:var(--teal)">the Tabular Frontier deck</a></p>
   <div class="pill">☕ Break · back at 6:15</div>
 </section>
 
@@ -325,10 +345,10 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
 <div class="kicker">Step 6 · the idea · <span class="am">SHAP</span></div>
   <h2>Every prediction gets a <span class="grad">receipt</span></h2>
   <div class="row">
-    <div class="card" style="min-width:310px"><div class="label">🧾 A restaurant receipt</div><div class="title">Starts at $0</div><p>Each dish <b>adds</b> to the bill. The lines add up to the total.</p></div>
-    <div class="card" style="min-width:310px; border-color: var(--teal)"><div class="label">🧾 A SHAP receipt</div><div class="title">Starts at the average: 37%</div><p>Each clue <b>adds or subtracts</b> points. The lines add up to this guest's score.</p></div>
+    <div class="card" style="min-width:310px"><div class="label">🧾 A restaurant receipt</div><div class="title">Starts at $0</div><p>Each dish <b>adds</b> to the total.</p></div>
+    <div class="card" style="min-width:310px; border-color: var(--teal)"><div class="label">🧾 A SHAP receipt</div><div class="title">Starts at the average: 37%</div><p>Each clue <b>adds or subtracts</b> points.</p></div>
   </div>
-  <p class="sub">How much is each clue "worth"? Like <b>splitting a taxi fare fairly</b> among friends.<br><span style="color:var(--muted)">The idea is from Lloyd <b>Shap</b>ley, Nobel prize in economics.</span></p>
+  <p class="sub">Each clue's share is split fairly, like a <b>shared taxi fare</b>.<br><span style="color:var(--muted)">Named after Lloyd <b>Shap</b>ley, Nobel prize in economics.</span></p>
 </section>
 
 <section class="slide" data-notes="Station 3. Eight real bookings. For each clue students call the direction, then reveal the model's real receipt. Give 4 minutes; most will get through three or four bookings. Ask: which clue surprised you? (Changing the booking LOWERS the risk. A non-refundable deposit RAISES it: hold that thought for the warning slide.) Booking 1 in the game is booking 438, the one on the next slide.">
@@ -356,7 +376,7 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
     <div class="n"><b>all the other clues together</b></div><div class="track"><i style="left:85.0%;width:2.0%;background:#ff6b8b"></i></div><div class="v" style="color:#ff6b8b">+2</div>
     <div class="n"><b>TOTAL · the model's score</b></div><div class="track"><i style="left:0;width:87.1%;background:linear-gradient(90deg,#2ee6c5,#7c8cff)"></i></div><div class="v" style="color:#2ee6c5">87</div>
   </div>
-  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">The first booking from the game. <b class="co">Pink</b> pushes the chance of canceling up, <b class="p">blue</b> pushes it down.<br>"Arriving in 2017": the model learned that 2017 bookings cancel more. <b>The world moves</b> (Question 1).</p>
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">Booking 1 from the game. <b class="co">Pink</b> pushes up, <b class="p">blue</b> pushes down.<br>"Arriving in 2017": <b>the world moves</b> (Question 1).</p>
 </section>
 
 <section class="slide" data-notes="Turn the receipt into one sentence a manager can use. Read it aloud. Then the vocabulary: this is a LOCAL explanation, about one booking; another guest gets a different receipt. Next: the GLOBAL view. Mention the House Price Explorer Station 4 from Session 6: same receipt idea in dollars.">
@@ -364,8 +384,8 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
   <h2>One sentence, <span class="grad">no math</span></h2>
   <p class="sub" style="max-width:1000px; font-size:clamp(1.05rem,2.1vw,1.6rem); color:var(--text)">"Every booking starts at 37%. This one scores 87% mainly because the guest <b class="co">booked 312 days ahead</b>, made <b class="co">no special requests</b> and came through an <b class="co">online travel agency</b>. One thing pulls the other way: they already <b class="p">changed the booking twice</b>."</p>
   <div class="row">
-    <div class="card" style="min-width:290px"><div class="label">Local explanation</div><div class="title">Why this booking?</div><p>One receipt, one guest.</p></div>
-    <div class="card" style="min-width:290px"><div class="label">Global explanation</div><div class="title">What drives the model?</div><p>All the receipts together. Next.</p></div>
+    <div class="card" style="min-width:290px"><div class="label">Local explanation</div><div class="title">Why this booking?</div><p>One receipt.</p></div>
+    <div class="card" style="min-width:290px"><div class="label">Global explanation</div><div class="title">What drives the model?</div><p>All receipts together.</p></div>
   </div>
 </section>
 
@@ -391,8 +411,8 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
     <div class="card" style="min-width:270px; border-color: var(--coral)"><div class="label">Non-refundable deposit</div><div class="num" style="background:none;color:var(--coral)">99%</div><p>canceled · 3,632 bookings</p></div>
   </div>
   <ul class="list" style="font-size:clamp(0.9rem,1.6vw,1.2rem)">
-    <li>The owner: <i>"Then let's stop asking for deposits!"</i> <b class="co">A mistake.</b> These are mostly bulk bookings, canceled in blocks.</li>
-    <li>SHAP answers <b class="t">"why this score?"</b> It does not answer <b class="co">"what if I change this?"</b> That needs an experiment.</li>
+    <li>Owner: <i>"So drop the deposits!"</i> <b class="co">No.</b> These are bulk bookings, canceled in blocks.</li>
+    <li>SHAP answers <b class="t">"why this score?"</b>, not <b class="co">"what if I change this?"</b></li>
   </ul>
 </section>
 
@@ -429,9 +449,9 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
   <h2>Four steps, <span class="grad">no new model</span></h2>
   <div class="cards">
     <div class="card"><div class="label">1 · Track record</div><div class="title">Set aside a pile</div><p>Bookings the model never trains on.</p><p class="real">calibration set</p></div>
-    <div class="card"><div class="label">2 · Surprise</div><div class="title">How wrong-footed was it?</div><p>1 − the chance it gave to what really happened.</p></div>
-    <div class="card"><div class="label">3 · The bar</div><div class="title">Where 90% stay under</div><p>90% of its past surprises were smaller than this.</p></div>
-    <div class="card"><div class="label">4 · New booking</div><div class="title">Keep what fits under the bar</div><p>One answer kept: it commits. <b>Both kept: "not sure".</b></p><p class="real">prediction set</p></div>
+    <div class="card"><div class="label">2 · Surprise</div><div class="title">How wrong-footed was it?</div><p>1 − the chance it gave the truth.</p></div>
+    <div class="card"><div class="label">3 · The bar</div><div class="title">Where 90% stay under</div><p>90% of past surprises fall below it.</p></div>
+    <div class="card"><div class="label">4 · New booking</div><div class="title">Keep answers under the bar</div><p>One kept: it commits. <b>Both: "not sure".</b></p><p class="real">prediction set</p></div>
   </div>
 </section>
 
@@ -503,26 +523,26 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
 <div class="kicker">Step 9 · so what do we do?</div>
   <h2>There is no button. There are <span class="grad">decisions</span>.</h2>
   <ul class="list">
-    <li><b class="t">Know it.</b> You cannot manage a gap you never measured.</li>
-    <li><b class="p">Decide what the model may do.</b> "Send a reminder email" harms nobody. "Cancel the booking" does.</li>
-    <li><b class="am">Route the weak slices to people.</b> Use the "not sure" pile.</li>
-    <li><b class="co">Write it down</b>, so the next person knows.</li>
+    <li><b class="t">Measure it.</b> You can't manage a gap you never saw.</li>
+    <li><b class="p">Limit what the model may do.</b> A reminder email: fine. Canceling a booking: no.</li>
+    <li><b class="am">Send weak slices to people.</b></li>
+    <li><b class="co">Write it down.</b></li>
   </ul>
-  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">In lending, hiring, insurance and health care, regulators <b>require</b> this check.</p>
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">In lending, hiring, insurance and health care, it's <b>required</b>.</p>
 </section>
 
 <section class="slide" data-notes="The model card: a nutrition label for a model. One page that tells the truth, written for the person who will USE the model. Every line comes from tonight: walk the five questions. The two warning lines and the weakest-on lines are the most valuable on the page; they protect the hotel and you when something goes wrong. A model card is not marketing. The final project includes a half-page model card; the full template is in notebook Step 10.">
 <div class="kicker">Step 10 · the label on the box · <span class="am">model card</span></div>
   <h2>One honest page</h2>
   <div class="mc">
-    <span class="h">For</span> ranking bookings by cancellation risk. <b>Not for</b> canceling a guest's booking without a person.<br>
-    <span class="h">Q1–2 · How good?</span> AUC <b>0.947</b> shuffled (CV 0.94 ± 0.003). ⚠️ Predicting next year: about <b>0.88</b>. Expect this one.<br>
-    <span class="h">Q3 · Why?</span> Country, deposit type, special requests, agent, segment, lead time. Explains scores, <b>not causes</b>.<br>
-    <span class="h">Q4 · How sure?</span> With a 90% promise it commits on more than 9 in 10. The rest go to a person.<br>
-    <span class="h">Q5 · For everyone?</span> ⚠️ Most false alarms: online agencies, guests from Portugal. Misses most cancels: direct bookings.<br>
-    <span class="h">After launch</span> Re-check monthly. Retrain when it slips. <b>Owner:</b> ______ · <b>Next review:</b> ______
+    <span class="h">For</span> ranking bookings by risk. <b>Not for</b> canceling a booking without a person.<br>
+    <span class="h">How good?</span> AUC <b>0.947</b>. ⚠️ On next year's bookings: about <b>0.88</b>.<br>
+    <span class="h">Why?</span> Mostly country, deposit, requests, lead time. Explains scores, <b>not causes</b>.<br>
+    <span class="h">How sure?</span> Commits on 9 in 10. The rest go to a person.<br>
+    <span class="h">For everyone?</span> ⚠️ More false alarms for guests from Portugal and online agencies.<br>
+    <span class="h">After launch</span> Re-check monthly. <b>Owner:</b> ______
   </div>
-  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">A model card is not marketing. The ⚠️ lines are the most valuable lines on the page.</p>
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">Not marketing. The ⚠️ lines matter most.</p>
 </section>
 
 <section class="slide" data-notes="About 15 minutes. Q1 and Q3 for everyone; Q2 needs the SHAP cells. Answers. Q1: 10 exams: average 0.942 (5 exams: 0.941), spread still about 0.003, but single scores run from 0.936 to 0.948: each exam now has 2,400 bookings instead of 4,800, so each one is luckier; the average barely moves. Q2: booking 2: 0 percent, asked for a parking space (minus 22). Booking 7: between 40 and 50 percent, torn: Austria minus 21 against no requests plus 12 and online agency plus 10; the guest showed up. Booking 103: 98 percent and WRONG, the guest showed up: Portugal plus 35, lead time 339 days plus 18. Q3: at 0.97 not sure on 30 percent. At 0.80 no not sure at all; instead 12 percent get NO ANSWER: the model is right about 87 percent by itself, so to be right only 80 percent it must refuse some. Q4: customer_type: Transient 21 percent missed, 10.5 percent false alarms; Transient-Party 18 and 4. arrival_date_year: false alarms 4 percent in 2015, 7 in 2016, 14 in 2017.">
@@ -540,10 +560,10 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
 <div class="kicker">Coming up</div>
   <h2>What's due</h2>
   <ul class="list">
-    <li><b class="t">Tonight, Mon Nov 16, 11:59 PM</b> · HW3: thresholds (Session 5) + Ames regression (Session 6)</li>
-    <li><b class="am">Mon Nov 23, 11:59 PM</b> · Project Milestone 2: a baseline and a first model, scored with the metric your decision needs</li>
-    <li><b class="p">Mon Nov 30, 11:59 PM</b> · Project Milestone 3: a <b>tuned</b> model, <b>SHAP</b> for three cases, mistakes by <b>slice</b>, a half-page <b>model card</b></li>
-    <li>Milestone 3 is <b>tonight's notebook on your own data</b>. Copy the pattern.</li>
+    <li><b class="t">Tonight, 11:59 PM</b> · HW3</li>
+    <li><b class="am">Mon Nov 23</b> · Milestone 2: a baseline and a first model</li>
+    <li><b class="p">Mon Nov 30</b> · Milestone 3: <b>tuning</b>, <b>SHAP</b>, <b>slices</b>, a <b>model card</b></li>
+    <li>Milestone 3 = <b>tonight's notebook, on your own data</b>.</li>
   </ul>
 </section>
 
@@ -551,14 +571,14 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
 <div class="kicker">Tonight's words · and their real names</div>
   <h2>You already know the <span class="grad">jargon</span></h2>
   <table class="cm small">
-    <tr><th>what we said</th><th>the real name</th><th>what it means</th></tr>
-    <tr><td>five exams</td><td class="g">k-fold cross-validation</td><td>every part takes one turn as the exam</td></tr>
-    <tr><td>a dial</td><td class="g">hyperparameter</td><td>a setting you choose before training</td></tr>
-    <tr><td>the receipt</td><td class="g">SHAP values</td><td>each clue's push, adding up to the score</td></tr>
-    <tr><td>the track-record pile</td><td class="g">calibration set</td><td>held-back data to measure surprise</td></tr>
-    <tr><td>"stay", "cancel", "not sure"</td><td class="g">prediction set</td><td>the answers the model cannot rule out</td></tr>
-    <tr><td>the promise</td><td class="g">coverage</td><td>how often the truth is inside the answer</td></tr>
-    <tr><td>a group of guests</td><td class="g">slice</td><td>a part of the data you check separately</td></tr>
+    <tr><th>what we said</th><th>the real name</th></tr>
+    <tr><td>five exams</td><td class="g">k-fold cross-validation</td></tr>
+    <tr><td>a dial</td><td class="g">hyperparameter</td></tr>
+    <tr><td>the receipt</td><td class="g">SHAP values</td></tr>
+    <tr><td>the track-record pile</td><td class="g">calibration set</td></tr>
+    <tr><td>"stay", "cancel", "not sure"</td><td class="g">prediction set</td></tr>
+    <tr><td>the promise</td><td class="g">coverage</td></tr>
+    <tr><td>a group of guests</td><td class="g">slice</td></tr>
   </table>
 </section>
 
@@ -566,11 +586,11 @@ search.<span class="f">fit</span>(X_tr, y_tr)   <span class="c"># training booki
 <div class="kicker">Five questions, five answers</div>
   <h2>Tonight in five lines</h2>
   <ul class="list">
-    <li><b class="t">Is it real?</b> Five exams, not one. And an exam that looks like the job: 0.945 → 0.94 → 0.88.</li>
+    <li><b class="t">Is it real?</b> Five exams, and the exam that looks like the job.</li>
     <li><b class="p">Can it be better?</b> Choose with cross-validation. Open the test set <b>once</b>.</li>
-    <li><b class="co">Why?</b> SHAP gives every prediction a receipt. It explains the model, not the world.</li>
-    <li><b class="am">How sure?</b> Let the model say "not sure", and send that pile to a human.</li>
-    <li><b class="li">For everyone?</b> Slice the mistakes by group. Write it on one page: the model card.</li>
+    <li><b class="co">Why?</b> A SHAP receipt. It explains the model, not the world.</li>
+    <li><b class="am">How sure?</b> Let it say "not sure". Send that pile to a person.</li>
+    <li><b class="li">For everyone?</b> Check each group. Write the model card.</li>
   </ul>
   <p class="sub">Next Monday: <b class="t">learning without answers</b>. Segments, structure and anomalies.</p>
 </section>

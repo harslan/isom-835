@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISOM 835 · The Tabular Frontier · Opening Day</title>
+<meta name="description" content="The Tabular Frontier for ISOM 835: why models need lots of data, what a tabular foundation model is, how it learns from made-up tables, and a race against gradient boosting on a new hotel with only a few hundred bookings.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #07090f; --bg2: #0c0f17; --card: #0f131c; --text: #eef2f7; --text2: #a3adbd; --muted: #5f6a7d;
+          --teal: #2ee6c5; --peri: #7c8cff; --coral: #ff6b8b; --lime: #7ee787; --amber: #f5a524; --border: rgba(200,220,255,0.09); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6vh 8vw; gap: 3vh; }
+  .slide.active { display: flex; animation: fadeIn 0.45s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 4px; text-transform: uppercase; color: var(--teal); }
+  h1 { font-size: clamp(2.2rem, 6vw, 4.6rem); font-weight: 800; line-height: 1.08; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 3.4rem); font-weight: 800; line-height: 1.12; }
+  .grad { background: linear-gradient(90deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: clamp(1rem, 2vw, 1.5rem); color: var(--text2); max-width: 900px; line-height: 1.55; }
+  .big { font-size: clamp(3.2rem, 11vw, 8.5rem); font-weight: 800; line-height: 1; }
+  .cards { display: flex; gap: 1.4vw; flex-wrap: wrap; justify-content: center; max-width: 1240px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.4vh 1.6vw; min-width: 220px; max-width: 330px; flex: 1; text-align: left; }
+  .card .label { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  .card .title { font-weight: 700; font-size: clamp(0.95rem, 1.5vw, 1.2rem); margin-bottom: 8px; }
+  .card p { color: var(--text2); font-size: clamp(0.8rem, 1.2vw, 0.95rem); line-height: 1.5; }
+  .num { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; background: linear-gradient(135deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  pre { background: #0a0d15; border: 1px solid var(--border); border-radius: 14px; padding: 2.6vh 2vw; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1.3vw, 1.02rem); line-height: 1.6; color: #d8dee9; max-width: 940px; overflow: auto; }
+  pre .c { color: #6a737d; } pre .k { color: #ff7b72; } pre .s { color: #a5d6ff; } pre .f { color: #d2a8ff; }
+  .hud { position: fixed; bottom: 18px; right: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); z-index: 10; }
+  .brand { position: fixed; bottom: 18px; left: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; z-index: 10; }
+  .bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--peri)); transition: width 0.3s ease; z-index: 10; }
+  ul.list { text-align: left; max-width: 900px; color: var(--text2); font-size: clamp(0.95rem, 1.8vw, 1.3rem); line-height: 1.7; list-style: none; }
+  ul.list li { padding-left: 1.6em; position: relative; margin-bottom: 1.2vh; }
+  ul.list li::before { content: "▸"; position: absolute; left: 0; color: var(--teal); }
+  .pill { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.9rem); letter-spacing: 2px; padding: 8px 20px; border: 1px solid var(--teal); border-radius: 999px; color: var(--teal); }
+  .t { color: var(--teal); } .p { color: var(--peri); } .co { color: var(--coral); } .li { color: var(--lime); } .am { color: var(--amber); }
+  .row { display: flex; gap: 3vw; align-items: center; justify-content: center; flex-wrap: wrap; }
+  table.cm { border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
+  table.cm td, table.cm th { padding: 1.6vh 2.4vw; border: 1px solid var(--border); }
+  table.cm th { color: var(--muted); font-weight: 400; font-size: 0.8em; }
+  table.cm .g { background: rgba(126,231,135,0.12); color: var(--lime); } table.cm .b { background: rgba(255,107,139,0.14); color: var(--coral); } table.cm .a { background: rgba(245,165,36,0.12); color: var(--amber); }
+  .bars { display: flex; gap: 2.5vw; align-items: flex-end; height: 34vh; }
+  .bars div { width: clamp(70px, 9vw, 130px); background: linear-gradient(180deg, var(--teal), var(--peri)); border-radius: 10px 10px 4px 4px; position: relative; }
+  .bars div span { position: absolute; top: -2.6em; left: 0; right: 0; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .bars div small { position: absolute; bottom: -2.4em; left: 0; right: 0; color: var(--text2); font-size: 0.8rem; }
+  .notes { display: none; position: fixed; left: 24px; right: 24px; bottom: 48px; background: rgba(15,19,28,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--text2); text-align: left; z-index: 20; }
+  body.shownotes .notes { display: block; }
+  .timeline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.6vw; max-width: 1300px; width: 100%; }
+  .timeline div { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4vh 0.6vw; font-size: clamp(0.62rem, 1vw, 0.85rem); color: var(--text2); }
+  .timeline div b { display: block; color: var(--text); font-size: 1.05em; margin-bottom: 4px; }
+  .timeline div i { display: block; font-style: normal; font-family: 'IBM Plex Mono', monospace; font-size: 0.8em; color: var(--teal); margin-bottom: 4px; }
+
+  img.chart { display: block; max-width: min(92vw, 1100px); max-height: 50vh; width: auto; height: auto; border-radius: 14px; }
+  table.cm td { text-align: center; }
+  table.cm.small td, table.cm.small th { padding: 1.1vh 1.5vw; font-size: clamp(0.75rem, 1.35vw, 1.05rem); }
+  .card p { font-size: clamp(0.95rem, 1.45vw, 1.2rem); }
+  .card .label { font-size: clamp(0.72rem, 0.95vw, 0.9rem); }
+  .card .title { font-size: clamp(1.05rem, 1.7vw, 1.35rem); }
+  .card p.real { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1vw, 0.9rem); color: var(--amber); margin-top: 8px; }
+  svg text { font-family: Manrope, sans-serif; }
+
+  .q { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.8rem, 1.3vw, 1.05rem); letter-spacing: 3px; text-transform: uppercase; color: var(--amber); }
+  .folds { display: grid; grid-template-columns: auto repeat(5, 1fr); gap: 0.7vh 0.5vw; width: min(86vw, 900px); align-items: center; font-size: clamp(0.8rem, 1.3vw, 1.05rem); }
+  .folds span { color: var(--text2); font-family: 'IBM Plex Mono', monospace; padding-right: 1vw; text-align: right; }
+  .folds div { border-radius: 8px; padding: 1.1vh 0; background: rgba(124,140,255,0.16); color: #aab4ff; }
+  .folds div.x { background: var(--coral); color: #1a0810; font-weight: 800; }
+  .rc { display: grid; grid-template-columns: minmax(250px, 1.25fr) 2fr auto; gap: 0.9vh 1.2vw; width: min(90vw, 1050px); align-items: center; text-align: left; font-size: clamp(0.85rem, 1.45vw, 1.15rem); }
+  .rc .n { color: var(--text2); } .rc .n b { color: var(--text); }
+  .rc .track { position: relative; height: 3.2vh; background: rgba(200,220,255,0.04); border-radius: 6px; }
+  .rc .track i { position: absolute; top: 0; bottom: 0; border-radius: 6px; }
+  .rc .v { font-family: 'IBM Plex Mono', monospace; font-weight: 700; text-align: right; min-width: 4.5em; }
+  .hb { display: grid; grid-template-columns: auto 1fr auto; gap: 1vh 1.2vw; width: min(86vw, 900px); align-items: center; font-size: clamp(0.85rem, 1.45vw, 1.15rem); text-align: right; }
+  .hb .track { height: 3vh; } .hb .track i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--peri), var(--teal)); }
+  .hb .v { font-family: 'IBM Plex Mono', monospace; color: var(--text2); }
+  .piles { display: flex; width: min(88vw, 1000px); height: 11vh; border-radius: 14px; overflow: hidden; font-weight: 800; font-size: clamp(0.9rem, 1.7vw, 1.4rem); }
+  .piles div { display: flex; align-items: center; justify-content: center; color: #07090f; }
+  .card.label-card { border-style: dashed; }
+  .mc { text-align: left; width: min(90vw, 1040px); background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.2vh 2vw; font-size: clamp(0.85rem, 1.45vw, 1.2rem); line-height: 1.6; color: var(--text2); }
+  .mc b { color: var(--text); } .mc .h { font-family: 'IBM Plex Mono', monospace; letter-spacing: 2px; color: var(--teal); font-size: 0.85em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="brand">ISOM 835 · THE TABULAR FRONTIER</div>
+<div class="hud" id="hud"></div>
+
+<section class="slide active" data-notes="The part of Session 8 we did not reach, now with a real example. One sentence: every model in this course starts from zero, so it needs a lot of data. In 2025 and 2026 a new kind of model arrived that has already read millions of tables, so it does well with very little data and needs no tuning. Ask everyone to open the Tabular Frontier notebook from the Session 9 page and switch Colab to a T4 GPU now: Runtime, Change runtime type, T4 GPU.">
+<div class="kicker">ISOM 835 · The Tabular Frontier</div>
+  <h1>Opening <span class="grad">Day</span></h1>
+  <p class="sub">A model that has read a million tables before it reads yours</p>
+  <div class="pill">Open the notebook · Colab: Runtime → T4 GPU</div>
+</section>
+
+<section class="slide" data-notes="The story. Our hotel group opens a new hotel. After its first weeks it has only about 200 bookings. The revenue manager asks the usual question: which new bookings will cancel? Last week we had 24,000 bookings to learn from. Now we have 200. Ask the room: how good do you think our model will be? Take a few guesses, then show the next slide.">
+<div class="kicker">The business situation</div>
+  <h2>A new hotel. <span class="co">200 bookings.</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">Last week</div><div class="num" style="background:none;color:var(--muted)">24,000</div><p>bookings. Our model: <b>0.945</b>.</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--amber)"><div class="label">Opening Day</div><div class="num" style="background:none;color:var(--amber)">200</div><p>bookings so far. <b>Which will cancel?</b></p></div>
+  </div>
+  <p class="sub">Guess: <b>how good is the same model now?</b></p>
+</section>
+
+<section class="slide" data-notes="Run notebook Step 1 (a few seconds). Each dot is the same model recipe, fed a different number of bookings, graded on the same 6,000-booking exam; small sizes are averaged over 3 random samples. With 24,000 bookings: 0.945, last week's champion. With 5,000: 0.93. With 200, like our new hotel: 0.80. With 50: below 0.70. The model needs thousands of bookings before it is really good. Why? Gradient boosting starts from zero: everything it knows about cancellations it must discover from your rows.">
+<div class="kicker">Step 1 · the same model, fed fewer and fewer bookings</div>
+  <h2>Small data <span class="co">hurts</span></h2>
+  <svg viewBox="0 0 1060 350" width="92%" style="max-width:1150px" role="img" aria-label="Learning curve: test AUC 0.68 with 50 bookings, 0.78 with 100, 0.80 with 200, 0.86 with 500, 0.89 with 1,000, 0.91 with 2,000, 0.93 with 5,000 and 0.945 with 24,000. The Opening Day zone covers 50 to 500 bookings.">
+    <rect x="90" y="20" width="368" height="280" fill="#f5a524" opacity="0.13" rx="8"/>
+    <text x="106" y="48" font-size="21" font-weight="700" fill="#f5a524">Opening Day lives here</text>
+    <line x1="80" y1="275" x2="1000" y2="275" stroke="#5f6a7d" stroke-dasharray="6 6" stroke-width="2"/>
+    <text x="995" y="267" text-anchor="end" font-size="18" fill="#a3adbd">a coin flip</text>
+    <line x1="80" y1="300" x2="1000" y2="300" stroke="#5f6a7d" stroke-width="2"/>
+    <polyline points="120,187 215,139 309,127 433,97 528,86 622,74 746,66 960,57" fill="none" stroke="#7c8cff" stroke-width="4"/>
+    <circle cx="120" cy="187" r="9" fill="#7c8cff"/><text x="120" y="169" text-anchor="middle" font-size="20" font-weight="700" fill="#eef2f7">0.68</text><circle cx="215" cy="139" r="9" fill="#7c8cff"/><text x="215" y="121" text-anchor="middle" font-size="20" font-weight="700" fill="#eef2f7">0.78</text><circle cx="309" cy="127" r="9" fill="#7c8cff"/><text x="309" y="109" text-anchor="middle" font-size="20" font-weight="700" fill="#eef2f7">0.80</text><circle cx="433" cy="97" r="9" fill="#7c8cff"/><text x="433" y="79" text-anchor="middle" font-size="20" font-weight="700" fill="#eef2f7">0.86</text><circle cx="528" cy="86" r="9" fill="#7c8cff"/><text x="528" y="68" text-anchor="middle" font-size="20" font-weight="700" fill="#eef2f7">0.89</text><circle cx="622" cy="74" r="9" fill="#7c8cff"/><text x="622" y="56" text-anchor="middle" font-size="20" font-weight="700" fill="#eef2f7">0.91</text><circle cx="746" cy="66" r="9" fill="#7c8cff"/><text x="746" y="48" text-anchor="middle" font-size="20" font-weight="700" fill="#eef2f7">0.93</text><circle cx="960" cy="57" r="9" fill="#7c8cff"/><text x="960" y="39" text-anchor="middle" font-size="20" font-weight="700" fill="#eef2f7">0.945</text><text x="120" y="336" text-anchor="middle" font-size="19" fill="#a3adbd">50</text><text x="215" y="336" text-anchor="middle" font-size="19" fill="#a3adbd">100</text><text x="309" y="336" text-anchor="middle" font-size="19" fill="#a3adbd">200</text><text x="433" y="336" text-anchor="middle" font-size="19" fill="#a3adbd">500</text><text x="528" y="336" text-anchor="middle" font-size="19" fill="#a3adbd">1,000</text><text x="622" y="336" text-anchor="middle" font-size="19" fill="#a3adbd">2,000</text><text x="746" y="336" text-anchor="middle" font-size="19" fill="#a3adbd">5,000</text><text x="960" y="336" text-anchor="middle" font-size="19" fill="#a3adbd">24,000</text>
+  </svg>
+  <p class="sub" style="font-size:clamp(0.85rem,1.5vw,1.15rem)">Bookings the model learned from → &nbsp;·&nbsp; same model, same exam</p>
+</section>
+
+<section class="slide" data-notes="Our hotel story is not unusual. Small tables are the normal case in business. Go through the list and ask the room for one more example from their own work. Every one of these asks the Opening Day question: how do I get a good model from little data?">
+<div class="kicker">Step 2 · not just hotels</div>
+  <h2>Small data is <span class="grad">everywhere</span></h2>
+  <table class="cm small">
+    <tr><th>situation</th><th>rows you have</th></tr>
+    <tr><td>a new store, hotel or branch</td><td>its first weeks of customers</td></tr>
+    <tr><td>a new product launch</td><td>the first few hundred buyers</td></tr>
+    <tr><td>a B2B firm predicting which clients leave</td><td>maybe 200 clients</td></tr>
+    <tr><td>rare events: fraud, failures, defaults</td><td>a few hundred examples</td></tr>
+    <tr><td>expensive labels (a doctor must decide)</td><td>as many as you can afford</td></tr>
+  </table>
+  <p class="sub">What is <b>your</b> example?</p>
+</section>
+
+<section class="slide" data-notes="The analogy that carries the whole session. You need a manager for the new hotel. The fresh graduate is smart but has never worked in a hotel: everything they know, they learn from this hotel's 200 bookings. The experienced manager has worked in hundreds of hotels and recognizes patterns right away. On Opening Day, who do you want? Gradient boosting is the fresh graduate: it starts from zero every time.">
+<div class="kicker">Step 3 · the idea</div>
+  <h2>Hire the <span class="grad">experienced manager</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:320px"><div class="label">🎓 The fresh graduate</div><div class="title">Smart, but never worked in a hotel</div><p>Learns only from these 200 bookings.</p><p class="real">gradient boosting</p></div>
+    <div class="card" style="min-width:320px; border-color: var(--teal)"><div class="label">🧳 The experienced manager</div><div class="title">Worked in hundreds of hotels</div><p>"<b>I've seen this before.</b>"</p><p class="real">tabular foundation model</p></div>
+  </div>
+  <p class="sub">On Opening Day, <b>who do you want?</b></p>
+</section>
+
+<section class="slide" data-notes="Students already know a model that does not start from zero: ChatGPT read a large part of the internet first. That is a foundation model: trained once on huge data, reused for many tasks. Since 2025 it works for tables. Tabular just means rows and columns. TabICL comes from Inria in France, open source with a permissive license: free for business use too, and the one we run tonight. TabPFN comes from Prior Labs in Germany: the pioneer, first version 2022; the newest, TabPFN-3.5 from September 2026, is recommended by its makers for up to a million rows, but its newest weights are licensed for non-commercial use only. On public benchmarks these models now often match or beat tuned gradient boosting with zero tuning.">
+<div class="kicker">Step 3 · what it is</div>
+  <h2>ChatGPT read the internet.<br>These read <span class="grad">millions of tables</span>.</h2>
+  <div class="row">
+    <div class="card" style="min-width:300px; border-color: var(--teal)"><div class="label">TabICL · Inria, France</div><div class="title">Open source</div><p>Free, also for business. <b>We run it tonight.</b></p></div>
+    <div class="card" style="min-width:300px"><div class="label">TabPFN · Prior Labs, Germany</div><div class="title">The pioneer (2022)</div><p>Newest: TabPFN-3.5 (Sept 2026). <b>Research use only</b> for free.</p></div>
+  </div>
+  <p class="sub">Often <b>match or beat tuned boosting, with zero tuning</b>.</p>
+</section>
+
+<section class="slide" data-notes="Where would a model find millions of tables? Real tables are private. The trick: the tables are made up. A program invents tables endlessly, each with a hidden rule and some noise, so it always knows the right answers. Then the model practices one exercise millions of times: here are rows with answers, what is the answer for this new row? Play it now: this is the made-up table from notebook Step 4 (seed 7). Ask the room to guess the last answer and say why. Most will spot it: the answer is 1 when column C is small. So the last row, with C equal to 9, is 0.">
+<div class="kicker">Step 4 · its textbooks: made-up tables</div>
+  <h2>Be the model. <span class="grad">Guess the last answer.</span></h2>
+  <table class="cm small" style="width:min(50vw,520px)">
+    <tr><th>A</th><th>B</th><th>C</th><th>answer</th></tr>
+    <tr><td>9</td><td>6</td><td>6</td><td>0</td></tr>
+    <tr><td>8</td><td>5</td><td>7</td><td>0</td></tr>
+    <tr><td>8</td><td>2</td><td>0</td><td>1</td></tr>
+    <tr><td>3</td><td>2</td><td>8</td><td>0</td></tr>
+    <tr><td>9</td><td>0</td><td>4</td><td>1</td></tr>
+    <tr><td>8</td><td>1</td><td>7</td><td>0</td></tr>
+    <tr><td>1</td><td>4</td><td>8</td><td>0</td></tr>
+    <tr><td>3</td><td>3</td><td>2</td><td>1</td></tr>
+    <tr><td>7</td><td>2</td><td>9</td><td class="a">?</td></tr>
+  </table>
+</section>
+
+<section class="slide" data-notes="The reveal and the key idea of the night. Hidden rule: answer is 1 when C is small, so the last answer is 0. Notice: you did not train anything. You looked at the examples and spotted the pattern, and after a few tables you get faster. The model did this millions of times with much richer rules: curves, if-then rules, columns that matter only together, messy columns that do not matter at all. It did not learn hotel facts. It learned how to learn from a table. Real name: synthetic pretraining data, also called the prior.">
+<div class="kicker">Step 4 · the reveal</div>
+  <h2>The hidden rule: <span class="grad">answer is 1 when C is small</span></h2>
+  <p class="sub">So the last row is <b>0</b>. You didn't train. <b>You spotted the pattern.</b></p>
+  <div class="row">
+    <div class="card" style="min-width:300px"><div class="label">You</div><div class="title">A few made-up tables</div><p>…and you get faster.</p></div>
+    <div class="card" style="min-width:300px; border-color: var(--teal)"><div class="label">The foundation model</div><div class="title">Millions of made-up tables</div><p>Every kind of hidden rule.</p></div>
+  </div>
+  <p class="sub" style="font-size:clamp(1.05rem,2.1vw,1.6rem); color:var(--text)">It didn't learn hotel facts. <b class="t">It learned how to learn from a table.</b></p>
+</section>
+
+<section class="slide" data-notes="How it predicts without training. Students know prompting with examples: here are three customer emails and our answers, now answer the fourth. ChatGPT does not retrain; it reads the examples in the prompt and continues the pattern. That is in-context learning, the ICL in TabICL. A tabular foundation model does the same with your table: fit just stores your rows, they are the prompt. Predict reads your rows plus the new rows in one pass and answers. No dials.">
+<div class="kicker">Step 5 · <span class="am">in-context learning</span></div>
+  <h2>Your rows become <span class="grad">the prompt</span></h2>
+  <table class="cm small">
+    <tr><th></th><th>🚀 gradient boosting</th><th>🧠 tabular foundation model</th></tr>
+    <tr><td>.fit(X, y)</td><td><b>studies</b> your rows, grows trees</td><td class="g"><b>stores</b> your rows: the prompt</td></tr>
+    <tr><td>.predict(X_new)</td><td>walks down the trees</td><td class="g"><b>reads</b> the prompt, answers</td></tr>
+    <tr><td>dials</td><td>several</td><td class="g"><b>none</b></td></tr>
+  </table>
+  <p class="sub">Like giving ChatGPT examples: <b>it continues the pattern.</b></p>
+</section>
+
+<section class="slide" data-notes="The code looks exactly like every scikit-learn model they know. Three lines. pip install tabicl. The first time, it downloads the trained model file from the internet. No dials at all.">
+<div class="kicker">Step 5 · in code</div>
+  <h2>Same three lines <span class="grad">as always</span></h2>
+  <pre><span class="f">!pip install</span> -q tabicl
+
+<span class="k">from</span> tabicl <span class="k">import</span> TabICLClassifier
+model = <span class="f">TabICLClassifier</span>()          <span class="c"># no dials</span>
+model.<span class="f">fit</span>(X_small, y_small)         <span class="c"># stores your bookings</span>
+model.<span class="f">predict_proba</span>(X_new)[:, 1]    <span class="c"># reads them and answers</span></pre>
+  <p class="sub">First run: it downloads its "brain".</p>
+</section>
+
+<section class="slide" data-notes="Run notebook Step 6 live. Same rules as the honesty lesson: both models get exactly the same bookings, 100, then 300, then 1,000; both are graded on the same 2,000 test bookings; boosting gets early stopping, TabICL gets nothing. About a minute on a T4 GPU. Before you run it, ask the room to predict: where will the gap be biggest? Then read the result together: the published benchmarks say the experienced manager helps most when data is scarce and the gap shrinks as data grows. Check the seconds too. And apply the honesty rule: a lead of 0.005 either way is a tie; 0.03 is real. Run this once yourself before class so you know the numbers.">
+<div class="kicker">Step 6 · live in the notebook</div>
+  <h2>The race: <span class="grad">Opening Day</span></h2>
+  <div class="row">
+    <div class="card" style="min-width:250px"><div class="label">Same bookings</div><div class="title">100 · 300 · 1,000</div><p>for both models</p></div>
+    <div class="card" style="min-width:250px"><div class="label">Same exam</div><div class="title">2,000 test bookings</div><p>for both models</p></div>
+    <div class="card" style="min-width:250px"><div class="label">The dials</div><div class="title">Boosting: early stopping</div><p>TabICL: <b>none</b></p></div>
+  </div>
+  <p class="sub">Guess first: <b>where is the gap biggest?</b> Watch the <b>seconds</b> too.<br>A lead of 0.005 is a tie. 0.03 is real.</p>
+</section>
+
+<section class="slide" data-notes="The decision table. Small data: the foundation model's sweet spot. Big data: boosting is fast and strong; the newest foundation models can go large but want a big GPU. Tuning: none versus a few dials. Speed and cost: boosting runs in seconds on any laptop. Scoring millions of rows every night: boosting is cheap. License: scikit-learn, XGBoost, LightGBM are free; TabICL is open; TabPFN's newest weights need a paid license for business use. Rule of thumb for 2026: try both, on the exam that looks like the job.">
+<div class="kicker">Step 7 · which one?</div>
+  <h2>In 2026, <span class="grad">try both</span></h2>
+  <table class="cm small">
+    <tr><th></th><th>🚀 gradient boosting</th><th>🧠 tabular foundation model</th></tr>
+    <tr><td>small data (hundreds of rows)</td><td>struggles</td><td class="g">✅ its sweet spot</td></tr>
+    <tr><td>big data, millions of scores</td><td class="g">✅ fast and cheap</td><td>wants a big GPU</td></tr>
+    <tr><td>tuning</td><td>a few dials</td><td class="g">✅ none</td></tr>
+    <tr><td>speed and cost</td><td class="g">✅ seconds, any laptop</td><td>slower, wants a GPU</td></tr>
+    <tr><td>license</td><td class="g">✅ free</td><td>TabICL free · TabPFN: research only</td></tr>
+  </table>
+  <p class="sub">Judge on <b>the exam that looks like the job</b>.</p>
+</section>
+
+<section class="slide" data-notes="Quick check, about 3 minutes; ask for a show of hands on each case. Answers: 1, the boutique hotel with 240 bookings and a Friday deadline: foundation model first, compare with boosting anyway. 2, the bank scoring 5 million transactions a night on a tight budget: boosting, speed and cost win. 3, the consulting firm with 180 clients: foundation model first. 4, the startup selling a product with no license budget: boosting, or TabICL with its open license; check every license before selling. 5, the hospital with 400 records of a rare condition: foundation model first, but judged very carefully with cross-validation, slices, and a person in the loop.">
+<div class="kicker">🧠 Quick check · five business cases</div>
+  <h2>Which would you <span class="grad">try first</span>?</h2>
+  <ul class="list" style="font-size:clamp(0.95rem,1.7vw,1.3rem)">
+    <li><b>1.</b> A new boutique hotel: <b>240 bookings</b>, needs a score by Friday.</li>
+    <li><b>2.</b> A bank scores <b>5 million</b> transactions <b>every night</b>, on a tight budget.</li>
+    <li><b>3.</b> A consulting firm: <b>180 clients</b>. Who won't renew?</li>
+    <li><b>4.</b> A startup will <b>sell</b> a product built on it. No license budget.</li>
+    <li><b>5.</b> A hospital has <b>400 records</b> of a rare condition.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Five takeaways, then back to the main deck or to Your Turn in the notebook: find the crossover, check whether the win is real with three samples, and ask both models about booking 438 from Session 9.">
+<div class="kicker">The Tabular Frontier · in five lines</div>
+  <h2>Tonight in <span class="grad">five lines</span></h2>
+  <ul class="list">
+    <li><b class="t">Small data hurts:</b> 0.80 with 200 bookings, 0.945 with 24,000.</li>
+    <li><b class="p">Small data is everywhere:</b> new stores, new products, B2B clients, rare events.</li>
+    <li><b class="am">Foundation models read millions of made-up tables:</b> they learned how to learn.</li>
+    <li><b class="co">Your rows become the prompt:</b> no training, no dials.</li>
+    <li><b class="li">Try both</b>, on the exam that looks like the job. And <b>check the license</b>.</li>
+  </ul>
+</section>
+
+
+
+<div class="notes" id="notes"></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')]; let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    document.getElementById('hud').textContent = (i + 1) + ' / ' + slides.length + '  ·  ← → navigate · F fullscreen · N notes';
+    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+    document.getElementById('notes').textContent = slides[i].dataset.notes || '';
+    location.hash = i + 1;
+  }
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    else if (e.key.toLowerCase() === 'n') document.body.classList.toggle('shownotes');
+  });
+  addEventListener('click', (e) => { if (e.target.closest('a')) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+  show(parseInt(location.hash.slice(1) || '1', 10) - 1);
+</script>
+</body>
+</html>

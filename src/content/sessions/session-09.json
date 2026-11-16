@@ -55,10 +55,11 @@
       "time": "5:45 PM - 6:05 PM",
       "title": "Question 2: Can We Make It Better?",
       "duration": "20 minutes",
-      "description": "Dials have a real name: hyperparameters. Random search bakes twelve recipes and cross-validation tastes them. Then the trap: the best of 200 models that know nothing scores 0.62 on a small exam and 0.50 on fresh bookings.",
+      "description": "Dials have a real name: hyperparameters. Random search bakes twelve recipes and cross-validation tastes them. Then the trap: the best of 200 models that know nothing scores 0.62 on a small exam and 0.50 on fresh bookings. Then the Tabular Frontier from Session 8: foundation models like TabPFN and TabICL that have read millions of tables and need no tuning at all.",
       "bulletPoints": [
         "Choose with cross-validation; open the test set once",
-        "Tuning is the last few percent: 0.945 becomes 0.947"
+        "Tuning is the last few percent: 0.945 becomes 0.947",
+        "In 2026, a good analyst tries both: boosting and a tabular foundation model"
       ],
       "isBreak": false
     },
@@ -127,6 +128,24 @@
       "title": "Session 9 Notebook — Tuning, Explaining & Uncertainty",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-09/ISOM835_Session9_Tuning_Explaining_Uncertainty.ipynb",
       "description": "Written for first-timers: five questions, eleven steps. Eight shuffles and five-fold cross-validation, the past-to-future exam, random search with an optional Optuna cell, the best-of-200-guessers trap, SHAP receipts for one booking and for the whole book, conformal prediction by hand, mistakes sliced by group, and a filled-in model card. Every step says what the cell does and how to read the output, with quick checks and four Your Turn questions.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
+      "title": "The Tabular Frontier — Slides",
+      "url": "/session-09/frontier.html",
+      "description": "Opening Day: a new hotel with only 200 bookings. Why small data hurts (our model drops from 0.945 to 0.80), the fresh graduate and the experienced manager, a model that read millions of made-up tables, your rows as the prompt, the race, and which one to use when. Arrow keys to navigate, N for speaker notes.",
+      "icon": "presentation",
+      "badge": "Slides",
+      "badgeType": "interactive",
+      "linkText": "Open slides"
+    },
+    {
+      "title": "The Tabular Frontier — Notebook",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-09/ISOM835_Tabular_Frontier.ipynb",
+      "description": "Written for first-timers. A learning curve from 50 to 24,000 bookings, made-up tables you can solve yourself, in-context learning in plain words, and a race between gradient boosting and TabICL (an open-source tabular foundation model) on a new hotel with 100, 300 and 1,000 bookings. Use a T4 GPU runtime.",
       "icon": "code",
       "badge": "Hands-On",
       "badgeType": "interactive",
