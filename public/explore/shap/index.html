@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The SHAP Receipt · ISOM 835</title>
+<meta name="description" content="SHAP taught as an itemized receipt: a trivia-night fair split, a live loan receipt you can drag, every arrival order, the fairness rules, and a stack of 120 receipts.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout idea: a shop counter. Reading column on the counter, every live result printed on till paper. */
+  --counter:#E3E8EA; --surface:#F1F4F5; --ink:#131C2E; --muted:#55607A; --rule:#BCC6CE;
+  --up:#0A7F62; --down:#C8304F; --marker:#FFD23F; --on-marker:#131C2E;
+  --paper:#FFFDF6; --paper-ink:#1B2333; --paper-muted:#667085; --paper-rule:#D8D2C0;
+  --p1:#2F66CF; --p2:#B8690A; --p3:#7C46C8; --low:#3A6FD0; --high:#E08A1E;
+  --display:"Bricolage Grotesque","Arial Narrow",Arial,sans-serif;
+  --body:"Atkinson Hyperlegible",Verdana,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --counter:#0E151D; --surface:#17212C; --ink:#E9EEF2; --muted:#9BA8B9; --rule:#2E3C4B;
+    --up:#3FCFA6; --down:#FF7A93; --p1:#7AA4F2; --p2:#F0A23C; --p3:#B692F2;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --counter:#0E151D; --surface:#17212C; --ink:#E9EEF2; --muted:#9BA8B9; --rule:#2E3C4B;
+  --up:#3FCFA6; --down:#FF7A93; --p1:#7AA4F2; --p2:#F0A23C; --p3:#B692F2;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--counter);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.prose{max-width:66ch}
+.prose p{margin:0 0 1em}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(46px,8.6vw,108px);line-height:.9;font-weight:800;letter-spacing:-.035em}
+h2{font-size:clamp(30px,4.4vw,46px);line-height:1.02;font-weight:800;letter-spacing:-.02em;margin-bottom:.5em}
+h3{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:1.6em 0 .4em}
+section{padding-block:60px;border-top:2px dashed var(--rule)}
+.chap{font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hl{background:var(--marker);color:var(--on-marker);padding:0 .22em;border-radius:3px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.term{font-weight:700;border-bottom:2px solid var(--marker)}
+.up{color:var(--up)} .down{color:var(--down)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.small{font-size:15px;color:var(--muted)}
+
+/* hero */
+.hero{padding-block:44px 64px;border-top:0}
+.hero-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:center}
+.back{display:inline-block;font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:18px}
+.back:hover{color:var(--ink);text-decoration:underline}
+.lede{font-size:21px;line-height:1.5;max-width:34ch;margin:26px 0 0}
+.hero-receipts{display:grid;grid-template-columns:1fr 1.5fr;gap:18px;align-items:start}
+.hero-receipts .receipt:first-child{transform:rotate(-2.2deg);margin-top:34px}
+.hero-receipts .receipt:last-child{transform:rotate(1.4deg)}
+.tag{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px 4px}
+
+/* receipt */
+.receipt{--ink:var(--paper-ink);--muted:var(--paper-muted);--rule:var(--paper-rule);--up:#0A7F62;--down:#C8304F;
+  position:relative;background:var(--paper);color:var(--ink);font-family:var(--mono);font-size:14px;line-height:1.45;
+  padding:18px 16px 16px;margin-bottom:10px;box-shadow:0 1px 0 rgba(0,0,0,.06),0 14px 28px -18px rgba(10,20,40,.55);font-variant-numeric:tabular-nums}
+.receipt::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:7px;
+  background:linear-gradient(135deg,var(--paper) 4.95px,transparent 0),linear-gradient(225deg,var(--paper) 4.95px,transparent 0);
+  background-size:14px 7px;background-repeat:repeat-x}
+.r-head{text-align:center;font-weight:600;letter-spacing:.14em;font-size:13px}
+.r-sub{text-align:center;color:var(--muted);font-size:12px;margin-bottom:10px}
+.r-cut{border:0;border-top:1.5px dashed var(--rule);margin:10px 0}
+.r-line{display:flex;align-items:baseline;gap:6px}
+.r-line .dots{flex:1;border-bottom:1.5px dotted var(--rule);transform:translateY(-3px);min-width:12px}
+.r-line .v{font-weight:600;white-space:nowrap}
+.r-item{margin:7px 0}
+.r-item.pos .v{color:var(--up)} .r-item.neg .v{color:var(--down)} .r-item.zero .v{color:var(--muted)}
+.r-track{position:relative;height:6px;margin-top:3px;background:linear-gradient(90deg,transparent calc(50% - .75px),var(--rule) 0,var(--rule) calc(50% + .75px),transparent 0)}
+.r-track i{position:absolute;top:0;bottom:0;border-radius:1px;transition:left .15s,width .15s}
+.r-item.pos .r-track i{background:var(--up)} .r-item.neg .r-track i{background:var(--down)}
+.r-total{font-size:17px;font-weight:600}
+.r-big{font-size:44px;font-weight:600;text-align:center;line-height:1.1;margin:8px 0 2px;letter-spacing:-.02em}
+.r-foot{text-align:center;color:var(--muted);font-size:12px;margin-top:8px}
+.barcode{height:30px;margin:10px auto 2px;width:80%;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 6px,transparent 6px 10px,var(--ink) 10px 13px,transparent 13px 15px)}
+
+/* controls */
+.btn{font-family:var(--mono);font-size:14px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:8px 14px;border-radius:999px;cursor:pointer}
+.btn:hover{background:var(--surface)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--counter)}
+:focus-visible{outline:3px solid var(--p1);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.stage{background:var(--surface);border:1.5px solid var(--rule);border-radius:14px;padding:22px;margin:26px 0}
+
+/* trivia */
+.players{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.player{font-family:var(--body);text-align:left;background:var(--counter);color:var(--ink);border:2px dashed var(--rule);border-radius:12px;padding:14px;cursor:pointer;opacity:.62}
+.player[aria-pressed="true"]{border-style:solid;border-color:var(--pc);opacity:1}
+.player b{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:22px}
+.player .av{width:34px;height:34px;border-radius:50%;background:var(--pc);color:var(--counter);display:grid;place-items:center;font-size:17px}
+.player span{display:block;font-size:15px;color:var(--muted);margin-top:6px}
+.player em{display:block;font-style:normal;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;margin-top:8px;color:var(--pc)}
+.score{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-top:18px}
+.score .big{font-family:var(--mono);font-size:56px;font-weight:600;line-height:1}
+.seatbar{display:flex;height:38px;border-radius:8px;overflow:hidden;margin:16px 0 10px;border:1.5px solid var(--ink)}
+.seatbar i{display:block;background:var(--pc);transition:flex-basis .2s}
+.seatbar i+i{border-left:2px solid var(--counter)}
+.chip{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--pc)}
+table{border-collapse:collapse;width:100%;font-size:16px}
+.tablewrap{overflow-x:auto}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--rule);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+td.num,tfoot td{font-family:var(--mono)}
+tbody tr.sel{background:color-mix(in srgb,var(--marker) 30%,transparent)}
+tbody .btn{padding:4px 10px;font-size:13px}
+tfoot th,tfoot td{border-top:2px solid var(--ink);border-bottom:0;font-weight:700;font-size:18px}
+.map td,.map th{text-align:left;vertical-align:top}
+.map td:first-child{color:var(--muted);width:38%}
+
+/* lab */
+.lab{display:grid;grid-template-columns:1fr minmax(300px,380px);gap:28px;align-items:start}
+.ctrl{margin-bottom:18px}
+.ctrl label{display:flex;justify-content:space-between;gap:12px;font-weight:700}
+.ctrl output{font-family:var(--mono);font-weight:600}
+.ctrl input[type=range]{width:100%;accent-color:var(--ink);margin:6px 0 0;height:28px}
+.ctrl .small{margin-top:0}
+.try{border-left:5px solid var(--marker);padding:4px 0 4px 16px;margin:22px 0}
+.svgwrap{overflow-x:auto}
+.svgwrap svg{display:block;width:100%;min-width:540px;height:auto;font-family:var(--body)}
+svg text{fill:var(--ink);font-size:14px}
+svg .m{fill:var(--muted);font-size:12px;font-family:var(--mono)}
+svg .v{font-family:var(--mono);font-size:13px;font-weight:600}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .link{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+svg .b-up{fill:var(--up)} svg .b-down{fill:var(--down)} svg .b-base{fill:var(--muted)} svg .b-total{fill:var(--ink)}
+.rules{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:22px}
+.rule{background:var(--surface);border:1.5px solid var(--rule);border-radius:12px;padding:18px}
+.rule h3{margin:0 0 6px}
+.rule .tech{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.rule p{margin:8px 0 0;font-size:17px}
+.live{font-family:var(--mono);font-size:14px;background:var(--counter);border:1.5px dashed var(--rule);border-radius:8px;padding:8px 10px;margin-top:10px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:15px;color:var(--muted);margin-top:12px;align-items:center}
+.ramp{display:inline-block;width:90px;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--low),var(--high));vertical-align:middle;margin:0 6px}
+.fine{max-width:760px}
+.fine .receipt{font-size:15px;padding:24px 22px}
+.fine h3{font-family:var(--mono);font-size:15px;letter-spacing:.04em;margin:0 0 4px}
+.fine p{margin:0 0 4px;font-family:var(--body);font-size:17px;line-height:1.55}
+.q{margin:22px 0;padding:0;border:0}
+.q legend{font-weight:700;padding:0;margin-bottom:10px;font-size:19px}
+.q .opts{display:grid;gap:8px}
+.q button{font-family:var(--body);font-size:17px;text-align:left;background:var(--surface);color:var(--ink);border:1.5px solid var(--rule);border-radius:10px;padding:10px 14px;cursor:pointer}
+.q button.right{border-color:var(--up);border-width:2.5px}
+.q button.wrong{border-color:var(--down);border-width:2.5px}
+.q .fb{min-height:1.6em;margin-top:8px;font-size:17px}
+.breath{font-family:var(--display);font-weight:500;font-size:clamp(24px,3.4vw,36px);line-height:1.2;letter-spacing:-.01em;max-width:24ch;text-wrap:balance}
+footer{padding-block:28px 60px;border-top:2px dashed var(--rule);font-size:15px;color:var(--muted)}
+footer p{max-width:72ch;margin:0 0 .6em}
+@media (max-width:860px){
+  .hero-grid,.lab{grid-template-columns:1fr}
+  .rules{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  body{font-size:17px}
+  .players{grid-template-columns:1fr}
+  .hero-receipts{grid-template-columns:1fr}
+  .hero-receipts .receipt:first-child,.hero-receipts .receipt:last-child{transform:none;margin-top:0}
+  .stage{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="wrap hero">
+  <a class="back" href="/sessions/session-09">&larr; ISOM 835 &middot; Session 9</a>
+  <div class="hero-grid">
+    <div>
+      <p class="chap">An interactive lesson &middot; about 10 minutes</p>
+      <h1>Why did it say that?</h1>
+      <p class="lede">A bank's model reads Maya's loan application and prints one number: <b class="num h-total">72.0%</b> likely to repay. No reasons given. <span class="hl">SHAP is the itemized receipt for that number.</span></p>
+    </div>
+    <div class="hero-receipts">
+      <div>
+        <p class="tag">What the model gives you</p>
+        <div class="receipt" aria-label="Model output without explanation">
+          <div class="r-head">CREDIT MODEL</div>
+          <div class="r-sub">Applicant: Maya</div>
+          <hr class="r-cut">
+          <div class="r-sub" style="margin:0">Likely to repay</div>
+          <div class="r-big h-total">72.0%</div>
+          <hr class="r-cut">
+          <div class="r-foot">ITEMS: none printed</div>
+          <div class="barcode" aria-hidden="true"></div>
+        </div>
+      </div>
+      <div>
+        <p class="tag">What SHAP gives you</p>
+        <div class="receipt" id="hero-receipt" aria-label="SHAP receipt for Maya"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="wrap" id="trivia">
+  <p class="chap">01 / The fair split</p>
+  <div class="prose">
+    <h2>First, a trivia night</h2>
+    <p>SHAP rests on an older question from game theory. A team wins a prize together. How much of it did each player earn? Lloyd Shapley answered that in 1953, and the answer carries his name: the <span class="term">Shapley value</span>.</p>
+    <p>Meet the team. Tap a player to seat them at the table or send them to the bench, and watch the score.</p>
+  </div>
+
+  <div class="stage">
+    <div class="players" id="players"></div>
+    <div class="score">
+      <span class="big" id="team-score">90</span>
+      <span id="team-note" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>The catch: credit depends on who sat down first</h3>
+    <p>Seat the full team one player at a time. Pay each player whatever the score went up when they arrived. That raise is called a <span class="term">marginal contribution</span>. Try a few seating orders.</p>
+  </div>
+
+  <div class="stage">
+    <div class="row" id="order-btns" role="group" aria-label="Seating order"></div>
+    <div class="seatbar" id="seatbar" aria-hidden="true"></div>
+    <p id="seat-note" style="margin:0" aria-live="polite"></p>
+  </div>
+
+  <div class="prose">
+    <p>Same team, same 90 points, different paychecks every time. No single order is fair. Shapley's move was simple: <span class="hl">use every order, then average.</span></p>
+  </div>
+
+  <div class="stage tablewrap">
+    <table id="order-table">
+      <thead><tr><th>Seating order</th><th>Ali</th><th>Bea</th><th>Cy</th></tr></thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+
+  <div class="prose">
+    <p>Those averages are the Shapley values: Ali 35, Bea 40, Cy 15. They add up to exactly 90.</p>
+    <p>Look at Cy. Alone he scores only 10, yet his fair share is 15, because he knows things nobody else at the table does. Ali scores 40 alone but earns 35, because some of what he knows, Bea knows too. A fair split pays you for what you add to the team.</p>
+  </div>
+</section>
+
+<section class="wrap" id="swap">
+  <p class="chap">02 / From players to features</p>
+  <div class="prose">
+    <h2>Now swap the players for facts about Maya</h2>
+    <p>In 2017, Scott Lundberg and Su-In Lee pointed this same split at machine learning and named it SHAP, short for <span class="term">SHapley Additive exPlanations</span>. Nothing about the game changes. Only the cast does.</p>
+  </div>
+  <div class="stage tablewrap">
+    <table class="map">
+      <thead><tr><th>Trivia night</th><th>Loan model</th></tr></thead>
+      <tbody>
+        <tr><td>The players</td><td>The <b>features</b>: income, credit history, missed payments, and so on</td></tr>
+        <tr><td>The team's score</td><td>The <b>prediction</b> for one person</td></tr>
+        <tr><td>The empty table</td><td>The <b>base value</b>: the model's average prediction across all applicants, before it knows anything about Maya</td></tr>
+        <tr><td>A player sits down</td><td>The model gets to see Maya's real value for that feature</td></tr>
+        <tr><td>An empty chair</td><td>The model fills that feature in with other applicants' values and averages the results</td></tr>
+        <tr><td>A player's fair share</td><td>That feature's <b>SHAP value</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="wrap" id="lab">
+  <p class="chap">03 / The live receipt</p>
+  <div class="prose">
+    <h2>Print Maya's receipt</h2>
+    <p>Move a slider. The model re-scores Maya, and SHAP re-splits the credit as you drag. Every number is computed in your browser from a small loan model and <span class="f-n">120</span> made-up applicants.</p>
+  </div>
+
+  <div class="stage lab">
+    <div>
+      <div id="controls"></div>
+      <button class="btn" id="reset" type="button">Reset to Maya</button>
+    </div>
+    <div>
+      <div class="receipt" id="lab-receipt" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p><b>How to read it.</b> Start at the base value, <span class="num f-base"></span>. That is what the model says before it knows anything about Maya. Each line then moves the score: <span class="up"><b>green lines push it up</b></span>, <span class="down"><b>red lines push it down</b></span>. The last line is the model's answer, and the lines always add up to it.</p>
+    <div class="try">
+      <p><b>Try this.</b> Leave missed payments at 1. Drag income down to 40, then up to 150, and watch the missed-payments line. The same single missed payment costs about 7 points at the low end and under 3 at the high end. This model treats a missed payment as more worrying on a tight budget, and the receipt shows you that without anyone opening the model.</p>
+      <p style="margin:0"><b>And shoe size?</b> Slide it as far as you like.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="arrive">
+  <p class="chap">04 / Every possible order</p>
+  <div class="prose">
+    <h2>Watch the features arrive</h2>
+    <p>This is the trivia seating game again, played with Maya's features. Each one arrives in turn and moves the score from the base value toward the prediction. Shuffle the order and the steps change size. A feature's SHAP value is its average step over all <span class="num">120</span> possible orders.</p>
+  </div>
+  <div class="stage">
+    <div class="row" style="margin-bottom:14px">
+      <button class="btn" id="shuffle" type="button">Shuffle the order</button>
+      <button class="btn" id="reverse" type="button">Reverse it</button>
+      <span class="small" id="order-label"></span>
+    </div>
+    <div class="svgwrap" id="order-svg"></div>
+    <div class="tablewrap" style="margin-top:14px">
+      <table id="order-compare">
+        <thead><tr><th>Feature</th><th>Step in this order</th><th>SHAP value (average of all 120)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="rules">
+  <p class="chap">05 / Why this split and no other</p>
+  <div class="prose">
+    <h2>Four rules a fair receipt has to keep</h2>
+    <p>Plenty of methods can hand out credit. Shapley proved that his average is the only one that keeps rules like these together. The checks below are live, wired to the sliders above.</p>
+  </div>
+  <div class="rules">
+    <div class="rule"><div class="tech">Rule 1 &middot; additivity</div><h3>It adds up</h3><p>Base value plus every line equals the prediction. No credit goes missing and none is invented.</p><div class="live" id="rule-add"></div></div>
+    <div class="rule"><div class="tech">Rule 2 &middot; the dummy rule</div><h3>No free riders</h3><p>A feature that never changes the prediction gets exactly zero. This model ignores shoe size.</p><div class="live" id="rule-dummy"></div></div>
+    <div class="rule"><div class="tech">Rule 3 &middot; symmetry</div><h3>Equal work, equal credit</h3><p>If two features always help by the same amount, in every possible team, they get the same share. Names and column order never matter.</p></div>
+    <div class="rule"><div class="tech">Rule 4 &middot; consistency</div><h3>More work, never less credit</h3><p>If you change a model so that it leans on a feature more, that feature's credit can never go down. Several older methods break this rule.</p></div>
+  </div>
+</section>
+
+<section class="wrap" id="swarm">
+  <p class="chap">06 / From one receipt to all of them</p>
+  <div class="prose">
+    <h2>A stack of receipts shows how the model thinks</h2>
+    <p>One receipt explains one decision. Print a receipt for every applicant, stack them, and you see the model's habits. Each dot below is one applicant. Dots on the right had their score pushed up by that feature, dots on the left had it pushed down. Color shows whether the applicant's own value was low or high.</p>
+  </div>
+  <div class="stage">
+    <div class="svgwrap" id="swarm-svg"></div>
+    <div class="legend">
+      <span>Applicant's value: low<span class="ramp" aria-hidden="true"></span>high</span>
+      <span><span class="num" style="color:var(--ink)">&#9670;</span> Maya, with the values you set above</span>
+    </div>
+  </div>
+  <div class="prose">
+    <p><b>Income:</b> the high-income dots sit on the right, so the model rewards income. <b>Missed payments:</b> the high dots sit far to the left. <b>Shoe size:</b> every dot lands on zero. The rows are sorted by average push, which is the usual way to rank <span class="term">feature importance</span> with SHAP.</p>
+  </div>
+</section>
+
+<section class="wrap" id="fineprint">
+  <p class="chap">07 / Limits</p>
+  <div class="prose">
+    <h2>Read the fine print</h2>
+    <p>A receipt is honest about what was charged. It says nothing about whether the prices were right. Three limits to keep in mind.</p>
+  </div>
+  <div class="fine">
+    <div class="receipt">
+      <div class="r-head">TERMS</div>
+      <hr class="r-cut">
+      <h3>1. THIS EXPLAINS THE MODEL, NOT THE WORLD</h3>
+      <p>"Income added <span class="h-inc">24</span> points" means the model leans on Maya's income. It does not mean a raise would make Maya more likely to repay. That is a cause-and-effect question, and SHAP does not answer it.</p>
+      <hr class="r-cut">
+      <h3>2. OVERLAPPING FEATURES SHARE THE CREDIT</h3>
+      <p>If two features carry the same information, like income and home value, the split between them can look odd. It is Ali and Bea's shared history knowledge again.</p>
+      <hr class="r-cut">
+      <h3>3. BIG MODELS NEED SHORTCUTS</h3>
+      <p>Five features make 120 orders. Thirty features make more orders than there are stars in the observable universe. Real tools estimate instead: KernelSHAP samples teams, and TreeSHAP computes exact values quickly for tree models.</p>
+      <div class="r-foot">The base value also depends on which applicants you average over. Change the crowd and the receipt changes.</div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="check">
+  <p class="chap">08 / Check yourself</p>
+  <div class="prose">
+    <h2>Three quick questions</h2>
+    <div id="quiz"></div>
+    <h3 style="margin-top:2em">The whole idea in one breath</h3>
+  </div>
+  <p class="breath">Treat the features as teammates. Pay each one its average contribution across every order they could arrive in. Hand over a receipt that adds up to the prediction.</p>
+</section>
+
+</main>
+
+<footer class="wrap">
+  <p>Sources: L. S. Shapley, "A Value for n-Person Games" (1953). S. M. Lundberg and S.-I. Lee, "A Unified Approach to Interpreting Model Predictions" (2017).</p>
+  <p>The loan model and the applicants on this page are invented for teaching. The Shapley values are exact: all 32 teams of 5 features, each averaged over 120 background applicants.</p>
+</footer>
+
+<script id="core">
+var B0 = -0.045;
+var FEATS = [
+  {key:'income', label:'Income', short:'Income', min:20, max:160, hint:'thousands of dollars a year', fmt:function(v){return '$'+v+'k'}},
+  {key:'credit', label:'Credit history', short:'Credit history', min:0, max:30, hint:'years since first account', fmt:function(v){return v+' yr'}},
+  {key:'missed', label:'Missed payments', short:'Missed payments', min:0, max:6, hint:'in the last two years', fmt:function(v){return String(v)}},
+  {key:'job', label:'Years at current job', short:'Years at job', min:0, max:20, hint:'years', fmt:function(v){return v+' yr'}},
+  {key:'shoe', label:'Shoe size', short:'Shoe size', min:5, max:13, hint:'the model never uses this one', fmt:function(v){return String(v)}}
+];
+var KEYS = FEATS.map(function(f){return f.key});
+var N = KEYS.length;
+var MAYA = {income:95, credit:12, missed:1, job:6, shoe:8};
+function model(r){
+  var z = B0 + 0.028*(r.income-60) + 0.10*(r.credit-8) - 0.55*r.missed
+        - 0.012*r.missed*Math.max(0,75-r.income) + 0.08*(r.job-4);
+  return 100/(1+Math.exp(-z));
+}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function makePeople(n, seed){
+  var u = rng(seed), out = [];
+  function norm(){return Math.sqrt(-2*Math.log(1-u()))*Math.cos(2*Math.PI*u())}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,Math.round(v)))}
+  for(var i=0;i<n;i++){
+    var m = u();
+    out.push({
+      income: clamp(Math.exp(4.05+0.45*norm()),20,160),
+      credit: clamp(8+5*norm(),0,30),
+      missed: m<.55?0:m<.80?1:m<.92?2:m<.97?3:4,
+      job: clamp(-4.5*Math.log(1-u()),0,20),
+      shoe: clamp(9+1.5*norm(),5,13)
+    });
+  }
+  return out;
+}
+var BG = makePeople(120, 7);
+function coalitionValues(x){
+  var v = new Float64Array(1<<N), r = {};
+  for(var mask=0; mask<(1<<N); mask++){
+    var s = 0;
+    for(var b=0;b<BG.length;b++){
+      for(var i=0;i<N;i++){var k=KEYS[i]; r[k] = (mask>>i&1) ? x[k] : BG[b][k]}
+      s += model(r);
+    }
+    v[mask] = s/BG.length;
+  }
+  return v;
+}
+var FACT = [1,1,2,6,24,120];
+function pop(m){var c=0;while(m){c+=m&1;m>>=1}return c}
+function shapley(v, n){
+  var phi = [];
+  for(var i=0;i<n;i++){
+    var p = 0;
+    for(var mask=0; mask<(1<<n); mask++){
+      if(mask>>i&1) continue;
+      var s = pop(mask);
+      p += FACT[s]*FACT[n-s-1]/FACT[n]*(v[mask|1<<i]-v[mask]);
+    }
+    phi.push(Math.abs(p)<1e-9?0:p);
+  }
+  return phi;
+}
+function explain(x){
+  var v = coalitionValues(x);
+  return {v:v, phi:shapley(v,N), base:v[0], total:v[(1<<N)-1]};
+}
+function orderSteps(v, order){
+  var mask = 0;
+  return order.map(function(i){var before=v[mask]; mask|=1<<i; return {i:i,before:before,after:v[mask],d:v[mask]-before}});
+}
+/* round to tenths so the printed lines add up exactly */
+function tidy(base, phi, total){
+  var B=Math.round(base*10), T=Math.round(total*10);
+  var raw=phi.map(function(p){return p*10}), fl=raw.map(Math.floor);
+  var rem=T-B-fl.reduce(function(a,b){return a+b},0);
+  var idx=raw.map(function(r,i){return [r-fl[i],i]}).filter(function(e){return phi[e[1]]!==0}).sort(function(a,b){return b[0]-a[0]});
+  var k=0;
+  while(rem>0 && idx.length){fl[idx[k%idx.length][1]]++;rem--;k++}
+  k=idx.length-1;
+  while(rem<0 && idx.length){fl[idx[k][1]]--;rem++;k=(k-1+idx.length)%idx.length}
+  return {base:B, items:fl, total:T};
+}
+var TV = {0:0,1:40,2:50,4:10,3:70,5:60,6:60,7:90};
+var PLAYERS = [
+  {name:'Ali', blurb:'History and science.', solo:40, c:'--p1'},
+  {name:'Bea', blurb:'History and sports.', solo:50, c:'--p2'},
+  {name:'Cy', blurb:'Movies and music.', solo:10, c:'--p3'}
+];
+var PERMS = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+function triviaSteps(order){var m=0;return order.map(function(i){var b=TV[m];m|=1<<i;return {i:i,d:TV[m]-b}})}
+if(typeof module!=='undefined') module.exports={model:model,explain:explain,tidy:tidy,BG:BG,MAYA:MAYA,orderSteps:orderSteps,TV:TV,PERMS:PERMS,triviaSteps:triviaSteps,shapley:shapley,FEATS:FEATS};
+</script>
+
+<script>
+(function(){
+var $ = function(id){return document.getElementById(id)};
+var state = {x:Object.assign({},MAYA), order:[2,0,3,1,4], team:7, seat:0};
+function t1(t){return (Math.abs(t)/10).toFixed(1)}
+function sg(t){return t>0?'+'+t1(t):t<0?'−'+t1(t):'0.0'}
+function sgf(v){var t=Math.round(v*10);return sg(t)}
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+
+function receiptHTML(x, res){
+  var t = tidy(res.base, res.phi, res.total);
+  var mx = Math.max.apply(null, t.items.map(Math.abs).concat([10]));
+  var rows = FEATS.map(function(f,i){
+    var v=t.items[i], w=Math.abs(v)/mx*48, cls=v>0?'pos':v<0?'neg':'zero';
+    var left = v>=0?50:50-w;
+    return '<div class="r-item '+cls+'"><div class="r-line"><span>'+esc(f.label)+': '+esc(f.fmt(x[f.key]))+'</span><span class="dots"></span><span class="v">'+sg(v)+'</span></div>'+
+      '<div class="r-track"><i style="left:'+left.toFixed(2)+'%;width:'+w.toFixed(2)+'%"></i></div></div>';
+  }).join('');
+  return '<div class="r-head">SHAP RECEIPT</div><div class="r-sub">Applicant: Maya &middot; chance of repaying</div><hr class="r-cut">'+
+    '<div class="r-line"><span>Base value<br><span style="color:var(--muted);font-size:12px">average applicant</span></span><span class="dots"></span><span class="v">'+t1(t.base)+'%</span></div>'+
+    '<hr class="r-cut">'+rows+'<hr class="r-cut">'+
+    '<div class="r-line r-total"><span>Prediction</span><span class="dots"></span><span class="v">'+t1(t.total)+'%</span></div>'+
+    '<div class="r-foot">Every line adds up. Points are percentage points.</div>';
+}
+
+/* hero */
+var heroRes = explain(MAYA);
+$('hero-receipt').innerHTML = receiptHTML(MAYA, heroRes);
+Array.prototype.forEach.call(document.querySelectorAll('.h-total'), function(e){e.textContent = (Math.round(heroRes.total*10)/10).toFixed(1)+'%'});
+
+var INC = Math.round(heroRes.phi[0]);
+Array.prototype.forEach.call(document.querySelectorAll('.h-inc'), function(e){e.textContent = INC});
+
+/* trivia */
+function renderPlayers(){
+  $('players').innerHTML = PLAYERS.map(function(p,i){
+    var on = state.team>>i&1;
+    return '<button type="button" class="player" style="--pc:var('+p.c+')" data-i="'+i+'" aria-pressed="'+(on?'true':'false')+'">'+
+      '<b><i class="av" aria-hidden="true" style="font-style:normal">'+p.name[0]+'</i>'+p.name+'</b><span>'+p.blurb+' Alone: '+p.solo+'.</span><em>'+(on?'At the table':'On the bench')+'</em></button>';
+  }).join('');
+  $('team-score').textContent = TV[state.team];
+  var notes = {0:'Empty table. Zero points.',1:'Ali alone scores 40.',2:'Bea alone scores 50.',4:'Cy alone scores 10.',
+    3:'Ali and Bea both know history, so their knowledge overlaps. 70, not 90.',
+    5:'Cy covers what Ali cannot. 60, more than 40 + 10.',
+    6:'No overlap between Bea and Cy. 50 + 10 = 60.',
+    7:'The full team scores 90. So who earned what?'};
+  $('team-note').textContent = notes[state.team];
+}
+$('players').addEventListener('click', function(e){
+  var b = e.target.closest('.player'); if(!b) return;
+  state.team ^= 1<<(+b.dataset.i); renderPlayers();
+  var nb = $('players').querySelector('[data-i="'+b.dataset.i+'"]'); if(nb) nb.focus();
+});
+function names(order){return order.map(function(i){return PLAYERS[i].name}).join(', ')}
+function renderSeat(){
+  $('order-btns').innerHTML = PERMS.map(function(o,k){
+    return '<button type="button" class="btn" data-k="'+k+'" aria-pressed="'+(k===state.seat?'true':'false')+'">'+names(o)+'</button>';
+  }).join('');
+  var steps = triviaSteps(PERMS[state.seat]);
+  $('seatbar').innerHTML = steps.map(function(s){return '<i style="--pc:var('+PLAYERS[s.i].c+');flex:0 0 '+(s.d/90*100)+'%"></i>'}).join('');
+  var words = ['sits first and gets','arrives next and adds','arrives last and adds'];
+  $('seat-note').innerHTML = steps.map(function(s,j){
+    return '<span class="chip" style="--pc:var('+PLAYERS[s.i].c+')">'+PLAYERS[s.i].name+'</span> '+words[j]+' <b class="num">'+s.d+'</b>.';
+  }).join(' ');
+  var body = PERMS.map(function(o,k){
+    var d=[0,0,0]; triviaSteps(o).forEach(function(s){d[s.i]=s.d});
+    return '<tr class="'+(k===state.seat?'sel':'')+'"><td><button type="button" class="btn" data-k="'+k+'" aria-pressed="'+(k===state.seat?'true':'false')+'">'+names(o)+'</button></td>'+
+      d.map(function(v){return '<td class="num">'+v+'</td>'}).join('')+'</tr>';
+  }).join('');
+  $('order-table').tBodies[0].innerHTML = body;
+  var v=[]; for(var m=0;m<8;m++) v[m]=TV[m];
+  var phi = shapley(v,3);
+  $('order-table').tFoot.innerHTML = '<tr><th>Average = Shapley value</th>'+phi.map(function(p){return '<td>'+Math.round(p)+'</td>'}).join('')+'</tr>';
+}
+function seatClick(e){var b=e.target.closest('[data-k]'); if(!b) return; state.seat=+b.dataset.k; renderSeat()}
+$('order-btns').addEventListener('click', seatClick);
+$('order-table').addEventListener('click', seatClick);
+
+/* lab controls */
+$('controls').innerHTML = FEATS.map(function(f){
+  return '<div class="ctrl"><label for="s-'+f.key+'"><span>'+f.label+'</span><output id="o-'+f.key+'" for="s-'+f.key+'"></output></label>'+
+    '<input type="range" id="s-'+f.key+'" min="'+f.min+'" max="'+f.max+'" step="1"><div class="small">'+f.hint+'</div></div>';
+}).join('');
+FEATS.forEach(function(f){
+  $('s-'+f.key).addEventListener('input', function(e){state.x[f.key] = +e.target.value; renderLive()});
+});
+$('reset').addEventListener('click', function(){state.x = Object.assign({},MAYA); renderLive()});
+
+/* order player */
+function waterfallSVG(res){
+  var steps = orderSteps(res.v, state.order);
+  var X0=150, X1=590, W=680, RH=34, top=10;
+  function X(v){return X0+v/100*(X1-X0)}
+  var rows=[], y=top;
+  function bar(label,a,b,cls,txt){
+    var x=Math.min(X(a),X(b)), w=Math.max(Math.abs(X(b)-X(a)),1.5);
+    var tx = Math.max(X(a),X(b))+8;
+    rows.push('<text x="0" y="'+(y+RH/2)+'" dominant-baseline="central">'+esc(label)+'</text>'+
+      '<rect class="'+cls+'" x="'+x.toFixed(1)+'" y="'+(y+7)+'" width="'+w.toFixed(1)+'" height="'+(RH-14)+'" rx="2"/>'+
+      '<text class="v" x="'+tx.toFixed(1)+'" y="'+(y+RH/2)+'" dominant-baseline="central">'+txt+'</text>');
+  }
+  var grid='';
+  [0,25,50,75,100].forEach(function(g){
+    grid += '<line class="grid" x1="'+X(g)+'" x2="'+X(g)+'" y1="'+top+'" y2="'+(top+RH*(N+2))+'"/>'+
+      '<text class="m" x="'+X(g)+'" y="'+(top+RH*(N+2)+16)+'" text-anchor="middle">'+g+'%</text>';
+  });
+  bar('Base value',0,res.base,'b-base',res.base.toFixed(1)+'%');
+  var links='';
+  steps.forEach(function(s){
+    links += '<line class="link" x1="'+X(s.before).toFixed(1)+'" x2="'+X(s.before).toFixed(1)+'" y1="'+(y+RH-7)+'" y2="'+(y+RH+7)+'"/>';
+    y+=RH;
+    bar(FEATS[s.i].short, s.before, s.after, s.d>=0?'b-up':'b-down', sgf(s.d));
+  });
+  links += '<line class="link" x1="'+X(res.total).toFixed(1)+'" x2="'+X(res.total).toFixed(1)+'" y1="'+(y+RH-7)+'" y2="'+(y+RH+7)+'"/>';
+  y+=RH;
+  bar('Prediction',0,res.total,'b-total',res.total.toFixed(1)+'%');
+  var H = top+RH*(N+2)+26;
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Score moving from the base value to the prediction as features arrive in the chosen order">'+grid+links+rows.join('')+'</svg>';
+}
+function renderOrder(res){
+  $('order-svg').innerHTML = waterfallSVG(res);
+  $('order-label').textContent = 'Arriving: '+state.order.map(function(i){return FEATS[i].short}).join(' → ');
+  var steps = orderSteps(res.v, state.order), d=[];
+  steps.forEach(function(s){d[s.i]=s.d});
+  $('order-compare').tBodies[0].innerHTML = FEATS.map(function(f,i){
+    return '<tr><td>'+f.label+'</td><td class="num">'+sgf(d[i])+'</td><td class="num"><b>'+sgf(res.phi[i])+'</b></td></tr>';
+  }).join('');
+}
+$('shuffle').addEventListener('click', function(){
+  var o=state.order.slice(), prev=o.join();
+  do{ for(var i=o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=o[i];o[i]=o[j];o[j]=t} }while(o.join()===prev);
+  state.order=o; renderOrder(cur);
+});
+$('reverse').addEventListener('click', function(){state.order=state.order.slice().reverse(); renderOrder(cur)});
+
+/* swarm: computed once for the background crowd */
+var SW = (function(){
+  var pts = BG.map(function(p){return {p:p, phi:explain(p).phi}});
+  var imp = FEATS.map(function(f,i){return pts.reduce(function(a,q){return a+Math.abs(q.phi[i])},0)/pts.length});
+  var rowsOrder = FEATS.map(function(f,i){return i}).sort(function(a,b){return imp[b]-imp[a]});
+  var mx = 0; pts.forEach(function(q){q.phi.forEach(function(v){mx=Math.max(mx,Math.abs(v))})});
+  var lo=FEATS.map(function(f){return Math.min.apply(null,BG.map(function(p){return p[f.key]}))});
+  var hi=FEATS.map(function(f){return Math.max.apply(null,BG.map(function(p){return p[f.key]}))});
+  return {pts:pts, imp:imp, rows:rowsOrder, mx:Math.ceil(mx/10)*10, lo:lo, hi:hi};
+})();
+function swarmSVG(res){
+  var W=680, X0=190, X1=660, RH=66, top=8, mx=SW.mx;
+  function X(v){return (X0+X1)/2 + Math.max(-1,Math.min(1,v/mx))*(X1-X0)/2}
+  var H = top+RH*N+30, out='';
+  for(var g=-mx; g<=mx; g+=mx/2){
+    out += '<line class="grid" x1="'+X(g)+'" x2="'+X(g)+'" y1="'+top+'" y2="'+(top+RH*N)+'"'+(g===0?' style="stroke:var(--muted)"':'')+'/>'+
+      '<text class="m" x="'+X(g)+'" y="'+(top+RH*N+18)+'" text-anchor="middle">'+(g>0?'+':g<0?'−':'')+Math.abs(g)+'</text>';
+  }
+  SW.rows.forEach(function(fi,r){
+    var f=FEATS[fi], cy=top+RH*r+RH/2, bins={};
+    out += '<text x="0" y="'+(cy-8)+'" dominant-baseline="central" style="font-weight:700">'+esc(f.short)+'</text>'+
+      '<text class="m" x="0" y="'+(cy+11)+'" dominant-baseline="central">avg push '+SW.imp[fi].toFixed(1)+'</text>';
+    SW.pts.slice().sort(function(a,b){return a.phi[fi]-b.phi[fi]}).forEach(function(q){
+      var x=X(q.phi[fi]), b=Math.round(x/6), k=bins[b]||0; bins[b]=k+1;
+      var off=(k%2?1:-1)*Math.ceil(k/2)*4.6; off=Math.max(-26,Math.min(26,off));
+      var t=(q.p[f.key]-SW.lo[fi])/((SW.hi[fi]-SW.lo[fi])||1); t=Math.max(0,Math.min(1,t));
+      out += '<circle cx="'+x.toFixed(1)+'" cy="'+(cy+off).toFixed(1)+'" r="3.3" fill-opacity=".8" style="fill:color-mix(in oklab,var(--high) '+Math.round(t*100)+'%,var(--low))"/>';
+    });
+    var mxp=X(res.phi[fi]);
+    out += '<path d="M'+mxp+' '+(cy-9)+'l8 9l-8 9l-8 -9z" style="fill:var(--ink);stroke:var(--surface);stroke-width:2"/>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="SHAP values for 120 applicants, one row per feature. Horizontal position is the push in percentage points.">'+out+'</svg>';
+}
+
+/* live render */
+var cur = heroRes;
+function renderLive(){
+  FEATS.forEach(function(f){$('s-'+f.key).value = state.x[f.key]; $('o-'+f.key).textContent = f.fmt(state.x[f.key])});
+  cur = explain(state.x);
+  $('lab-receipt').innerHTML = receiptHTML(state.x, cur);
+  var t = tidy(cur.base, cur.phi, cur.total);
+  Array.prototype.forEach.call(document.querySelectorAll('.f-base'), function(e){e.textContent = t1(t.base)+'%'});
+  $('rule-add').textContent = t1(t.base)+' '+t.items.map(function(v){return (v<0?'− ':'+ ')+t1(v)}).join(' ')+' = '+t1(t.total);
+  $('rule-dummy').textContent = 'Shoe size '+state.x.shoe+': SHAP value '+sg(t.items[4])+', for every applicant, at every setting.';
+  renderOrder(cur);
+  $('swarm-svg').innerHTML = swarmSVG(cur);
+}
+
+/* quiz */
+var QUIZ = [
+  {q:'The base value on a SHAP receipt is...', a:['the lowest score the model can give','the model\'s average prediction, before it knows anything about this person','the most important feature'], ok:1,
+   why:'It is the empty trivia table: where the score starts before any feature arrives.'},
+  {q:'A feature has a SHAP value of 0.0 for every single applicant. What does that tell you?', a:['Its data is missing','The model never uses it','It is the most common value'], ok:1,
+   why:'That is the dummy rule. A feature that never changes the prediction earns nothing, like shoe size here.'},
+  {q:'Income shows +'+INC+' on Maya\'s receipt. Which claim is safe to make?', a:['If Maya earned more, she would be more likely to repay','Income causes people to repay loans','The model scored Maya about '+INC+' points higher because of her income, compared with the average applicant'], ok:2,
+   why:'SHAP describes what the model did with the feature. It makes no cause-and-effect claim about the world.'}
+];
+$('quiz').innerHTML = QUIZ.map(function(q,i){
+  return '<fieldset class="q" data-q="'+i+'"><legend>'+(i+1)+'. '+esc(q.q)+'</legend><div class="opts">'+
+    q.a.map(function(a,j){return '<button type="button" id="q'+i+'a'+j+'" data-a="'+j+'">'+esc(a)+'</button>'}).join('')+
+    '</div><div class="fb" id="fb'+i+'" aria-live="polite"></div></fieldset>';
+}).join('');
+$('quiz').addEventListener('click', function(e){
+  var b=e.target.closest('button[data-a]'); if(!b) return;
+  var fs=b.closest('.q'), i=+fs.dataset.q, q=QUIZ[i], j=+b.dataset.a;
+  Array.prototype.forEach.call(fs.querySelectorAll('button'), function(x){x.classList.remove('right','wrong')});
+  if(j===q.ok){b.classList.add('right'); $('fb'+i).innerHTML='<b class="up">✓ Right.</b> '+esc(q.why)}
+  else{b.classList.add('wrong'); $('fb'+i).innerHTML='<b class="down">✗ Not quite.</b> Have another go.'}
+});
+
+function start(saved){
+  if(saved && saved.x){
+    KEYS.forEach(function(k){if(typeof saved.x[k]==='number') state.x[k]=saved.x[k]});
+    if(Array.isArray(saved.order) && saved.order.length===N) state.order=saved.order;
+    if(typeof saved.team==='number') state.team=saved.team&7;
+    if(typeof saved.seat==='number') state.seat=Math.max(0,Math.min(5,saved.seat));
+  }
+  renderPlayers(); renderSeat(); renderLive();
+}
+var hot = window.claude && window.claude.hot;
+if(hot && hot.snapshot) hot.snapshot(function(){return state});
+if(hot && hot.ready) hot.ready(start); else start((hot && hot.data) || {});
+})();
+</script>
+</body>
+</html>

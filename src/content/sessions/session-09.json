@@ -134,6 +134,24 @@
       "linkText": "Open in Colab"
     },
     {
+      "title": "The SHAP Receipt",
+      "url": "/explore/shap/",
+      "description": "SHAP from scratch, as a receipt. A trivia night shows the fair split: Ali, Bea and Cy seated in every order, then averaged. Then Maya's loan: drag her income or missed payments and the receipt reprints, shuffle the order the clues arrive in, watch the fairness rules check themselves, and stack 120 receipts to see how the model thinks. Ends with the fine print and three quick questions. Works on your phone.",
+      "icon": "zap",
+      "badge": "Play",
+      "badgeType": "interactive",
+      "linkText": "Open the receipt"
+    },
+    {
+      "title": "The SHAP Receipt — Notebook",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-09/ISOM835_SHAP_Receipt.ipynb",
+      "description": "Written for first-timers. Split the trivia prize by hand, build a loan model, then compute Maya's SHAP receipt yourself with a loop and an average, and check that the shap library gets the same numbers. Then the waterfall, beeswarm, bar and scatter plots, sliders, what happens when you change the comparison crowd, and three Your Turn challenges. Runtime → Run all.",
+      "icon": "code",
+      "badge": "Hands-On",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
       "title": "The Tabular Frontier — Slides",
       "url": "/session-09/frontier.html",
       "description": "Opening Day: a new hotel with only 200 bookings. Why small data hurts (our model drops from 0.945 to 0.80), the fresh graduate and the experienced manager, a model that read millions of made-up tables, your rows as the prompt, the race, and which one to use when. Arrow keys to navigate, N for speaker notes.",
