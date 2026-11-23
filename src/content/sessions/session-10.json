@@ -65,10 +65,10 @@
       "time": "5:50 PM - 6:05 PM",
       "title": "How Many Segments? The Black Friday Plan",
       "duration": "15 minutes",
-      "description": "Station 2: how many T-shirt sizes? The elbow bends at 3–4, the silhouette peaks at 3 (0.41) and is 0.37 at 4; the boss can fund four campaigns. Profile and name: Champions, Loyal, New & occasional, Hibernating. One action each, and a stability check.",
+      "description": "Station 2: how many T-shirt sizes? The elbow bends at 3–4, the silhouette peaks at 3 (0.41) and is 0.37 at 4; the boss can fund four campaigns. Name the segments (Champions, Loyal, New & occasional, Hibernating), meet the most typical real customer in each, and give each segment one Black Friday action.",
       "bulletPoints": [
         "Champions are 14% of customers and 64% of revenue",
-        "A segment needs a name and an action, not just a number"
+        "The typical Champion restocks about once a month; the typical Hibernating customer bought metal signs on April 1, 2010, and never came back"
       ],
       "isBreak": false
     },
@@ -127,7 +127,7 @@
     {
       "title": "Session 10 Slides — Learning Without Answers",
       "url": "/session-10/slides.html",
-      "description": "The deck from class: the boss's Black Friday message, one row is one line on a receipt, customer 12347 squeezed into RFM, the whales, a segment of three people, one currency, the party with no name tags, T-shirt sizes, the four segments and their actions, crowds and loners, the family tree, half Champion half New, the flashlight, and 20 Questions. Arrow keys to navigate, F for fullscreen, N for speaker notes.",
+      "description": "The deck from class, with live animations: dots that find their own groups, k-means running round by round on 500 real customers, DBSCAN growing through two moons, a family tree joining from the bottom up, a 3-D cloud turning under the flashlight, and 20 Questions cornering a real \"Manual\" receipt. Plus the whales, the money in squares, and four real customers with their actual baskets. Arrow keys to navigate, F for fullscreen, N for speaker notes.",
       "icon": "presentation",
       "badge": "Slides",
       "badgeType": "interactive",
@@ -136,7 +136,7 @@
     {
       "title": "The Segments Explorer",
       "url": "/explore/segments/",
-      "description": "Five small games on the real gift shop, one before each idea. Be the hosts at a party with no name tags, choose how many T-shirt sizes on 400 real customers, find shapes k-means can't see, aim the flashlight for the best shadow, and play 20 Questions with receipts until Isolation Forest finds the bookkeeping. Works on your phone.",
+      "description": "Five small games on the real gift shop, one before each idea. Be the hosts at a party with no name tags, choose how many T-shirt sizes on 400 real customers and name the four segments yourself before meeting a real customer from each, find shapes k-means can't see, aim the flashlight for the best shadow, and play 20 Questions with receipts until Isolation Forest finds the bookkeeping. Works on your phone.",
       "icon": "zap",
       "badge": "Play",
       "badgeType": "interactive",
@@ -145,7 +145,7 @@
     {
       "title": "Session 10 Notebook — Segments, Structure & Anomalies",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-10/ISOM835_Session10_Segments_Anomalies.ipynb",
-      "description": "Written for first-timers: sixteen steps. Receipts to RFM customers, the scale problem, k-means round by round, elbow and silhouette, four named segments with a Black Friday plan, a stability check, DBSCAN, the family tree, Gaussian mixtures, PCA on nine columns with named axes, optional UMAP, and Isolation Forest with a hidden answer key. Every step says what the cell does and how to read the output, with quick checks and four Your Turn questions. Runs in about a minute.",
+      "description": "Written for first-timers: sixteen steps. Receipts to RFM customers, the scale problem, k-means round by round, elbow and silhouette, four named segments with a Black Friday plan and one real customer from each, a stability check, DBSCAN, the family tree, Gaussian mixtures, PCA on nine columns with named axes, optional UMAP, and Isolation Forest with a hidden answer key. Every step says what the cell does and how to read the output, with quick checks and four Your Turn questions. Runs in about a minute.",
       "icon": "code",
       "badge": "Hands-On",
       "badgeType": "interactive",

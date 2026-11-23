@@ -34,6 +34,10 @@
   .toplist { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; line-height: 1.7; margin-top: 8px; max-height: 260px; overflow: auto; }
   .toplist div { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dashed var(--border); }
   .toplist .bk { color: var(--coral); } .toplist .ok { color: var(--text2); }
+  select.nm { background: var(--bg2); color: var(--text); border: 1px solid var(--border); border-radius: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; padding: 4px 6px; max-width: 150px; }
+  select.nm.ok { border-color: var(--lime); color: var(--lime); } select.nm.no { border-color: var(--coral); color: var(--coral); }
+  .pcard { border: 1px solid var(--border); border-left: 4px solid var(--c); border-radius: 10px; padding: 8px 10px; margin-top: 8px; font-size: 0.78rem; line-height: 1.5; color: var(--text2); }
+  .pcard b { color: var(--text); } .pcard .pn { font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem; letter-spacing: 1px; color: var(--c); text-transform: uppercase; }
   .wrapnote { font-size: 0.82rem; color: var(--text2); line-height: 1.55; margin-top: 10px; }
   .wrapnote b { color: var(--text); }
 </style>
@@ -94,7 +98,7 @@
     <p class="prompt">400 <b>real customers</b> of the gift shop, described by Recency, Frequency and Monetary (logged and standardized, as in the notebook).
       Slide <b>k</b>: k-means splits them into k segments. A clothing company asks the same question about sizes: one size fits nobody, twenty sizes fill a warehouse.
       Watch two charts: the <b>elbow</b> (total walking always falls; look for the bend) and the <b>silhouette</b> (do customers belong at their own table? higher is better).</p>
-    <div class="mission">Mission: which k would you defend to the boss? Then read the table: can you name every segment?</div>
+    <div class="mission">Mission: which k would you defend to the boss? Then, at k = 4, name every segment yourself before you check.</div>
     <div class="layout">
       <div class="panel">
         <div class="kicker" style="margin-bottom:6px">Each dot is a customer · left = bought recently · up = spends more</div>
@@ -112,7 +116,9 @@
         <div class="panel readout">
           <div class="kicker" style="margin-bottom:6px">The typical customer in each segment (medians)</div>
           <table class="mini" id="t2"></table>
+          <div class="btnrow" id="name-row" style="margin-top:10px"><button class="btn primary" id="name-check">Check my names</button><button class="btn" id="name-show">Just show me</button></div>
           <div class="verdict" id="v2"></div>
+          <div id="personas" style="display:none;margin-top:12px"></div>
         </div>
       </div>
     </div>
@@ -357,10 +363,19 @@ const SEG = (() => {
     if (k >= from) { g.fillStyle = COL.text; g.fillText(from === 2 ? vs[k - from].toFixed(2) : fmt(vs[k - from]), px(k), py(vs[k - from]) - 12); }
     if (from === 2 && k === 1) { g.fillStyle = COL.text2; g.fillText('needs at least 2 groups', w / 2, h / 2); }
   }
+  const NAMES = ['Champions', 'Loyal', 'New & occasional', 'Hibernating']; let revealed = false;
+  const PERSONA = {
+    'Champions': ['#2ee6c5', 'Customer 13141 · UK', '12 receipts, about one a month · last seen 20 days ago · <b>£5,280</b>', '128 × White Hanging Heart T-Light Holder', 'VIP early access, no discount'],
+    'Loyal': ['#7c8cff', 'Customer 12960 · UK', '4 receipts, Feb → Oct · last seen 48 days ago · <b>£1,322</b>', '480 × Bubble Gum Ring', 'spend £X, get free shipping'],
+    'New & occasional': ['#f5a524', 'Customer 12445 · Spain', '1 receipt, Oct 15 · <b>£302</b>', '12 × Traditional Spinning Tops', 'a second-purchase coupon'],
+    'Hibernating': ['#8a93a6', 'Customer 15689 · UK', '1 receipt, on <b>April 1, 2010</b> · never came back · <b>£267</b>', '12 × "Beware of the Cat" Metal Sign', 'one cheap "we miss you" email'] };
+  function showPersonas() { const box = $('personas'); box.style.display = '';
+    box.innerHTML = '<div class="kicker" style="margin:4px 0 0">The most typical real customer in each segment (all 4,312 customers)</div>' + NAMES.map(n => { const [c, id, meta, buy, act] = PERSONA[n]; return `<div class="pcard" style="--c:${c}"><div class="pn">${n}</div><b>${id}</b> · ${meta}<br>bought ${buy}<br>Black Friday: <b>${act}</b></div>`; }).join(''); }
   function table(k) {
+    $('name-row').style.display = k === 4 && !revealed ? '' : 'none'; if (k !== 4) $('personas').style.display = 'none'; else if (revealed) showPersonas();
     const p = SEG.profile(k).sort((a, b) => b.M - a.M);
     let h = '<tr><th>segment</th><th>customers</th><th>days since</th><th>receipts</th><th>£ spent</th></tr>';
-    p.forEach(s => { const nm = k === 4 ? SEG.NAMES4[s.j] : (k === 1 ? 'everyone' : 'segment ' + (p.indexOf(s) + 1)); h += `<tr><td><span class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:${color(k, s.j)}"></span>${nm}</td><td>${s.n}</td><td>${s.R}</td><td>${s.F}</td><td>${fmt(s.M)}</td></tr>`; });
+    p.forEach(s => { const nm = k === 4 ? (revealed ? SEG.NAMES4[s.j] : `<select class="nm" data-j="${s.j}"><option value="">name it…</option>${NAMES.map(n => `<option>${n}</option>`).join('')}</select>`) : (k === 1 ? 'everyone' : 'segment ' + (p.indexOf(s) + 1)); h += `<tr><td><span class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:${color(k, s.j)}"></span>${nm}</td><td>${s.n}</td><td>${s.R}</td><td>${s.F}</td><td>${fmt(s.M)}</td></tr>`; });
     $('t2').innerHTML = h;
   }
   function verdict(k) {
@@ -372,6 +387,11 @@ const SEG = (() => {
       5: `Silhouette falls to ${sil.toFixed(2)}. Look at the table: a fifth segment splits off. Would marketing really run a different campaign for it?`,
     }; $('v2').innerHTML = m[k] || `k = ${k}: silhouette ${sil.toFixed(2)} and falling. Small segments nobody can staff a campaign for. <b>More sizes always fit better (less walking), but someone has to make every one of them.</b>`;
   }
+  $('name-check').onclick = () => { const sel = [...document.querySelectorAll('select.nm')]; if (sel.some(x => !x.value)) { $('v2').innerHTML = 'Name all four first. Hint: read <b>days since</b> and <b>£ spent</b>.'; return; }
+    let right = 0; sel.forEach(x => { const ok = x.value === SEG.NAMES4[+x.dataset.j]; x.classList.toggle('ok', ok); x.classList.toggle('no', !ok); if (ok) right++; });
+    $('v2').innerHTML = right === 4 ? '<b>4 out of 4.</b> You named them exactly the way the notebook does: longest away = Hibernating, biggest spend = Champions, the more frequent of the other two = Loyal. Now meet one real customer from each.' : `<b>${right} out of 4.</b> Red ones are off. Clue: the segment that has been away for months is Hibernating; the one with the most receipts and pounds is Champions.`;
+    if (right === 4) { revealed = true; setTimeout(() => { table(4); }, 900); } };
+  $('name-show').onclick = () => { revealed = true; table(4); verdict(4); };
   $('k2').oninput = (e) => { $('v-k2').textContent = e.target.value; draw(+e.target.value); };
   draw(4);
 })();
