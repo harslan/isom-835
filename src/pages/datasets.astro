@@ -56,13 +56,11 @@ y = (bank.target == '2').astype(int)`,
   },
   {
     name: 'Online Retail II', icon: 'shopping-cart', sessions: [10], task: 'unsupervised · RFM',
-    shape: '1,067,371 transactions · ~5,900 customers · 2009–2011', source: 'Chen (2019), UCI', url: 'https://archive.ics.uci.edu/dataset/502/online+retail+ii',
-    why: 'A million real transactions collapse into RFM profiles — the segmentation dataset.',
-    gotcha: 'Invoices starting with C are cancellations; drop them and rows without a Customer ID. The zip contains one xlsx with two sheets.',
-    code: `import io, zipfile, urllib.request
-z = zipfile.ZipFile(io.BytesIO(urllib.request.urlopen('https://archive.ics.uci.edu/static/public/502/online+retail+ii.zip').read()))
-sheets = pd.read_excel(io.BytesIO(z.read([n for n in z.namelist() if n.endswith('.xlsx')][0])), sheet_name=None)
-tx = pd.concat(sheets.values(), ignore_index=True)`,
+    shape: '525,461 receipt lines · 4,312 customers · Dec 2009 – Dec 2010', source: 'Chen (2019), UCI · CC BY 4.0', url: 'https://archive.ics.uci.edu/dataset/502/online+retail+ii',
+    why: 'Real receipts from a UK online gift shop collapse into RFM profiles: the segmentation dataset. We host the first year (the 2009–2010 sheet) as a 7 MB file.',
+    gotcha: 'Invoices starting with C are cancellations; drop them and rows without a Customer ID (21% of rows). "Manual", postage and adjustment lines are bookkeeping, not sales.',
+    code: `tx = pd.read_csv('https://raw.githubusercontent.com/harslan/isom-835/master/public/data/online_retail_2010.csv.gz',
+                 parse_dates=['InvoiceDate'])`,
   },
   {
     name: 'Bike Sharing (Capital Bikeshare, hourly)', icon: 'activity', sessions: [11], task: 'forecasting',

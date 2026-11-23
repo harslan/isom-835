@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISOM 835 · Session 10 · Learning Without Answers</title>
+<meta name="description" content="Session 10 slides for ISOM 835: unsupervised learning on a real UK gift shop's sales. RFM segmentation with k-means, choosing k, DBSCAN, hierarchical clustering, Gaussian mixtures, PCA and Isolation Forest, three days before Black Friday.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #07090f; --bg2: #0c0f17; --card: #0f131c; --text: #eef2f7; --text2: #a3adbd; --muted: #5f6a7d;
+          --teal: #2ee6c5; --peri: #7c8cff; --coral: #ff6b8b; --lime: #7ee787; --amber: #f5a524; --border: rgba(200,220,255,0.09); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6vh 8vw; gap: 3vh; }
+  .slide.active { display: flex; animation: fadeIn 0.45s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 4px; text-transform: uppercase; color: var(--teal); }
+  h1 { font-size: clamp(2.2rem, 6vw, 4.6rem); font-weight: 800; line-height: 1.08; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 3.4rem); font-weight: 800; line-height: 1.12; }
+  .grad { background: linear-gradient(90deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: clamp(1rem, 2vw, 1.5rem); color: var(--text2); max-width: 900px; line-height: 1.55; }
+  .big { font-size: clamp(3.2rem, 11vw, 8.5rem); font-weight: 800; line-height: 1; }
+  .cards { display: flex; gap: 1.4vw; flex-wrap: wrap; justify-content: center; max-width: 1240px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.4vh 1.6vw; min-width: 220px; max-width: 330px; flex: 1; text-align: left; }
+  .card .label { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  .card .title { font-weight: 700; font-size: clamp(0.95rem, 1.5vw, 1.2rem); margin-bottom: 8px; }
+  .card p { color: var(--text2); font-size: clamp(0.8rem, 1.2vw, 0.95rem); line-height: 1.5; }
+  .num { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; background: linear-gradient(135deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  pre { background: #0a0d15; border: 1px solid var(--border); border-radius: 14px; padding: 2.6vh 2vw; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1.3vw, 1.02rem); line-height: 1.6; color: #d8dee9; max-width: 940px; overflow: auto; }
+  pre .c { color: #6a737d; } pre .k { color: #ff7b72; } pre .s { color: #a5d6ff; } pre .f { color: #d2a8ff; }
+  .hud { position: fixed; bottom: 18px; right: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); z-index: 10; }
+  .brand { position: fixed; bottom: 18px; left: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; z-index: 10; }
+  .bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--peri)); transition: width 0.3s ease; z-index: 10; }
+  ul.list { text-align: left; max-width: 900px; color: var(--text2); font-size: clamp(0.95rem, 1.8vw, 1.3rem); line-height: 1.7; list-style: none; }
+  ul.list li { padding-left: 1.6em; position: relative; margin-bottom: 1.2vh; }
+  ul.list li::before { content: "▸"; position: absolute; left: 0; color: var(--teal); }
+  .pill { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.9rem); letter-spacing: 2px; padding: 8px 20px; border: 1px solid var(--teal); border-radius: 999px; color: var(--teal); }
+  .t { color: var(--teal); } .p { color: var(--peri); } .co { color: var(--coral); } .li { color: var(--lime); } .am { color: var(--amber); }
+  .row { display: flex; gap: 3vw; align-items: center; justify-content: center; flex-wrap: wrap; }
+  table.cm { border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
+  table.cm td, table.cm th { padding: 1.6vh 2.4vw; border: 1px solid var(--border); }
+  table.cm th { color: var(--muted); font-weight: 400; font-size: 0.8em; }
+  table.cm .g { background: rgba(126,231,135,0.12); color: var(--lime); } table.cm .b { background: rgba(255,107,139,0.14); color: var(--coral); } table.cm .a { background: rgba(245,165,36,0.12); color: var(--amber); }
+  .bars { display: flex; gap: 2.5vw; align-items: flex-end; height: 34vh; }
+  .bars div { width: clamp(70px, 9vw, 130px); background: linear-gradient(180deg, var(--teal), var(--peri)); border-radius: 10px 10px 4px 4px; position: relative; }
+  .bars div span { position: absolute; top: -2.6em; left: 0; right: 0; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .bars div small { position: absolute; bottom: -2.4em; left: 0; right: 0; color: var(--text2); font-size: 0.8rem; }
+  .notes { display: none; position: fixed; left: 24px; right: 24px; bottom: 48px; background: rgba(15,19,28,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--text2); text-align: left; z-index: 20; }
+  body.shownotes .notes { display: block; }
+  .timeline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.6vw; max-width: 1300px; width: 100%; }
+  .timeline div { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4vh 0.6vw; font-size: clamp(0.62rem, 1vw, 0.85rem); color: var(--text2); }
+  .timeline div b { display: block; color: var(--text); font-size: 1.05em; margin-bottom: 4px; }
+  .timeline div i { display: block; font-style: normal; font-family: 'IBM Plex Mono', monospace; font-size: 0.8em; color: var(--teal); margin-bottom: 4px; }
+
+  img.chart { display: block; max-width: min(92vw, 1100px); max-height: 50vh; width: auto; height: auto; border-radius: 14px; }
+  table.cm td { text-align: center; }
+  table.cm.small td, table.cm.small th { padding: 1.1vh 1.5vw; font-size: clamp(0.75rem, 1.35vw, 1.05rem); }
+  .card p { font-size: clamp(0.95rem, 1.45vw, 1.2rem); }
+  .card .label { font-size: clamp(0.72rem, 0.95vw, 0.9rem); }
+  .card .title { font-size: clamp(1.05rem, 1.7vw, 1.35rem); }
+  .card p.real { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1vw, 0.9rem); color: var(--amber); margin-top: 8px; }
+  svg text { font-family: Manrope, sans-serif; }
+
+  .q { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.8rem, 1.3vw, 1.05rem); letter-spacing: 3px; text-transform: uppercase; color: var(--amber); }
+  .folds { display: grid; grid-template-columns: auto repeat(5, 1fr); gap: 0.7vh 0.5vw; width: min(86vw, 900px); align-items: center; font-size: clamp(0.8rem, 1.3vw, 1.05rem); }
+  .folds span { color: var(--text2); font-family: 'IBM Plex Mono', monospace; padding-right: 1vw; text-align: right; }
+  .folds div { border-radius: 8px; padding: 1.1vh 0; background: rgba(124,140,255,0.16); color: #aab4ff; }
+  .folds div.x { background: var(--coral); color: #1a0810; font-weight: 800; }
+  .rc { display: grid; grid-template-columns: minmax(250px, 1.25fr) 2fr auto; gap: 0.9vh 1.2vw; width: min(90vw, 1050px); align-items: center; text-align: left; font-size: clamp(0.85rem, 1.45vw, 1.15rem); }
+  .rc .n { color: var(--text2); } .rc .n b { color: var(--text); }
+  .rc .track { position: relative; height: 3.2vh; background: rgba(200,220,255,0.04); border-radius: 6px; }
+  .rc .track i { position: absolute; top: 0; bottom: 0; border-radius: 6px; }
+  .rc .v { font-family: 'IBM Plex Mono', monospace; font-weight: 700; text-align: right; min-width: 4.5em; }
+  .hb { display: grid; grid-template-columns: auto 1fr auto; gap: 1vh 1.2vw; width: min(86vw, 900px); align-items: center; font-size: clamp(0.85rem, 1.45vw, 1.15rem); text-align: right; }
+  .hb .track { height: 3vh; } .hb .track i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--peri), var(--teal)); }
+  .hb .v { font-family: 'IBM Plex Mono', monospace; color: var(--text2); }
+  .piles { display: flex; width: min(88vw, 1000px); height: 11vh; border-radius: 14px; overflow: hidden; font-weight: 800; font-size: clamp(0.9rem, 1.7vw, 1.4rem); }
+  .piles div { display: flex; align-items: center; justify-content: center; color: #07090f; }
+  .card.label-card { border-style: dashed; }
+  .mc { text-align: left; width: min(90vw, 1040px); background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.2vh 2vw; font-size: clamp(0.85rem, 1.45vw, 1.2rem); line-height: 1.6; color: var(--text2); }
+  .mc b { color: var(--text); } .mc .h { font-family: 'IBM Plex Mono', monospace; letter-spacing: 2px; color: var(--teal); font-size: 0.85em; text-transform: uppercase; }
+</style>
+<style>
+  .seg4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2vw; max-width: 1300px; width: 100%; }
+  .seg4 .card { max-width: none; min-width: 0; }
+  .seg4 .card .label { font-size: clamp(0.7rem, 0.9vw, 0.85rem); }
+  .quote { font-size: clamp(1.15rem, 2.3vw, 1.75rem); line-height: 1.5; max-width: 980px; color: var(--text); border-left: 4px solid var(--amber); padding: 1vh 2vw; text-align: left; font-style: italic; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2vw; max-width: 1250px; }
+  .steps .card { max-width: none; min-width: 0; }
+  .steps .card .num { font-size: clamp(1.8rem, 3.2vw, 2.8rem); }
+  .play { font-size: clamp(3rem, 8vw, 6rem); }
+  table.cm.left td:first-child { text-align: left; }
+  .hbars { display: grid; grid-template-columns: auto 1fr auto; gap: 1.2vh 1.2vw; width: min(86vw, 950px); align-items: center; font-size: clamp(0.85rem, 1.5vw, 1.2rem); text-align: right; }
+  .hbars .track { height: 3.4vh; background: rgba(200,220,255,0.04); border-radius: 6px; } .hbars .track i { display: block; height: 100%; border-radius: 6px; }
+  .hbars .v { font-family: 'IBM Plex Mono', monospace; color: var(--text); text-align: left; min-width: 5em; }
+  .tiny { font-size: clamp(0.75rem, 1.1vw, 0.95rem); color: var(--muted); }
+  a.link { color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="brand">ISOM 835 · SESSION 10</div>
+<div class="hud" id="hud"></div>
+
+<section class="slide active" data-notes="Welcome. One sentence for the night: for nine weeks every dataset came with the answer column. Tonight there is none, and the data has to show us its own structure. Thanksgiving week: Black Friday is this Friday, which is exactly tonight's business story.">
+<div class="kicker">ISOM 835 · Session 10 · Mon Nov 23</div>
+  <h1>Learning <span class="grad">without answers</span></h1>
+  <p class="sub">Segments, structure &amp; anomalies, on a real gift shop's sales, three days before Black Friday</p>
+  <div class="pill">Prof. Hasan Arslan · 5:00–7:30 PM</div>
+</section>
+<section class="slide" data-notes="Milestone 2 check-in, 5 minutes max. It is due TONIGHT at 11:59 PM, pass/fail: data loaded, split before anything is fitted, naive baseline, first model with the metric your decision needs. Ask: who is done? who is stuck on the data? Offer 5 minutes at the break for stuck teams. Then the big shift.">
+<div class="kicker">Before we start · 2 minutes</div>
+  <h2>Milestone 2 is due <span class="grad">tonight</span></h2>
+  <ul class="list">
+    <li><b class="am">Mon Nov 23, 11:59 PM</b> · data loaded, <b>split before fit</b>, a naive baseline, a first model with your metric</li>
+    <li>Pass/fail. Runs top to bottom, the pieces are there.</li>
+    <li>Stuck on your data? Grab me at the break.</li>
+  </ul>
+</section>
+<section class="slide" data-notes="The big shift. Every model since Session 1 learned from an answer column: did the guest cancel, did the customer churn, what did the house sell for. Real name: supervised learning. Tonight nobody gives us the answer. The data shows us three things: groups, directions, oddballs. Real name: unsupervised learning. Analogy: sorting a pile of laundry with no labels. You still find the socks, the shirts and the one red sock that will ruin everything.">
+<div class="kicker">Nine weeks vs. tonight</div>
+  <h2>No answer column. <span class="grad">At all.</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">Sessions 1–9</div><div class="title">Supervised</div><p>Every row came with the answer: <b>canceled?</b> <b>churned?</b> <b>price?</b> The model learned to copy the answer.</p></div>
+    <div class="card"><div class="label">Tonight</div><div class="title">Unsupervised</div><p>No answer anywhere. The data shows us <b class="t">groups</b>, <b class="p">directions</b> and <b class="co">oddballs</b>. The business supplies the meaning.</p></div>
+    <div class="card"><div class="label">Like</div><div class="title">Sorting laundry</div><p>Nobody labeled anything, yet you find the socks, the shirts… and the one red sock in the white wash.</p></div>
+  </div>
+</section>
+<section class="slide" data-notes="The business story for the whole night. A real UK online gift shop, real sales, Dec 2009 to Dec 2010 (UCI Online Retail II). Many customers are small shops buying to resell. Read the boss's message aloud. Three asks: who are our customers, which campaign for whom (four campaigns max), and is anything wrong in the data. Each part of tonight answers one.">
+<div class="kicker">Black Friday is this Friday</div>
+  <h2>A message from <span class="grad">your boss</span></h2>
+  <div class="quote">"Black Friday is this week. We can afford <b>four</b> different campaigns. Tell me who our customers are, which group gets which campaign, and while you're in there, tell me if anything in our sales data looks wrong."</div>
+  <p class="sub">A real UK online gift shop · every sale, Dec 2009 – Dec 2010</p>
+</section>
+<section class="slide" data-notes="Tonight's map. Five games in the Segments Explorer, one before each idea: play first, then name. Break around 6:05. The notebook follows the same steps, 1 to 16.">
+<div class="kicker">Tonight</div>
+  <h2>Three questions, <span class="grad">five tools</span></h2>
+  <div class="timeline" style="grid-template-columns: repeat(7, 1fr)">
+    <div><i>5:05</i><b>Who are they?</b>Receipts → customers (RFM)</div>
+    <div><i>5:35</i><b>Find groups</b>The party with no name tags</div>
+    <div><i>5:50</i><b>How many?</b>T-shirt sizes, and the Black Friday plan</div>
+    <div><i>6:15</i><b>Other shapes</b>Crowds &amp; loners, a family tree, "maybe"</div>
+    <div><i>6:35</i><b>See it all</b>The flashlight</div>
+    <div><i>6:55</i><b>Anything wrong?</b>20 Questions</div>
+    <div><i>7:15</i><b>Your turn</b>Four questions</div>
+  </div>
+  <p class="sub">🎮 Before each idea: one game in <b class="t">The Segments Explorer</b> · break at <b>6:05</b></p>
+</section>
+<section class="slide" data-notes="Run notebook setup cells (environment check, then the load cell). Each row is one product on one receipt. Invoice 489434 is one shopping basket: customer 13085, 12 Christmas glass balls at 6.95 pounds, etc., Dec 1, 2009 at 7:45 AM. Point out: invoice starting with C = cancellation; customer ID sometimes empty. Our boss asked about customers; the data is about receipt lines. The next steps turn one into the other.">
+<div class="kicker">Step 1 · Meet the data</div>
+  <h2>One row = <span class="grad">one line on a receipt</span></h2>
+  <pre><span class="c">Invoice  Description                          Qty   Price  Customer  Date</span>
+489434   15CM CHRISTMAS GLASS BALL 20 LIGHTS   12    6.95   13085     Dec 1 2009, 7:45
+489434   PINK CHERRY LIGHTS                    12    6.75   13085     Dec 1 2009, 7:45
+489434   SAVE THE PLANET MUG                   24    1.25   13085     Dec 1 2009, 7:45
+<span class="c">…</span></pre>
+  <div class="row"><div><div class="num">525,461</div><p class="tiny">rows</p></div><div><div class="num">28,816</div><p class="tiny">receipts</p></div><div><div class="num">1 year</div><p class="tiny">Dec 2009 – Dec 2010</p></div></div>
+</section>
+<section class="slide" data-notes="Run notebook Step 2. About 1 row in 5 has no customer ID: guest checkouts. Good thing to tell the boss: a fifth of our sales we cannot tie to a person. Cancellations are money going back, not purchases. Left: about 408,000 lines, 19,213 receipts, 4,312 customers, 8.8 million pounds.">
+<div class="kicker">Step 2 · Clean up</div>
+  <h2>Two kinds of rows <span class="grad">we can't use</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">No customer ID</div><div class="num">21%</div><p>of all rows. A guest checkout can't go into anyone's history.</p></div>
+    <div class="card"><div class="label">Cancellations</div><div class="num">10,206</div><p>rows (invoice starts with <b>C</b>). Money going back, not a purchase.</p></div>
+    <div class="card"><div class="label">Left to work with</div><div class="num">4,312</div><p>customers · 19,213 receipts · <b>£8.8 million</b></p></div>
+  </div>
+</section>
+<section class="slide" data-notes="The coffee shop owner does not remember every latte you bought. She remembers: was here yesterday, comes every morning, spends a lot. That is RFM, and marketers have used it for decades because it is simple and it works. Recency: days since last receipt (to Dec 10, 2010). Frequency: number of different receipts. Monetary: total pounds.">
+<div class="kicker">Step 3 · From receipts to customers</div>
+  <h2>Three numbers per person: <span class="grad">RFM</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">R · Recency</div><div class="title">How long since?</div><p>Days since the last receipt.<br>Coffee shop: <i>"was here yesterday"</i></p></div>
+    <div class="card"><div class="label">F · Frequency</div><div class="title">How often?</div><p>Number of different receipts.<br><i>"comes every morning"</i></p></div>
+    <div class="card"><div class="label">M · Monetary</div><div class="title">How much?</div><p>Total £ spent.<br><i>"always gets the big one"</i></p></div>
+  </div>
+</section>
+<section class="slide" data-notes="Run the customer 12347 cell. Two receipts: Oct 31 (40 lines, 612 pounds) and Dec 7 (31 lines, 712 pounds). Squeezed: R = 2 days, F = 2, M = 1,323 pounds. Remember this customer: we will meet them again in the 'maybe' part. Then the groupby cell: 408,000 lines become 4,312 rows, one per customer. One line of pandas.">
+<div class="kicker">Step 3 · One customer</div>
+  <h2>Customer 12347, <span class="grad">squeezed</span></h2>
+  <div class="row">
+    <table class="cm small"><tr><th>receipt</th><th>date</th><th>lines</th><th>£</th></tr>
+      <tr><td>529924</td><td>Oct 31</td><td>40</td><td>611.53</td></tr>
+      <tr><td>537626</td><td>Dec 7</td><td>31</td><td>711.79</td></tr></table>
+    <div class="big" style="font-size:clamp(2rem,5vw,4rem)">→</div>
+    <table class="cm small"><tr><th>R</th><th>F</th><th>M</th></tr><tr><td class="g">2 days</td><td class="g">2</td><td class="g">£1,323</td></tr></table>
+  </div>
+  <pre>rfm = sales.groupby(<span class="s">'Customer ID'</span>).agg(Recency=…, Frequency=…, Monetary=…)   <span class="c"># 4,312 rows</span></pre>
+</section>
+<section class="slide" data-notes="Quick check, 30 seconds, ask the room. Answer: bought for the first time yesterday and spent only 15 pounds. A brand-new customer. Second: R = 300, F = 40, M = 20,000: a big, loyal customer who has gone quiet. Worth a phone call!">
+<div class="kicker">Quick check</div>
+  <h2>Describe them in <span class="grad">plain words</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">Customer A</div><div class="title">R = 0 · F = 1 · M = £15</div><p>?</p></div>
+    <div class="card"><div class="label">Customer B</div><div class="title">R = 300 · F = 40 · M = £20,000</div><p>?</p></div>
+  </div>
+</section>
+<section class="slide" data-notes="Run Step 4. Typical customer: 2 receipts, about 700 pounds. The biggest: 349,000 pounds. The five biggest bring in 12 percent of all sales: about 1 pound in 8. Frequency and Monetary pile up on the left with a very long tail. These are whales, mostly wholesalers. Hold on to that word: it is about to cause trouble.">
+<div class="kicker">Step 4 · Look before you cluster</div>
+  <h2>Meet <span class="grad">the whales</span></h2>
+  <img class="chart" src="img/whales.png" alt="Histograms of recency, frequency and monetary: frequency and monetary are piled up on the left with a very long right tail">
+  <p class="sub">Typical customer: <b>2 receipts, £706</b>. Biggest: <b class="co">£349,164</b>. The top 5 bring in <b>1 pound in 8</b>.</p>
+</section>
+<section class="slide" data-notes="Clustering is about distance. Two customers who bought 300 days apart: a huge behavioural difference. Two who spent 300 pounds apart: tiny. To the computer both are just 300. Pounds swamp days. Height in meters and weight in grams: the weight number wins every argument.">
+<div class="kicker">Step 5 · The scale problem</div>
+  <h2>Days vs. pounds: <span class="grad">who wins?</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">300 days apart</div><div class="title">A huge difference</div><p>One bought last week, one last winter.</p></div>
+    <div class="card"><div class="label">£300 apart</div><div class="title">A tiny difference</div><p>£1,000 vs. £1,300. Practically the same.</p></div>
+    <div class="card"><div class="label">To the computer</div><div class="title">Both are "300"</div><p>Like comparing people by height in <b>meters</b> and weight in <b>grams</b>. Grams win every argument.</p></div>
+  </div>
+</section>
+<section class="slide" data-notes="Run Step 5: k-means on the raw numbers, 4 groups. 4,181 customers in one group. A segment of THREE people: the three biggest whales. One of 13, one of 115. The algorithm only looked at money. You cannot run a Black Friday campaign for 3 people and another for everybody else.">
+<div class="kicker">Step 5 · What goes wrong</div>
+  <h2>Unscaled: <span class="grad">a segment of 3 people</span></h2>
+  <div class="hbars">
+    <span>group 1</span><div class="track"><i style="width:97%;background:var(--muted)"></i></div><span class="v">4,181</span>
+    <span>group 2</span><div class="track"><i style="width:2.7%;background:var(--peri)"></i></div><span class="v">115</span>
+    <span>group 3</span><div class="track"><i style="width:0.6%;background:var(--amber)"></i></div><span class="v">13</span>
+    <span>group 4</span><div class="track"><i style="width:0.3%;background:var(--coral)"></i></div><span class="v co">3 whales</span>
+  </div>
+  <p class="sub">k-means looked only at <b>money</b>. Useless for marketing.</p>
+</section>
+<section class="slide" data-notes="Run Step 6. Currency exchange: before comparing prices from London, Tokyo and Boston you convert to one currency. Move 1, log: each ×10 in spending becomes the same step, so a whale is a big spender, not a different planet. log1p = log of 1 + x so a zero stays safe. Move 2, standardize: subtract the average, divide by the spread: every column now says 'how unusual compared to the typical customer'. Same StandardScaler as Session 3. After it, the biggest whale is about +5, not 170 times the typical customer.">
+<div class="kicker">Step 6 · The fix</div>
+  <h2>Speak <span class="grad">one currency</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">Move 1 · log</div><div class="title">Tame the tail</div><p>£100 → 4.6 · £1,000 → 6.9 · £100,000 → 11.5<br>Every <b>×10</b> is the same step.</p></div>
+    <div class="card"><div class="label">Move 2 · standardize</div><div class="title">Same units</div><p>0 = typical · +1 = one spread above · −2 = two below. Now R, F and M get <b>equal say</b>.</p></div>
+  </div>
+  <pre>Z = StandardScaler().fit_transform(np.column_stack([R, np.log1p(F), np.log1p(M)]))</pre>
+</section>
+<section class="slide" data-notes="Send everyone to the Segments Explorer, Station 1. Give 4 minutes. Ask them to place hosts by hand first, then press the buttons, then let the computer try, then the terrible start. Ask the room: who matched the computer? Who got stuck worse? Then the next slide names it.">
+<div class="kicker">🎮 Station 1 · play first</div>
+  <div class="play">🎉</div>
+  <h2>The party with <span class="grad">no name tags</span></h2>
+  <p class="sub">Place 4 hosts. Everyone walks to the nearest one. Hosts move to the middle. Repeat.<br><b class="am">Mission:</b> beat the computer's total walking.</p>
+  <div class="pill">isom-835.vercel.app/explore/segments/#s1</div>
+</section>
+<section class="slide" data-notes="The whole algorithm in four steps. Hosts = centroids. k = how many groups you ask for. Real name: k-means. 'means' because each host moves to the mean (average) of its group. Nothing in the recipe knows what a group means: it only uses distance.">
+<div class="kicker">Step 7 · The recipe</div>
+  <h2>k-means is a <span class="grad">party with no name tags</span></h2>
+  <div class="steps">
+    <div class="card"><div class="num">1</div><div class="title">Place k hosts</div><p>Anywhere in the room.</p></div>
+    <div class="card"><div class="num">2</div><div class="title">Everyone walks</div><p>…to the nearest host. Now there are k groups.</p></div>
+    <div class="card"><div class="num">3</div><div class="title">Hosts move</div><p>…to the middle of their group.</p></div>
+    <div class="card"><div class="num">4</div><div class="title">Repeat</div><p>…until nobody switches groups.</p></div>
+  </div>
+  <p class="sub">host = <b class="t">centroid</b> · total walking = <b class="t">inertia</b></p>
+</section>
+<section class="slide" data-notes="Run Step 7. Each panel is one round, on two columns (R and F) so we can draw it. Hosts start in poor spots and move toward the middle of their crowds. Total walking goes down every round: 3,136 then 1,984, 1,840, 1,803. That number, the total squared distance to your host, is called inertia: the thing k-means makes as small as it can. The stripes: Frequency is a whole number (1, 2, 3 receipts).">
+<div class="kicker">Step 7 · Watch it run</div>
+  <h2>Total walking falls <span class="grad">every round</span></h2>
+  <img class="chart" src="img/rounds.png" alt="Four rounds of k-means on customers: the hosts move and total walking falls from 3,136 to 1,803">
+</section>
+<section class="slide" data-notes="Two traps. Bad starting spots: k-means only improves locally, so a bad start can leave you stuck (students saw it with the terrible start). Fix: k-means++ starts with spread-out hosts, and n_init=10 tries 10 starts and keeps the best. Both are in one line of code. Second trap: unscaled columns, fixed in Step 6. Run the KMeans cell: 4 groups, none of them a group of 3.">
+<div class="kicker">Step 7 · Two traps, two fixes</div>
+  <h2>k-means in <span class="grad">one line</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">Trap 1</div><div class="title">A bad start</div><p>Stuck in a poor answer. <b>Fix:</b> spread-out starting hosts (<b>k-means++</b>) and 10 tries (<code>n_init=10</code>).</p></div>
+    <div class="card"><div class="label">Trap 2</div><div class="title">Unscaled columns</div><p>The whales take over. <b>Fix:</b> log + standardize (Step 6).</p></div>
+  </div>
+  <pre>km = KMeans(n_clusters=<span class="s">4</span>, n_init=<span class="s">10</span>, random_state=<span class="s">835</span>).fit(Z)</pre>
+</section>
+<section class="slide" data-notes="Station 2. Give 3 minutes. Students slide k from 1 to 8 and watch the elbow and the silhouette. Ask: which k would you defend? Expect 3 and 4. Then: can you name every segment at k = 6?">
+<div class="kicker">🎮 Station 2 · play first</div>
+  <div class="play">👕</div>
+  <h2>How many <span class="grad">T-shirt sizes?</span></h2>
+  <p class="sub">Slide k from 1 to 8 on 400 real customers. Watch the elbow, the silhouette and the table.<br><b class="am">Mission:</b> which k would you defend to the boss?</p>
+  <div class="pill">isom-835.vercel.app/explore/segments/#s2</div>
+</section>
+<section class="slide" data-notes="The T-shirt analogy. One size fits nobody; twenty sizes fit everyone but the factory and the shelves become a nightmare. S, M, L, XL: good enough fit, simple to run. The number of sizes is a business decision informed by data. Two helpers. Elbow: inertia ALWAYS goes down with more groups (more hosts, shorter walks), so look for the bend. Silhouette: the wedding guest asks: do I belong at my table, or would I fit just as well at the next one? -1 to +1, higher is better.">
+<div class="kicker">Step 8 · How many segments?</div>
+  <h2>Choosing k is a <span class="grad">T-shirt decision</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">1 size</div><div class="title">Fits nobody</div><p>One campaign for yesterday's buyer and last winter's.</p></div>
+    <div class="card"><div class="label">The elbow</div><div class="title">Where does it bend?</div><p>Walking <b>always</b> falls with more groups. Look for where it stops falling fast.</p></div>
+    <div class="card"><div class="label">The silhouette</div><div class="title">Do I belong at my table?</div><p>Closer to my own group than to the next one? −1 to +1, higher = cleaner.</p></div>
+    <div class="card"><div class="label">20 sizes</div><div class="title">Fits everyone</div><p>…and nobody can make, stock or market them.</p></div>
+  </div>
+</section>
+<section class="slide" data-notes="Run Step 8, about 15 seconds. Be honest with the class: the elbow bends around 3 or 4; the silhouette peaks at 3 (0.41) and is a little lower at 4 (0.37). Rule of thumb: above 0.5 = clean islands; 0.25 to 0.5 = typical business data, a continuum more than islands. Data says 3 or 4. Boss says four campaigns. That settles it: k = 4. Neither chart can choose for you.">
+<div class="kicker">Step 8 · What the data says</div>
+  <h2>The data says "3 or 4". <span class="grad">The boss says 4.</span></h2>
+  <img class="chart" src="img/elbow.png" alt="Elbow chart bending at 3 to 4, silhouette highest at k = 3 (0.41) and 0.37 at k = 4">
+  <p class="sub">Silhouette above <b>0.5</b> = clean islands · <b>0.25–0.5</b> = typical business data · ours: <b>0.37</b> at k = 4</p>
+</section>
+<section class="slide" data-notes="Run Step 9. Medians, the typical member. Read the money column first: Champions are about 1 customer in 7 but bring about 2 pounds in 3. Hibernating: a fifth of customers, 4 percent of revenue. The naming rule in the notebook: longest away = Hibernating, biggest spend = Champions, of the other two the more frequent = Loyal. A cluster with a number is not a segment; a segment has a name.">
+<div class="kicker">Step 9 · Profile and name</div>
+  <h2>Four segments, <span class="grad">four names</span></h2>
+  <table class="cm small left">
+    <tr><th>segment</th><th>customers</th><th>days since last</th><th>receipts</th><th>spent</th><th>% customers</th><th>% revenue</th></tr>
+    <tr><td><b class="t">Champions</b></td><td>625</td><td>11</td><td>11</td><td>£4,354</td><td>14%</td><td class="g">64%</td></tr>
+    <tr><td><b class="p">Loyal</b></td><td>1,481</td><td>35</td><td>4</td><td>£1,315</td><td>34%</td><td>26%</td></tr>
+    <tr><td><b class="am">New &amp; occasional</b></td><td>1,304</td><td>48</td><td>1</td><td>£328</td><td>30%</td><td>5%</td></tr>
+    <tr><td><b style="color:#8a93a6">Hibernating</b></td><td>902</td><td>247</td><td>1</td><td>£285</td><td>21%</td><td class="b">4%</td></tr>
+  </table>
+  <p class="sub">1 customer in 7 brings in <b class="t">2 pounds in 3</b>.</p>
+</section>
+<section class="slide" data-notes="This is the deliverable: not the plot, the four sentences. Champions: VIP early access Thursday night; no discount needed, thank them. Loyal: grow the basket, spend X get free shipping. New and occasional: the hardest and most valuable step is the second purchase; a second-purchase coupon. Hibernating: one cheap we-miss-you email; a paid campaign costs more than they are worth. Ask the room: would you change any action?">
+<div class="kicker">Step 9 · The Black Friday plan</div>
+  <h2>A segment is only as good as <span class="grad">its action</span></h2>
+  <div class="seg4">
+    <div class="card"><div class="label" style="color:var(--teal)">Champions · 625</div><div class="title">VIP early access</div><p>Thursday night preview. No discount needed: say thank you.</p></div>
+    <div class="card"><div class="label" style="color:var(--peri)">Loyal · 1,481</div><div class="title">Grow the basket</div><p>"Spend £X, get free shipping."</p></div>
+    <div class="card"><div class="label" style="color:var(--amber)">New &amp; occasional · 1,304</div><div class="title">The second visit</div><p>A second-purchase coupon: the hardest, most valuable step.</p></div>
+    <div class="card"><div class="label" style="color:#8a93a6">Hibernating · 902</div><div class="title">One cheap email</div><p>"We miss you." A paid campaign costs more than they're worth.</p></div>
+  </div>
+</section>
+<section class="slide" data-notes="Run the plot cell. Recency left to right, frequency up (log scale). Champions top left: recent and frequent. Hibernating on the right: gone for months. New and occasional: recent but one or two receipts. Loyal in between. Found with no labels.">
+<div class="kicker">Step 9 · The picture</div>
+  <h2>Found with <span class="grad">no labels</span></h2>
+  <img class="chart" src="img/segments.png" alt="Customers on recency (left = recent) by frequency (log scale), colored by segment: Champions top left, Hibernating on the right">
+</section>
+<section class="slide" data-notes="Quick check, 60 seconds. Answer: k-means found four groups because WE asked for four. Ask for seven, it finds seven. It always finds groups, even in data with none (Station 2 at k = 8). The groups are useful, not true. Then Step 10: rerun with 5 different random starts; agreement (adjusted Rand index) 0.97 to 1.00. Stable: worth one line in your report. Then BREAK.">
+<div class="kicker">Quick check · then Step 10</div>
+  <h2>"k-means found that there are exactly <span class="grad">four types</span> of customer."</h2>
+  <p class="sub">What's wrong with that sentence?</p>
+  <div class="cards">
+    <div class="card"><div class="label">Step 10 · Is it stable?</div><div class="title">5 reruns, 5 random starts</div><p>Agreement with our segments: <b class="t">0.97 – 1.00</b> (1 = identical). The segments hold.</p></div>
+  </div>
+  <div class="pill">Break · 10 minutes</div>
+</section>
+<section class="slide" data-notes="Station 3, 4 minutes. Mission: on the moons, get DBSCAN to find exactly 2 groups and send the loners to gray. They start with the reach too long (one giant group). Then try k-means on the same moons. Then the ring around a crowd.">
+<div class="kicker">🎮 Station 3 · play first</div>
+  <div class="play">🌙</div>
+  <h2>Shapes k-means <span class="grad">can't see</span></h2>
+  <p class="sub">Two dials: <b>reach</b> and <b>crowd size</b>. No k.<br><b class="am">Mission:</b> find both moons and send the loners to gray.</p>
+  <div class="pill">isom-835.vercel.app/explore/segments/#s3</div>
+</section>
+<section class="slide" data-notes="Run Step 11. k-means has a hidden assumption: every group is a round blob around its host, of similar size. Moons break it: k-means cuts straight across. DBSCAN looks at the crowd from above: wherever people stand densely, a group; anyone alone is a loner. Real names: eps (reach), min_samples (crowd size), noise = label -1. You never tell it how many groups. The gray pile is a free list of oddballs.">
+<div class="kicker">Step 11 · Crowds and loners</div>
+  <h2>DBSCAN follows <span class="grad">the shape</span></h2>
+  <img class="chart" src="img/moons.png" alt="Two moons: k-means cuts straight across, DBSCAN finds both crescents and marks 10 loners in gray">
+  <p class="sub">reach = <b class="t">eps</b> · crowd size = <b class="t">min_samples</b> · loner = <b class="t">noise</b> (label −1)</p>
+</section>
+<section class="slide" data-notes="Run the DBSCAN-on-customers cell. It finds 4 dense groups by itself and 323 loners, 7 percent. Who are they? The typical loner spends about 3 times more and buys twice as often, but has not been back for almost 5 months (144 days vs 48). Big customers drifting away. Business action: a personal phone call, not a mass email. That's why the noise label is valuable.">
+<div class="kicker">Step 11 · DBSCAN on our customers</div>
+  <h2>323 loners: <span class="grad">big customers drifting away</span></h2>
+  <table class="cm small left">
+    <tr><th>typical customer (median)</th><th>days since last</th><th>receipts</th><th>spent</th></tr>
+    <tr><td>in a dense group</td><td>48</td><td>2</td><td>£668</td></tr>
+    <tr><td><b class="co">loner (noise) · 7%</b></td><td class="b">144</td><td class="g">4</td><td class="g">£1,974</td></tr>
+  </table>
+  <p class="sub">Spend <b>3×</b>, buy <b>2×</b>, but gone for <b>5 months</b>. They need a <b class="t">phone call</b>, not a mass email.</p>
+</section>
+<section class="slide" data-notes="Run Step 12. Hierarchical clustering: start with every customer alone, join the two closest, keep going until one big family. The picture is a dendrogram, a family tree. You don't choose k up front: draw a line and count the branches you cut. Here the cut gives 4. Great for explaining to a manager why four and not seven: the tall lines are big differences. Agreement with k-means: 0.70. Same broad story, different borders. Borders between segments are a choice.">
+<div class="kicker">Step 12 · The family tree</div>
+  <h2>Cut it at <span class="grad">any height</span></h2>
+  <img class="chart" src="img/tree.png" alt="Dendrogram of 300 customers with a dashed cut line crossing 4 branches">
+  <p class="sub">Real name: <b class="t">hierarchical clustering</b>, drawn as a <b class="t">dendrogram</b> · agrees with k-means at <b>0.70</b></p>
+</section>
+<section class="slide" data-notes="Run the Gaussian mixture cell. k-means puts every customer in exactly one box. A Gaussian mixture gives probabilities. About 15 percent of customers have no segment above 70 percent: they sit on a border. Our old friend 12347: bought 2 days ago, twice, 1,323 pounds: 53 percent Champion, 44 percent New. A future Champion or a one-time big order? Honestly we can't tell yet, and the model says so. Action: test both offers, or start with the cheaper one. Callback to Session 9's 'not sure' pile.">
+<div class="kicker">Step 12 · "Maybe" is an answer</div>
+  <h2>Customer 12347 is <span class="grad">half Champion, half New</span></h2>
+  <div class="piles" style="width:min(80vw,900px)"><div style="width:53%;background:var(--teal)">Champions 53%</div><div style="width:44%;background:var(--amber)">New 44%</div><div style="width:3%;background:var(--peri)"></div></div>
+  <p class="sub">Bought 2 days ago, twice, £1,323. A future Champion, or a one-time big order?<br><b>About 1 customer in 7</b> sits on a border like this.</p>
+  <p class="tiny">Real name: <b>Gaussian mixture model</b> · soft assignment</p>
+</section>
+<section class="slide" data-notes="Station 4, 3 minutes. Mission: find an angle that keeps more than 90 percent, then press Show PCA's angle (94 percent). Point at the arrows: they show where each column points in the shadow. That is the idea of loadings.">
+<div class="kicker">🎮 Station 4 · play first</div>
+  <div class="play">🔦</div>
+  <h2>The <span class="grad">flashlight</span></h2>
+  <p class="sub">Turn and tilt 400 customers in 3-D and watch the shadow.<br><b class="am">Mission:</b> a shadow that keeps more than 90%.</p>
+  <div class="pill">isom-835.vercel.app/explore/segments/#s4</div>
+</section>
+<section class="slide" data-notes="Run Step 13. Real customer tables have many columns: we build 9 (RFM, basket, items per receipt, products per receipt, different products, days as customer, cancel rate). Nobody can picture 9 dimensions. PCA makes the best flat picture. The mug under the flashlight: from one angle a useless circle, from the side you see the handle. The first direction keeps 43 percent of the spread in 9 columns; the first two keep 61 percent. Real names: principal components, explained variance.">
+<div class="kicker">Step 13 · Seeing many columns</div>
+  <h2>9 columns, <span class="grad">one flat picture</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">The flashlight</div><div class="title">Turn the mug</div><p>…until the shadow shows <b>as much of the shape</b> as possible.</p></div>
+    <div class="card"><div class="label">PC1</div><div class="num">43%</div><p>of all the spread in 9 columns, in <b>one</b> direction</p></div>
+    <div class="card"><div class="label">PC1 + PC2</div><div class="num">61%</div><p>in one flat picture</p></div>
+  </div>
+  <p class="sub">Real name: <b class="t">PCA</b>, principal component analysis · the curve: <b class="t">explained variance</b></p>
+</section>
+<section class="slide" data-notes="Run the loadings cell. Each component is a recipe: a weighted mix of the original columns. The weights are loadings. PC1 is positive on almost everything (spend, frequency, products, basket): name it 'how big a customer'. PC2 positive on frequency and days as customer, negative on items and products per receipt: 'many small visits vs. a few big baskets': a regular who pops in vs. a shop that orders in bulk. Signs can flip on some screens; only the pattern matters.">
+<div class="kicker">Step 13 · What is PC1?</div>
+  <h2>Read the loadings, <span class="grad">name the axes</span></h2>
+  <img class="chart" src="img/loadings.png" alt="Loadings of PC1 (positive on almost everything) and PC2 (frequency and tenure positive, items and products per receipt negative)">
+  <p class="sub"><b class="t">PC1</b> = "how big a customer" · <b class="p">PC2</b> = "many small visits vs. a few big baskets"</p>
+</section>
+<section class="slide" data-notes="Run the picture cell. The segments were found from 3 columns, yet they line up along PC1 in a picture built from 9. Champions on the right, Loyal in the middle, New and Hibernating on the left. Rule: cluster on the scaled features, draw on the PCA picture. PCA is for seeing and for squeezing columns, not a clustering method. UMAP (optional cell) is a subway map: neighbors stay neighbors, distances are fake. Never measure on it, never cluster on it and call it real.">
+<div class="kicker">Step 13–14 · The picture</div>
+  <h2>Cluster on the features, <span class="grad">draw on the picture</span></h2>
+  <img class="chart" src="img/pca.png" alt="4,312 customers on PC1 and PC2 colored by segment: Champions on the right, Loyal in the middle, New and Hibernating on the left" style="max-height:46vh">
+  <p class="sub">Optional: <b>UMAP</b> is a subway map. Neighbors kept, distances not.</p>
+</section>
+<section class="slide" data-notes="Station 5, 4 minutes. Click a receipt in the crowd, ask until alone, play 100 games: about 11 questions. Then click a lonely one top left (a 'Manual' entry): about 4. Then Score every receipt and slide the alert budget. Ask: what are the top ones?">
+<div class="kicker">🎮 Station 5 · play first</div>
+  <div class="play">❓</div>
+  <h2><span class="grad">20 Questions</span> with receipts</h2>
+  <p class="sub">Ask random yes/no questions until a receipt stands alone.<br><b class="am">Mission:</b> find the receipt cornered in the fewest questions.</p>
+  <div class="pill">isom-835.vercel.app/explore/segments/#s5</div>
+</section>
+<section class="slide" data-notes="The 20 Questions analogy. An ordinary receipt looks like thousands of others: many questions to single it out (about 11.5 in the game). A strange receipt is alone in its corner: a few questions (about 3.8 for the Manual entry). Isolation Forest plays this game hundreds of times with random questions (each game is a small random tree, Session 7) and scores every receipt: fewer questions = stranger.">
+<div class="kicker">Step 15 · Anomalies</div>
+  <h2>Strange things are <span class="grad">cornered fast</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">An ordinary receipt</div><div class="num">≈ 11.5</div><p>random questions to single it out. It hides in a crowd.</p></div>
+    <div class="card"><div class="label">A strange receipt</div><div class="num">≈ 3.8</div><p>questions. Alone in its corner: almost any question cuts it off.</p></div>
+    <div class="card"><div class="label">Isolation Forest</div><div class="title">Play it 300 times</div><p>Each game is a small random tree. Fewer questions = <b>stranger</b>.</p></div>
+  </div>
+</section>
+<section class="slide" data-notes="Run Step 15. 19,213 receipts, 6 numbers each (total, items, products, average price, top price, hour), no labels. Look at the first-line column: almost all the strangest are a single line called Manual worth thousands of pounds. Bookkeeping entries typed by hand, hiding among the sales. Then the next cell: 'Adjustment by Peter on Jun 25 2010'. Nobody told the algorithm what Manual means. And: vintage kitchen cabinets at 295 pounds in a shop where the typical item costs about 2 pounds: real, honest, rare sales. Strange is not wrong.">
+<div class="kicker">Step 15 · The strangest receipts</div>
+  <h2>It found the <span class="grad">bookkeeping</span></h2>
+  <table class="cm small left">
+    <tr><th>first line on the receipt</th><th>items</th><th>total</th><th>verdict</th></tr>
+    <tr><td>Manual</td><td>1</td><td>£10,953.50</td><td class="b">bookkeeping</td></tr>
+    <tr><td>Manual</td><td>1</td><td>£10,468.80</td><td class="b">bookkeeping</td></tr>
+    <tr><td>Adjustment by Peter on Jun 25 2010</td><td>1</td><td>£358.47</td><td class="b">bookkeeping</td></tr>
+    <tr><td>VINTAGE RED KITCHEN CABINET</td><td>1</td><td>£295.00</td><td class="g">real, just rare</td></tr>
+  </table>
+  <p class="sub"><b>Strange is not the same as wrong.</b> It's a short list for a human.</p>
+</section>
+<section class="slide" data-notes="Run the answer-key cell. We CAN check this one: we marked receipts with a non-product line (Manual, postage, fees, adjustments). Isolation Forest never saw that column. Overall 7 percent of receipts contain one. Among the 25 strangest: all of them. 50 strangest: 98 percent (49 of 50). 100: 88. 200: 71. About 14 times more than chance, with no labels.">
+<div class="kicker">Step 15 · A hidden answer key</div>
+  <h2>49 of the 50 strangest: <span class="grad">bookkeeping</span></h2>
+  <div class="hbars">
+    <span>all receipts</span><div class="track"><i style="width:7%;background:var(--muted)"></i></div><span class="v">7%</span>
+    <span>200 strangest</span><div class="track"><i style="width:71%;background:var(--peri)"></i></div><span class="v">71%</span>
+    <span>100 strangest</span><div class="track"><i style="width:88%;background:var(--peri)"></i></div><span class="v">88%</span>
+    <span>50 strangest</span><div class="track"><i style="width:98%;background:linear-gradient(90deg,var(--peri),var(--teal))"></i></div><span class="v t">98%</span>
+    <span>25 strangest</span><div class="track"><i style="width:100%;background:linear-gradient(90deg,var(--peri),var(--teal))"></i></div><span class="v t">100%</span>
+  </div>
+  <p class="sub">Share containing a bookkeeping line. <b>No labels used.</b></p>
+</section>
+<section class="slide" data-notes="The alert budget. Someone has to check every flagged receipt. Finance can check 50 a week: send the top 50 (98 percent pure). 200 a week: send 200 and accept 71 percent. The dial is contamination: the share of rows you want flagged. A business decision, like the threshold in Session 5 and the promise in Session 9. Where this is used: card fraud (Mastercard story on tonight's page), machines about to fail, network attacks, and data errors before they spoil your model. Twist: those Manual entries are also inside our Monetary column: Your Turn Q4.">
+<div class="kicker">Step 15 · The alert budget</div>
+  <h2>How many can a person <span class="grad">check this week?</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">50 a week</div><div class="num">98%</div><p>of flags are real bookkeeping</p></div>
+    <div class="card"><div class="label">200 a week</div><div class="num">71%</div><p>more found, less pure</p></div>
+    <div class="card"><div class="label">The dial</div><div class="title"><code>contamination</code></div><p>The share flagged. A <b>business</b> choice, like Session 5's threshold.</p></div>
+  </div>
+  <p class="sub">Used for card fraud, failing machines, network attacks, and <b>data errors</b>.</p>
+</section>
+<section class="slide" data-notes="About 15 minutes. Answers. Q1, k = 5: the Champions split: 277 'super-Champions' (about 6 percent of customers, about half the revenue, a receipt every 2 to 3 weeks) and a group of 950 (22 percent, 29 percent of revenue). Marketing might give the top 277 a personal account manager. Q2: shares are close: Champions 15 percent UK vs 14 outside, Loyal 34 vs 40, New 31 vs 27, Hibernating 21 vs 19. The segmentation travels; non-UK customers lean slightly Loyal. Q3: 100 flagged, 88 percent with a bookkeeping line. Q4: cleaning removes about 158,000 pounds and 27 customers who only had bookkeeping lines; segment sizes barely move (Champions 625 to 647, Hibernating 902 to 887). The log transform already protected us; still, clean first in real work.">
+<div class="kicker">Step 16 · Your turn · 15 minutes</div>
+  <h2>Four questions in <span class="grad">the notebook</span></h2>
+  <ul class="list">
+    <li><b class="t">Five segments.</b> Which segment splits? Would marketing treat the halves differently?</li>
+    <li><b class="p">Country check.</b> UK vs. outside the UK: does the segmentation travel?</li>
+    <li><b class="co">Alert budget.</b> Finance can check 100 receipts a week. How pure is the list?</li>
+    <li><b class="am">Clean, then segment.</b> Remove the bookkeeping lines and redo RFM. What changes?</li>
+  </ul>
+</section>
+<section class="slide" data-notes="Dates match the deadlines table. Milestone 2 tonight. Milestone 3 next Monday: tuned model, SHAP, slices, model card (Session 9). If your project has no target column, tonight's notebook is your template. Next week: forecasting: time series with ML and foundation models.">
+<div class="kicker">What's due</div>
+  <h2>Your <span class="grad">project</span></h2>
+  <ul class="list">
+    <li><b class="am">Tonight, Mon Nov 23, 11:59 PM</b> · Milestone 2: a baseline and a first model</li>
+    <li><b class="p">Mon Nov 30, 11:59 PM</b> · Milestone 3: tuning, SHAP, slices, a model card (Session 9)</li>
+    <li><b class="t">Mon Dec 7, 5:00 PM</b> · Milestone 4: dry-run slides</li>
+    <li>No target column in your project? <b>Tonight's notebook is your template.</b></li>
+  </ul>
+</section>
+<section class="slide" data-notes="Our plain words and the real names students will meet in documentation and job interviews.">
+<div class="kicker">Tonight's words · and their real names</div>
+  <h2>You already know <span class="grad">the jargon</span></h2>
+  <table class="cm small">
+    <tr><th>what we said</th><th>the real name</th></tr>
+    <tr><td>no answer column</td><td class="g">unsupervised learning</td></tr>
+    <tr><td>a host · total walking</td><td class="g">centroid · inertia</td></tr>
+    <tr><td>"do I belong at my table?"</td><td class="g">silhouette score</td></tr>
+    <tr><td>crowds and loners</td><td class="g">DBSCAN · noise</td></tr>
+    <tr><td>the family tree · "maybe"</td><td class="g">dendrogram · Gaussian mixture</td></tr>
+    <tr><td>the flashlight · what PC1 is made of</td><td class="g">PCA · loadings</td></tr>
+    <tr><td>20 Questions · the alert budget</td><td class="g">Isolation Forest · contamination</td></tr>
+  </table>
+</section>
+<section class="slide" data-notes="Five takeaways, then the close. Happy Thanksgiving! Next Monday: forecasting.">
+<div class="kicker">Tonight in five lines</div>
+  <h2>Learning <span class="grad">without answers</span></h2>
+  <ul class="list">
+    <li><b class="t">Rows → customers, then scale.</b> Unscaled, three whales made their own segment.</li>
+    <li><b class="p">k-means is a party:</b> hosts, nearest, middle, repeat. It always finds k groups.</li>
+    <li><b class="am">k is a T-shirt decision.</b> Data says 3 or 4; the business says 4. Name every segment, one action each.</li>
+    <li><b class="li">PCA is the flashlight.</b> Cluster on the features, draw on the picture.</li>
+    <li><b class="co">Isolation Forest plays 20 Questions.</b> Strange is a short list for a human, not a verdict.</li>
+  </ul>
+  <p class="sub">Happy Thanksgiving 🦃 · Next Monday: <b class="t">forecasting</b></p>
+</section>
+
+<div class="notes" id="notes"></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')]; let i = 0;
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    document.getElementById('hud').textContent = (i + 1) + ' / ' + slides.length + '  ·  ← → navigate · F fullscreen · N notes';
+    document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+    document.getElementById('notes').textContent = slides[i].dataset.notes || '';
+    location.hash = i + 1;
+  }
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(slides.length - 1);
+    else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    else if (e.key.toLowerCase() === 'n') document.body.classList.toggle('shownotes');
+  });
+  addEventListener('click', (e) => { if (e.target.closest('a')) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+  show(parseInt(location.hash.slice(1) || '1', 10) - 1);
+</script>
+</body>
+</html>

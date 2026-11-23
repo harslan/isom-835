@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Segments Explorer · ISOM 835</title>
+<meta name="description" content="Five small games on a real UK gift shop's sales: be the hosts at a party with no name tags (k-means), choose how many T-shirt sizes (choosing k), find shapes k-means can't see (DBSCAN), aim the flashlight (PCA), and play 20 Questions with receipts (Isolation Forest).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/explore/_shared.css">
+<style>
+  html { scroll-behavior: smooth; }
+  .stations { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 30px; }
+  .stations a { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); text-decoration: none; transition: all 0.25s; }
+  .stations a:hover { border-color: var(--teal); color: var(--teal); }
+  .stations a b { color: var(--teal); margin-right: 6px; }
+  section.station { margin: 0 0 64px; scroll-margin-top: 20px; }
+  .st-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
+  .st-num { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--bg); background: var(--teal); border-radius: 999px; padding: 3px 11px; font-weight: 700; }
+  .st-q { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--amber); letter-spacing: 1px; }
+  h2 { font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 800; }
+  .prompt { color: var(--text2); line-height: 1.6; font-size: 0.95rem; max-width: 860px; margin-bottom: 16px; }
+  .prompt b { color: var(--text); }
+  .mission { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--amber); border: 1px solid rgba(245,165,36,0.4); border-radius: 10px; padding: 6px 10px; margin-bottom: 14px; }
+  .verdict { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--border); font-size: 0.88rem; line-height: 1.5; min-height: 3.2em; color: var(--text2); }
+  .verdict b { color: var(--text); }
+  .btn { font-size: 0.78rem; padding: 9px 14px; }
+  .btn:disabled { opacity: 0.35; cursor: default; }
+  .key { display: flex; gap: 14px; flex-wrap: wrap; font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem; color: var(--text2); margin-top: 8px; }
+  .key i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+  .bigp { font-family: 'IBM Plex Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--teal); }
+  canvas.click { cursor: crosshair; }
+  .seg-name { font-family: 'Manrope', sans-serif; font-weight: 700; }
+  .toplist { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; line-height: 1.7; margin-top: 8px; max-height: 260px; overflow: auto; }
+  .toplist div { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dashed var(--border); }
+  .toplist .bk { color: var(--coral); } .toplist .ok { color: var(--text2); }
+  .wrapnote { font-size: 0.82rem; color: var(--text2); line-height: 1.55; margin-top: 10px; }
+  .wrapnote b { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/sessions/session-10">← ISOM 835 · Session 10</a>
+  <div style="height:14px"></div>
+  <div class="kicker">Interactive · a real UK gift shop · no labels anywhere</div>
+  <h1>The Segments <span class="grad">Explorer</span></h1>
+  <p class="sub">
+    Black Friday is coming and the boss can fund <b>four campaigns</b>. Nobody has told you who your customers are: there is <b>no answer column</b>.
+    Five small games, one before each idea of the night. Play first, then we name the tool. Works on your phone.
+  </p>
+  <div class="stations"><a href="#s1"><b>1</b>The party with no name tags</a><a href="#s2"><b>2</b>How many T-shirt sizes?</a><a href="#s3"><b>3</b>Shapes k-means can't see</a><a href="#s4"><b>4</b>The flashlight</a><a href="#s5"><b>5</b>20 Questions</a></div>
+
+  <!-- ───────────── STATION 1 ───────────── -->
+  <section class="station" id="s1">
+    <div class="st-head"><span class="st-num">STATION 1</span><h2>The party with no name tags</h2><span class="st-q">"How does the computer find groups?"</span></div>
+    <p class="prompt">120 guests at a party, nobody wears a name tag. You are in charge of making <b>4 conversation groups</b>.
+      <b>Click the room 4 times</b> to place 4 hosts. Then press <b>Everyone walks</b> (each guest goes to the nearest host) and <b>Hosts move</b> (each host goes to the middle of their group). Repeat until nobody switches.
+      The goal: as little <b>total walking</b> as possible.</p>
+    <div class="mission">Mission: beat the computer's total walking, or tie it.</div>
+    <div class="layout">
+      <div class="panel">
+        <canvas id="c1" class="click" width="820" height="470"></canvas>
+        <div class="key"><span><i style="background:#f5a524;border-radius:2px;transform:rotate(45deg)"></i>a host (centroid)</span><span><i style="background:#5f6a7d"></i>a guest nobody has claimed yet</span><span>thin lines: who walks to whom</span></div>
+      </div>
+      <div>
+        <div class="panel controls">
+          <div class="btnrow">
+            <button class="btn primary" id="p-assign" disabled>① Everyone walks</button>
+            <button class="btn" id="p-move" disabled>② Hosts move</button>
+            <button class="btn" id="p-run" disabled>Repeat to the end</button>
+          </div>
+          <div class="btnrow" style="margin-top:10px">
+            <button class="btn" id="p-cpu">Let the computer try (k-means++)</button>
+            <button class="btn" id="p-bad">A terrible start</button>
+            <button class="btn" id="p-new">New party</button>
+          </div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel readout">
+          <div class="kicker" style="margin-bottom:6px">Scoreboard</div>
+          <div class="stat"><span>Hosts placed</span><b id="p-hosts">0 / 4</b></div>
+          <div class="stat"><span>Rounds</span><b id="p-round">0</b></div>
+          <div class="stat"><span>Your total walking</span><b id="p-walk">–</b></div>
+          <div class="stat"><span>The computer's total walking</span><b id="p-best">–</b></div>
+          <div class="verdict" id="p-verdict">Click anywhere in the room to place your first host.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── STATION 2 ───────────── -->
+  <section class="station" id="s2">
+    <div class="st-head"><span class="st-num">STATION 2</span><h2>How many T-shirt sizes?</h2><span class="st-q">"How many segments?"</span></div>
+    <p class="prompt">400 <b>real customers</b> of the gift shop, described by Recency, Frequency and Monetary (logged and standardized, as in the notebook).
+      Slide <b>k</b>: k-means splits them into k segments. A clothing company asks the same question about sizes: one size fits nobody, twenty sizes fill a warehouse.
+      Watch two charts: the <b>elbow</b> (total walking always falls; look for the bend) and the <b>silhouette</b> (do customers belong at their own table? higher is better).</p>
+    <div class="mission">Mission: which k would you defend to the boss? Then read the table: can you name every segment?</div>
+    <div class="layout">
+      <div class="panel">
+        <div class="kicker" style="margin-bottom:6px">Each dot is a customer · left = bought recently · up = spends more</div>
+        <canvas id="c2" width="820" height="420"></canvas>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+          <div><div class="kicker" style="margin-bottom:4px">Elbow: total walking</div><canvas id="c2e" width="400" height="170"></canvas></div>
+          <div><div class="kicker" style="margin-bottom:4px">Silhouette (higher = cleaner)</div><canvas id="c2s" width="400" height="170"></canvas></div>
+        </div>
+      </div>
+      <div>
+        <div class="panel controls">
+          <div class="row"><label>k = number of segments <b id="v-k2">4</b></label><input type="range" id="k2" min="1" max="8" step="1" value="4"></div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel readout">
+          <div class="kicker" style="margin-bottom:6px">The typical customer in each segment (medians)</div>
+          <table class="mini" id="t2"></table>
+          <div class="verdict" id="v2"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── STATION 3 ───────────── -->
+  <section class="station" id="s3">
+    <div class="st-head"><span class="st-num">STATION 3</span><h2>Shapes k-means can't see</h2><span class="st-q">"What if groups aren't round?"</span></div>
+    <p class="prompt">k-means only knows "walk to the nearest host", so it draws round groups of similar size. <b>DBSCAN</b> looks at a crowd from above:
+      <b>wherever people stand densely, that's a group; anyone standing alone is a loner</b> (gray, real name: <b>noise</b>). It has two dials instead of k:
+      <b>reach</b> (how close counts as a neighbor, <i>eps</i>) and <b>crowd size</b> (how many neighbors make a spot dense, <i>min_samples</i>).</p>
+    <div class="mission">Mission: on the moons, make DBSCAN find exactly 2 groups and send the loners to gray. Then try k-means on the same shape.</div>
+    <div class="presets" id="sh-presets">
+      <button data-s="moons" class="active">Two moons</button><button data-s="rings">A ring around a crowd</button><button data-s="blobs">Round blobs</button><button data-s="uneven">One big crowd, one small one</button>
+    </div>
+    <div class="layout">
+      <div class="panel">
+        <canvas id="c3" width="820" height="440"></canvas>
+        <div class="key"><span><i style="background:#5f6a7d"></i>loner (noise)</span><span>colors: the groups the method found</span><span>circle around a dot: its reach</span></div>
+      </div>
+      <div>
+        <div class="panel controls">
+          <div class="btnrow" style="margin-bottom:12px"><button class="btn primary" id="m-db">DBSCAN</button><button class="btn" id="m-km">k-means</button></div>
+          <div class="row" id="r-eps"><label>Reach (eps) <b id="v-eps">0.15</b></label><input type="range" id="eps" min="0.04" max="0.5" step="0.01" value="0.15"></div>
+          <div class="row" id="r-ms"><label>Crowd size (min_samples) <b id="v-ms">6</b></label><input type="range" id="ms" min="2" max="20" step="1" value="6"></div>
+          <div class="row" id="r-k3" style="display:none"><label>k <b id="v-k3">2</b></label><input type="range" id="k3" min="1" max="6" step="1" value="2"></div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel readout">
+          <div class="stat"><span>Groups found</span><b id="s3-g">–</b></div>
+          <div class="stat"><span>Loners (noise)</span><b id="s3-n">–</b></div>
+          <div class="verdict" id="v3"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── STATION 4 ───────────── -->
+  <section class="station" id="s4">
+    <div class="st-head"><span class="st-num">STATION 4</span><h2>The flashlight</h2><span class="st-q">"Can I see many columns at once?"</span></div>
+    <p class="prompt">The same 400 real customers live in <b>3 dimensions</b> (R, F, M). Your screen has 2. Hold a mug under a flashlight: from one angle the shadow is a useless circle, from another you see the handle.
+      <b>Turn</b> and <b>tilt</b> the cloud and watch its shadow. The number tells you how much of the cloud's spread the shadow <b>keeps</b>. The arrows show where each original column points in the shadow.</p>
+    <div class="mission">Mission: find an angle whose shadow keeps more than 90%. Then ask PCA for the best one.</div>
+    <div class="layout">
+      <div class="panel">
+        <canvas id="c4" width="820" height="460"></canvas>
+        <div class="key"><span><i style="background:#2ee6c5"></i>Champions</span><span><i style="background:#7c8cff"></i>Loyal</span><span><i style="background:#f5a524"></i>New &amp; occasional</span><span><i style="background:#8a93a6"></i>Hibernating</span><span>(the four segments from Station 2, k = 4)</span></div>
+      </div>
+      <div>
+        <div class="panel controls">
+          <div class="row"><label>Turn <b id="v-yaw">0°</b></label><input type="range" id="yaw" min="-180" max="180" step="1" value="90"></div>
+          <div class="row"><label>Tilt <b id="v-pitch">0°</b></label><input type="range" id="pitch" min="-90" max="90" step="1" value="0"></div>
+          <div class="btnrow"><button class="btn primary" id="pca-go">Show PCA's angle</button><button class="btn" id="pca-worst">The worst angle</button><button class="btn" id="spin">Spin</button></div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel readout">
+          <div class="kicker" style="margin-bottom:4px">The shadow keeps</div>
+          <div class="bigp" id="kept">–</div>
+          <div class="stat"><span>Your best so far</span><b id="kept-best">–</b></div>
+          <div class="stat"><span>The best possible (PCA)</span><b id="kept-max">?</b></div>
+          <div class="verdict" id="v4">Drag the sliders. Watch the number and the colors.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── STATION 5 ───────────── -->
+  <section class="station" id="s5">
+    <div class="st-head"><span class="st-num">STATION 5</span><h2>20 Questions</h2><span class="st-q">"Which receipts don't belong?"</span></div>
+    <p class="prompt">282 <b>real receipts</b>: how many items are on it (left to right) and the average price of one item (bottom to top). In 20 Questions you corner a thing with yes/no questions.
+      Here the questions are <b>random</b>: <i>"is the price above £5?" "fewer than 30 items?"</i> <b>Click a receipt</b>, then ask random questions until it stands alone.
+      An ordinary receipt hides in a crowd and takes many questions. A strange one is cornered in a few.</p>
+    <div class="mission">Mission: find the receipt that is cornered in the fewest questions on average. Then score them all.</div>
+    <div class="layout">
+      <div class="panel">
+        <canvas id="c5" class="click" width="820" height="460"></canvas>
+        <div class="key"><span><i style="background:#2ee6c5"></i>your receipt</span><span>dashed lines: the questions asked so far</span><span><i style="background:#ff6b8b"></i>after scoring: strangest</span></div>
+      </div>
+      <div>
+        <div class="panel controls">
+          <div class="btnrow">
+            <button class="btn primary" id="q-ask" disabled>Ask one random question</button>
+            <button class="btn" id="q-all" disabled>Ask until it's alone</button>
+          </div>
+          <div class="btnrow" style="margin-top:10px">
+            <button class="btn" id="q-100" disabled>Play 100 games</button>
+            <button class="btn" id="q-score">Score every receipt (Isolation Forest)</button>
+          </div>
+          <div class="row" style="margin-top:14px" id="r-budget"><label>Alert budget: receipts finance can check <b id="v-budget">10</b></label><input type="range" id="budget" min="1" max="40" step="1" value="10" disabled></div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel readout">
+          <div class="stat"><span>Receipt</span><b id="q-which">click one</b></div>
+          <div class="stat"><span>Questions this game</span><b id="q-n">–</b></div>
+          <div class="stat"><span>Average over 100 games</span><b id="q-avg">–</b></div>
+          <div class="verdict" id="v5">Click a receipt in the middle of the crowd first. Then one far away from everyone.</div>
+          <div class="toplist" id="q-top"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="note"><b>Where this goes next.</b> Every game here is one cell in the <a href="https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-10/ISOM835_Session10_Segments_Anomalies.ipynb" style="color:var(--teal)">Session 10 notebook</a>, on all 4,312 customers and 19,213 receipts:
+    <code>KMeans</code>, <code>silhouette_score</code>, <code>DBSCAN</code>, <code>PCA</code> and <code>IsolationForest</code> from scikit-learn. Data: UCI Online Retail II (Dec 2009 – Dec 2010), CC BY 4.0.</div>
+</div>
+
+<script>
+const DATA = {"cust":[[-0.838,-0.395,-0.072,9,2,680],[-0.394,-0.982,-0.623,52,1,336],[0.329,-0.395,-0.826,122,2,258],[-0.859,1.729,0.599,7,12,1606],[0.742,-0.982,-0.572,162,1,358],[-0.466,0.022,-0.564,45,3,362],[-0.384,-0.982,-0.72,53,1,296],[-0.859,-0.982,-0.992,7,1,209],[2.838,-0.982,-0.617,365,1,338],[-0.239,-0.982,-0.699,67,1,304],[0.009,0.022,1.248,91,3,3687],[2.786,-0.982,-1.188,360,1,162],[-0.291,-0.395,-0.211,62,2,569],[-0.9,2.491,1.618,3,21,5922],[-0.766,0.345,-0.515,16,4,385],[-0.095,0.022,-0.417,81,3,437],[-0.704,0.022,-0.085,22,3,669],[-0.673,1.196,0.883,25,8,2311],[-0.198,-0.982,-0.981,71,1,212],[2.177,-0.395,-0.439,301,2,425],[-0.394,1.026,0.424,52,7,1284],[-0.694,-0.395,-0.223,23,2,560],[-0.487,-0.395,0.362,43,2,1185],[0.742,-0.395,-0.738,162,2,290],[-0.332,-0.395,-0.638,58,2,329],[-0.921,0.609,0.453,1,5,1332],[0.329,0.345,0.567,122,4,1542],[-0.384,-0.982,-1.063,53,1,191],[-0.859,1.349,0.485,7,9,1388],[1.754,-0.982,-1.138,260,1,173],[-0.931,-0.395,0.084,0,2,831],[-0.219,-0.982,-2.374,69,1,35],[-0.312,0.345,0.157,60,4,912],[-0.404,0.832,0.327,51,6,1134],[-0.621,0.609,1.047,30,5,2850],[-0.177,-0.982,-0.944,73,1,222],[1.33,0.345,0.237,219,4,1011],[-0.89,3.944,2.859,4,59,28967],[-0.931,0.022,0.178,0,3,937],[0.256,-0.395,0.823,115,2,2139],[0.473,-0.395,-0.141,136,2,623],[-0.095,0.609,0.384,81,5,1219],[1.547,-0.982,-0.387,240,1,454],[-0.828,-0.982,-0.83,10,1,257],[-0.095,0.345,0.867,81,4,2263],[-0.921,0.345,0.794,1,4,2062],[0.329,1.487,0.616,122,10,1641],[1.454,-0.982,-0.414,231,1,439],[-0.766,2.279,2.272,16,18,13680],[-0.415,-0.982,-0.633,50,1,331],[-0.931,0.832,0.189,0,6,951],[-0.91,-0.395,-0.328,2,2,490],[-0.869,2.279,1.835,6,18,7815],[-0.859,0.022,-0.242,7,3,547],[-0.198,-0.982,-0.502,71,1,392],[-0.786,-0.982,0.746,14,1,1938],[-0.91,2.676,2.446,2,24,17081],[1.733,1.196,0.644,258,8,1702],[-0.456,0.022,-0.03,46,3,717],[-0.002,0.022,0.162,90,3,918],[-0.797,0.022,0.217,13,3,985],[-0.043,-0.395,-0.748,86,2,286],[-0.043,0.345,-0.614,86,4,339],[-0.497,-0.982,-0.536,42,1,375],[-0.477,-0.395,-0.254,44,2,538],[-0.404,0.022,0.412,51,3,1264],[-0.859,-0.395,0.003,7,2,748],[0.256,-0.982,-1.072,115,1,188],[-0.786,1.349,1.636,14,9,6058],[1.392,-0.982,-1.195,225,1,161],[1.103,-0.982,-1.014,197,1,203],[2.332,-0.982,-1.072,316,1,188],[-0.756,0.345,0.42,17,4,1277],[-0.91,2.353,1.89,2,19,8385],[-0.435,0.022,0.465,48,3,1353],[-0.477,-0.982,-0.015,44,1,731],[1.774,-0.982,-1.242,262,1,151],[1.692,-0.982,-1.529,254,1,104],[-0.786,-0.982,-0.832,14,1,257],[-0.704,1.196,1.362,22,8,4267],[2.435,0.609,1.726,326,5,6799],[-0.642,1.349,0.79,28,9,2051],[-0.828,0.609,1.175,10,5,3358],[-0.694,1.026,1.978,23,7,9385],[-0.002,-0.982,-0.946,90,1,222],[-0.632,0.022,0.134,29,3,885],[-0.786,1.613,1.331,14,11,4102],[-0.074,-0.982,-1.213,83,1,157],[2.755,-0.982,-0.683,357,1,311],[-0.91,-0.982,-1.481,2,1,111],[1.743,-0.395,-0.886,259,2,239],[-0.869,0.832,1.158,6,6,3285],[-0.776,-0.395,0.099,15,2,847],[-0.508,-0.982,-1.725,41,1,81],[2.755,-0.982,-0.637,357,1,330],[-0.704,-0.982,-1.485,22,1,111],[1.537,-0.395,0.705,239,2,1840],[0.329,-0.395,0.033,122,2,778],[0.04,0.609,1.761,94,5,7112],[-0.683,-0.982,-1.199,24,1,160],[-0.745,-0.395,-0.042,18,2,706],[-0.456,0.022,0.728,46,3,1894],[-0.848,1.836,2.0,8,13,9653],[-0.611,2.491,2.097,31,21,10924],[1.454,-0.982,-0.724,231,1,295],[-0.188,0.345,0.413,72,4,1265],[1.908,-0.982,-1.052,275,1,193],[-0.91,1.026,3.322,2,7,52422],[-0.177,0.345,1.272,73,4,3802],[1.826,-0.982,-0.507,267,1,389],[-0.931,4.972,3.374,0,121,56003],[-0.384,1.026,1.138,53,7,3204],[-0.456,-0.982,-0.234,46,1,553],[2.208,0.022,0.547,304,3,1502],[-0.817,-0.395,-0.089,11,2,665],[-0.921,2.2,2.046,1,17,10245],[-0.167,-0.395,-0.161,74,2,606],[-0.704,-0.395,-0.277,22,2,523],[2.197,-0.395,-0.537,303,2,375],[-0.89,1.026,0.469,4,7,1359],[-0.188,-0.395,-0.028,72,2,720],[-0.58,-0.395,-0.234,34,2,552],[-0.725,0.022,0.139,20,3,891],[0.824,-0.982,-1.574,170,1,99],[0.866,-0.395,-0.339,174,2,483],[-0.694,0.345,0.8,23,4,2079],[-0.756,0.022,-0.088,17,3,667],[-0.435,0.022,0.684,48,3,1791],[-0.487,0.345,-0.043,43,4,705],[-0.745,0.345,0.238,18,4,1012],[0.194,0.609,0.825,109,5,2146],[-0.766,-0.982,-0.897,16,1,236],[0.318,-0.982,-0.585,121,1,352],[-0.776,1.349,0.406,15,9,1255],[-0.91,1.026,1.37,2,7,4309],[1.671,-0.982,-0.87,252,1,244],[0.174,-0.395,-0.787,107,2,272],[1.031,-0.982,-1.494,190,1,109],[-0.58,0.022,1.08,34,3,2975],[-0.497,0.022,0.996,42,3,2671],[-0.363,0.022,0.653,55,3,1722],[1.671,0.022,0.491,252,3,1399],[-0.632,-0.395,-0.914,29,2,231],[-0.817,1.026,0.186,11,7,947],[-0.848,0.609,0.799,8,5,2075],[1.712,-0.395,-0.835,256,2,256],[-0.394,-0.982,-1.068,52,1,189],[0.029,-0.395,-0.993,93,2,209],[0.163,1.196,1.825,106,8,7713],[-0.745,1.196,1.113,18,8,3102],[-0.508,-0.395,-1.555,41,2,101],[0.101,1.026,1.743,100,7,6951],[1.681,-0.982,-1.062,253,1,191],[1.619,-0.982,-0.183,247,1,590],[-0.115,-0.982,-0.505,79,1,390],[0.091,0.345,0.797,99,4,2069],[-0.776,0.345,-0.005,15,4,742],[-0.404,0.345,0.806,51,4,2094],[-0.043,-0.395,-0.12,86,2,640],[-0.632,0.609,0.19,29,5,952],[-0.89,0.345,-0.164,4,4,604],[0.37,-0.982,-0.182,126,1,591],[0.907,-0.982,-1.15,178,1,170],[-0.188,-0.395,-0.367,72,2,466],[-0.838,1.729,2.352,9,12,15139],[-0.095,0.609,0.412,81,5,1264],[-0.528,-0.982,-0.683,39,1,311],[2.889,-0.982,-0.911,370,1,232],[0.442,-0.982,-0.486,133,1,400],[0.742,0.022,0.163,162,3,920],[-0.673,-0.395,-0.153,25,2,613],[0.453,0.022,0.023,134,3,768],[1.784,-0.395,-2.197,263,2,44],[-0.9,-0.982,-1.772,3,1,76],[-0.26,-0.982,-0.639,65,1,329],[-0.384,1.196,0.937,53,8,2476],[-0.105,-0.395,-0.473,80,2,407],[2.043,-0.982,-0.045,288,1,704],[-0.198,-0.982,-1.25,71,1,150],[-0.487,-0.982,-0.014,43,1,733],[1.02,-0.982,-1.895,189,1,65],[0.081,-0.395,0.751,98,2,1951],[-0.25,-0.982,-0.408,66,1,442],[-0.105,-0.982,-1.33,80,1,135],[-0.91,4.482,3.684,2,86,83284],[-0.828,-0.982,-1.902,10,1,64],[-0.786,0.609,0.557,14,5,1522],[0.669,-0.395,0.077,155,2,823],[-0.58,1.613,0.899,34,11,2359],[-0.9,-0.982,-0.708,3,1,301],[-0.136,-0.982,-0.986,77,1,210],[0.401,0.345,0.488,129,4,1394],[0.948,0.345,-0.093,182,4,662],[-0.621,-0.395,-0.484,30,2,401],[-0.632,0.022,-0.29,29,3,514],[-0.838,1.487,1.13,9,10,3172],[-0.848,0.609,-0.008,8,5,739],[-0.828,1.487,1.366,10,10,4288],[-0.848,0.345,0.073,8,4,819],[-0.859,0.832,0.71,7,6,1852],[-0.559,-0.982,-0.145,36,1,620],[-0.817,0.832,0.328,11,6,1135],[-0.921,0.022,-0.071,1,3,681],[0.36,0.345,1.349,125,4,4195],[0.442,0.022,0.208,133,3,974],[-0.57,1.026,0.519,35,7,1450],[-0.115,0.345,0.895,79,4,2346],[-0.714,0.022,0.649,21,3,1712],[-0.652,0.609,0.236,27,5,1009],[2.022,-0.982,1.216,286,1,3538],[-0.25,-0.395,-0.064,66,2,687],[0.401,0.609,0.383,129,5,1218],[-0.363,0.022,1.629,55,3,6001],[-0.848,1.836,1.767,8,13,7166],[-0.817,1.487,0.84,11,10,2186],[-0.25,-0.982,-0.296,66,1,510],[-0.776,0.022,0.365,15,3,1190],[-0.58,0.022,1.755,34,3,7057],[-0.652,-0.982,-0.853,27,1,250],[-0.58,-0.395,-0.274,34,2,525],[-0.353,-0.982,-1.209,56,1,158],[-0.652,-0.982,-0.254,27,1,538],[0.391,0.345,0.193,128,4,955],[-0.838,0.832,0.882,9,6,2309],[0.184,-0.982,0.015,108,1,760],[-0.848,0.609,0.468,8,5,1358],[-0.817,0.022,-0.172,11,3,599],[-0.611,0.022,0.281,31,3,1069],[-0.921,1.349,0.441,1,9,1312],[0.835,0.022,-0.364,171,3,468],[-0.89,-0.982,-0.981,4,1,212],[-0.786,1.487,0.982,14,10,2623],[2.497,-0.982,-3.318,332,1,10],[0.236,0.345,-0.061,113,4,690],[-0.91,1.026,0.669,2,7,1758],[0.886,-0.982,-1.504,176,1,108],[-0.921,1.196,1.002,1,8,2690],[1.413,-0.982,-1.299,227,1,141],[-0.188,0.345,1.124,72,4,3147],[-0.508,0.022,-0.563,41,3,362],[-0.621,-0.395,0.567,30,2,1541],[-0.26,-0.395,-0.695,65,2,306],[-0.797,1.613,1.387,13,11,4406],[-0.869,-0.395,0.989,6,2,2646],[-0.859,0.609,0.346,7,5,1162],[-0.859,0.345,-0.153,7,4,613],[-0.621,2.491,1.827,30,21,7732],[0.587,0.022,0.238,147,3,1012],[-0.756,1.026,0.689,17,7,1802],[-0.332,0.022,0.169,58,3,926],[-0.725,0.832,1.349,20,6,4196],[2.342,-0.982,-1.365,317,1,129],[2.177,-0.982,-0.762,301,1,281],[-0.188,0.345,0.817,72,4,2124],[-0.9,1.026,0.66,3,7,1737],[-0.931,-0.395,-1.429,0,2,119],[-0.869,0.832,0.612,6,6,1634],[2.29,-0.982,-1.635,312,1,91],[-0.725,1.836,1.431,20,13,4661],[0.938,-0.982,-0.348,181,1,477],[1.609,-0.982,-0.99,246,1,209],[-0.353,0.022,0.931,56,3,2457],[-0.931,-0.395,-0.279,0,2,522],[-0.136,0.022,0.131,77,3,882],[-0.704,-0.982,-0.865,22,1,246],[0.484,-0.395,0.558,137,2,1524],[-0.828,1.026,1.024,10,7,2767],[0.752,-0.395,-0.718,163,2,297],[-0.817,-0.982,-1.505,11,1,108],[0.432,3.59,2.321,132,46,14557],[1.475,-0.982,-0.328,233,1,490],[-0.363,-0.395,-0.295,55,2,511],[0.453,-0.982,-1.018,134,1,202],[1.299,-0.982,-1.353,216,1,131],[-0.652,-0.395,-0.443,27,2,423],[-0.797,0.345,0.074,13,4,820],[-0.714,-0.982,-1.369,21,1,128],[2.074,-0.982,-0.417,291,1,437],[-0.828,0.609,0.526,10,5,1463],[-0.435,1.349,0.816,48,9,2120],[-0.487,0.022,-0.003,43,3,743],[0.504,0.022,0.025,139,3,770],[-0.363,0.832,0.49,55,6,1398],[-0.817,0.022,0.566,11,3,1539],[-0.363,-0.982,-1.253,55,1,149],[0.184,-0.982,-1.4,108,1,124],[-0.766,0.609,0.226,16,5,996],[1.113,-0.982,-0.436,198,1,426],[-0.322,0.609,-0.478,59,5,404],[-0.714,0.832,1.313,21,6,4005],[-0.601,0.345,0.2,32,4,963],[-0.322,0.022,0.106,59,3,855],[-0.022,-0.982,-0.969,88,1,215],[1.33,-0.982,-0.018,219,1,729],[-0.869,1.613,0.743,6,11,1932],[-0.838,2.117,2.631,9,16,21660],[-0.9,-0.395,-0.914,3,2,231],[-0.91,1.196,0.525,2,8,1461],[0.329,1.026,-0.741,122,7,288],[1.444,-0.982,-1.184,230,1,163],[-0.786,1.613,1.238,14,11,3641],[-0.786,0.022,-0.34,14,3,482],[-0.869,-0.982,-0.701,6,1,304],[-0.611,1.196,1.044,31,8,2839],[-0.363,2.03,1.873,55,15,8207],[-0.786,1.196,1.033,14,8,2799],[-0.776,-0.395,-0.062,15,2,689],[0.917,0.022,-0.209,179,3,571],[-0.487,-0.395,0.343,43,2,1158],[0.236,0.022,0.016,113,3,761],[1.475,0.345,-0.015,233,4,732],[0.979,-0.982,-0.385,185,1,456],[1.103,-0.982,-1.377,197,1,127],[-0.704,-0.395,0.583,22,2,1573],[-0.384,0.022,0.16,53,3,915],[-0.508,-0.982,-0.625,41,1,335],[-0.921,-0.982,-0.825,1,1,259],[-0.786,1.613,1.236,14,11,3629],[-0.291,0.022,-0.113,62,3,645],[-0.89,1.349,1.392,4,9,4436],[-0.188,0.022,0.049,72,3,794],[-0.776,-0.395,-0.062,15,2,689],[-0.786,0.345,0.445,14,4,1318],[-0.848,1.613,1.46,8,11,4834],[-0.817,0.022,0.443,11,3,1315],[-0.745,-0.395,-1.186,18,2,163],[-0.9,2.617,1.855,3,23,8019],[-0.136,0.345,0.208,77,4,973],[-0.57,0.609,1.172,35,5,3345],[-0.931,1.613,1.109,0,11,3086],[0.504,0.832,0.55,139,6,1509],[-0.642,-0.982,-0.18,28,1,592],[-0.57,0.345,0.306,35,4,1104],[1.134,-0.395,-0.403,200,2,445],[1.392,-0.982,-1.147,225,1,171],[-0.91,1.613,1.479,2,11,4954],[-0.714,0.832,0.679,21,6,1779],[0.618,-0.395,-0.595,150,2,348],[1.227,0.832,0.857,209,6,2235],[-0.838,1.026,1.02,9,7,2753],[0.287,0.022,0.071,118,3,817],[2.321,-0.982,-0.443,315,1,423],[-0.9,1.729,2.558,3,12,19727],[-0.57,0.609,0.582,35,5,1571],[-0.198,-0.982,-0.649,71,1,324],[-0.776,0.022,0.554,15,3,1516],[0.979,0.022,2.058,185,3,10396],[1.258,-0.982,-1.42,212,1,120],[1.206,-0.982,-1.235,207,1,153],[-0.91,0.832,0.916,2,6,2409],[-0.9,0.022,-0.328,3,3,490],[1.444,0.022,-0.38,230,3,458],[-0.466,-0.982,-0.906,45,1,233],[-0.642,-0.395,-1.376,28,2,127],[1.485,-0.982,-1.249,234,1,150],[-0.632,0.609,0.92,29,5,2423],[1.537,0.022,0.234,239,3,1007],[0.163,0.022,0.049,106,3,794],[-0.89,1.936,1.217,4,14,3545],[-0.136,0.832,0.36,77,6,1182],[-0.539,1.026,1.776,38,7,7246],[-0.136,0.022,0.142,77,3,894],[1.444,0.345,0.039,230,4,784],[-0.797,-0.395,-0.283,13,2,519],[1.764,0.345,0.442,261,4,1314],[0.731,-0.982,-1.492,161,1,110],[-0.188,0.022,0.443,72,3,1315],[0.814,-0.982,-0.436,169,1,426],[-0.384,0.022,-0.28,53,3,521],[-0.632,0.832,1.603,29,6,5809],[1.268,0.022,0.86,213,3,2245],[0.153,-0.395,-1.533,105,2,104],[-0.848,1.836,0.413,8,13,1266],[-0.064,1.196,1.109,84,8,3085],[-0.745,0.022,0.425,18,3,1286],[-0.528,-0.395,-0.236,39,2,551],[2.91,-0.982,-1.668,372,1,87],[-0.859,0.609,0.594,7,5,1597],[1.96,-0.395,-0.593,280,2,349],[0.267,-0.982,-0.696,116,1,305],[-0.786,-0.982,-0.394,14,1,450],[-0.528,1.349,2.086,39,9,10776],[0.545,-0.982,-0.945,143,1,222],[-0.549,-0.982,-0.026,37,1,721],[0.391,0.022,-0.76,128,3,281],[0.917,-0.395,-1.959,179,2,60],[2.105,-0.982,-0.691,294,1,307],[1.093,0.022,-0.205,196,3,573],[-0.312,-0.395,0.235,60,2,1008],[-0.756,1.729,1.471,17,12,4905],[1.134,-0.395,-0.107,200,2,650],[-0.611,1.196,1.198,31,8,3458],[-0.714,-0.395,0.099,21,2,847],[-0.539,0.345,0.265,38,4,1047],[0.618,-0.982,-1.194,150,1,161],[0.153,0.022,0.133,105,3,885],[-0.694,-0.395,-0.71,23,2,300],[0.019,-0.982,-0.826,92,1,259],[-0.033,-0.395,0.417,87,2,1273],[0.938,-0.395,-1.028,181,2,199]],"rec":[[1.886,0.421,77,202.83,"WHITE HANGING HEART T-LIGHT HOLDER",0],[1.544,0.503,35,111.46,"DOOR MAT RED SPOT",0],[2.352,0.236,225,387.51,"PAPER CHAIN KIT EMPIRE",0],[2.526,-0.142,336,242.06,"SMALL HEART MEASURING SPOONS",0],[3.299,-0.568,1992,539.04,"BUDDHA INCENSE HOLDER ASSORTED",0],[1.643,0.415,44,114.3,"ENAMEL FLOWER JUG CREAM",0],[1.924,0.211,84,136.4,"PAPER BUNTING COLOURED LACE",0],[2.602,0.736,400,2180.0,"BOOM BOX SPEAKER BOYS",0],[2.394,-0.068,248,211.92,"VINTAGE SNAP CARDS",0],[2.1,0.188,126,194.1,"RED SPOTTY CHARLOTTE BAG",0],[1.681,0.458,48,137.7,"FELTCRAFT CUSHION BUTTERFLY",0],[2.729,0.16,536,775.2,"LUNCH BAG SPACEBOY DESIGN ",0],[2.516,0.01,328,335.98,"FLOWER FAIRY SUMMER BOUQUET SACHET",0],[2.589,0.385,388,942.02,"RED RETROSPOT UMBRELLA",0],[2.584,0.025,384,406.32,"PACK OF 12 COLOURED PENCILS",0],[2.539,0.046,346,384.74,"PINK  SPOTTY PLATE ",0],[0.778,0.998,6,59.7,"CAKE STAND LOVEBIRD 2 TIER WHITE",0],[1.255,0.185,18,27.54,"YOU'RE CONFUSING ME METAL SIGN ",0],[2.017,0.476,104,311.52,"VINTAGE UNION JACK BUNTING",0],[2.057,0.458,114,327.6,"HOT WATER BOTTLE BABUSHKA ",0],[1.973,0.268,94,174.1,"PINK CREAM FELT CRAFT TRINKET BOX ",0],[1.813,0.257,65,117.35,"SILVER DISCO HANDBAG",0],[1.857,0.394,72,178.3,"PAPER BUNTING WHITE LACE",0],[1.681,0.402,48,121.2,"PINK PARTY BAGS",0],[2.526,0.301,336,671.56,"GREEN CHRISTMAS TREE STRING 20LIGH",0],[1.949,0.453,89,252.85,"SEWING BOX RETROSPOT DESIGN ",0],[2.121,0.39,132,324.06,"SMALL GLASS HEART TRINKET POT",0],[2.824,0.19,667,1033.55,"WOODLAND WATER TRANSFER TATTOOS ",0],[2.641,0.276,438,826.15,"RED/WHITE SPOT PICNIC BAG",0],[2.496,0.17,313,463.11,"6 CHOCOLATE LOVE HEART T-LIGHTS",0],[2.574,0.168,375,552.05,"BIG DOUGHNUT FRIDGE MAGNETS",0],[0.778,0.47,6,17.7,"WOODEN HAPPY BIRTHDAY GARLAND",0],[2.373,0.224,236,395.4,"KEY FOB , SHED",0],[2.033,0.069,108,126.6,"KINGS CHOICE TEA CADDY ",0],[2.324,0.259,211,383.48,"CHARLIE AND LOLA CHARLOTTE BAG",0],[1.987,0.329,97,206.7,"WHITE WOOD GARDEN PLANT LADDER",0],[2.903,0.222,800,1334.78,"RED/WHITE DOT MINI CASES",0],[1.944,0.383,88,212.78,"CORONA MEXICAN TRAY",0],[1.813,0.354,65,146.75,"WHITE HANGING HEART T-LIGHT HOLDER",0],[2.393,0.134,247,336.66,"LUNCH BAG PINK RETROSPOT",0],[1.875,0.328,75,159.51,"MOTORING TISSUE BOX",0],[3.144,0.244,1392,2442.72,"BLUE PULL BACK RACING CAR",0],[2.121,0.423,132,349.96,"PACK OF 6 BIRDY GIFT TAGS",0],[1.792,0.33,62,132.52,"WHITE METAL LANTERN",0],[2.48,0.159,302,435.1,"CHARLOTTE BAG SUKI DESIGN",0],[2.828,-0.122,673,508.13,"LIPSTICK PEN BABY PINK",0],[1.681,-0.071,48,40.8,"PACK OF 12 COLOURED PENCILS",0],[1.991,0.295,98,193.29,"POTTING SHED SOW 'N' GROW SET",0],[2.303,0.224,201,336.33,"VINTAGE HEADS AND TAILS CARD GAME ",0],[2.599,0.141,397,549.38,"PLEASE ONE PERSON METAL SIGN",0],[2.27,0.199,186,294.25,"POPPY'S PLAYHOUSE BEDROOM ",0],[2.201,0.284,159,305.55,"JUMBO STORAGE BAG SKULLS",0],[2.196,-0.059,157,137.19,"HAND WARMER UNION JACK",0],[2.061,0.09,115,141.63,"CHARLIE AND LOLA CHARLOTTE BAG",0],[1.568,0.522,37,123.03,"GLASS JAR KINGS CHOICE",0],[2.723,0.214,528,864.8,"SEWING BOX RETROSPOT DESIGN ",0],[2.908,0.342,810,1781.7,"HOT WATER BOTTLE BABUSHKA ",0],[2.903,0.097,800,1000.0,"SOMBRERO ",0],[2.27,0.297,186,368.83,"HEART OF WICKER SMALL",0],[2.061,0.302,115,230.51,"6 RIBBONS RUSTIC CHARM",0],[2.352,0.056,225,255.83,"PICTURE DOMINOES",0],[2.274,0.306,188,380.7,"BLACK RECORD COVER FRAME",0],[1.38,0.407,24,61.2,"WOODEN FRAME ANTIQUE WHITE ",0],[1.643,0.457,44,125.94,"PAPER CHAIN KIT VINTAGE CHRISTMAS",0],[2.283,0.196,192,301.44,"WHITE BELL HONEYCOMB PAPER ",0],[2.104,0.103,127,160.83,"BOTANICAL ROSE GREETING CARD",0],[2.061,0.456,115,328.35,"POLKA DOT PEN",0],[1.0,0.217,10,16.5,"LUNCH BAG CARS BLUE",0],[1.23,1.084,17,206.15,"RED RETROSPOT CAKE STAND",0],[2.604,0.233,402,687.08,"MILK PAN PINK RETROSPOT",0],[1.681,0.306,48,97.2,"JAM MAKING SET WITH JARS",0],[2.215,0.269,164,304.64,"ASSORTED COLOUR BIRD ORNAMENT",0],[2.134,-0.083,136,112.46,"COLOUR GLASS T-LIGHT HOLDER HANGIN",0],[1.959,0.539,91,314.85,"FELTCRAFT CUSHION OWL",0],[1.919,0.19,83,128.58,"SCANDINAVIAN REDS RIBBONS",0],[2.453,0.056,284,323.31,"SLATE TILE NATURAL HANGING",0],[2.283,0.293,192,376.92,"NO SINGING METAL SIGN",0],[1.886,0.868,77,567.75,"GINGHAM HEART WREATH",0],[2.889,-0.208,774,479.7,"FLAG OF ST GEORGE CAR FLAG",0],[2.072,0.325,118,249.65,"DAIRY MAID TOASTRACK",0],[2.332,0.39,215,527.3,"RED ENCHANTED FOREST PLACEMAT",0],[3.282,0.192,1916,2982.82,"SET3 BOOK BOX GREEN GINGHAM FLOWER",0],[2.623,0.366,420,975.0,"POCKET BAG PINK PAISELY BROWN SPOT",0],[2.215,0.261,164,299.44,"LOVE BUILDING BLOCK WORD",0],[2.665,-0.143,462,332.7,"ROSES IN WHITE HEART CANDLE ",0],[1.792,0.462,62,179.54,"RED RETROSPOT SUGAR JAM BOWL",0],[2.497,0.062,314,361.84,"RED HEART SHAPE LOVE BUCKET ",0],[1.681,0.228,48,81.12,"HOLLY TOP CHRISTMAS STOCKING",0],[2.567,-0.119,369,280.71,"CINAMMON & ORANGE WREATH",0],[2.508,-0.283,322,167.66,"4 GOLD FLOCK CHRISTMAS BALLS",0],[2.064,0.181,116,176.01,"BLUE CALCULATOR RULER",0],[1.857,0.37,72,168.7,"WHITE GLASS TV TRIPLE FRAME",0],[2.104,0.364,127,293.59,"COFFEE MUG APPLES DESIGN",0],[1.602,0.585,40,153.89,"REX CASH+CARRY JUMBO SHOPPER",0],[2.704,0.212,506,824.18,"SET/2 RED SPOTTY TEA TOWELS ",0],[2.204,0.523,160,533.36,"CHOCOLATE HOT WATER BOTTLE",0],[1.973,-0.075,94,79.14,"RIBBON REEL CHRISTMAS SOCK BAUBLE",0],[1.982,0.237,96,165.6,"HANGING RIDGE GLASS T-LIGHT HOLDER",0],[2.107,0.308,128,259.92,"SCOTTIE DOG HOT WATER BOTTLE",0],[2.025,0.263,106,194.1,"ANTIQUE GLASS RIDGED HANGING BALL",0],[2.595,-0.105,394,309.68,"SWEETHEART CAKESTAND 3 TIER",0],[2.041,0.682,110,529.5,"EDWARDIAN PARASOL NATURAL",0],[1.613,0.627,41,173.54,"RED SPOTTY BISCUIT TIN",0],[1.892,0.588,78,302.1,"WOODEN ADVENT CALENDAR CREAM",0],[1.681,0.097,48,60.0,"FILIGRIS HEART WITH BUTTERFLY",0],[2.061,0.349,115,257.0,"WHITE CHRISTMAS GARLAND STARS TREE",0],[2.462,0.015,290,299.98,"4 TRADITIONAL SPINNING TOPS",0],[2.201,0.369,159,371.85,"WOODEN CROQUET GARDEN SET",0],[2.501,0.089,317,389.19,"PLACE SETTING WHITE HEART",0],[1.959,0.452,91,257.41,"DOOR MAT UNION FLAG",0],[1.716,0.23,52,88.28,"S/4 CACTI CANDLES",0],[1.342,0.674,22,103.84,"SET/3 RUSSIAN DOLL STACKING TINS",0],[2.462,0.023,290,305.7,"YELLOW EASTER EGG HUNT START POST",0],[3.204,0.217,1600,2640.0,"JUMBO STORAGE BAG SKULLS",0],[2.664,0.154,461,656.85,"CREAM HEART CARD HOLDER",0],[2.318,0.32,208,434.09,"UNION JACK FLAG LUGGAGE TAG",0],[2.487,0.253,307,549.87,"VINTAGE CREAM CAT FOOD CONTAINER",0],[2.632,0.363,429,989.63,"HANGING METAL STAR LANTERN",0],[2.827,0.075,672,799.36,"VINTAGE UNION JACK SHOPPING BAG",0],[2.134,0.095,136,169.12,"STRAWBERRY CERAMIC TRINKET BOX",0],[2.554,0.268,358,663.6,"COOK WITH WINE METAL SIGN ",0],[1.568,0.559,37,134.03,"MA CAMPAGNE CUTLERY BOX",0],[1.792,0.691,62,304.5,"WOOD BLACK BOARD ANT WHITE FINISH",0],[1.146,0.207,14,22.55,"REX CASH+CARRY JUMBO SHOPPER",0],[2.137,0.362,137,314.99,"WHITE BELL HONEYCOMB PAPER GARLAND",0],[1.643,0.861,44,319.32,"HANGING METAL BIRD BATH",0],[2.307,0.422,203,536.83,"SWEETHEART CERAMIC TRINKET BOX",0],[1.799,0.396,63,156.75,"BASKET OF FLOWERS SEWING KIT",0],[2.377,0.186,238,365.15,"IVORY HANGING DECORATION  HEART",0],[1.857,0.628,72,306.0,"CHILLI LIGHTS",0],[0.903,0.933,8,68.6,"PINK AND LILAC QUILTED THROW ",0],[2.562,0.393,365,902.35,"6 CHOCOLATE LOVE HEART T-LIGHTS",0],[1.672,0.293,47,92.35,"PAPER CHAIN KIT RETRO SPOT",0],[1.875,0.548,75,264.85,"LUNCH BOX I LOVE LONDON",0],[1.869,0.412,74,191.02,"DOOR MAT AIRMAIL ",0],[2.173,0.25,149,265.05,"LIPSTICK PEN RED",0],[1.991,0.279,98,186.1,"RED GINGHAM ROSE JEWELLERY BOX",0],[1.954,0.391,90,221.19,"PURPLE ANEMONE ARTIFICIAL FLOWER",0],[2.618,0.0,415,415.31,"SET/2 RED SPOTTY TEA TOWELS ",0],[2.386,0.149,243,342.09,"PIGGY BANK RETROSPOT ",0],[0.0,0.695,1,4.95,"OWL DOORSTOP",0],[2.045,0.465,111,323.75,"ENGLISH ROSE DESIGN PEG BAG",0],[2.021,0.277,105,198.8,"TOY TIDY PINK POLKADOT",0],[2.117,0.265,131,241.1,"RED GINGHAM ROSE JEWELLERY BOX",0],[1.914,0.361,82,188.25,"HOT WATER BOTTLE TEA AND SYMPATHY",0],[2.332,0.006,215,217.77,"12 COLOURED PARTY BALLOONS",0],[2.438,0.112,274,354.54,"RED RETROSPOT CUP",0],[2.149,0.464,141,410.71,"LARGE WHITE/PINK ROSE ART FLOWER",0],[1.892,0.242,78,136.32,"LUNCH BOX WITH CUTLERY RETROSPOT ",0],[2.573,0.132,374,507.41,"SCANDINAVIAN PAISLEY PICNIC BAG",0],[2.479,0.212,301,490.49,"WOODLAND CHARLOTTE BAG",0],[1.987,0.213,97,158.45,"KEY FOB , BACK DOOR ",0],[2.155,0.158,143,205.72,"CREAM CUPID HEARTS COAT HANGER",0],[1.556,0.753,36,204.0,"STRAWBERRY DREAM CHILDS UMBRELLA",0],[2.832,0.052,679,765.6,"GREEN 3 PIECE MINI DOTS CUTLERY SE",0],[2.816,0.258,654,1183.8,"RED SPOTTY ROUND CAKE TINS",0],[2.519,0.442,330,913.5,"EMPIRE DESIGN ROSETTE",0],[1.875,0.126,75,100.2,"WRAP PINK FAIRY CAKES ",0],[1.826,0.394,67,166.05,"GREY HEART HOT WATER BOTTLE",0],[2.262,0.127,183,245.27,"CHOC TRUFFLE GOLD TRINKET POT ",0],[2.207,0.116,161,210.44,"SWEETHEART CERAMIC TRINKET BOX",0],[1.415,0.798,26,163.42,"STEEL SWEETHEART ROUND TABLE CREAM",0],[2.288,0.304,194,390.38,"BINGO SET",0],[1.748,0.482,56,169.8,"RETRO SPOT TRADITIONAL TEAPOT ",0],[2.464,0.184,291,444.03,"VICTORIAN GLASS HANGING T-LIGHT",0],[2.638,0.177,435,653.25,"HAND WARMER SCOTTY DOG DESIGN",0],[2.233,0.276,171,322.63,"SET/10 BLUE SPOTTY PARTY CANDLES",0],[2.699,0.179,500,755.82,"SILVER HANGING T-LIGHT HOLDER",0],[2.36,0.084,229,277.85,"TRADITIONAL MODELLING CLAY",0],[2.6,0.174,398,594.66,"PAPER BUNTING WHITE LACE",0],[1.959,0.443,91,252.27,"ANT WHITE WIRE HEART SPIRAL",0],[1.204,-0.377,16,6.72,"CACTI T-LIGHT CANDLES",0],[2.627,-0.223,424,253.49,"I'M ON HOLIDAY METAL SIGN",0],[1.672,0.452,47,133.05,"SET OF 2 FANCY FONT TEA TOWELS",0],[1.785,0.546,61,214.25,"GLASS STAR FROSTED T-LIGHT HOLDER",0],[0.301,0.667,2,9.3,"PARTY BUNTING",0],[2.422,0.321,264,553.2,"PAPER CHAIN KIT 50'S CHRISTMAS ",0],[2.344,0.279,221,420.04,"BLACK TEA TOWEL CLASSIC DESIGN",0],[2.086,0.177,122,183.3,"JUMBO STORAGE BAG SUKI",0],[2.161,0.514,145,473.53,"HOT WATER BOTTLE I AM SO POORLY",0],[1.863,0.319,73,152.02,"HANGING BAUBLE T-LIGHT HOLDER SMAL",0],[1.462,0.411,29,74.79,"HEART SHAPED MIRROR",0],[0.0,0.19,1,1.55,"POLYESTER FILLER PAD 45x45cm",0],[2.792,0.197,619,973.69,"BINGO SET",0],[1.531,0.369,34,79.58,"ASSORTED COLOUR BIRD ORNAMENT",0],[1.681,-0.538,48,13.92,"PACK OF 12 SUKI TISSUES ",0],[3.115,0.109,1304,1677.42,"SET OF 2 ROUND TINS DUTCH CHEESE",0],[1.568,0.489,37,114.05,"HEART OF WICKER LARGE",0],[2.61,0.289,407,791.01,"GREEN POLKADOT BOWL",0],[1.69,0.541,49,170.4,"BLACK SIL'T SQU CANDLE PLATE ",0],[1.38,0.322,24,50.4,"POPPY'S PLAYHOUSE BATHROOM",0],[2.479,0.148,301,423.0,"SWEETHEART CAKESTAND 3 TIER",0],[0.903,0.667,8,37.2,"SET OF 3 VINTAGE TEA TIME BOXES",0],[2.127,0.356,134,304.4,"FRENCH CHATEAU LARGE FRUIT BOWL ",0],[2.076,0.221,119,197.95,"GREEN CHRISTMAS TREE CARD HOLDER",0],[1.982,0.37,96,224.98,"PACK OF 12 PINK SPOT TISSUES ",0],[2.364,0.219,231,382.91,"SET OF 16 VINTAGE PISTACHIO CUTLER",0],[1.362,1.066,23,267.45,"CREAM SWEETHEART MINI CHEST",0],[2.1,0.067,126,147.0,"HANGING HEART ZINC T-LIGHT HOLDER",0],[1.342,0.695,22,109.08,"PEARL & SHELL 42\"NECKL. GREEN",0],[2.446,0.482,279,846.81,"EDWARDIAN PARASOL BLACK",0],[2.25,0.225,178,298.81,"CHOCOLATE HOT WATER BOTTLE",0],[2.431,0.13,270,364.6,"DECORATION, HANGING HEART+MIRROR ",0],[1.079,0.097,12,15.0,"SCENTED VELVET LOUNGE CANDLE ",0],[1.987,0.134,97,132.0,"TEA TIME TEA SET IN GIFT BOX",0],[2.491,0.099,310,389.74,"SET OF 6 T-LIGHTS SNOWMEN",0],[2.431,0.314,270,555.78,"SET OF 4 ENGLISH ROSE PLACEMATS",0],[2.75,0.252,562,1004.37,"SPACEBOY TV DINNER TRAY",0],[1.079,0.161,12,17.4,"HOMEMADE JAM SCENTED CANDLES",0],[2.352,0.395,225,558.17,"FANCY FONT HOME SWEET HOME DOORMAT",0],[1.982,0.02,96,100.56,"DINOSAUR KEYRINGS ASSORTED",0],[2.458,0.078,287,343.76,"ASSORTED CREEPY CRAWLIES",0],[1.892,0.345,78,172.6,"HOME BUILDING BLOCK WORD",0],[2.779,0.322,601,1260.51,"SINGLE HEART ZINC T-LIGHT HOLDER",0],[2.061,0.217,115,189.74,"MIRRORED WALL ART STARS",0],[2.516,0.105,328,417.6,"PACK 3 BOXES CHRISTMAS PANNETONE",0],[2.677,0.256,475,855.45," WHITE CHERRY LIGHTS",0],[2.544,0.287,350,678.2,"RED SPOTTY CHILDS UMBRELLA",0],[2.307,0.335,203,438.53,"PARTY CONES CARNIVAL ASSORTED",0],[2.199,0.347,158,351.1,"CERAMIC BIRDHOUSE FINCH BLUE ROOF",0],[1.964,0.367,92,214.2,"WHITE DOVE HONEYCOMB PAPER GARLAND",0],[2.4,0.08,251,301.73,"ENAMEL WASH BOWL CREAM",0],[2.438,0.274,274,514.97,"WOOD STAMP SET BEST WISHES",0],[2.423,0.459,265,762.68,"MIRRORED DISCO BALL ",0],[2.041,0.444,110,305.86,"PARTY BUNTING",0],[1.869,0.493,74,230.3,"HEART OF WICKER LARGE",0],[2.326,0.355,212,479.8,"WOODEN SCHOOL COLOURING SET",0],[1.556,0.223,36,60.12,"VINTAGE UNION JACK PENNANT",0],[1.881,0.307,76,154.2,"WHITE HANGING HEART T-LIGHT HOLDER",0],[1.82,0.309,66,134.3,"PAPER BUNTING VINTAGE PAISLEY",0],[1.964,0.133,92,125.04,"SKULLS AND CROSSBONES WRAP",0],[2.447,0.193,280,436.28,"SWEETHEART CERAMIC TRINKET BOX",0],[2.444,0.209,278,450.16,"WOODEN SCHOOL COLOURING SET",0],[1.748,0.407,56,143.11," 3 STRIPEY MICE FELTCRAFT",0],[1.973,0.28,94,178.98,"GREEN CHRISTMAS TREE CARD HOLDER",0],[1.857,0.493,72,224.1,"WHITE HANGING HEART T-LIGHT HOLDER",0],[1.58,0.496,38,119.16,"DOOR MAT 3 SMILEY CATS",0],[2.398,0.248,250,442.56,"VINTAGE KID DOLLY CARD ",0],[2.079,0.322,120,251.78,"CHILDS GARDEN BRUSH BLUE",0],[2.602,-0.094,400,322.0,"PINK CREAM FELT CRAFT TRINKET BOX ",0],[1.959,0.41,91,233.94,"DOOR MAT FAIRY CAKE",0],[2.747,0.168,559,823.8,"LUNCH BAG CARS BLUE",0],[2.566,-0.034,368,339.9,"SET/4 DAISY MIRROR MAGNETS",0],[0.301,0.874,2,14.98,"DOORMAT FRIENDSHIP ",0],[1.914,0.268,82,151.9,"MEASURING TAPE RUSSIAN DOLL BLUE",0],[1.778,0.203,60,95.78,"GLITTER BUTTERFLY CLIPS",0],[0.301,0.097,2,2.5,"GUMBALL MONOCHROME COAT RACK",0],[3.104,0.237,1270,2190.94,"CHRISTMAS CRAFT HEART STOCKING ",0],[2.292,0.045,196,217.4,"NOEL GARLAND PAINTED ZINC ",0],[2.54,0.274,347,652.17,"SPACEBOY BIRTHDAY CARD",0],[2.188,0.228,154,260.3,"RED RETROSPOT CAKE STAND",0],[1.146,0.871,14,104.1,"RED/CREAM STRIPE FRINGE HAMMOCK",0],[1.462,0.217,29,47.75,"DAIRY MAID  SMALL  MILK JUG",0],[1.681,0.322,48,100.8,"GUMBALL COAT RACK",0],[2.086,0.568,122,451.44,"EDWARDIAN PARASOL RED",0],[0.699,0.628,5,21.25,"MAXWELL 2 TONE BLUE 60 PAGE PHOTO ",0],[0.778,0.797,6,37.6,"ENAMEL BREAD BIN CREAM",0],[2.305,0.099,202,254.0,"6 RIBBONS RUSTIC CHARM",0],[2.785,-0.03,610,568.94,"DOOR MAT UNION FLAG",0],[2.965,0.176,922,1384.02,"BATH DUCK WATERING CAN",0],[1.176,0.025,15,15.9,"HEART CALCULATOR",0],[2.009,-0.006,102,100.5,"AGED GLASS SILVER T-LIGHT HOLDER",0],[2.228,0.219,169,279.96,"DOORMAT FANCY FONT HOME SWEET HOME",0],[2.182,0.346,152,337.1,"INFLATABLE POLITICAL GLOBE ",0],[1.785,0.367,61,142.15,"REX CASH+CARRY JUMBO SHOPPER",0],[2.196,0.492,157,487.12,"SET OF 4 FAIRY CAKES COASTERS ",0],[2.336,0.139,217,299.1,"CINAMMON & ORANGE WREATH",0],[2.182,0.071,152,179.05,"MIRRORED WALL ART STARS",0],[2.243,0.199,175,276.43,"WICKER STAR ",0],[1.653,0.599,45,178.55,"WOODEN BOX ADVENT CALENDAR ",0],[0.0,4.04,1,10953.5,"Manual",1],[0.0,4.02,1,10468.8,"Manual",1],[0.0,3.954,1,8985.6,"Manual",1],[0.0,3.842,1,6958.17,"Manual",1],[0.0,3.842,1,6958.17,"Manual",1],[0.0,3.558,1,3610.5,"Manual",1],[0.0,2.554,1,358.47,"Adjustment by Peter on Jun 25 2010",1],[0.301,2.47,2,590.0,"VINTAGE BLUE KITCHEN CABINET",0],[0.0,2.47,1,295.0,"VINTAGE BLUE KITCHEN CABINET",0],[0.301,2.47,2,590.0,"VINTAGE BLUE KITCHEN CABINET",0],[0.0,2.149,1,141.0,"POSTAGE",1],[0.0,2.114,1,130.0,"POSTAGE",1]]};
+const COL = { teal: '#2ee6c5', peri: '#7c8cff', amber: '#f5a524', coral: '#ff6b8b', lime: '#7ee787', gray: '#8a93a6', muted: '#5f6a7d', text: '#eef2f7', text2: '#a3adbd', grid: 'rgba(200,220,255,0.07)' };
+const PAL = [COL.teal, COL.peri, COL.amber, COL.coral, COL.lime, '#d2a8ff', '#79c0ff', '#ffa657'];
+function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0, v = 0; while (!u) u = r(); v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const $ = (id) => document.getElementById(id);
+function pos(cv, e) { const b = cv.getBoundingClientRect(); return [(e.clientX - b.left) * cv.width / b.width, (e.clientY - b.top) * cv.height / b.height]; }
+const d2 = (a, b) => a.reduce((s, x, i) => s + (x - b[i]) ** 2, 0);
+const fmt = (x) => Math.round(x).toLocaleString('en-US');
+
+// generic k-means (Lloyd) with k-means++ seeding
+function kmeansOnce(X, k, r, init) {
+  const n = X.length; let C;
+  if (init) C = init.map(c => c.slice());
+  else {
+    C = [X[Math.floor(r() * n)].slice()];
+    while (C.length < k) {
+      const D = X.map(p => Math.min(...C.map(c => d2(p, c)))); const tot = D.reduce((a, b) => a + b, 0);
+      let t = r() * tot, i = 0; while (i < n - 1 && (t -= D[i]) > 0) i++; C.push(X[i].slice());
+    }
+  }
+  let lab = new Array(n).fill(-1);
+  for (let it = 0; it < 100; it++) {
+    let changed = false;
+    for (let i = 0; i < n; i++) { let bi = 0, bd = Infinity; C.forEach((c, j) => { const d = d2(X[i], c); if (d < bd) { bd = d; bi = j; } }); if (lab[i] !== bi) { lab[i] = bi; changed = true; } }
+    C = C.map((c, j) => { const m = X.filter((_, i) => lab[i] === j); return m.length ? c.map((_, t) => m.reduce((s, p) => s + p[t], 0) / m.length) : c; });
+    if (!changed) break;
+  }
+  const inertia = X.reduce((s, p, i) => s + d2(p, C[lab[i]]), 0);
+  return { C, lab, inertia };
+}
+function kmeans(X, k, starts, seed) { const r = rng(seed); let best = null; for (let s = 0; s < starts; s++) { const m = kmeansOnce(X, k, r); if (!best || m.inertia < best.inertia) best = m; } return best; }
+function silhouette(X, lab, k) {
+  if (k < 2) return null; const n = X.length; let tot = 0;
+  const D = X.map(p => X.map(q => Math.sqrt(d2(p, q))));
+  for (let i = 0; i < n; i++) {
+    const sums = new Array(k).fill(0), cnt = new Array(k).fill(0);
+    for (let j = 0; j < n; j++) if (j !== i) { sums[lab[j]] += D[i][j]; cnt[lab[j]]++; }
+    const a = cnt[lab[i]] ? sums[lab[i]] / cnt[lab[i]] : 0; let b = Infinity;
+    for (let c = 0; c < k; c++) if (c !== lab[i] && cnt[c]) b = Math.min(b, sums[c] / cnt[c]);
+    tot += cnt[lab[i]] ? (b - a) / Math.max(a, b) : 0;
+  }
+  return tot / n;
+}
+
+/* ═════════════ STATION 1 · the party ═════════════ */
+(() => {
+  const cv = $('c1'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  let guests = [], hosts = [], lab = [], round = 0, cpuBest = null, partySeed = 7;
+  function newParty() {
+    const r = rng(partySeed++); const centers = [];
+    while (centers.length < 4) { const c = [120 + r() * (W - 240), 100 + r() * (H - 200)]; if (centers.every(o => Math.hypot(o[0] - c[0], o[1] - c[1]) > 210)) centers.push(c); }
+    const sizes = [38, 34, 26, 22]; guests = [];
+    centers.forEach((c, j) => { for (let i = 0; i < sizes[j]; i++) guests.push([c[0] + gauss(r) * 48, c[1] + gauss(r) * 42]); });
+    guests = guests.map(([x, y]) => [Math.max(10, Math.min(W - 10, x)), Math.max(10, Math.min(H - 10, y))]);
+    cpuBest = kmeans(guests, 4, 10, 835).inertia; reset();
+  }
+  function reset() { hosts = []; lab = new Array(guests.length).fill(-1); round = 0; ui('Click anywhere in the room to place your first host.'); }
+  function walking() { return lab[0] < 0 ? null : guests.reduce((s, g, i) => s + d2(g, hosts[lab[i]]), 0) / 1000; }
+  function assign() { lab = guests.map(g => { let b = 0, bd = Infinity; hosts.forEach((h, j) => { const d = d2(g, h); if (d < bd) { bd = d; b = j; } }); return b; }); }
+  function move() { let moved = 0; hosts = hosts.map((h, j) => { const m = guests.filter((_, i) => lab[i] === j); if (!m.length) return h; const nh = [m.reduce((s, p) => s + p[0], 0) / m.length, m.reduce((s, p) => s + p[1], 0) / m.length]; moved += Math.hypot(nh[0] - h[0], nh[1] - h[1]); return nh; }); return moved; }
+  function stepBoth() { const before = lab.join(); assign(); const moved = move(); round++; return before === lab.join() && moved < 0.5; }
+  function ui(msg) {
+    $('p-hosts').textContent = hosts.length + ' / 4'; $('p-round').textContent = round;
+    const w = walking(); $('p-walk').textContent = w == null ? '–' : fmt(w); $('p-best').textContent = cpuBest == null ? '–' : fmt(cpuBest / 1000);
+    const ready = hosts.length === 4; ['p-assign', 'p-move', 'p-run'].forEach(id => $(id).disabled = !ready);
+    if (msg) $('p-verdict').innerHTML = msg; draw();
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (lab[0] >= 0) { ctx.lineWidth = 1; guests.forEach((g, i) => { ctx.strokeStyle = PAL[lab[i]] + '33'; ctx.beginPath(); ctx.moveTo(g[0], g[1]); ctx.lineTo(hosts[lab[i]][0], hosts[lab[i]][1]); ctx.stroke(); }); }
+    guests.forEach((g, i) => { ctx.fillStyle = lab[i] >= 0 ? PAL[lab[i]] : COL.muted; ctx.beginPath(); ctx.arc(g[0], g[1], 5, 0, 7); ctx.fill(); });
+    hosts.forEach((h, j) => { ctx.save(); ctx.translate(h[0], h[1]); ctx.rotate(Math.PI / 4); ctx.fillStyle = PAL[j]; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.fillRect(-10, -10, 20, 20); ctx.strokeRect(-10, -10, 20, 20); ctx.restore(); });
+  }
+  cv.addEventListener('click', (e) => {
+    if (hosts.length >= 4) return; hosts.push(pos(cv, e));
+    ui(hosts.length < 4 ? `Host ${hosts.length} placed. ${4 - hosts.length} to go.` : 'Four hosts. Now press <b>① Everyone walks</b>: every guest goes to the nearest host.');
+  });
+  $('p-assign').onclick = () => { assign(); ui(`Everyone found the nearest host. Total walking: <b>${fmt(walking())}</b>. Now <b>② Hosts move</b> to the middle of their group.`); };
+  $('p-move').onclick = () => { if (lab[0] < 0) assign(); const m = move(); round++; assign();
+    ui(m < 0.5 ? `Nobody moved. <b>Done</b>: this is where k-means stops. ${verdict()}` : `Hosts moved to the middle of their groups; some guests now have a closer host. Total walking: <b>${fmt(walking())}</b>. Again?`); };
+  $('p-run').onclick = () => { if (lab[0] < 0) assign(); for (let t = 0; t < 50; t++) if (stepBoth()) break; ui(`Repeated until nobody switched (${round} rounds). ${verdict()}`); };
+  function verdict() { const w = walking() * 1000, gap = (w - cpuBest) / cpuBest;
+    if (gap < 0.01) return '<b>You matched the computer.</b> Notice the recipe never needed to know what the groups "mean": it only used distance.';
+    return `The computer did <b>${Math.round(gap * 100)}% less walking</b>. Your hosts got stuck in a worse spot: k-means only ever improves <i>locally</i>. That's why scikit-learn starts 10 times (<code>n_init=10</code>) and keeps the best.`; }
+  $('p-cpu').onclick = () => { round = 0;
+    const best = kmeans(guests, 4, 10, 835); hosts = best.C; lab = best.lab;
+    ui(`k-means++: hosts start <b>spread out</b> (each new host is placed far from the others), then the same two steps. Best of 10 starts: total walking <b>${fmt(best.inertia / 1000)}</b>. Press <b>Repeat to the end</b>: nothing changes. It's finished.`); };
+  $('p-bad').onclick = () => { hosts = [[30, 30], [60, 40], [40, 70], [W - 40, H - 40]]; lab = new Array(guests.length).fill(-1); round = 0;
+    ui('Three hosts squeezed in one corner, one in the other. Press <b>Repeat to the end</b> and see where they get stuck.'); };
+  $('p-new').onclick = newParty;
+  newParty();
+})();
+
+/* ═════════════ STATION 2 · T-shirt sizes ═════════════ */
+const SEG = (() => {
+  const X = DATA.cust.map(c => [c[0], c[1], c[2]]);
+  const fits = {}; for (let k = 1; k <= 8; k++) { const m = kmeans(X, k, 8, 835 + k); fits[k] = { ...m, sil: silhouette(X, m.lab, k) }; }
+  // name the k = 4 segments like the notebook
+  const med = (a) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.floor(s.length / 2)] : 0; };
+  function profile(k) { const f = fits[k]; return Array.from({ length: k }, (_, j) => { const m = DATA.cust.filter((_, i) => f.lab[i] === j); return { j, n: m.length, R: med(m.map(c => c[3])), F: med(m.map(c => c[4])), M: med(m.map(c => c[5])) }; }); }
+  function names4() { const p = profile(4); const hib = p.reduce((a, b) => b.R > a.R ? b : a).j, champ = p.reduce((a, b) => b.M > a.M ? b : a).j;
+    const rest = p.filter(s => s.j !== hib && s.j !== champ); const loyal = rest.reduce((a, b) => b.F > a.F ? b : a).j;
+    const nm = {}; p.forEach(s => nm[s.j] = s.j === hib ? 'Hibernating' : s.j === champ ? 'Champions' : s.j === loyal ? 'Loyal' : 'New & occasional'); return nm; }
+  const NAMES4 = names4(); const NAMECOL = { 'Champions': COL.teal, 'Loyal': COL.peri, 'New & occasional': COL.amber, 'Hibernating': COL.gray };
+  const seg4 = fits[4].lab.map(l => NAMES4[l]);
+  return { X, fits, profile, NAMES4, NAMECOL, seg4 };
+})();
+(() => {
+  const cv = $('c2'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height; const pad = 40;
+  const jit = rng(3); const J = DATA.cust.map(() => [(jit() - 0.5) * 0.06, (jit() - 0.5) * 0.06]);
+  const xs = DATA.cust.map(c => c[0]), ys = DATA.cust.map(c => c[2]);
+  const x0 = Math.min(...xs) - 0.2, x1 = Math.max(...xs) + 0.2, y0 = Math.min(...ys) - 0.2, y1 = Math.max(...ys) + 0.2;
+  const X = (v) => pad + (v - x0) / (x1 - x0) * (W - 2 * pad), Y = (v) => H - pad - (v - y0) / (y1 - y0) * (H - 2 * pad);
+  function color(k, l) { if (k === 4) return SEG.NAMECOL[SEG.NAMES4[l]]; return k === 1 ? COL.gray : PAL[l]; }
+  function draw(k) {
+    const f = SEG.fits[k]; ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = COL.text2; ctx.font = '15px IBM Plex Mono'; ctx.fillText('← bought recently', pad, H - 12); ctx.textAlign = 'right'; ctx.fillText('long ago →', W - pad, H - 12); ctx.textAlign = 'left';
+    ctx.save(); ctx.translate(14, H / 2 + 50); ctx.rotate(-Math.PI / 2); ctx.fillText('spends more →', 0, 0); ctx.restore();
+    DATA.cust.forEach((c, i) => { ctx.fillStyle = color(k, f.lab[i]); ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(X(c[0] + J[i][0]), Y(c[2] + J[i][1]), 4, 0, 7); ctx.fill(); });
+    ctx.globalAlpha = 1;
+    f.C.forEach((c, j) => { ctx.save(); ctx.translate(X(c[0]), Y(c[2])); ctx.rotate(Math.PI / 4); ctx.fillStyle = color(k, j); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.fillRect(-8, -8, 16, 16); ctx.strokeRect(-8, -8, 16, 16); ctx.restore(); });
+    mini($('c2e'), k, (kk) => SEG.fits[kk].inertia, 1, COL.peri);
+    mini($('c2s'), k, (kk) => SEG.fits[kk].sil, 2, COL.amber);
+    table(k); verdict(k);
+  }
+  function mini(c, k, val, from, col) {
+    const g = c.getContext('2d'), w = c.width, h = c.height, p = 26; g.clearRect(0, 0, w, h);
+    const ks = []; for (let kk = from; kk <= 8; kk++) ks.push(kk); const vs = ks.map(val); const lo = from === 2 ? Math.min(...vs) - 0.02 : 0, hi = Math.max(...vs) * (from === 2 ? 1.04 : 1.05);
+    const px = (kk) => p + (kk - 1) / 7 * (w - 2 * p), py = (v) => h - p - (v - lo) / (hi - lo) * (h - 2 * p);
+    g.strokeStyle = COL.grid; g.beginPath(); g.moveTo(p, h - p); g.lineTo(w - p, h - p); g.stroke();
+    g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); ks.forEach((kk, i) => i ? g.lineTo(px(kk), py(vs[i])) : g.moveTo(px(kk), py(vs[i]))); g.stroke();
+    ks.forEach((kk, i) => { g.fillStyle = kk === k ? '#fff' : col; g.beginPath(); g.arc(px(kk), py(vs[i]), kk === k ? 6 : 3.5, 0, 7); g.fill(); });
+    g.fillStyle = COL.text2; g.font = '13px IBM Plex Mono'; g.textAlign = 'center'; for (let kk = 1; kk <= 8; kk++) g.fillText(kk, px(kk), h - 8);
+    if (k >= from) { g.fillStyle = COL.text; g.fillText(from === 2 ? vs[k - from].toFixed(2) : fmt(vs[k - from]), px(k), py(vs[k - from]) - 12); }
+    if (from === 2 && k === 1) { g.fillStyle = COL.text2; g.fillText('needs at least 2 groups', w / 2, h / 2); }
+  }
+  function table(k) {
+    const p = SEG.profile(k).sort((a, b) => b.M - a.M);
+    let h = '<tr><th>segment</th><th>customers</th><th>days since</th><th>receipts</th><th>£ spent</th></tr>';
+    p.forEach(s => { const nm = k === 4 ? SEG.NAMES4[s.j] : (k === 1 ? 'everyone' : 'segment ' + (p.indexOf(s) + 1)); h += `<tr><td><span class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:${color(k, s.j)}"></span>${nm}</td><td>${s.n}</td><td>${s.R}</td><td>${s.F}</td><td>${fmt(s.M)}</td></tr>`; });
+    $('t2').innerHTML = h;
+  }
+  function verdict(k) {
+    const sil = SEG.fits[k].sil; const m = {
+      1: '<b>One size fits nobody.</b> One campaign for a customer who bought yesterday and one who left a year ago.',
+      2: `<b>Two sizes:</b> roughly "active" vs. "gone". Silhouette ${sil.toFixed(2)}. Clear, but a blunt tool for Black Friday.`,
+      3: `<b>The silhouette's favorite</b> (${sil.toFixed(2)}), and the elbow is bending. A good answer on data alone.`,
+      4: `<b>The boss can fund four campaigns.</b> Silhouette ${sil.toFixed(2)}, still reasonable, and every segment gets a name and an action. On data alone 3 and 4 are both defensible: the business breaks the tie.`,
+      5: `Silhouette falls to ${sil.toFixed(2)}. Look at the table: a fifth segment splits off. Would marketing really run a different campaign for it?`,
+    }; $('v2').innerHTML = m[k] || `k = ${k}: silhouette ${sil.toFixed(2)} and falling. Small segments nobody can staff a campaign for. <b>More sizes always fit better (less walking), but someone has to make every one of them.</b>`;
+  }
+  $('k2').oninput = (e) => { $('v-k2').textContent = e.target.value; draw(+e.target.value); };
+  draw(4);
+})();
+
+/* ═════════════ STATION 3 · shapes ═════════════ */
+(() => {
+  const cv = $('c3'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height; let shape = 'moons', method = 'db', P = [];
+  const view = { moons: [-1.5, 2.5, -1.0, 1.5], rings: [-1.6, 1.6, -1.2, 1.2], blobs: [-1.6, 1.6, -1.2, 1.2], uneven: [-1.6, 1.6, -1.2, 1.2] };
+  function make(s) { const r = rng(11); const pts = [];
+    if (s === 'moons') { for (let i = 0; i < 300; i++) { const t = Math.PI * r(), up = i % 2 === 0; pts.push(up ? [Math.cos(t) + gauss(r) * 0.06, Math.sin(t) + gauss(r) * 0.06] : [1 - Math.cos(t) + gauss(r) * 0.06, 0.5 - Math.sin(t) + gauss(r) * 0.06]); } }
+    if (s === 'rings') { for (let i = 0; i < 300; i++) { if (i < 120) pts.push([gauss(r) * 0.18, gauss(r) * 0.18]); else { const t = 2 * Math.PI * r(), rad = 0.95 + gauss(r) * 0.05; pts.push([rad * Math.cos(t), rad * Math.sin(t)]); } } }
+    if (s === 'blobs') { const c = [[-0.8, 0.5], [0.8, 0.5], [0, -0.6]]; for (let i = 0; i < 300; i++) { const q = c[i % 3]; pts.push([q[0] + gauss(r) * 0.17, q[1] + gauss(r) * 0.17]); } }
+    if (s === 'uneven') { for (let i = 0; i < 300; i++) pts.push(i < 255 ? [-0.5 + gauss(r) * 0.32, gauss(r) * 0.32] : [1.0 + gauss(r) * 0.07, 0.6 + gauss(r) * 0.07]); }
+    const v = view[s]; for (let i = 0; i < 14; i++) pts.push([v[0] + 0.15 + r() * (v[1] - v[0] - 0.3), v[2] + 0.15 + r() * (v[3] - v[2] - 0.3)]);
+    return pts; }
+  function dbscan(X, eps, ms) { const n = X.length, lab = new Array(n).fill(undefined); let c = -1; const e2 = eps * eps;
+    const nb = (i) => { const o = []; for (let j = 0; j < n; j++) if (d2(X[i], X[j]) <= e2) o.push(j); return o; };
+    for (let i = 0; i < n; i++) { if (lab[i] !== undefined) continue; const N = nb(i); if (N.length < ms) { lab[i] = -1; continue; } c++; lab[i] = c; const S = N.filter(j => j !== i);
+      while (S.length) { const j = S.pop(); if (lab[j] === -1) lab[j] = c; if (lab[j] !== undefined) continue; lab[j] = c; const Nj = nb(j); if (Nj.length >= ms) Nj.forEach(q => { if (lab[q] === undefined || lab[q] === -1) S.push(q); }); } }
+    return lab; }
+  function run() {
+    P = make(shape); const v = view[shape]; const X = (x) => 30 + (x - v[0]) / (v[1] - v[0]) * (W - 60), Y = (y) => H - 30 - (y - v[2]) / (v[3] - v[2]) * (H - 60);
+    const eps = +$('eps').value, ms = +$('ms').value, k = +$('k3').value; let lab;
+    if (method === 'db') lab = dbscan(P, eps, ms); else lab = kmeans(P, k, 5, 9).lab;
+    ctx.clearRect(0, 0, W, H);
+    if (method === 'db') { const rpx = eps / (v[1] - v[0]) * (W - 60); ctx.strokeStyle = 'rgba(46,230,197,0.35)'; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.arc(X(P[0][0]), Y(P[0][1]), rpx, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
+    P.forEach((p, i) => { ctx.fillStyle = lab[i] === -1 ? COL.muted : PAL[lab[i] % PAL.length]; ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), 4.5, 0, 7); ctx.fill(); });
+    const g = Math.max(-1, ...lab) + 1, noise = lab.filter(l => l === -1).length; $('s3-g').textContent = g; $('s3-n').textContent = method === 'db' ? noise : '0 (k-means has no loners)';
+    let msg;
+    if (method === 'km') msg = shape === 'blobs' ? `Round blobs of similar size: <b>k-means' home turf</b>. With k = 3 it nails them. But the 14 loners are forced into a group: k-means never says "doesn't belong".`
+      : `k-means cuts with straight borders around ${k} host${k > 1 ? 's' : ''}. It cannot follow a ${shape === 'moons' ? 'crescent' : shape === 'rings' ? 'ring' : 'shape like this'}${shape === 'uneven' ? ': it steals half the big crowd to balance the small one' : ''}, and every loner is forced into some group.`;
+    else if (g === 0) msg = '<b>Everyone is a loner.</b> The reach is too short or the crowd size too big: no spot counts as dense.';
+    else if (g === 1 && noise < 20) msg = '<b>One giant group.</b> The reach is so long that everyone is everyone\'s neighbor. Shrink the reach.';
+    else if (shape === 'moons' && g === 2) msg = `<b>Mission accomplished.</b> Two crescents found, no k needed, and ${noise} loners set aside in gray. That gray pile is a free list of oddballs.`;
+    else if (shape === 'rings' && g === 2) msg = `<b>A ring around a crowd</b>, found by density alone. k-means could never draw a ring. ${noise} loners in gray.`;
+    else msg = `${g} groups and ${noise} loners. ${g > 3 ? 'Too many small groups: lengthen the reach a little.' : 'Adjust the reach until the groups match what your eye sees.'}`;
+    $('v3').innerHTML = msg;
+  }
+  document.querySelectorAll('#sh-presets button').forEach(b => b.onclick = () => { document.querySelectorAll('#sh-presets button').forEach(x => x.classList.remove('active')); b.classList.add('active'); shape = b.dataset.s; if (shape === 'blobs') { $('k3').value = 3; $('v-k3').textContent = 3; } if (shape === 'uneven' || shape === 'moons' || shape === 'rings') { $('k3').value = 2; $('v-k3').textContent = 2; } run(); });
+  function setMethod(m) { method = m; $('m-db').classList.toggle('primary', m === 'db'); $('m-km').classList.toggle('primary', m === 'km'); $('r-eps').style.display = $('r-ms').style.display = m === 'db' ? '' : 'none'; $('r-k3').style.display = m === 'km' ? '' : 'none'; run(); }
+  $('m-db').onclick = () => setMethod('db'); $('m-km').onclick = () => setMethod('km');
+  $('eps').oninput = (e) => { $('v-eps').textContent = (+e.target.value).toFixed(2); run(); };
+  $('ms').oninput = (e) => { $('v-ms').textContent = e.target.value; run(); };
+  $('k3').oninput = (e) => { $('v-k3').textContent = e.target.value; run(); };
+  $('eps').value = 0.3; $('v-eps').textContent = '0.30';
+  run();
+})();
+
+/* ═════════════ STATION 4 · the flashlight ═════════════ */
+(() => {
+  const cv = $('c4'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+  const X = SEG.X; const n = X.length; const mu = [0, 1, 2].map(t => X.reduce((s, p) => s + p[t], 0) / n);
+  const Xc = X.map(p => p.map((v, t) => v - mu[t]));
+  const S = [0, 1, 2].map(a => [0, 1, 2].map(b => Xc.reduce((s, p) => s + p[a] * p[b], 0) / n)); const tot = S[0][0] + S[1][1] + S[2][2];
+  const rot = (yaw, pitch) => { const a = pitch * Math.PI / 180, b = yaw * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b);
+    return [[cb, 0, sb], [sa * sb, ca, -sa * cb], [-ca * sb, sa, ca * cb]]; };   // rows of Rx(a)·Ry(b)
+  const q = (u) => u.reduce((s, ui, a) => s + ui * u.reduce((t, uj, b) => t + S[a][b] * uj, 0), 0);
+  const keptAt = (yaw, pitch) => { const R = rot(yaw, pitch); return (q(R[0]) + q(R[1])) / tot; };
+  let best = { v: -1 }, worst = { v: 2 }; for (let y = -180; y <= 180; y += 1) for (let p = -90; p <= 90; p += 1) { const v = keptAt(y, p); if (v > best.v) best = { v, y, p }; if (v < worst.v) worst = { v, y, p }; }
+  let mine = 0, spinning = null;
+  const names = ['Recency', 'Frequency', 'Monetary'];
+  function draw() {
+    const yaw = +$('yaw').value, pitch = +$('pitch').value; $('v-yaw').textContent = yaw + '°'; $('v-pitch').textContent = pitch + '°';
+    const R = rot(yaw, pitch), kept = keptAt(yaw, pitch); mine = Math.max(mine, kept);
+    ctx.clearRect(0, 0, W, H); const sc = 88, cx = W / 2, cy = H / 2;
+    ctx.strokeStyle = COL.grid; ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+    const pts = Xc.map((p, i) => ({ x: R[0][0] * p[0] + R[0][1] * p[1] + R[0][2] * p[2], y: R[1][0] * p[0] + R[1][1] * p[1] + R[1][2] * p[2], z: R[2][0] * p[0] + R[2][1] * p[1] + R[2][2] * p[2], c: SEG.NAMECOL[SEG.seg4[i]] })).sort((a, b) => a.z - b.z);
+    pts.forEach(p => { ctx.fillStyle = p.c; ctx.globalAlpha = 0.75; ctx.beginPath(); ctx.arc(cx + p.x * sc, cy - p.y * sc, 4.5, 0, 7); ctx.fill(); }); ctx.globalAlpha = 1;
+    [0, 1, 2].forEach(t => { const ex = R[0][t] * 2.6 * sc, ey = R[1][t] * 2.6 * sc; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + ex, cy - ey); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 17px Manrope'; ctx.textAlign = 'center'; ctx.fillText(names[t] + (Math.hypot(ex, ey) < 30 ? ' (pointing at you)' : ''), cx + ex * 1.12, cy - ey * 1.12 + 4); });
+    $('kept').textContent = Math.round(kept * 100) + '%'; $('kept').style.color = kept > 0.9 ? COL.lime : kept < 0.5 ? COL.coral : COL.teal; $('kept-best').textContent = Math.round(mine * 100) + '%';
+    let msg;
+    if (kept > best.v - 0.005) msg = `<b>The best shadow possible: ${Math.round(best.v * 100)}%.</b> This flat wall is spanned by the first two <b>principal components</b>. Only ${100 - Math.round(best.v * 100)}% of the spread is lost: the direction pointing straight at you. Notice how the four segments now spread out side by side.`;
+    else if (kept > 0.9) msg = `<b>Above 90%!</b> Mission done. Can you squeeze out a few more points? (Or press <b>Show PCA's angle</b>.)`;
+    else if (kept < 0.5) msg = `Only ${Math.round(kept * 100)}% kept: the long side of the cloud points straight at the flashlight, so the colors pile on top of each other. A useless circle-shaped shadow.`;
+    else msg = `${Math.round(kept * 100)}% kept. Look for the angle where the four colors spread out the most: that's the same angle that keeps the most.`;
+    $('v4').innerHTML = msg;
+  }
+  ['yaw', 'pitch'].forEach(id => $(id).oninput = draw);
+  $('pca-go').onclick = () => { $('yaw').value = best.y; $('pitch').value = best.p; $('kept-max').textContent = Math.round(best.v * 100) + '%'; draw(); };
+  $('pca-worst').onclick = () => { $('yaw').value = worst.y; $('pitch').value = worst.p; draw(); };
+  $('spin').onclick = () => { if (spinning) { clearInterval(spinning); spinning = null; $('spin').textContent = 'Spin'; return; } $('spin').textContent = 'Stop';
+    spinning = setInterval(() => { let y = +$('yaw').value + 2; if (y > 180) y = -180; $('yaw').value = y; draw(); }, 50); };
+  draw();
+})();
+
+/* ═════════════ STATION 5 · 20 Questions ═════════════ */
+(() => {
+  const cv = $('c5'), ctx = cv.getContext('2d'), W = cv.width, H = cv.height, pad = 56;
+  const R = DATA.rec; const P = R.map(r => [r[0], r[1]]); const n = P.length;
+  const lo = [Math.min(...P.map(p => p[0])) - 0.1, Math.min(...P.map(p => p[1])) - 0.1], hi = [Math.max(...P.map(p => p[0])) + 0.1, Math.max(...P.map(p => p[1])) + 0.1];
+  const X = (v) => pad + (v - lo[0]) / (hi[0] - lo[0]) * (W - 2 * pad), Y = (v) => H - pad - (v - lo[1]) / (hi[1] - lo[1]) * (H - 2 * pad);
+  let sel = null, box = null, alive = null, cuts = [], scores = null, r = rng(5);
+  function oneQuestion() {   // a random question about the receipts still in play: random column, random cut between their min and max
+    const idx = alive.map((a, i) => a ? i : -1).filter(i => i >= 0); const f = r() < 0.5 ? 0 : 1;
+    const mn = Math.min(...idx.map(i => P[i][f])), mx = Math.max(...idx.map(i => P[i][f])); if (mx - mn < 1e-9) return false;
+    const t = mn + r() * (mx - mn); const side = P[sel][f] < t; idx.forEach(i => { if ((P[i][f] < t) !== side) alive[i] = false; });
+    cuts.push({ f, t, box: box.map(b => b.slice()) }); if (side) box[1][f] = t; else box[0][f] = t; return true;
+  }
+  const left = () => alive.filter(Boolean).length;
+  function startGame() { box = [lo.slice(), hi.slice()]; alive = new Array(n).fill(true); cuts = []; }
+  function pathLen(i) { let a = new Array(n).fill(true), q = 0; while (a.filter(Boolean).length > 1 && q < 60) { const idx = a.map((v, j) => v ? j : -1).filter(j => j >= 0); const f = r() < 0.5 ? 0 : 1; const mn = Math.min(...idx.map(j => P[j][f])), mx = Math.max(...idx.map(j => P[j][f])); if (mx - mn < 1e-9) break; const t = mn + r() * (mx - mn), s = P[i][f] < t; idx.forEach(j => { if ((P[j][f] < t) !== s) a[j] = false; }); q++; } return q; }
+  function draw() {
+    ctx.clearRect(0, 0, W, H); ctx.fillStyle = COL.text2; ctx.font = '15px IBM Plex Mono';
+    ctx.textAlign = 'center'; [1, 10, 100, 1000].forEach(v => { const x = X(Math.log10(v)); if (x > pad && x < W - pad) ctx.fillText(v, x, H - 22); }); ctx.fillText('items on the receipt (log scale) →', W / 2, H - 6);
+    ctx.textAlign = 'right'; [1, 10, 100, 1000, 10000].forEach(v => { const y = Y(Math.log10(v)); if (y > pad && y < H - pad) ctx.fillText('£' + v.toLocaleString('en-US'), pad - 4, y + 4); }); ctx.textAlign = 'left';
+    ctx.save(); ctx.translate(12, H / 2 + 70); ctx.rotate(-Math.PI / 2); ctx.fillText('average price of one item →', 0, 0); ctx.restore();
+    if (box) { ctx.strokeStyle = 'rgba(46,230,197,0.55)'; ctx.setLineDash([5, 5]); cuts.forEach(c => { ctx.beginPath(); if (c.f === 0) { ctx.moveTo(X(c.t), Y(c.box[0][1])); ctx.lineTo(X(c.t), Y(c.box[1][1])); } else { ctx.moveTo(X(c.box[0][0]), Y(c.t)); ctx.lineTo(X(c.box[1][0]), Y(c.t)); } ctx.stroke(); }); ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(46,230,197,0.06)'; ctx.fillRect(X(box[0][0]), Y(box[1][1]), X(box[1][0]) - X(box[0][0]), Y(box[0][1]) - Y(box[1][1])); }
+    const smax = scores ? Math.max(...scores) : 1, smin = scores ? Math.min(...scores) : 0; const budget = +$('budget').value; const rank = scores ? scores.map((s, i) => [s, i]).sort((a, b) => b[0] - a[0]).slice(0, budget).map(x => x[1]) : [];
+    P.forEach((p, i) => { let c = COL.peri, a = 0.75, rad = 4.5;
+      if (scores) { const t = (scores[i] - smin) / (smax - smin); c = t > 0.55 ? COL.coral : t > 0.35 ? COL.amber : COL.peri; if (rank.includes(i)) { rad = 7; } }
+      if (alive && !alive[i]) a = 0.12; if (i === sel) { c = COL.teal; rad = 8; a = 1; }
+      ctx.globalAlpha = a; ctx.fillStyle = c; ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), rad, 0, 7); ctx.fill();
+      if (scores && rank.includes(i)) { ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke(); } });
+    ctx.globalAlpha = 1;
+  }
+  const label = (i) => `${R[i][4]} · ${R[i][2]} item${R[i][2] > 1 ? 's' : ''} · £${R[i][3].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  cv.addEventListener('click', (e) => { const [mx, my] = pos(cv, e); let b = -1, bd = 1200; P.forEach((p, i) => { const d = (X(p[0]) - mx) ** 2 + (Y(p[1]) - my) ** 2; if (d < bd) { bd = d; b = i; } }); if (b < 0) return;
+    sel = b; startGame(); $('q-which').textContent = label(b); $('q-n').textContent = '0'; $('q-avg').textContent = '–'; ['q-ask', 'q-all', 'q-100'].forEach(id => $(id).disabled = false);
+    $('v5').innerHTML = `Picked. <b>${left() - 1} other receipts</b> are still possible. Ask a question.`; draw(); });
+  $('q-ask').onclick = () => { if (left() <= 1) return; oneQuestion(); $('q-n').textContent = cuts.length; const l = left();
+    $('v5').innerHTML = l <= 1 ? `<b>Cornered in ${cuts.length} question${cuts.length > 1 ? 's' : ''}.</b> One game is partly luck: press <b>Play 100 games</b> for a fair number.` : `Still ${l - 1} other receipt${l > 2 ? 's' : ''} in the same corner. Ask again.`; draw(); };
+  $('q-all').onclick = () => { while (left() > 1 && cuts.length < 60) oneQuestion(); $('q-n').textContent = cuts.length; $('v5').innerHTML = `<b>Cornered in ${cuts.length} questions.</b> Now <b>Play 100 games</b> for a fair average.`; draw(); };
+  $('q-100').onclick = () => { let s = 0; for (let g = 0; g < 100; g++) s += pathLen(sel); const avg = s / 100; $('q-avg').textContent = avg.toFixed(1);
+    $('v5').innerHTML = avg < 5 ? `<b>${avg.toFixed(1)} questions on average: strange.</b> It sits alone, so almost any question cuts it off. <i>${R[sel][4]}</i>${R[sel][5] ? ': not a product sale at all, a bookkeeping line.' : '.'}` : avg < 8 ? `<b>${avg.toFixed(1)} questions on average: a bit unusual.</b> Try one even further from the crowd.` : `<b>${avg.toFixed(1)} questions on average: ordinary.</b> It hides among many similar receipts. Now click one far away from everyone.`; };
+  $('q-score').onclick = () => {   // Isolation Forest: 200 random trees on samples of 128, average path length (with the standard correction for leaves that still hold several points)
+    const cn = (m) => m <= 1 ? 0 : 2 * (Math.log(m - 1) + 0.5772156649) - 2 * (m - 1) / m; const T = 200, psi = 128, maxD = Math.ceil(Math.log2(psi)); const rr = rng(835); const tot = new Array(n).fill(0);
+    function grow(idx, d) { if (d >= maxD || idx.length <= 1) return { leaf: true, size: idx.length }; const f = rr() < 0.5 ? 0 : 1; const mn = Math.min(...idx.map(i => P[i][f])), mx = Math.max(...idx.map(i => P[i][f])); if (mx - mn < 1e-9) return { leaf: true, size: idx.length };
+      const t = mn + rr() * (mx - mn); return { f, t, l: grow(idx.filter(i => P[i][f] < t), d + 1), r: grow(idx.filter(i => P[i][f] >= t), d + 1) }; }
+    function path(node, p, d) { return node.leaf ? d + cn(node.size) : path(p[node.f] < node.t ? node.l : node.r, p, d + 1); }
+    for (let t = 0; t < T; t++) { const idx = []; const pool = [...Array(n).keys()]; for (let s = 0; s < psi; s++) idx.push(pool.splice(Math.floor(rr() * pool.length), 1)[0]); const tree = grow(idx, 0); P.forEach((p, i) => tot[i] += path(tree, p, 0)); }
+    scores = tot.map(s => Math.pow(2, -(s / T) / cn(psi))); $('budget').disabled = false; sel = null; box = null; alive = null; showTop(); draw(); };
+  function showTop() { const budget = +$('budget').value; $('v-budget').textContent = budget; const order = scores.map((s, i) => [s, i]).sort((a, b) => b[0] - a[0]); const top = order.slice(0, budget); const bk = top.filter(([, i]) => R[i][5]).length; const allbk = R.filter(x => x[5]).length;
+    $('v5').innerHTML = `<b>Isolation Forest</b> played the game with 200 random trees and scored every receipt: fewer questions = stranger. Of your top <b>${budget}</b>, <b>${bk}</b> contain a bookkeeping line (Manual, postage, an adjustment), though only ${allbk} of the ${n} receipts here do. <b>No labels were used.</b> The rest are real but rare sales: strange is not the same as wrong.`;
+    $('q-top').innerHTML = top.map(([s, i], k) => `<div><span class="${R[i][5] ? 'bk' : 'ok'}">${k + 1}. ${R[i][4]}</span><span>${s.toFixed(2)}</span></div>`).join(''); }
+  $('budget').oninput = () => { if (scores) { showTop(); draw(); } };
+  draw();
+})();
+</script>
+</body>
+</html>
