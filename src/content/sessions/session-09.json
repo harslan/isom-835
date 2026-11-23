@@ -107,6 +107,15 @@
   ],
   "resources": [
     {
+      "title": "Start here · The Trust Kit (the easy version)",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-09/ISOM835_Session9_Trust_Kit.ipynb",
+      "description": "Tonight's five questions, one line of code each: p.five_exams(), p.past_vs_future(), p.tune(), p.receipt(438), p.top_clues(), p.calibration(), p.not_sure(0.90), p.by_group(), p.model_card(). Each step is a short story, one line, what you should see, and one sentence to remember. A built-in data doctor checks your data first: it removes IDs, fixes numbers stored as text and dates, and warns you about columns that leak the answer. Same hotel and numbers as class, about a minute to run, then the same lines on house prices and on your own data: this notebook is Milestone 3.",
+      "icon": "code",
+      "badge": "Start Here",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
       "title": "Session 9 Slides — Trust, but Verify",
       "url": "/session-09/slides.html",
       "description": "The deck from class: five questions a good boss asks, one exam is partly luck, five exams instead of one, the parking lot and Boston traffic, tasting in the kitchen, the best of 200 guessers, a receipt for booking 438, the non-refundable deposit warning, a model with three answers, the price of certainty, mistakes group by group, and the model card. Arrow keys to navigate, F for fullscreen, N for speaker notes.",
@@ -125,11 +134,11 @@
       "linkText": "Open the explorer"
     },
     {
-      "title": "Session 9 Notebook — Tuning, Explaining & Uncertainty",
+      "title": "Session 9 Notebook — the full version (Tuning, Explaining & Uncertainty)",
       "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-09/ISOM835_Session9_Tuning_Explaining_Uncertainty.ipynb",
       "description": "Written for first-timers: five questions, eleven steps. Eight shuffles and five-fold cross-validation, the past-to-future exam, random search with an optional Optuna cell, the best-of-200-guessers trap, SHAP receipts for one booking and for the whole book, conformal prediction by hand, mistakes sliced by group, and a filled-in model card. Every step says what the cell does and how to read the output, with quick checks and four Your Turn questions.",
       "icon": "code",
-      "badge": "Hands-On",
+      "badge": "Go Deeper",
       "badgeType": "interactive",
       "linkText": "Open in Colab"
     },
@@ -353,7 +362,7 @@
   "homework": [
     {
       "label": "Project Milestones 2 & 3",
-      "text": "Milestone 2, due Mon Nov 23, 11:59 PM, on Canvas: your project data loaded, split before anything is fitted, the naive baseline computed, and a first model scored with the metric your decision needs. Milestone 3, due Mon Nov 30, 11:59 PM: a tuned model (two or three hyperparameters inside cross-validation), a calibration plot if you classify, SHAP for three cases a decision-maker would recognize, error rates by the slices that matter, and a half-page model card. Both are pass/fail: run top to bottom, split before fit, and the pieces present. HW3 is due Wed Nov 18, 11:59 PM (extended from Mon Nov 16). Practice, ungraded: tonight's hotel notebook has every piece of Milestone 3 (cross-validation, tuning, SHAP receipts, the \"not sure\" pile, slices, a model card). Run it end to end on the hotel data before you try it on your own."
+      "text": "Milestone 2, due Mon Nov 23, 11:59 PM, on Canvas: your project data loaded, split before anything is fitted, the naive baseline computed, and a first model scored with the metric your decision needs. Milestone 3, due Mon Nov 30, 11:59 PM: a tuned model (two or three hyperparameters inside cross-validation), a calibration plot if you classify, SHAP for three cases a decision-maker would recognize, error rates by the slices that matter, and a half-page model card. Both are pass/fail: run top to bottom, split before fit, and the pieces present. HW3 is due Wed Nov 18, 11:59 PM (extended from Mon Nov 16). The fastest route to Milestone 3: the Trust Kit notebook (Start Here, above) does every piece in eight lines on your own data. Practice, ungraded: tonight's hotel notebook has every piece of Milestone 3 (cross-validation, tuning, SHAP receipts, the \"not sure\" pile, slices, a model card). Run it end to end on the hotel data before you try it on your own."
     }
   ],
   "nextSession": {
