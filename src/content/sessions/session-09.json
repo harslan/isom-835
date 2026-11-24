@@ -100,7 +100,7 @@
       "description": "An average can hide a group. Missed cancels and false alarms by booking channel and by country, and what a manager does about the gaps. Everything from tonight goes on one page: the model card. Then four questions in the notebook.",
       "bulletPoints": [
         "Guests booking from Portugal get more false alarms; direct bookings get most cancels missed",
-        "HW3 is now due Wed Nov 18; Milestone 2 Mon Nov 23, Milestone 3 Mon Nov 30"
+        "HW3 is now due Wed Nov 18; Milestone 2 Mon Nov 30, Milestone 3 Thu Dec 3 (extended for Thanksgiving)"
       ],
       "isBreak": false
     }
@@ -362,7 +362,7 @@
   "homework": [
     {
       "label": "Project Milestones 2 & 3",
-      "text": "Milestone 2, due Mon Nov 23, 11:59 PM, on Canvas: your project data loaded, split before anything is fitted, the naive baseline computed, and a first model scored with the metric your decision needs. Milestone 3, due Mon Nov 30, 11:59 PM: a tuned model (two or three hyperparameters inside cross-validation), a calibration plot if you classify, SHAP for three cases a decision-maker would recognize, error rates by the slices that matter, and a half-page model card. Both are pass/fail: run top to bottom, split before fit, and the pieces present. HW3 is due Wed Nov 18, 11:59 PM (extended from Mon Nov 16). The fastest route to Milestone 3: the Trust Kit notebook (Start Here, above) does every piece in eight lines on your own data. Practice, ungraded: tonight's hotel notebook has every piece of Milestone 3 (cross-validation, tuning, SHAP receipts, the \"not sure\" pile, slices, a model card). Run it end to end on the hotel data before you try it on your own."
+      "text": "Milestone 2, now due Mon Nov 30, 11:59 PM, on Canvas (extended for Thanksgiving week): your project data loaded, split before anything is fitted, the naive baseline computed, and a first model scored with the metric your decision needs. Milestone 3, now due Thu Dec 3, 11:59 PM: a tuned model (two or three hyperparameters inside cross-validation), a calibration plot if you classify, SHAP for three cases a decision-maker would recognize, error rates by the slices that matter, and a half-page model card. Both are pass/fail: run top to bottom, split before fit, and the pieces present. HW3 is due Wed Nov 18, 11:59 PM (extended from Mon Nov 16). The fastest route to Milestone 3: the Trust Kit notebook (Start Here, above) does every piece in eight lines on your own data. Practice, ungraded: tonight's hotel notebook has every piece of Milestone 3 (cross-validation, tuning, SHAP receipts, the \"not sure\" pile, slices, a model card). Run it end to end on the hotel data before you try it on your own."
     }
   ],
   "nextSession": {

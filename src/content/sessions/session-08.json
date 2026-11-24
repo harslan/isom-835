@@ -300,7 +300,7 @@
   "homework": [
     {
       "label": "Competition Memo + HW3",
-      "text": "Tonight, 11:59 PM: the one-page competition memo on Canvas (what you tried, what worked, what leaked, your private-leaderboard AUC, and one thing you would do with two more weeks). HW3 — the cost-minimizing threshold on your credit model and the Ames regression pipeline, one notebook — is due Wed Nov 18, 11:59 PM, on Canvas (extended from Mon Nov 16); it is the last graded homework. From there the final project takes over: Milestone 2, a baseline model scored with the metric your decision needs, is due Mon Nov 23. Next week's hotel-bookings lab (early-stopped boosting, SHAP, a calibration check) is the template for Milestone 3."
+      "text": "Tonight, 11:59 PM: the one-page competition memo on Canvas (what you tried, what worked, what leaked, your private-leaderboard AUC, and one thing you would do with two more weeks). HW3 — the cost-minimizing threshold on your credit model and the Ames regression pipeline, one notebook — is due Wed Nov 18, 11:59 PM, on Canvas (extended from Mon Nov 16); it is the last graded homework. From there the final project takes over: Milestone 2, a baseline model scored with the metric your decision needs, is due Mon Nov 30 (extended for Thanksgiving). Next week's hotel-bookings lab (early-stopped boosting, SHAP, a calibration check) is the template for Milestone 3."
     }
   ],
   "nextSession": {

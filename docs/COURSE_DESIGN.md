@@ -77,7 +77,7 @@ hidden test set of hotel bookings · leaderboard closes Mon Nov 9, 4:30 PM (the 
 "what worked" talks in S8 Nov 9 · one-page memo on Canvas by 11:59 PM that night. Graded 50% leaderboard rank band, 50% the memo. The midterm has its week alone.
 
 **Final Project — "Your Prediction Story" (team of 2–3, solo allowed):** four pass/fail milestones, one per week, never two deadlines in a week:
-Milestone 1 problem + dataset (graded discussion) Mon Nov 2 · Milestone 2 baseline + metric Mon Nov 23 · Milestone 3 tuned model + error analysis Mon Nov 30 · Milestone 4 dry-run slides Mon Dec 7, 5:00 PM (paired dry runs in S12) ·
+Milestone 1 problem + dataset (graded discussion) Mon Nov 2 · Milestone 2 baseline + metric Mon Nov 30 · Milestone 3 tuned model + error analysis Thu Dec 3 (both extended for Thanksgiving week) · Milestone 4 dry-run slides Mon Dec 7, 5:00 PM (paired dry runs in S12) ·
 notebook + 2-page decision memo + repo link Mon Dec 14, 5:00 PM (the start of the exam-week slot; nothing is due in the 48 hours before it) · presentations Mon Dec 14 (Session 13,
 exam-week slot). No written final exam.
 

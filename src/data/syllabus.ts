@@ -56,7 +56,7 @@ export const assessments = [
   },
   {
     name: 'Final Project — Your Prediction Story (teams of 2–3, solo allowed)', weight: 40,
-    what: 'A real prediction question, a leak-proof model, an honest evaluation, a decision with a number, and a trust story. Four small pass/fail milestones keep every team moving: problem + dataset (Mon Nov 2), baseline + metric (Mon Nov 23), tuned model + error analysis (Mon Nov 30), dry-run slides (Mon Dec 7, 5:00 PM). Notebook + 2-page memo + repo link Mon Dec 14, 5:00 PM; 8-minute presentation that evening. No written final exam.',
+    what: 'A real prediction question, a leak-proof model, an honest evaluation, a decision with a number, and a trust story. Four small pass/fail milestones keep every team moving: problem + dataset (Mon Nov 2), baseline + metric (Mon Nov 30), tuned model + error analysis (Thu Dec 3), dry-run slides (Mon Dec 7, 5:00 PM). Notebook + 2-page memo + repo link Mon Dec 14, 5:00 PM; 8-minute presentation that evening. No written final exam.',
     rubric: [
       'Framing & data (15%)', 'Modeling & validation (25%)', 'Decision & value (25%)', 'Trust story (15%)', 'Memo & presentation (20%)',
     ],
