@@ -13,6 +13,11 @@ Five questions a good boss asks before trusting a model, one line of code each:
     p.by_group('market_segment')              # 5. Does it work for everyone?   (error by slice)
     p.model_card()                            #    the one-page summary         (model card)
 
+The SHAP Lab: three creative uses of the receipts
+    p.reason_groups()                         # cluster the risky rows by WHY they are risky
+    p.bridge('hotel', 'Resort Hotel', 'City Hotel')   # explain a gap between two groups, clue by clue
+    p.precedents(438)                         # cases like this one: past rows with the most similar receipts
+
 Works for a yes/no target (classification, graded by AUC) and for a number (regression, graded by MAE).
 Every function prints one plain-English sentence and draws one picture. To see how any of them works:
     p.show_code('five_exams')
@@ -33,9 +38,81 @@ warnings.filterwarnings('ignore')
 BLUE, RED, GREEN, AMBER, GRAY = '#5b6bd8', '#d64545', '#1aa38a', '#e0a020', '#9aa3b2'
 
 
-def start(data, target, drop=(), yes_means=None, test_size=0.2, seed=835):
-    """Set up a project: split off a locked test set, prepare the columns, train a first model."""
-    return Project(data, target, drop, yes_means, test_size, seed)
+class KitStop(Exception):
+    """A friendly stop: the message says exactly what to change."""
+
+
+try:                                                   # in Jupyter/Colab, show a KitStop as a short message, not a red traceback
+    from IPython import get_ipython
+    if get_ipython() is not None:
+        get_ipython().set_custom_exc((KitStop,), lambda shell, etype, value, tb, tb_offset=None: print(f'\n🛑 {value}\n'))
+except Exception:
+    pass
+
+
+def _suggest(name, options):
+    import difflib
+    close = difflib.get_close_matches(str(name), [str(o) for o in options], n=3, cutoff=0.5)
+    hint = f' Did you mean: {", ".join(repr(c) for c in close)}?' if close else ''
+    return f'There is no column called {name!r}.{hint}\n   The columns are: {", ".join(map(str, options))}'
+
+
+def start(data, target, drop=(), yes=None, yes_means=None, test_size=0.2, seed=835):
+    """Set up a project: check the data, split off a locked test set, prepare the columns, train a first model.
+
+    yes        : for a yes/no target, which value counts as "yes" (the kit guesses: 1, True, "Yes", or else the rarer value)
+    yes_means  : the words to use for "yes" in sentences, e.g. 'canceled' or 'churned'
+    """
+    return Project(data, target, drop, yes, yes_means, test_size, seed)
+
+
+def _doctor(X, target):
+    """The data doctor: fix what can be fixed safely, and say what was done."""
+    X = X.copy(); notes = []; dates = {}
+    n = len(X)
+    for c in list(X.columns):
+        col = X[c]
+        if col.isna().all():
+            X = X.drop(columns=c); notes.append(f'{c}: completely empty → removed'); continue
+        if col.nunique(dropna=False) == 1:
+            X = X.drop(columns=c); notes.append(f'{c}: the same value in every row → removed (it can\'t tell rows apart)'); continue
+        if col.dtype == bool:
+            X[c] = col.astype(int); continue
+        if pd.api.types.is_datetime64_any_dtype(col):
+            parsed = col
+        elif col.dtype == object or pd.api.types.is_string_dtype(col):
+            text = col.dropna().astype(str).str.strip()
+            cleaned = text.str.replace(r'[$,%£€\s]', '', regex=True)
+            as_num = pd.to_numeric(cleaned, errors='coerce')
+            is_code = cleaned.str.fullmatch(r'\d+').all() and cleaned.str.len().nunique() == 1 and cleaned.str.len().iloc[0] >= 3
+            if len(text) and as_num.notna().mean() >= 0.9 and text.str.contains(r'\d').mean() >= 0.9 and not is_code:
+                blanks = int((col.astype(str).str.strip() == '').sum())
+                X[c] = pd.to_numeric(col.astype(str).str.strip().str.replace(r'[$,%£€\s]', '', regex=True), errors='coerce')
+                notes.append(f'{c}: numbers stored as text → turned into real numbers' + (f' ({blanks} blank cells became missing)' if blanks else ''))
+                continue
+            looks_like_date = text.str.contains(r'\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}').mean() >= 0.9
+            parsed = pd.to_datetime(col, errors='coerce', format='mixed') if looks_like_date else None
+            if parsed is not None and parsed.notna().mean() < 0.9:
+                parsed = None
+            if parsed is None:
+                if text.nunique() >= 0.95 * len(text) and len(text) > 50:
+                    X = X.drop(columns=c)
+                    notes.append(f'{c}: a different text in almost every row (an ID or free text) → removed (it can\'t help predict new rows)')
+                continue
+        else:
+            name = str(c).lower().replace(' ', '_')
+            is_int = pd.api.types.is_integer_dtype(col) or (col.dropna() % 1 == 0).all()
+            idish = any(k in name for k in ('id', 'number', 'index', 'key', 'row')) and not any(k in name for k in ('paid', 'valid', 'width', 'provid'))
+            sequence = col.dropna().is_monotonic_increasing and col.nunique() == n
+            if is_int and col.nunique() >= 0.99 * n and (idish or sequence):
+                X = X.drop(columns=c); notes.append(f'{c}: a unique number for every row (an ID) → removed'); continue
+            continue
+        dates[c] = pd.to_datetime(parsed)
+        X[f'{c} (year)'] = dates[c].dt.year; X[f'{c} (month)'] = dates[c].dt.month
+        X[f'{c} (weekday)'] = dates[c].dt.dayofweek; X[f'{c} (days since first)'] = (dates[c] - dates[c].min()).dt.days
+        X = X.drop(columns=c)
+        notes.append(f'{c}: a date → turned into year, month, weekday and days-since-first (use it in p.past_vs_future!)')
+    return X, notes, dates
 
 
 def _prep(frame):
@@ -54,18 +131,55 @@ def _box(title):
 
 
 class Project:
-    def __init__(self, data, target, drop, yes_means, test_size, seed):
+    def __init__(self, data, target, drop, yes, yes_means, test_size, seed):
+        if not isinstance(data, pd.DataFrame):
+            raise KitStop('start() needs a pandas DataFrame, for example: data = pd.read_csv("my_file.csv")')
+        if target not in data.columns:
+            raise KitStop(_suggest(target, data.columns))
+        missing_drop = [c for c in drop if c not in data.columns]
+        if missing_drop:
+            raise KitStop('In drop=[...]: ' + _suggest(missing_drop[0], data.columns))
+        other = None; note_few = None
+        lost = int(data[target].isna().sum())
         data = data.dropna(subset=[target]).reset_index(drop=True)
         self.target, self.seed = target, seed
         y = data[target]
-        self.kind = 'classification' if y.nunique() == 2 else 'regression'
-        if self.kind == 'classification':
-            values = sorted(y.unique(), key=str)
-            yes = 1 if 1 in values else values[-1]
+        values = [v.item() if hasattr(v, 'item') else v for v in y.unique()]
+        numeric = pd.api.types.is_numeric_dtype(y) and y.dtype != bool
+        if len(values) < 2:
+            raise KitStop(f'The target {target!r} has only one value ({values[0]!r}). There is nothing to predict.')
+        if len(values) == 2:
+            self.kind = 'classification'
+            if yes is None:
+                for v in (1, True, 'Yes', 'yes', 'YES', 'Y', 'y', '1'):
+                    if any(v == u and type(v) == type(u) for u in values) or (isinstance(v, (int, bool)) and v in values):
+                        yes = v; break
+                else:
+                    yes = y.value_counts().idxmin()                  # otherwise: the rarer value is the "yes"
+            if yes not in values:
+                raise KitStop(f'yes={yes!r} is not a value of {target!r}. Its values are: {values}')
             y = (y == yes).astype(int)
-            self.yes = yes_means or f'{target} = {yes}'
+            self.yes = yes_means or (str(yes) if not isinstance(yes, (int, bool, np.integer)) else f'{target} = {yes}')
+            self._yes_value, other = yes, [v for v in values if v != yes][0]
+        elif numeric:
+            self.kind = 'regression'
+            if len(values) <= 10:
+                note_few = f'{target}: only {len(values)} different values, so the kit treats it as a number to predict (graded by the average miss)'
+        else:
+            shown = ', '.join(map(repr, values[:6])) + (' …' if len(values) > 6 else '')
+            raise KitStop(f'The target {target!r} has {len(values)} different values: {shown}\n'
+                          f'   The kit predicts a yes/no question or a number. Turn yours into the yes/no question your decision needs, e.g.:\n'
+                          f'   data["{target}_is_{values[0]}"] = data["{target}"] == {values[0]!r}\n'
+                          f'   p = start(data, target="{target}_is_{values[0]}", drop=["{target}"])')
         self.y = y
-        self.X_raw = data.drop(columns=[target, *drop])
+        X_raw, self.notes, self.dates = _doctor(data.drop(columns=[target, *drop]), target)
+        if lost:
+            self.notes.insert(0, f'{target}: {lost} rows had no answer → left out')
+        if note_few:
+            self.notes.insert(0, note_few)
+        if X_raw.shape[1] == 0:
+            raise KitStop('After removing IDs and empty columns there are no clues left to predict from.')
+        self.X_raw = X_raw
         strat = y if self.kind == 'classification' else None
         self.X_tr_raw, self.X_te_raw, self.y_tr, self.y_te = train_test_split(self.X_raw, y, test_size=test_size, stratify=strat, random_state=seed)
         self.prep = _prep(self.X_raw)
@@ -75,6 +189,21 @@ class Project:
         self.results, self.dials, self._shap = {}, {}, None
         self.model = self._new().fit(self.X_tr, self.y_tr)
         self.results['first test score'] = self._score(self.model, self.X_te, self.y_te)
+        _box('Data doctor')
+        if self.notes:
+            for note in self.notes:
+                print('  ✚ ' + note)
+        else:
+            print('  ✓ nothing to fix: no IDs, empty columns, text-numbers or dates')
+        if self.kind == 'classification' and other is not None and not (set(values) <= {0, 1, True, False}):
+            print(f'  ✓ "yes" means {target} = {self._yes_value!r} (the other value is {other!r}). To flip it: start(..., yes={other!r})')
+        leaks = self._leak_check()
+        for c, v in leaks:
+            print(f'  ⚠️ {c} ALONE predicts the target almost perfectly ({self.metric if self.kind == "classification" else "R²"} {v:.2f}). '
+                  f'Is it known BEFORE the moment you predict? If not, it is a leak (Session 7): add it to drop=[...].')
+        first = self.results['first test score']
+        if self.kind == 'classification' and first >= 0.99 and not leaks:
+            print(f'  ⚠️ A test AUC of {first:.3f} is suspiciously perfect. Look for a column that is recorded after the outcome.')
         _box('Your project')
         what = f'a yes/no question (classification): will it be "{self.yes}"?' if self.kind == 'classification' else f'a number (regression): {target}'
         print(f'The model predicts {what}')
@@ -83,6 +212,28 @@ class Project:
             print(f'{self.y_tr.mean():.0%} of the training rows are "{self.yes}"')
         print(f'Grading: {self._metric_words()}')
         print(f'First model (gradient boosting, default dials): test {self.metric} = {self._fmt(self.results["first test score"])}')
+
+    def _leak_check(self, limit=0.95):
+        from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+        rows = self.X_tr.sample(min(len(self.X_tr), 20000), random_state=self.seed)
+        yy = self.y_tr.loc[rows.index]
+        found = []
+        for c in rows.columns:
+            tree = (DecisionTreeClassifier if self.kind == 'classification' else DecisionTreeRegressor)(max_depth=4, random_state=self.seed)
+            try:
+                v = cross_val_score(tree, rows[[c]], yy, cv=self._folds(3), scoring='roc_auc' if self.kind == 'classification' else 'r2').mean()
+            except Exception:
+                continue
+            if v >= limit:
+                found.append((c, v))
+        return found
+
+    def _col(self, column):
+        if column in self.X_te_raw.columns:
+            return self.X_te_raw[column]
+        if column in self.dates:
+            return self.dates[column].loc[self.X_te_raw.index]
+        raise KitStop(_suggest(column, list(self.X_raw.columns) + list(self.dates)))
 
     # ── small helpers ────────────────────────────────────────────────────────────────
     def _new(self, **dials):
@@ -136,9 +287,19 @@ class Project:
 
     def past_vs_future(self, column, cutoff):
         """Train on rows before the cutoff, test on rows from the cutoff on: the exam that looks like the real job."""
-        col = self.X_raw[column]
-        past = (col < cutoff).values
+        if column in self.dates:
+            col = self.dates[column]
+            cut = pd.Timestamp(f'{cutoff}-01-01') if isinstance(cutoff, (int, np.integer)) else pd.Timestamp(cutoff)
+            past = (col < cut).values
+        elif column in self.X_raw.columns:
+            col = self.X_raw[column]
+            past = (col < cutoff).values
+        else:
+            raise KitStop(_suggest(column, list(self.X_raw.columns) + list(self.dates)))
         future = ~past
+        if past.sum() < 30 or future.sum() < 30:
+            raise KitStop(f'With cutoff {cutoff!r}, there are {past.sum()} rows before and {future.sum()} rows from the cutoff on. '
+                          f'Both sides need at least 30. Pick a cutoff in the middle of {column}: it runs from {str(col.min())[:10]} to {str(col.max())[:10]}.')
         shuffled = np.zeros(len(col), dtype=bool)
         shuffled[np.random.RandomState(self.seed).permutation(len(col))[:past.sum()]] = True
 
@@ -202,13 +363,17 @@ class Project:
         return self._shap
 
     def _unit(self, v):
-        return f'{100 * v:+.0f} points' if self.kind == 'classification' else f'{v:+,.0f}'
+        if self.kind == 'classification':
+            return f'{100 * v:+.1f} points' if abs(100 * v) < 9.95 else f'{100 * v:+.0f} points'
+        return f'{v:+,.0f}'
 
     def _say(self, v):
         return f'{v:.0%}' if self.kind == 'classification' else f'{v:,.0f}'
 
     def receipt(self, i, lines=6):
         """A SHAP receipt for test row i: start at the average, add each clue's push, arrive at the prediction."""
+        if not 0 <= i < len(self.X_te):
+            raise KitStop(f'The test rows are numbered 0 to {len(self.X_te) - 1}. Pick a number in that range.')
         sv, rows = self._receipts(i)
         words = self.X_te_raw.iloc[i][rows.columns].fillna('missing').map(lambda w: int(w) if isinstance(w, float) and w.is_integer() else w)
         base = sv.base_values[i] if np.ndim(sv.base_values) else sv.base_values
@@ -329,12 +494,23 @@ class Project:
     # ── Question 5 · Does it work for everyone? ──────────────────────────────────────
     def by_group(self, column, min_size=100, threshold=0.5):
         """Split the test rows into groups and check the model's mistakes in each one."""
-        g = self.X_te_raw[column]
+        g = self._col(column)
+        ordered = pd.api.types.is_numeric_dtype(g) or pd.api.types.is_datetime64_any_dtype(g)
+        if pd.api.types.is_datetime64_any_dtype(g):
+            g = g.dt.year
         if pd.api.types.is_numeric_dtype(g) and g.nunique() > 8:
             cut = pd.qcut(g, 4, duplicates='drop')                         # many numbers → four equal-size groups
             g = cut.map(lambda iv: f'{max(iv.left, g.min()):,.0f} to {iv.right:,.0f}').astype(str)
         g = pd.Series(np.asarray(g).astype(str), index=self.X_te_raw.index)
-        keep = [k for k, n in g.value_counts().items() if n >= min_size]
+        counts = g.value_counts()
+        if (counts >= min_size).sum() < 2:                                  # small test set: accept smaller groups, and say so
+            min_size = max(5, min(min_size, int(counts.iloc[1]) if len(counts) > 1 else 5))
+        keep = [k for k, n in counts.items() if n >= min_size]
+        if ordered:                                                          # years and number ranges: keep them in order
+            import re
+            keep = sorted(keep, key=lambda k: float(re.findall(r'-?[\d,.]+', k)[0].replace(',', '')) if re.findall(r'-?[\d,.]+', k) else 0)
+        if len(keep) < 2:
+            raise KitStop(f'{column!r} does not split the {len(g)} test rows into at least two groups of {min_size}+ rows. Try a column with fewer, bigger groups.')
         rows = []
         if self.kind == 'classification':
             said = (self.model.predict_proba(self.X_te)[:, 1] >= threshold).astype(int)
@@ -368,6 +544,121 @@ class Project:
         if self.kind == 'classification':
             plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f'{v:.0%}'))
         plt.title(f'Mistakes by {column} (dashed line: everyone)'); plt.gca().invert_yaxis(); plt.show()
+
+    # ── The SHAP Lab · three creative uses of the receipts ───────────────────────────
+    def _shap_of(self, rows, model=None, background=None):
+        """SHAP receipts for any rows (cached explainer per model)."""
+        import shap
+        model = model or self.model
+        key = id(model)
+        if getattr(self, '_ex_key', None) != key:
+            bg = background if background is not None else self.X_tr.sample(100, random_state=self.seed)
+            self._ex = shap.TreeExplainer(model, data=bg, model_output='probability' if self.kind == 'classification' else 'raw')
+            self._ex_key = key
+        return self._ex(rows)
+
+    def reason_groups(self, k=4, rows=2000):
+        """Cluster the risky rows by WHY the model flags them: k-means on the SHAP receipts, not on the raw columns."""
+        from sklearn.cluster import KMeans
+        self._receipts()                                                     # makes sure shap is installed
+        X = self.X_te.iloc[:rows]
+        sv = self._shap_of(X)
+        pred = sv.base_values + sv.values.sum(axis=1)
+        risky = pred >= 0.5 if self.kind == 'classification' else pred >= np.quantile(pred, 0.7)
+        what = f'predicted "{self.yes}"' if self.kind == 'classification' else 'in the top 30% of predictions'
+        if self.kind == 'classification' and risky.sum() < 5 * k:           # rare events: few rows reach 50%, so take the riskiest 10%
+            risky = pred >= np.quantile(pred, 0.9); what = 'in the riskiest 10% (few rows reach 50% in rare-event data)'
+        V = sv.values[risky]
+        if risky.sum() < 5 * k:
+            raise KitStop(f'Only {risky.sum()} test rows are flagged, too few for {k} groups. Try p.reason_groups(k=2), or use more data.')
+        groups = KMeans(n_clusters=k, n_init=10, random_state=self.seed).fit_predict(V)    # receipts are all in points already: no scaling needed
+        push = pd.DataFrame(V, columns=X.columns).groupby(groups).mean()
+        real = self.y_te.iloc[:rows].values[risky]
+        table = []
+        for g in push.index:
+            top = push.loc[g].sort_values(ascending=False).head(3)
+            m = groups == g
+            table.append({'group': f'the "{top.index[0]}" group', 'rows': int(m.sum()), 'model says': self._say(pred[risky][m].mean()),
+                          'really happened': self._say(real[m].mean()), 'top 3 reasons (average push)': ' · '.join(f'{c} {self._unit(v)}' for c, v in top.items())})
+        table = pd.DataFrame(table).sort_values('rows', ascending=False).reset_index(drop=True); table.index += 1
+        _box(f'SHAP Lab 1 · {"Why are they risky?" if self.kind == "classification" else "Why are they high?"} {risky.sum()} rows {what}, grouped by their receipts')
+        print(table.to_string())
+        print('\nSame prediction, different reasons, different fix. Each group needs its own action.')
+        cols = push.abs().max().sort_values(ascending=False).head(8).index
+        fig, ax = plt.subplots(figsize=(9, 0.55 * k + 1.4))
+        M = push.loc[:, cols].reindex([push.index[i] for i in np.argsort([-(groups == g).sum() for g in push.index])]) * (100 if self.kind == 'classification' else 1)
+        im = ax.imshow(M.values, cmap='RdBu_r', vmin=-np.abs(M.values).max(), vmax=np.abs(M.values).max(), aspect='auto')
+        ax.set_xticks(range(len(cols))); ax.set_xticklabels(cols, rotation=30, ha='right'); ax.set_yticks(range(len(M))); ax.set_yticklabels([f'group {i + 1}' for i in range(len(M))])
+        for r in range(M.shape[0]):
+            for c in range(M.shape[1]):
+                val = M.values[r, c]; lim = np.abs(M.values).max()
+                ax.text(c, r, '0' if round(val) == 0 else f'{val:+.0f}', ha='center', va='center', fontsize=9, color='white' if abs(val) > 0.55 * lim else 'black')
+        ax.set_title('Average push of each clue, group by group (red = pushes up)'); plt.colorbar(im, ax=ax, shrink=0.8); plt.show()
+        return table
+
+    def bridge(self, column, a, b, rows=2000, lines=6):
+        """Why does the model expect more for group b than for group a? The gap, split into clue-by-clue pushes."""
+        self._receipts()
+        X = self.X_te.iloc[:rows]; col = self._col(column).iloc[:rows]
+        A, B = (col == a).values, (col == b).values
+        if A.sum() < 10 or B.sum() < 10:
+            raise KitStop(f'{column} = {a!r} has {A.sum()} rows and {column} = {b!r} has {B.sum()} rows here; each needs at least 10. Values: {", ".join(map(repr, col.value_counts().index[:8]))}')
+        sv = self._shap_of(X)
+        pred = sv.base_values + sv.values.sum(axis=1)
+        diff = pd.Series(sv.values[B].mean(0) - sv.values[A].mean(0), index=X.columns)
+        top = diff.reindex(diff.abs().sort_values(ascending=False).index).head(lines)
+        rest = diff.sum() - top.sum()
+        pa, pb = pred[A].mean(), pred[B].mean()
+        real = self.y_te.iloc[:rows].values
+        _box(f'SHAP Lab 2 · The bridge: from {column} = {a} to {b}')
+        print(f'{"the model expects, " + str(a):<44}{self._say(pa):>12}   (really: {self._say(real[A].mean())})')
+        for c, v in top.items():
+            print(f'{c:<44}{self._unit(v):>12}')
+        print(f'{"all other clues":<44}{self._unit(rest):>12}')
+        print(f'{"the model expects, " + str(b):<44}{self._say(pb):>12}   (really: {self._say(real[B].mean())})')
+        print(f'\nIn one sentence: "{b} is {self._unit(pb - pa).replace("+", "")} {"higher" if pb > pa else "lower"} mainly because of {top.index[0]} ({self._unit(top.iloc[0])}) and {top.index[1]} ({self._unit(top.iloc[1])})."')
+        sc = 100 if self.kind == 'classification' else 1
+        labels = [str(a)] + list(top.index) + ['other clues', str(b)]
+        fig, ax = plt.subplots(figsize=(9, 3.6)); level = pa
+        ax.bar(0, pa * sc, color=GRAY)
+        for i, v in enumerate(list(top.values) + [rest], start=1):
+            ax.bar(i, v * sc, bottom=level * sc, color=RED if v > 0 else BLUE); ax.text(i, (level + max(v, 0)) * sc, f'{v * sc:+.1f}', ha='center', va='bottom', fontsize=9); level += v
+        ax.bar(len(labels) - 1, pb * sc, color='#333')
+        ax.set_xticks(range(len(labels))); ax.set_xticklabels(labels, rotation=25, ha='right'); ax.set_ylim(min(pa, pb) * sc * 0.8, max(pa, pb, level) * sc * 1.12)
+        ax.set_ylabel('points' if self.kind == 'classification' else self.target); ax.set_title(f'The bridge from {a} to {b}'); plt.show()
+
+    def precedents(self, i, n=5, pool=2000):
+        """Cases like this one: the past rows whose receipts look most like test row i, and what really happened to them."""
+        if not 0 <= i < len(self.X_te):
+            raise KitStop(f'The test rows are numbered 0 to {len(self.X_te) - 1}. Pick a number in that range.')
+        self._receipts()
+        if getattr(self, '_pool_key', None) != id(self.model):
+            P = self.X_tr.sample(min(pool, len(self.X_tr)), random_state=self.seed)
+            self._pool = (P, self._shap_of(P)); self._pool_key = id(self.model)
+        P, psv = self._pool
+        me = self._shap_of(self.X_te.iloc[[i]])
+        dist = np.sqrt(((psv.values - me.values[0]) ** 2).sum(axis=1))
+        near = np.argsort(dist)[:n]
+        mine = pd.Series(me.values[0], index=P.columns)
+        clues = list(mine.abs().sort_values(ascending=False).index[:3])
+        pred_me = float(me.base_values[0] + me.values[0].sum())
+        pred_p = psv.base_values + psv.values.sum(axis=1)
+        raw_p = self.X_tr_raw.loc[P.index]
+        rows = [{'': 'THIS ONE (test row %d)' % i, **{c: self.X_te_raw.iloc[i][c] for c in clues}, 'model says': self._say(pred_me), 'what happened': '?'}]
+        for j in near:
+            truth = self.y_tr.loc[P.index[j]]
+            what = ('canceled' if self.yes == 'canceled' else f'"{self.yes}"') if self.kind == 'classification' and truth == 1 else ('no' if self.kind == 'classification' else f'{truth:,.0f}')
+            rows.append({'': f'past row {P.index[j]}', **{c: raw_p.iloc[j][c] for c in clues}, 'model says': self._say(pred_p[j]), 'what happened': what})
+        table = pd.DataFrame(rows).set_index(''); table.index.name = None
+        _box(f'SHAP Lab 3 · Cases like this one: the {n} past rows with the most similar receipts')
+        print(table.fillna('missing').to_string())
+        if self.kind == 'classification':
+            k = int(sum(self.y_tr.loc[P.index[j]] for j in near))
+            print(f'\n{k} of these {n} look-alikes were "{self.yes}". The model says {self._say(pred_me)} for this one.')
+        else:
+            print(f'\nThe look-alikes really went for {", ".join(f"{self.y_tr.loc[P.index[j]]:,.0f}" for j in near)}. The model says {self._say(pred_me)} for this one.')
+        print('Similar receipt = similar REASONS, not just similar columns. A manager can check these cases by hand.')
+        return table
 
     # ── The label on the box ─────────────────────────────────────────────────────────
     def model_card(self, name='My model'):

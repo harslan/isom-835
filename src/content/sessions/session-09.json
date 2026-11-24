@@ -116,6 +116,15 @@
       "linkText": "Open in Colab"
     },
     {
+      "title": "Go further · The SHAP Lab",
+      "url": "https://colab.research.google.com/github/harslan/isom-835/blob/master/public/session-10/ISOM835_SHAP_Lab.ipynb",
+      "description": "Three creative uses of SHAP, one line each, on the hotel bookings. Group the risky bookings by why they are risky (k-means on the receipts, Session 10 meets Session 9). Explain why City Hotel cancels more than Resort with a clue-by-clue bridge. Show the five past bookings with the most similar receipts and what happened to them. Plus an honest note on an idea that did not hold up on this data. About 2 minutes to run.",
+      "icon": "code",
+      "badge": "Go Further",
+      "badgeType": "interactive",
+      "linkText": "Open in Colab"
+    },
+    {
       "title": "Session 9 Slides — Trust, but Verify",
       "url": "/session-09/slides.html",
       "description": "The deck from class: five questions a good boss asks, one exam is partly luck, five exams instead of one, the parking lot and Boston traffic, tasting in the kitchen, the best of 200 guessers, a receipt for booking 438, the non-refundable deposit warning, a model with three answers, the price of certainty, mistakes group by group, and the model card. Arrow keys to navigate, F for fullscreen, N for speaker notes.",
