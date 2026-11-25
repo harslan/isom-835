@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISOM 835 · Session 11 · Forecasting Bike Demand</title>
+<meta name="description" content="Session 11 slides for ISOM 835: forecasting hourly bike rentals in Washington, DC. Why a random split lies, naive baselines, lag features with gradient boosting, time ordered validation, where the model misses, a safety buffer for the 8 AM rush, and a zero-shot foundation model, with live animations on real data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #07090f; --bg2: #0c0f17; --card: #0f131c; --text: #eef2f7; --text2: #a3adbd; --muted: #5f6a7d;
+          --teal: #2ee6c5; --peri: #7c8cff; --coral: #ff6b8b; --lime: #7ee787; --amber: #f5a524; --border: rgba(200,220,255,0.09); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; overflow: hidden; }
+  .slide { position: absolute; inset: 0; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6vh 8vw; gap: 3vh; }
+  .slide.active { display: flex; animation: fadeIn 0.45s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .kicker { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.2vw, 0.95rem); letter-spacing: 4px; text-transform: uppercase; color: var(--teal); }
+  h1 { font-size: clamp(2.2rem, 6vw, 4.6rem); font-weight: 800; line-height: 1.08; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 3.4rem); font-weight: 800; line-height: 1.12; }
+  .grad { background: linear-gradient(90deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .sub { font-size: clamp(1rem, 2vw, 1.5rem); color: var(--text2); max-width: 900px; line-height: 1.55; }
+  .big { font-size: clamp(3.2rem, 11vw, 8.5rem); font-weight: 800; line-height: 1; }
+  .cards { display: flex; gap: 1.4vw; flex-wrap: wrap; justify-content: center; max-width: 1240px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.4vh 1.6vw; min-width: 220px; max-width: 330px; flex: 1; text-align: left; }
+  .card .label { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+  .card .title { font-weight: 700; font-size: clamp(0.95rem, 1.5vw, 1.2rem); margin-bottom: 8px; }
+  .card p { color: var(--text2); font-size: clamp(0.8rem, 1.2vw, 0.95rem); line-height: 1.5; }
+  .num { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; background: linear-gradient(135deg, var(--teal), var(--peri)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  pre { background: #0a0d15; border: 1px solid var(--border); border-radius: 14px; padding: 2.6vh 2vw; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1.3vw, 1.02rem); line-height: 1.6; color: #d8dee9; max-width: 940px; overflow: auto; }
+  pre .c { color: #6a737d; } pre .k { color: #ff7b72; } pre .s { color: #a5d6ff; } pre .f { color: #d2a8ff; }
+  .hud { position: fixed; bottom: 18px; right: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); z-index: 10; }
+  .brand { position: fixed; bottom: 18px; left: 24px; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); letter-spacing: 2px; z-index: 10; }
+  .bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--teal), var(--peri)); transition: width 0.3s ease; z-index: 10; }
+  ul.list { text-align: left; max-width: 900px; color: var(--text2); font-size: clamp(0.95rem, 1.8vw, 1.3rem); line-height: 1.7; list-style: none; }
+  ul.list li { padding-left: 1.6em; position: relative; margin-bottom: 1.2vh; }
+  ul.list li::before { content: "▸"; position: absolute; left: 0; color: var(--teal); }
+  .pill { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.9rem); letter-spacing: 2px; padding: 8px 20px; border: 1px solid var(--teal); border-radius: 999px; color: var(--teal); }
+  .t { color: var(--teal); } .p { color: var(--peri); } .co { color: var(--coral); } .li { color: var(--lime); } .am { color: var(--amber); }
+  .row { display: flex; gap: 3vw; align-items: center; justify-content: center; flex-wrap: wrap; }
+  table.cm { border-collapse: collapse; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
+  table.cm td, table.cm th { padding: 1.6vh 2.4vw; border: 1px solid var(--border); }
+  table.cm th { color: var(--muted); font-weight: 400; font-size: 0.8em; }
+  table.cm .g { background: rgba(126,231,135,0.12); color: var(--lime); } table.cm .b { background: rgba(255,107,139,0.14); color: var(--coral); } table.cm .a { background: rgba(245,165,36,0.12); color: var(--amber); }
+  .bars { display: flex; gap: 2.5vw; align-items: flex-end; height: 34vh; }
+  .bars div { width: clamp(70px, 9vw, 130px); background: linear-gradient(180deg, var(--teal), var(--peri)); border-radius: 10px 10px 4px 4px; position: relative; }
+  .bars div span { position: absolute; top: -2.6em; left: 0; right: 0; font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .bars div small { position: absolute; bottom: -2.4em; left: 0; right: 0; color: var(--text2); font-size: 0.8rem; }
+  .notes { display: none; position: fixed; left: 24px; right: 24px; bottom: 48px; background: rgba(15,19,28,0.96); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-size: 0.85rem; color: var(--text2); text-align: left; z-index: 20; }
+  body.shownotes .notes { display: block; }
+  .timeline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 0.6vw; max-width: 1300px; width: 100%; }
+  .timeline div { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.4vh 0.6vw; font-size: clamp(0.62rem, 1vw, 0.85rem); color: var(--text2); }
+  .timeline div b { display: block; color: var(--text); font-size: 1.05em; margin-bottom: 4px; }
+  .timeline div i { display: block; font-style: normal; font-family: 'IBM Plex Mono', monospace; font-size: 0.8em; color: var(--teal); margin-bottom: 4px; }
+
+  img.chart { display: block; max-width: min(92vw, 1100px); max-height: 50vh; width: auto; height: auto; border-radius: 14px; }
+  table.cm td { text-align: center; }
+  table.cm.small td, table.cm.small th { padding: 1.1vh 1.5vw; font-size: clamp(0.75rem, 1.35vw, 1.05rem); }
+  .card p { font-size: clamp(0.95rem, 1.45vw, 1.2rem); }
+  .card .label { font-size: clamp(0.72rem, 0.95vw, 0.9rem); }
+  .card .title { font-size: clamp(1.05rem, 1.7vw, 1.35rem); }
+  .card p.real { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.72rem, 1vw, 0.9rem); color: var(--amber); margin-top: 8px; }
+  svg text { font-family: Manrope, sans-serif; }
+
+  .q { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.8rem, 1.3vw, 1.05rem); letter-spacing: 3px; text-transform: uppercase; color: var(--amber); }
+  .folds { display: grid; grid-template-columns: auto repeat(5, 1fr); gap: 0.7vh 0.5vw; width: min(86vw, 900px); align-items: center; font-size: clamp(0.8rem, 1.3vw, 1.05rem); }
+  .folds span { color: var(--text2); font-family: 'IBM Plex Mono', monospace; padding-right: 1vw; text-align: right; }
+  .folds div { border-radius: 8px; padding: 1.1vh 0; background: rgba(124,140,255,0.16); color: #aab4ff; }
+  .folds div.x { background: var(--coral); color: #1a0810; font-weight: 800; }
+  .rc { display: grid; grid-template-columns: minmax(250px, 1.25fr) 2fr auto; gap: 0.9vh 1.2vw; width: min(90vw, 1050px); align-items: center; text-align: left; font-size: clamp(0.85rem, 1.45vw, 1.15rem); }
+  .rc .n { color: var(--text2); } .rc .n b { color: var(--text); }
+  .rc .track { position: relative; height: 3.2vh; background: rgba(200,220,255,0.04); border-radius: 6px; }
+  .rc .track i { position: absolute; top: 0; bottom: 0; border-radius: 6px; }
+  .rc .v { font-family: 'IBM Plex Mono', monospace; font-weight: 700; text-align: right; min-width: 4.5em; }
+  .hb { display: grid; grid-template-columns: auto 1fr auto; gap: 1vh 1.2vw; width: min(86vw, 900px); align-items: center; font-size: clamp(0.85rem, 1.45vw, 1.15rem); text-align: right; }
+  .hb .track { height: 3vh; } .hb .track i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--peri), var(--teal)); }
+  .hb .v { font-family: 'IBM Plex Mono', monospace; color: var(--text2); }
+  .piles { display: flex; width: min(88vw, 1000px); height: 11vh; border-radius: 14px; overflow: hidden; font-weight: 800; font-size: clamp(0.9rem, 1.7vw, 1.4rem); }
+  .piles div { display: flex; align-items: center; justify-content: center; color: #07090f; }
+  .card.label-card { border-style: dashed; }
+  .mc { text-align: left; width: min(90vw, 1040px); background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.2vh 2vw; font-size: clamp(0.85rem, 1.45vw, 1.2rem); line-height: 1.6; color: var(--text2); }
+  .mc b { color: var(--text); } .mc .h { font-family: 'IBM Plex Mono', monospace; letter-spacing: 2px; color: var(--teal); font-size: 0.85em; text-transform: uppercase; }
+</style>
+<style>
+  .seg4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2vw; max-width: 1400px; width: 100%; }
+  .seg4 .card { max-width: none; min-width: 0; }
+  .quote { font-size: clamp(1.15rem, 2.3vw, 1.75rem); line-height: 1.5; max-width: 980px; color: var(--text); border-left: 4px solid var(--amber); padding: 1vh 2vw; text-align: left; font-style: italic; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2vw; max-width: 1250px; }
+  .steps .card { max-width: none; min-width: 0; }
+  .play { font-size: clamp(3rem, 8vw, 6rem); }
+  table.cm.left td:first-child { text-align: left; }
+  .hbars { display: grid; grid-template-columns: auto 1fr auto; gap: 1.2vh 1.2vw; width: min(86vw, 950px); align-items: center; font-size: clamp(0.85rem, 1.5vw, 1.2rem); text-align: right; }
+  .hbars .track { height: 3.4vh; background: rgba(200,220,255,0.04); border-radius: 6px; } .hbars .track i { display: block; height: 100%; border-radius: 6px; transition: width 1.1s cubic-bezier(.2,.8,.2,1); }
+  .hbars .v { font-family: 'IBM Plex Mono', monospace; color: var(--text); text-align: left; min-width: 5em; }
+  .tiny { font-size: clamp(0.75rem, 1.1vw, 0.95rem); color: var(--muted); }
+  canvas.viz { width: min(88vw, 1080px); height: 52vh; display: block; }
+  canvas.viz.wide { width: min(92vw, 1250px); }
+  canvas.bg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.55; pointer-events: none; z-index: 0; }
+  .slide > *:not(canvas.bg) { position: relative; z-index: 1; }
+  svg.viz { width: min(88vw, 1080px); height: 50vh; display: block; overflow: visible; }
+  svg.viz text { fill: var(--text2); font-family: 'IBM Plex Mono', monospace; }
+  .waffles { display: flex; gap: 5vw; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+  .waffle { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; width: clamp(180px, 22vw, 300px); }
+  .waffle span { aspect-ratio: 1; border-radius: 4px; background: rgba(200,220,255,0.06); transform: scale(0.3); opacity: 0; transition: transform .35s ease, opacity .35s ease, background .35s ease; }
+  .waffle span.on { transform: none; opacity: 1; }
+  .wcap { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.75rem, 1.1vw, 0.95rem); color: var(--text2); margin-top: 1.2vh; letter-spacing: 1px; text-transform: uppercase; }
+  .persona { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 2.2vh 1.3vw; text-align: left; border-top: 4px solid var(--c); }
+  .persona .who { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.65rem, 0.9vw, 0.8rem); color: var(--c); letter-spacing: 2px; text-transform: uppercase; }
+  .persona .id { font-weight: 800; font-size: clamp(1.05rem, 1.9vw, 1.5rem); margin: 6px 0 2px; }
+  .persona .meta { color: var(--text2); font-size: clamp(0.8rem, 1.25vw, 1.05rem); margin-bottom: 1.2vh; line-height: 1.45; }
+  .persona .basket { font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1.1vw, 0.95rem); color: var(--text); line-height: 1.7; border-top: 1px dashed var(--border); padding-top: 1vh; }
+  .persona .basket b { color: var(--c); }
+  .persona .act { margin-top: 1.2vh; font-size: clamp(0.8rem, 1.2vw, 1.02rem); color: var(--text2); }
+  .persona .act b { color: var(--text); }
+  .legend { display: flex; gap: 2vw; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.7rem, 1vw, 0.9rem); color: var(--text2); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
+  .vs { display: flex; gap: 3vw; align-items: center; justify-content: center; }
+  .vs .big { font-size: clamp(2.4rem, 6vw, 4.6rem); }
+</style>
+
+<style>
+  .lagrow { display: flex; gap: 3px; justify-content: center; }
+  .lagrow span { width: clamp(14px, 1.6vw, 24px); height: 5vh; border-radius: 4px; background: rgba(126,231,135,0.15); }
+  .lagrow span.tm { background: rgba(124,140,255,0.12); }
+  .rule { font-size: clamp(1.15rem, 2.3vw, 1.7rem); line-height: 1.5; max-width: 980px; color: var(--text); border-left: 4px solid var(--teal); padding: 1vh 2vw; text-align: left; }
+  .rule b { color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="brand">ISOM 835 · SESSION 11</div>
+<div class="hud" id="hud"></div>
+
+<section class="slide active" data-notes="Welcome back from Thanksgiving. Behind the title: one real week of bike rentals in Washington DC, hour by hour, drawing itself. Two spikes every weekday, one gentle hill on the weekend. Tonight we forecast that line, one day ahead. Until now every model predicted something about a row we could see. Tonight we predict the future of a number.">
+<canvas class="bg" data-v="title"></canvas>
+<div class="kicker">ISOM 835 · Session 11 · Mon Nov 30</div>
+  <h1>Forecasting <span class="grad">tomorrow</span></h1>
+  <p class="sub">Time series with machine learning and foundation models, on real bike share data from Washington, DC</p>
+  <div class="pill">Prof. Hasan Arslan · 5:00–7:30 PM</div>
+</section>
+
+<section class="slide" data-notes="Two minutes. Milestone 2 is due tonight at 11:59 PM; most of you already got Pass feedback on Canvas, read the comment. Milestone 3 Thursday at 11:59 PM: tuned model, SHAP for three cases, errors by slice, model card. If your data has a clock, tonight changes your split: say so in Milestone 3.">
+<div class="kicker">Before we start · 2 minutes</div>
+  <h2>This week: <span class="grad">two deadlines</span></h2>
+  <ul class="list">
+    <li><b class="am">Milestone 2: tonight, 11:59 PM.</b> Most of you have feedback on Canvas already. Read the comment.</li>
+    <li><b class="am">Milestone 3: Thursday Dec 3, 11:59 PM.</b> Tuned model, SHAP for three cases, errors by slice, a half page model card.</li>
+    <li>Does your data have a <b>clock</b>? Then tonight changes how you split it.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="The big shift. Every model so far: one row in, one answer out (will this guest cancel, what will this house sell for). Tonight the thing we predict is the next value of a number over time. Three habits from the semester break: random splits, simple baselines, and which columns we may use. Each part of tonight fixes one.">
+<div class="kicker">Tonight's shift</div>
+  <h2>From <span class="p">a row</span> to <span class="t">tomorrow</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">Rule 1</div><div class="title">How we split</div><p>Train on the past, test on the future. Never shuffle.</p></div>
+    <div class="card"><div class="label">Rule 2</div><div class="title">Which columns we may use</div><p>Only what we know <b>at forecast time</b>. Yesterday, yes. One hour ago, no.</p></div>
+    <div class="card"><div class="label">Rule 3</div><div class="title">What we must beat</div><p>A naive guess: <b>same hour yesterday</b>. If a model can't beat that, it isn't a model.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="The business story for the whole night. Capital Bikeshare, Washington DC. Every night the vans move bikes so stations are ready for the morning. Read the boss's message aloud. Too few bikes: empty docks and angry commuters. Too many: a night of van work for nothing. The rule of our game: the forecast runs at midnight and covers the next 24 hours.">
+<div class="kicker">The business situation</div>
+  <h2>Tomorrow's <span class="grad">morning rush</span></h2>
+  <div class="quote">"How many rentals will start each hour tomorrow? I need to know how many bikes to have ready for the 8 AM rush."</div>
+  <div class="cards">
+    <div class="card"><div class="label">Too few bikes</div><p>Commuters find empty docks, and stop trusting the service.</p></div>
+    <div class="card"><div class="label">Too many bikes</div><p>Vans and drivers worked all night for nothing.</p></div>
+    <div class="card"><div class="label">The rule</div><p>We forecast <b>at midnight</b>, for the <b>next 24 hours</b>.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Tonight's map. Four games in the Forecasting Explorer, one before each idea: play first, then name it. Break around 6:05. The notebook follows the same order, steps 1 to 11.">
+<div class="kicker">Tonight's map · play first, then name it</div>
+  <h2>Four games, <span class="grad">three rules</span></h2>
+  <div class="steps">
+    <div class="card"><div class="label">Station 1</div><div class="title">Split the timeline</div><p>Why a random split lies. <b>Rule 1.</b></p></div>
+    <div class="card"><div class="label">Station 2</div><div class="title">Beat yesterday</div><p>The number to beat. <b>Rule 3.</b></p></div>
+    <div class="card"><div class="label">Station 3</div><div class="title">The 24 hour rule</div><p>Which past numbers we may use. <b>Rule 2.</b></p></div>
+    <div class="card"><div class="label">Station 4</div><div class="title">How big a buffer?</div><p>From a forecast to a decision.</p></div>
+  </div>
+  <p class="tiny">isom-835.vercel.app/explore/forecast</p>
+</section>
+
+<section class="slide" data-notes="Run the setup cells. One row is one hour: 17,379 of them, Jan 2011 to Dec 2012. cnt is the target: rentals that started in that hour. Then the clock check: 165 hours missing, and the top day is Oct 29, 2012: Hurricane Sandy, DC shut down. Real data has holes, and the holes have stories. We fill them with a straight line. Ask: should a closed system count as zero?">
+<div class="kicker">Notebook step 1 · meet the data</div>
+  <h2>One row is <span class="grad">one hour</span></h2>
+  <div class="row">
+    <div><div class="big t">17,379</div><p class="sub">hours, Jan 2011 to Dec 2012</p></div>
+    <div><div class="big am">165</div><p class="sub">hours missing. The worst day: <b>Oct 29, 2012</b></p></div>
+  </div>
+  <p class="sub">That was <b>Hurricane Sandy</b>. The system closed. Holes in data usually have a story.</p>
+</section>
+
+<section class="slide" data-notes="Live. Three zoom levels of the same series. First the two years: spring up, summer peak, winter down, and 2012 busier than 2011, the system was growing. Then one week in September: two spikes every weekday, a gentle hill on the weekend. Then the average day: weekdays are the commute, two sharp peaks; weekends are one leisure hill. Daily, weekly and yearly rhythm, plus growth. Hold on to the 8 AM spike: that is the boss's question.">
+<div class="kicker">Notebook step 2 · look before you model</div>
+  <h2>Three <span class="grad">rhythms</span></h2>
+  <canvas class="viz wide" data-v="rhythms"></canvas>
+</section>
+
+<section class="slide" data-notes="Station 1, 4 minutes. A tiny model: to guess a day, copy the two nearest training days of the same kind. Random split first, shuffle a few times, then time split. Ask: which one looks better, and why? Hover a test day in each mode to see which days it copies.">
+<div class="kicker">Play first · 4 minutes</div>
+  <div class="play">🎮</div>
+  <h2>Station 1: <span class="grad">Split the timeline</span></h2>
+  <p class="sub">Random split, then time split. Which one flatters the model, and why?</p>
+</section>
+
+<section class="slide" data-notes="Run step 3. Same gradient boosting model, same calendar and weather columns, trained twice. Random split: misses by about 25 rentals an hour. Time split, the last 8 weeks as the future: about 48. The random split looks almost twice as good as the truth.">
+<div class="kicker">Notebook step 3 · the trap</div>
+  <h2>Same model, <span class="grad">two scores</span></h2>
+  <div class="hbars">
+    <span>random split</span><div class="track"><i data-w="26.6%" style="background:linear-gradient(90deg,var(--peri),var(--teal))"></i></div><span class="v">25.4</span>
+    <span>time split</span><div class="track"><i data-w="50%" style="background:var(--coral)"></i></div><span class="v">47.8</span>
+  </div>
+  <p class="sub">average miss, rentals per hour. The random split looks <b class="co">1.9 times better</b> than the truth.</p>
+</section>
+
+<section class="slide" data-notes="Live. Each bar is one real day, Aug to Dec 2012. First a random split: the amber test days are scattered, and each one has training days right next to it, on both sides. The model fills a gap between neighbors: interpolation. Then the time split: all test days at the end. Their nearest training days are in the past only. Tomorrow has no neighbors from tomorrow.">
+<div class="kicker">Why the random split lies</div>
+  <h2>Tomorrow has no <span class="grad">neighbors</span></h2>
+  <canvas class="viz wide" data-v="splits"></canvas>
+</section>
+
+<section class="slide" data-notes="Rule 1. You have seen a softer version: in Session 9 we tested the hotel model on later bookings and the score dropped. Same lesson, louder. For any data with a clock: sort by time, cut, never shuffle.">
+<div class="kicker">Rule 1</div>
+  <div class="rule"><b>Split by time.</b> Train on the past, test on the future. Never shuffle.</div>
+  <p class="sub">The test set tonight: the <b>last 8 weeks</b> of 2012, Nov 6 to Dec 31.</p>
+</section>
+
+<section class="slide" data-notes="Station 2, 3 minutes. Turn on the naive guesses and the model, week by week. Mission: find the one week where 'yesterday' beats the model (week 7, the week ending on Christmas Eve). Ask why.">
+<div class="kicker">Play first · 3 minutes</div>
+  <div class="play">🎮</div>
+  <h2>Station 2: <span class="grad">Beat yesterday</span></h2>
+  <p class="sub">Find the one week where the lazy guess beats the model.</p>
+</section>
+
+<section class="slide" data-notes="Run step 4. Before any model ask: what would a person with no model do? Same hour yesterday misses by 63.5. Same hour last week by 72.5. The flat 7-day average throws away the daily rhythm: 135. Usually last week wins on weekly data; here yesterday wins, because the last 8 weeks hold Thanksgiving and Christmas and it gets colder every week. Last week is old news. No percentage errors: at 4 AM there are 2 rentals, a miss of 3 would look like 150 percent.">
+<div class="kicker">Notebook step 4 · naive baselines</div>
+  <h2>The number <span class="grad">to beat</span></h2>
+  <div class="hbars">
+    <span>same hour yesterday</span><div class="track"><i data-w="47%" style="background:var(--coral)"></i></div><span class="v">63.5</span>
+    <span>same hour last week</span><div class="track"><i data-w="53.6%" style="background:var(--amber)"></i></div><span class="v">72.5</span>
+    <span>last 7 days average</span><div class="track"><i data-w="100%" style="background:var(--peri)"></i></div><span class="v">135.2</span>
+  </div>
+  <p class="sub">average miss, rentals per hour, on the 8 test weeks. <b class="t">Tonight's number to beat: 64.</b></p>
+</section>
+
+<section class="slide" data-notes="Optional cell, about a minute. StatsForecast by Nixtla, free. MSTL splits the series into a daily rhythm, a weekly rhythm and a trend, then extends each into tomorrow. Run like our baselines: every midnight, the next 24 hours, 56 days. 59.4: better than yesterday, not by much. Classical models only see the series itself: no holidays, no rain. That is their limit, and our opening.">
+<div class="kicker">Notebook step 5 · optional · a classical forecaster</div>
+  <h2>Statisticians' answer: <span class="grad">MSTL</span></h2>
+  <div class="row">
+    <div class="card"><div class="label">How it thinks</div><p>trend <b>+</b> daily rhythm <b>+</b> weekly rhythm, each extended into tomorrow</p></div>
+    <div><div class="big t">59.4</div><p class="sub">vs 63.5 for yesterday</p></div>
+    <div class="card"><div class="label">Its limit</div><p>It only sees the series itself. It doesn't know tomorrow is a holiday, or that rain is coming.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Break, 10 minutes. Ask them to guess tomorrow's 8 AM demand for their own commute.">
+<div class="kicker">6:05 PM</div>
+  <h2>Break · <span class="grad">10 minutes</span></h2>
+  <p class="sub">Back at 6:15. Then the big idea of the night.</p>
+</section>
+
+<section class="slide" data-notes="The big idea. We already know how to predict a number from columns: gradient boosting, Session 7. So turn the past into columns. Live: for the hour we forecast (amber), the arrows reach back to the same hour yesterday and the same hour last week. Those two numbers become columns in the row. Forecasting becomes regression.">
+<div class="kicker">The big idea of tonight</div>
+  <h2>Turn the past into <span class="grad">columns</span></h2>
+  <canvas class="viz wide" data-v="lags"></canvas>
+</section>
+
+<section class="slide" data-notes="Station 3, 3 minutes. Click a card, see which hour it points to. Move the target hour. Mission: find every card that stays green for all 24 hours. Answer: 24 hours, 48 hours, one week, the weather forecast, the holiday flag, the 7-day average ending at midnight.">
+<div class="kicker">Play first · 3 minutes</div>
+  <div class="play">🎮</div>
+  <h2>Station 3: <span class="grad">The 24 hour rule</span></h2>
+  <p class="sub">Which past numbers are you allowed to use at midnight?</p>
+</section>
+
+<section class="slide" data-notes="Rule 2. For 8 AM tomorrow, rentals one hour before means 7 AM tomorrow: it hasn't happened at midnight. It looks wonderful in a notebook and is impossible in real life: the time series version of every leak we hunted. A lag is allowed only if it is longer than the wait from midnight to the target hour; 24 hours works for every hour. Honest caveat: our weather columns are the weather that actually happened. At midnight we would only have a forecast, so our scores are a little optimistic.">
+<div class="kicker">Rule 2</div>
+  <div class="rule"><b>Every column must be known at forecast time.</b></div>
+  <div class="cards">
+    <div class="card"><div class="label li">✓ allowed</div><div class="title">same hour yesterday · last week</div><p>Already happened at midnight.</p></div>
+    <div class="card"><div class="label co">✗ a leak</div><div class="title">rentals 1 hour before</div><p>For 8 AM tomorrow that is 7 AM tomorrow. It hasn't happened.</p></div>
+    <div class="card"><div class="label am">honest caveat</div><div class="title">tomorrow's real weather</div><p>We use it as a stand in for a <b>perfect weather forecast</b>. Real scores would be a little worse.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Run step 6 and look at one row: Nov 12, 2012 at 8 AM, a Monday and Veterans Day. Yesterday at 8 AM, a Sunday: 119 rentals. Last Monday at 8 AM, a normal workday: 648. Last week's average hour: about 232. Which past number should the model trust today? Holiday is 1. That is exactly what boosting learns from the data.">
+<div class="kicker">Notebook step 6 · one real row</div>
+  <h2>Nov 12, 2012, 8 AM: <span class="grad">which past to trust?</span></h2>
+  <div class="row">
+    <div><div class="big co">119</div><p class="sub">yesterday at 8 AM<br>(a Sunday)</p></div>
+    <div><div class="big am">648</div><p class="sub">last Monday at 8 AM<br>(a normal workday)</p></div>
+    <div><div class="big p">232</div><p class="sub">last week's<br>average hour</p></div>
+  </div>
+  <p class="sub">And one more column says <b class="t">holiday = 1</b>: it was Veterans Day.</p>
+</section>
+
+<section class="slide" data-notes="Run step 7. TimeSeriesSplit: cross validation where the check block always comes after the training block. Five pretend futures of two weeks each. The model misses by 33 to 48 depending on the block: calm weeks and stormy weeks. That spread is a range of honest answers, not one number.">
+<div class="kicker">Notebook step 7 · validate in time order</div>
+  <h2><span class="grad">TimeSeriesSplit</span>: five pretend futures</h2>
+  <div class="folds">
+    <span>round 1</span><div style="grid-column: span 1">train</div><div class="x">47.7</div><div style="opacity:.15"></div><div style="opacity:.15"></div><div style="opacity:.15"></div>
+    <span>round 2</span><div style="grid-column: span 2">train</div><div class="x">32.6</div><div style="opacity:.15"></div><div style="opacity:.15"></div>
+    <span>round 3</span><div style="grid-column: span 3">train</div><div class="x">41.1</div><div style="opacity:.15"></div>
+    <span>round 4</span><div style="grid-column: span 4">train</div><div class="x">37.7</div>
+    <span>round 5</span><div style="grid-column: span 4">train ......</div><div class="x">47.0</div>
+  </div>
+  <p class="sub">average miss in each two week block. The check always comes <b>after</b> the training.</p>
+</section>
+
+<section class="slide" data-notes="The result on the real 8 test weeks. Every bar is an honest 24-hour-ahead forecast. 7-day average 135, last week 72.5, yesterday 63.5, MSTL 59.4, our boosted model with lag columns 39.1: 38 percent less than the best naive guess. A real win. Rule 3: a model only counts if it beats the naive baseline on the future.">
+<div class="kicker">The race · the 8 test weeks</div>
+  <h2>Lags + boosting: <span class="grad">38% better</span></h2>
+  <div class="hbars">
+    <span>last 7 days average</span><div class="track"><i data-w="100%" style="background:var(--peri)"></i></div><span class="v">135.2</span>
+    <span>same hour last week</span><div class="track"><i data-w="53.6%" style="background:var(--amber)"></i></div><span class="v">72.5</span>
+    <span>same hour yesterday</span><div class="track"><i data-w="47%" style="background:var(--coral)"></i></div><span class="v">63.5</span>
+    <span>MSTL (classical)</span><div class="track"><i data-w="43.9%" style="background:#8a93a6"></i></div><span class="v">59.4</span>
+    <span><b>boosted model with lags</b></span><div class="track"><i data-w="28.9%" style="background:var(--teal)"></i></div><span class="v">39.1</span>
+  </div>
+  <div class="rule" style="font-size:clamp(1rem,1.9vw,1.4rem)"><b>Rule 3:</b> a model only counts if it beats the naive baseline on the future.</div>
+</section>
+
+<section class="slide" data-notes="Run step 8. An average hides a lot. Live: average miss by hour of day, model in teal, yesterday in red. Both are low at night and high at the commute peaks. The worst hour for both is 8 AM: the model misses by about 90, yesterday by about 180, twice as much. The model helps most exactly where the boss cares most.">
+<div class="kicker">Notebook step 8 · where does it miss?</div>
+  <h2>The hard hour: <span class="grad">8 AM</span></h2>
+  <canvas class="viz wide" data-v="byhour"></canvas>
+</section>
+
+<section class="slide" data-notes="Live: Thanksgiving week 2012, Monday to Sunday. Black is what happened. Red dashes: yesterday. Teal: the model. Thursday: the commute disappears. Yesterday still expects the Wednesday rush, 551 at 8 AM. The model knows it's a holiday and cuts 8 AM to about 300. Still too many: 97 came. And it still expects an evening rush that never happens.">
+<div class="kicker">Thanksgiving week 2012</div>
+  <h2>Holidays are <span class="grad">the hard part</span></h2>
+  <canvas class="viz wide" data-v="tgiving"></canvas>
+</section>
+
+<section class="slide" data-notes="The calendar lesson. The four worst days: Thanksgiving, Christmas Day, the day after Thanksgiving, Christmas Eve. On Christmas the model lost to yesterday. Christmas Eve is not a holiday in this data, so the model expected a normal Monday morning: about 470 rentals at 8 AM; 66 came. Then on Christmas Day, yesterday was already quiet. A better holiday calendar fixes both. DoorDash builds special holiday models for exactly this (link on the session page).">
+<div class="kicker">The calendar lesson</div>
+  <h2>Christmas Eve, 8 AM</h2>
+  <div class="row">
+    <div><div class="big p">≈470</div><p class="sub">the model's forecast<br>(it looked like a normal Monday)</p></div>
+    <div><div class="big am">66</div><p class="sub">rentals that<br>really started</p></div>
+  </div>
+  <p class="sub">Christmas Eve is <b>not marked as a holiday</b> in the data. The model is only as good as its calendar.</p>
+</section>
+
+<section class="slide" data-notes="Station 4, 3 minutes. 37 working day mornings at 8 AM. Slide the buffer. Then the mission: a short morning costs 2,000 dollars, an extra bike costs 5: find the cheapest buffer (140). Change the prices and watch the best buffer move.">
+<div class="kicker">Play first · 3 minutes</div>
+  <div class="play">🎮</div>
+  <h2>Station 4: <span class="grad">How big a buffer?</span></h2>
+  <p class="sub">A short morning costs $2,000. An extra bike costs $5. Find the cheapest buffer.</p>
+</section>
+
+<section class="slide" data-notes="Run step 9. Live: the 37 working day mornings at 8 AM in the test weeks. Bars are real demand; the white line is what we stage, forecast plus buffer. Red: we ran short. Watch the buffer grow: 0 extra bikes, short on 28 of 37 mornings; 50, 19; 100, 11; 150, only 4. Operations people call it safety stock. The forecast is an average guess, so it is too low about half the time.">
+<div class="kicker">Notebook step 9 · from a forecast to a decision</div>
+  <h2>Forecast + buffer = <span class="grad">the decision</span></h2>
+  <canvas class="viz wide" data-v="buffer"></canvas>
+</section>
+
+<section class="slide" data-notes="The prices decide. With 2,000 dollars per short morning and 5 dollars per extra bike, the cheapest buffer is 140 bikes: 4 short mornings, 33,900 dollars over the 37 mornings. Change the prices and the buffer moves. Session 8 did the same with a threshold: the model gives a score, the costs choose the cut.">
+<div class="kicker">The prices decide</div>
+  <div class="rule">A forecast is not the decision. <b>The forecast plus a buffer, chosen by the cost of running short, is the decision.</b></div>
+  <div class="row">
+    <div class="card"><div class="label">Short morning</div><div class="num">$2,000</div></div>
+    <div class="card"><div class="label">Extra bike</div><div class="num">$5</div></div>
+    <div class="card"><div class="label">Cheapest buffer</div><div class="num">140 bikes</div><p>4 short mornings of 37</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Optional cell; run it live on a GPU runtime if you can (Runtime, change runtime type, T4). Chronos-2, Amazon, October 2025, Apache-2.0 license. Trained on a huge collection of real and synthetic series. You hand it 8 weeks of history and tomorrow's temperature and calendar, and it forecasts with no training at all. We compare it with our boosted model on the same 56 midnights. Whoever wins, it is the new first baseline: three lines of code.">
+<div class="kicker">Notebook step 10 · optional · let's run it live</div>
+  <h2>A model that has <span class="grad">never seen DC</span></h2>
+  <div class="cards">
+    <div class="card"><div class="label">Chronos-2 · Amazon · 2025</div><p>Pretrained on a huge collection of time series. Open weights, Apache-2.0.</p></div>
+    <div class="card"><div class="label">Zero training</div><p>Give it 8 weeks of history and tomorrow's weather. It forecasts the next 24 hours.</p></div>
+    <div class="card"><div class="label">The new first baseline</div><p>Three lines of code. If your model can't beat it, ship it.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-notes="Quick check, 60 seconds. At midnight, forecasting 3 PM tomorrow (15 hours ahead). Rentals 12 hours before: 3 AM tomorrow, not yet: a leak. Rentals 24 hours before: 3 PM today, yes. Tomorrow's real temperature: not knowable, use a forecast. Holiday flag: yes, the calendar is known.">
+<div class="kicker">Quick check · 60 seconds</div>
+  <h2>Midnight. Forecast <span class="grad">3 PM tomorrow.</span> Allowed?</h2>
+  <table class="cm left">
+    <tr><td>rentals 12 hours before</td><td class="b">✗ that is 3 AM tomorrow</td></tr>
+    <tr><td>rentals 24 hours before</td><td class="g">✓ 3 PM today</td></tr>
+    <tr><td>tomorrow's real temperature</td><td class="a">✗ use a weather forecast</td></tr>
+    <tr><td>is tomorrow a holiday?</td><td class="g">✓ the calendar is known</td></tr>
+  </table>
+</section>
+
+<section class="slide" data-notes="About 15 minutes for Your Turn. Answers. Q1: lag_48 does not help: 39.6 vs 39.1. Q2: add lag_1 and the miss drops to 22.8, which looks 42 percent better, and is impossible at midnight. Q3: holiday hours 82.6 vs normal hours 36.6, more than twice as bad (72 holiday hours: Veterans Day, Thanksgiving, Christmas). Q4: short on at most 1 morning in 10 means 3 of 37 at most: a buffer of 180 bikes gives 2 short mornings; 170 still gives 4.">
+<div class="kicker">Your turn · answers</div>
+  <h2>What you should <span class="grad">find</span></h2>
+  <ul class="list">
+    <li><b>Q1, lag_48:</b> no help. 39.6 against 39.1.</li>
+    <li><b>Q2, lag_1:</b> the miss drops to <b class="co">22.8</b>. Looks amazing. Impossible at midnight.</li>
+    <li><b>Q3, holidays:</b> 82.6 on holiday hours, 36.6 on normal hours. More than twice as bad.</li>
+    <li><b>Q4, 1 short morning in 10:</b> a buffer of <b class="t">180</b> bikes (2 short of 37). 170 still gives 4.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="For your project, and Milestone 3 on Thursday. If your data has dates, seasons or quarters: split by time, and report your model next to a naive baseline (last period, same period last year). Say in the model card what you would know at prediction time.">
+<div class="kicker">Your project · Milestone 3, Thursday</div>
+  <h2>Does your data have <span class="grad">a clock?</span></h2>
+  <ul class="list">
+    <li><b>Split by time.</b> One line: train on dates before the cut, test after.</li>
+    <li><b>Name your naive baseline:</b> last period, same period last year, the average.</li>
+    <li><b>Check every column:</b> would you know it at prediction time?</li>
+    <li>In the model card, say what the <b>forecast horizon</b> is.</li>
+  </ul>
+</section>
+
+<section class="slide" data-notes="Our plain words and the real names they will meet in documentation and interviews.">
+<div class="kicker">Plain words, real names</div>
+  <h2>The <span class="grad">vocabulary</span></h2>
+  <table class="cm left">
+    <tr><th>we said</th><th>the real name</th></tr>
+    <tr><td>same hour yesterday / last week</td><td>naive, seasonal naive forecast</td></tr>
+    <tr><td>past numbers turned into columns</td><td>lag and rolling features</td></tr>
+    <tr><td>forecast at midnight for tomorrow</td><td>forecast origin, horizon of 24 hours</td></tr>
+    <tr><td>five pretend futures</td><td>rolling origin backtest, TimeSeriesSplit</td></tr>
+    <tr><td>tomorrow's weather and calendar</td><td>future known covariates</td></tr>
+    <tr><td>the buffer</td><td>safety stock</td></tr>
+    <tr><td>a model with no training</td><td>zero-shot foundation model</td></tr>
+  </table>
+</section>
+
+<section class="slide" data-notes="Takeaways, then the close. Next Monday: neural networks, text embeddings, and LLMs as features. And Milestone 4: dry run slides by 5 PM Monday Dec 7.">
+<div class="kicker">What we learned tonight</div>
+  <h2>Forecasting in <span class="grad">six lines</span></h2>
+  <ul class="list">
+    <li><b>Split by time.</b> A random split looked 1.9 times better than the truth.</li>
+    <li><b>Beat the naive baseline first.</b> Same hour yesterday: 63.5. Our model: 39.1.</li>
+    <li><b>Forecasting is regression on the past.</b> Lag columns + gradient boosting.</li>
+    <li><b>Every column must be known at forecast time.</b> lag_1 is a leak in disguise.</li>
+    <li><b>Look where it misses:</b> 8 AM and holidays.</li>
+    <li><b>A forecast is not a decision.</b> Forecast + a buffer, priced by the cost of running short.</li>
+  </ul>
+  <p class="tiny">Next Monday: neural networks, embeddings and LLMs as features · Milestone 4 slides due 5:00 PM Dec 7</p>
+</section>
+
+<div class="notes" id="notes"></div>
+<script>
+const D = {"weekly":[37.3,56.1,53.8,52.5,49.2,61.2,66.7,87.5,72.3,70.0,77.9,106.4,90.3,91.7,105.2,110.0,146.9,176.6,176.0,180.2,189.8,194.3,193.9,188.7,199.8,200.2,209.7,203.5,205.6,163.1,179.2,179.8,186.8,183.2,175.9,203.3,141.9,187.3,179.5,166.9,199.5,172.1,172.2,137.7,163.8,157.3,143.6,103.4,149.8,119.0,137.1,100.3,89.2,130.2,120.7,109.2,153.8,157.2,132.9,152.9,156.9,156.0,186.0,248.5,250.5,239.4,262.4,254.6,231.8,219.2,258.6,261.1,272.8,251.9,273.0,299.9,290.3,263.2,268.5,251.5,286.1,259.9,296.3,289.4,284.1,286.8,283.1,289.7,285.2,327.5,301.9,315.2,273.5,286.7,290.0,293.6,186.0,242.2,222.0,162.6,209.2,224.8,214.1,158.9,63.9,113.7],"week":[41,18,17,12,5,40,180,447,730,361,210,236,332,323,340,346,488,871,968,633,390,285,159,93,32,10,6,8,9,44,211,596,750,358,196,247,316,328,255,326,536,970,877,596,461,310,216,109,49,21,11,7,5,48,205,557,770,328,205,232,352,323,278,318,509,925,977,635,470,306,212,127,57,28,9,11,6,57,195,571,758,338,212,254,297,283,274,352,491,884,852,674,463,317,251,170,87,41,30,14,12,41,152,454,766,347,246,280,409,408,371,367,563,894,808,579,404,312,229,195,207,109,93,37,6,16,33,73,212,342,442,627,706,704,715,654,783,729,614,478,330,296,279,229,151,117,89,48,8,13,35,71,128,296,490,559,656,694,635,557,596,570,481,403,324,191,127,94],"wkday":[38,18,9,5,6,24,99,280,461,237,137,161,204,202,187,203,292,515,482,342,246,184,137,87],"wkend":[94,72,56,27,8,8,18,40,99,172,261,322,374,380,372,368,361,327,281,232,174,141,116,88],"act":[19,8,2,4,7,41,149,387,588,363,230,216,248,278,240,272,402,627,497,371,228,151,153,205,283,92,74,11,9,27,118,319,601,368,178,147,212,181,161,198,273,517,465,319,256,126,60,40,15,12,6,8,10,35,124,423,668,275,161,171,235,228,182,233,339,592,507,373,245,233,161,87,55,20,12,9,14,27,131,341,693,327,197,251,262,299,274,356,434,654,496,361,255,199,163,162,122,76,44,20,6,10,16,71,146,259,350,466,606,651,627,567,605,501,359,283,192,220,193,146,124,108,70,48,11,12,19,68,119,273,405,504,585,686,654,724,653,493,405,277,200,171,134,109,49,30,20,4,4,24,71,264,540,397,266,367,419,420,444,382,434,596,551,353,304,155,112,63,23,5,11,5,9,18,50,107,211,110,94,155,196,218,203,217,310,608,559,356,223,187,135,84,24,12,1,5,6,39,146,415,691,332,171,151,240,214,181,260,321,583,567,396,267,213,173,87,34,16,7,2,5,37,147,410,646,323,153,166,213,217,201,217,342,563,573,386,285,224,153,125,65,21,9,6,5,36,130,367,711,351,198,218,290,278,251,267,383,580,505,332,227,178,162,128,106,87,49,21,7,11,21,78,168,248,320,423,476,525,555,549,469,403,271,253,172,139,145,133,129,95,73,46,12,12,15,42,119,204,329,359,442,447,428,407,372,280,276,210,129,110,74,59,27,19,5,2,12,39,131,386,663,278,139,197,242,251,217,257,380,619,580,406,259,203,113,74,29,13,5,2,6,34,148,418,665,326,176,205,313,267,224,287,395,590,550,384,235,157,122,83,26,14,8,2,10,29,101,273,551,365,172,241,344,365,413,449,469,374,311,243,136,105,88,57,46,42,18,6,3,8,17,56,97,119,219,232,262,269,220,228,182,109,70,44,52,46,44,36,32,13,5,1,4,10,20,77,94,112,201,251,379,424,435,447,357,300,208,154,142,98,79,67,42,20,32,11,3,3,10,25,62,122,142,186,199,225,207,198,170,126,145,83,58,75,76,57,34,36,28,8,2,3,11,21,34,96,139,204,202,195,203,245,228,181,141,127,119,64,62,41,23,10,5,5,10,41,124,365,638,286,147,130,210,217,228,230,346,553,521,371,277,181,104,65,26,6,5,4,5,31,100,293,500,268,57,65,76,77,94,155,257,527,482,350,232,185,97,67,23,12,1,3,4,39,136,409,692,322,161,146,208,214,176,179,325,563,542,387,263,223,154,78,29,16,7,7,7,42,121,362,679,299,178,163,236,224,187,220,370,561,537,344,252,208,151,130,52,19,12,4,3,40,106,352,729,330,169,201,268,262,251,296,405,582,509,377,245,183,163,110,108,69,50,15,5,13,27,63,144,193,256,392,446,509,479,484,443,320,297,249,198,158,147,126,117,94,74,25,7,8,16,31,93,172,293,355,520,431,473,417,443,303,203,174,154,99,96,51,21,13,10,8,5,38,138,396,731,308,136,233,268,321,260,268,442,708,692,471,300,221,144,102,55,25,8,4,7,46,153,502,721,336,156,207,312,272,270,300,435,743,731,460,306,280,181,96,37,11,9,7,10,49,124,398,759,388,141,172,232,214,218,285,377,605,609,414,293,198,105,74,44,16,9,2,9,32,124,389,659,276,145,178,235,245,212,270,331,617,565,373,227,191,133,93,48,28,11,5,10,26,84,215,441,301,166,203,240,220,215,303,375,568,498,352,241,171,165,122,103,100,70,29,12,6,20,39,111,170,287,404,486,547,542,541,507,345,304,246,182,209,160,162,118,102,78,48,12,8,6,23,69,103,219,250,315,285,232,225,253,229,198,122,108,96,78,51,20,4,5,4,12,27,123,294,584,284,133,134,173,220,210,236,345,616,564,427,300,245,126,84,31,8,1,3,8,41,118,380,724,334,154,173,226,254,204,270,358,601,546,433,257,207,106,64,34,21,9,10,4,37,128,369,688,285,136,172,232,238,225,228,329,561,540,402,268,202,122,79,32,23,8,2,8,33,114,385,679,325,167,189,282,271,242,280,406,550,466,348,241,213,148,120,47,26,9,12,10,34,113,308,636,343,190,211,273,313,299,309,417,622,455,319,221,172,138,134,94,95,69,23,6,3,11,48,119,220,273,393,453,456,426,447,413,309,272,257,201,184,156,119,110,96,87,38,11,9,6,27,88,132,257,295,417,356,310,338,400,243,107,109,122,106,89,33,28,15,5,3,5,24,108,319,592,282,135,170,232,210,181,211,302,495,507,340,200,120,54,47,18,15,7,5,8,36,118,355,662,326,184,269,313,286,247,246,363,572,525,353,268,168,132,81,41,15,3,5,7,31,112,363,678,317,164,200,236,213,218,237,334,562,569,336,241,168,129,88,42,20,8,4,6,35,118,350,599,317,161,190,212,217,214,249,302,475,381,118,50,26,21,13,17,9,3,3,6,13,80,208,472,267,154,162,224,240,219,263,281,321,243,153,112,70,63,40,31,35,23,7,5,5,13,20,29,90,118,159,146,158,161,153,147,114,82,60,61,53,39,40,27,20,18,9,4,6,9,19,48,56,93,152,196,186,175,137,190,114,93,58,52,42,58,25,12,11,5,3,6,9,17,30,66,85,103,124,135,70,46,33,33,26,26,18,23,22,12,11,13,13,7,4,1,3,7,6,11,28,32,86,114,121,126,107,86,50,43,36,40,34,19,30,9,7,1,2,2,11,36,26,31,23,8,10,10,15,20,13,13,53,43,35,32,20,11,10,3,5,2,1,3,11,45,90,208,133,75,103,109,118,119,120,174,257,197,117,91,63,44,26,25,9,5,2,4,15,51,112,239,191,162,178,222,222,261,225,250,271,213,128,97,92,62,59,26,37,19,6,3,3,7,18,44,49,41,45,48,84,98,129,147,118,110,97,66,60,54,32,41,28,19,15,7,2,8,13,33,74,122,136,144,169,160,138,133,123,125,102,72,47,36,49,34,19,11,1,3,9,40,85,196,157,120,157,224,203,247,315,214,164,122,119,89,90,61,49],"yest":[23,8,6,4,16,39,139,461,648,257,142,150,244,222,196,231,360,638,542,372,241,152,115,53,19,8,2,4,7,41,149,387,588,363,230,216,248,278,240,272,402,627,497,371,228,151,153,205,283,92,74,11,9,27,118,319,601,368,178,147,212,181,161,198,273,517,465,319,256,126,60,40,15,12,6,8,10,35,124,423,668,275,161,171,235,228,182,233,339,592,507,373,245,233,161,87,55,20,12,9,14,27,131,341,693,327,197,251,262,299,274,356,434,654,496,361,255,199,163,162,122,76,44,20,6,10,16,71,146,259,350,466,606,651,627,567,605,501,359,283,192,220,193,146,124,108,70,48,11,12,19,68,119,273,405,504,585,686,654,724,653,493,405,277,200,171,134,109,49,30,20,4,4,24,71,264,540,397,266,367,419,420,444,382,434,596,551,353,304,155,112,63,23,5,11,5,9,18,50,107,211,110,94,155,196,218,203,217,310,608,559,356,223,187,135,84,24,12,1,5,6,39,146,415,691,332,171,151,240,214,181,260,321,583,567,396,267,213,173,87,34,16,7,2,5,37,147,410,646,323,153,166,213,217,201,217,342,563,573,386,285,224,153,125,65,21,9,6,5,36,130,367,711,351,198,218,290,278,251,267,383,580,505,332,227,178,162,128,106,87,49,21,7,11,21,78,168,248,320,423,476,525,555,549,469,403,271,253,172,139,145,133,129,95,73,46,12,12,15,42,119,204,329,359,442,447,428,407,372,280,276,210,129,110,74,59,27,19,5,2,12,39,131,386,663,278,139,197,242,251,217,257,380,619,580,406,259,203,113,74,29,13,5,2,6,34,148,418,665,326,176,205,313,267,224,287,395,590,550,384,235,157,122,83,26,14,8,2,10,29,101,273,551,365,172,241,344,365,413,449,469,374,311,243,136,105,88,57,46,42,18,6,3,8,17,56,97,119,219,232,262,269,220,228,182,109,70,44,52,46,44,36,32,13,5,1,4,10,20,77,94,112,201,251,379,424,435,447,357,300,208,154,142,98,79,67,42,20,32,11,3,3,10,25,62,122,142,186,199,225,207,198,170,126,145,83,58,75,76,57,34,36,28,8,2,3,11,21,34,96,139,204,202,195,203,245,228,181,141,127,119,64,62,41,23,10,5,5,10,41,124,365,638,286,147,130,210,217,228,230,346,553,521,371,277,181,104,65,26,6,5,4,5,31,100,293,500,268,57,65,76,77,94,155,257,527,482,350,232,185,97,67,23,12,1,3,4,39,136,409,692,322,161,146,208,214,176,179,325,563,542,387,263,223,154,78,29,16,7,7,7,42,121,362,679,299,178,163,236,224,187,220,370,561,537,344,252,208,151,130,52,19,12,4,3,40,106,352,729,330,169,201,268,262,251,296,405,582,509,377,245,183,163,110,108,69,50,15,5,13,27,63,144,193,256,392,446,509,479,484,443,320,297,249,198,158,147,126,117,94,74,25,7,8,16,31,93,172,293,355,520,431,473,417,443,303,203,174,154,99,96,51,21,13,10,8,5,38,138,396,731,308,136,233,268,321,260,268,442,708,692,471,300,221,144,102,55,25,8,4,7,46,153,502,721,336,156,207,312,272,270,300,435,743,731,460,306,280,181,96,37,11,9,7,10,49,124,398,759,388,141,172,232,214,218,285,377,605,609,414,293,198,105,74,44,16,9,2,9,32,124,389,659,276,145,178,235,245,212,270,331,617,565,373,227,191,133,93,48,28,11,5,10,26,84,215,441,301,166,203,240,220,215,303,375,568,498,352,241,171,165,122,103,100,70,29,12,6,20,39,111,170,287,404,486,547,542,541,507,345,304,246,182,209,160,162,118,102,78,48,12,8,6,23,69,103,219,250,315,285,232,225,253,229,198,122,108,96,78,51,20,4,5,4,12,27,123,294,584,284,133,134,173,220,210,236,345,616,564,427,300,245,126,84,31,8,1,3,8,41,118,380,724,334,154,173,226,254,204,270,358,601,546,433,257,207,106,64,34,21,9,10,4,37,128,369,688,285,136,172,232,238,225,228,329,561,540,402,268,202,122,79,32,23,8,2,8,33,114,385,679,325,167,189,282,271,242,280,406,550,466,348,241,213,148,120,47,26,9,12,10,34,113,308,636,343,190,211,273,313,299,309,417,622,455,319,221,172,138,134,94,95,69,23,6,3,11,48,119,220,273,393,453,456,426,447,413,309,272,257,201,184,156,119,110,96,87,38,11,9,6,27,88,132,257,295,417,356,310,338,400,243,107,109,122,106,89,33,28,15,5,3,5,24,108,319,592,282,135,170,232,210,181,211,302,495,507,340,200,120,54,47,18,15,7,5,8,36,118,355,662,326,184,269,313,286,247,246,363,572,525,353,268,168,132,81,41,15,3,5,7,31,112,363,678,317,164,200,236,213,218,237,334,562,569,336,241,168,129,88,42,20,8,4,6,35,118,350,599,317,161,190,212,217,214,249,302,475,381,118,50,26,21,13,17,9,3,3,6,13,80,208,472,267,154,162,224,240,219,263,281,321,243,153,112,70,63,40,31,35,23,7,5,5,13,20,29,90,118,159,146,158,161,153,147,114,82,60,61,53,39,40,27,20,18,9,4,6,9,19,48,56,93,152,196,186,175,137,190,114,93,58,52,42,58,25,12,11,5,3,6,9,17,30,66,85,103,124,135,70,46,33,33,26,26,18,23,22,12,11,13,13,7,4,1,3,7,6,11,28,32,86,114,121,126,107,86,50,43,36,40,34,19,30,9,7,1,2,2,11,36,26,31,23,8,10,10,15,20,13,13,53,43,35,32,20,11,10,3,5,2,1,3,11,45,90,208,133,75,103,109,118,119,120,174,257,197,117,91,63,44,26,25,9,5,2,4,15,51,112,239,191,162,178,222,222,261,225,250,271,213,128,97,92,62,59,26,37,19,6,3,3,7,18,44,49,41,45,48,84,98,129,147,118,110,97,66,60,54,32,41,28,19,15,7,2,8,13,33,74,122,136,144,169,160,138,133,123,125,102,72,47,36,49],"model":[44.4,34.7,30.1,29.2,29.9,59.0,121.0,427.9,662.8,278.6,153.6,166.4,205.4,206.0,194.0,209.8,302.9,559.1,548.5,349.4,242.8,144.6,110.8,59.1,29.2,14.7,9.3,8.8,9.8,30.5,131.0,339.3,484.6,309.6,168.9,179.7,197.5,217.9,190.3,221.7,317.9,613.5,457.8,356.5,230.1,156.3,94.8,91.1,96.2,15.3,13.2,12.6,8.0,36.5,137.4,364.6,617.8,317.5,163.8,162.7,229.5,233.3,194.6,227.6,306.8,646.5,620.2,380.9,260.2,183.8,116.4,92.8,43.5,23.1,7.9,3.3,4.0,21.6,115.2,341.8,631.4,296.4,195.2,229.5,312.7,304.1,282.2,313.3,403.8,606.5,497.3,322.1,222.1,188.4,155.9,125.0,92.0,70.1,44.0,26.2,14.6,10.1,30.9,51.1,169.2,252.9,342.4,394.3,508.1,583.5,607.8,565.7,559.6,560.4,398.3,298.7,267.1,201.7,179.1,150.6,103.3,142.4,54.0,27.0,8.9,8.4,11.7,56.1,131.9,252.1,375.3,477.6,621.0,647.8,681.5,588.8,556.6,473.2,387.2,321.2,192.9,156.6,125.3,100.7,61.3,43.5,34.3,21.0,17.2,25.7,86.2,175.3,319.2,276.0,355.6,390.4,412.8,416.7,408.6,405.0,444.4,537.2,433.8,362.1,269.0,162.8,150.3,87.4,39.5,7.0,10.8,9.2,7.8,39.5,91.5,192.0,196.1,203.4,116.8,224.1,289.9,301.9,254.0,286.3,393.4,624.2,583.6,344.3,248.2,152.4,130.4,80.5,166.4,27.8,20.9,3.7,1.1,18.2,97.3,321.4,507.6,293.5,146.9,161.1,209.0,214.8,192.7,218.4,282.2,565.3,554.5,360.8,226.9,185.4,123.7,68.2,22.0,8.0,0.6,0.4,1.4,31.7,138.8,402.3,627.8,290.3,158.5,171.1,224.8,229.3,192.4,235.4,268.2,500.7,511.3,363.5,258.0,179.9,143.3,82.3,39.7,13.4,5.1,0.6,2.8,18.4,123.4,321.2,610.9,303.0,198.4,251.5,272.0,288.0,288.3,326.8,405.5,606.1,522.5,320.3,227.5,183.9,138.9,133.5,96.9,53.9,36.1,12.7,4.2,6.1,24.3,45.6,133.0,254.1,331.8,424.4,529.0,537.4,542.6,528.0,521.3,457.1,338.5,220.9,178.4,147.9,135.6,127.5,96.1,85.2,67.7,33.1,5.4,5.6,5.2,52.3,104.1,220.8,344.8,460.1,483.8,478.0,493.1,498.4,462.1,380.1,281.4,223.0,178.2,138.7,103.0,77.9,24.2,22.6,15.8,8.8,7.1,25.4,107.9,352.8,556.9,329.6,196.3,223.5,266.6,290.3,284.6,278.5,373.0,549.3,505.0,379.0,266.9,189.7,116.9,70.3,27.7,14.6,3.3,6.3,7.7,23.6,113.8,491.1,615.1,346.1,141.9,184.8,221.4,250.7,227.0,253.3,340.2,634.0,551.5,379.8,240.5,190.3,132.5,75.1,35.5,10.6,0.6,1.0,1.2,29.4,134.3,380.3,602.9,293.9,181.1,185.3,283.6,280.2,243.2,283.1,362.1,596.5,583.9,406.3,254.7,189.7,149.8,83.4,43.0,22.2,9.5,5.5,2.8,16.1,64.6,129.3,306.9,223.9,235.0,286.5,385.3,381.0,431.3,426.3,384.7,438.9,383.9,242.2,180.4,172.6,140.8,86.9,52.2,20.6,7.2,2.8,2.6,23.5,90.5,318.2,483.7,276.6,225.2,250.7,308.7,325.8,288.4,300.2,378.6,542.2,370.3,292.9,213.1,163.2,133.7,110.8,88.1,59.0,22.5,15.3,4.2,5.9,12.0,63.6,117.3,175.5,235.2,252.4,306.7,447.1,403.3,390.3,336.3,244.8,167.2,167.3,125.7,106.0,94.4,88.6,93.9,64.8,61.8,35.3,9.3,9.8,12.7,39.6,94.6,154.6,206.6,262.5,275.3,265.8,259.5,278.1,290.8,233.2,196.4,145.2,99.2,82.6,71.3,40.2,17.1,7.9,3.2,2.2,4.8,31.1,108.5,344.8,566.1,295.3,150.1,203.5,231.9,243.6,230.8,239.7,349.9,576.0,536.4,391.7,250.3,158.4,109.4,65.4,25.5,11.0,6.0,7.3,9.8,35.8,147.9,275.8,320.9,294.9,100.4,67.4,27.3,76.2,36.5,167.7,241.4,360.8,392.9,333.8,220.7,148.1,112.0,66.6,28.3,12.2,7.4,6.3,5.7,24.2,99.1,294.2,515.4,282.3,148.1,186.6,206.7,237.5,229.7,218.1,405.2,535.1,475.8,352.3,221.0,149.2,108.1,64.9,38.4,25.8,9.6,4.9,4.3,12.5,98.9,372.8,598.9,294.4,179.9,206.8,216.6,232.6,197.4,203.1,275.5,532.4,490.4,361.8,236.1,159.4,128.4,73.1,29.8,15.6,10.2,6.7,5.2,11.6,71.8,333.4,606.1,292.0,181.6,223.2,292.5,283.0,255.1,272.3,345.3,445.3,445.4,245.0,186.1,140.1,121.9,96.2,67.2,33.6,30.1,12.4,6.0,7.1,17.1,8.0,78.2,126.7,168.8,234.4,262.4,286.6,279.3,317.3,365.4,324.7,240.3,166.2,165.5,98.9,100.2,81.6,70.0,62.1,43.2,12.7,5.4,6.0,8.7,15.5,60.9,106.6,200.3,248.6,275.7,299.9,367.2,382.5,404.0,173.3,238.8,157.1,147.9,146.2,122.7,95.7,28.4,27.5,17.2,10.2,6.5,34.4,116.1,377.2,477.7,283.2,177.9,179.5,247.7,249.9,249.6,258.4,375.8,672.1,584.5,429.5,286.3,187.7,127.0,76.1,30.5,14.3,8.2,5.7,5.9,29.0,115.0,391.3,592.0,326.0,165.9,215.4,266.8,294.7,251.0,252.4,410.3,726.4,744.8,463.9,314.5,220.2,151.9,100.2,47.0,26.3,9.7,9.1,13.6,45.2,98.5,308.9,731.0,320.1,177.0,199.5,276.3,276.2,261.6,276.3,392.0,659.0,608.3,419.3,269.4,218.4,146.5,81.1,25.6,16.0,6.9,1.6,5.3,39.5,126.3,352.0,651.9,297.5,143.9,155.9,202.5,200.2,187.0,238.8,306.2,556.4,536.3,346.5,229.7,167.7,135.5,89.6,42.8,13.9,5.5,0.1,0.2,28.6,94.5,223.9,605.6,270.4,171.1,194.2,230.4,250.7,225.5,245.4,329.1,498.7,431.7,318.0,132.1,140.0,141.5,116.5,79.8,63.5,42.0,16.9,8.8,12.0,25.6,61.4,136.8,190.7,272.1,300.5,295.1,356.3,306.4,450.7,351.3,305.4,290.4,205.1,160.5,138.3,153.7,152.5,104.7,103.7,89.0,35.0,13.1,12.4,6.7,12.8,48.7,165.9,256.7,285.5,351.4,347.5,343.4,218.7,192.9,131.5,129.8,116.9,80.9,116.9,59.5,41.6,8.8,24.4,16.0,10.3,8.9,33.7,122.1,346.8,533.0,333.8,154.3,97.9,105.7,115.2,176.7,214.5,286.6,658.8,453.3,457.0,239.0,162.5,131.5,81.6,32.6,24.2,9.9,3.3,10.3,26.6,156.4,445.6,655.4,275.5,176.8,170.9,205.3,242.5,223.7,233.5,341.6,680.0,667.6,434.1,260.1,212.7,136.5,68.3,29.5,8.9,1.6,0.5,1.5,32.4,122.4,349.3,672.0,282.0,136.0,161.8,205.6,219.9,197.9,216.0,336.6,568.9,518.5,374.3,237.5,184.4,107.2,67.5,35.8,22.8,10.1,9.4,4.8,24.5,130.8,348.1,604.8,268.3,150.2,171.6,216.4,217.6,220.0,227.2,283.6,562.8,526.9,359.9,243.4,182.3,135.9,80.4,39.6,23.7,9.4,4.2,4.4,17.3,81.8,303.4,597.6,268.0,161.8,203.0,261.0,264.6,261.0,279.6,382.4,504.3,469.7,308.8,199.3,156.5,141.6,122.5,70.6,63.1,54.3,23.2,7.8,5.8,14.3,29.8,93.4,169.8,258.4,346.2,452.2,480.5,485.7,484.8,479.3,392.8,326.6,226.7,198.1,183.8,145.2,155.5,104.1,56.7,81.6,38.8,9.9,8.5,8.2,28.2,81.9,149.0,264.3,319.9,357.4,374.7,347.3,326.4,347.7,216.1,140.0,175.8,149.5,103.4,105.0,78.8,28.7,23.8,12.1,6.7,-4.0,22.8,116.9,347.2,486.2,304.4,144.5,148.5,150.2,159.0,153.2,156.6,139.2,365.9,341.3,300.1,215.7,167.8,122.4,50.8,30.9,17.0,8.2,8.8,10.0,43.5,128.0,340.1,571.0,305.4,181.5,204.7,166.1,258.4,217.3,254.2,341.3,600.5,581.9,396.4,251.0,162.6,109.2,67.2,29.9,15.4,4.5,4.3,4.1,28.4,127.5,347.7,540.3,272.3,155.0,211.2,258.7,255.0,233.4,241.0,333.0,581.1,558.2,382.4,261.3,180.7,143.2,80.4,28.7,18.3,4.7,3.2,4.3,26.3,103.1,340.4,598.8,280.5,155.7,179.9,210.0,209.5,202.8,208.6,320.2,488.8,432.5,243.3,137.1,99.0,56.2,64.5,21.5,13.7,3.1,0.3,3.9,27.9,90.6,275.4,469.2,288.2,162.1,190.5,216.5,231.5,207.8,227.5,300.5,420.0,340.0,213.3,136.8,113.1,93.6,83.0,48.2,57.0,51.9,17.4,5.2,5.0,12.6,73.7,127.2,186.0,223.4,245.6,273.2,335.3,281.6,276.2,273.1,228.4,173.9,157.1,134.9,113.3,103.6,92.0,84.1,68.5,61.7,30.4,8.7,7.7,6.2,19.6,55.4,111.5,186.6,209.6,294.3,306.6,312.0,331.7,338.3,228.0,124.7,114.6,99.6,68.4,59.3,45.8,15.5,11.1,3.3,2.4,4.0,20.2,92.5,319.0,473.3,295.0,132.7,150.4,181.3,68.9,46.3,61.7,116.4,280.4,233.3,272.0,126.3,73.1,82.3,31.1,21.5,24.3,9.2,6.2,3.5,15.4,51.1,161.0,175.1,212.6,187.9,216.0,230.5,282.0,272.0,245.5,239.6,269.3,225.5,133.5,140.2,77.8,73.9,56.0,35.5,16.9,9.6,9.4,9.9,27.2,91.5,142.1,70.5,122.8,56.2,49.5,40.2,33.9,51.4,52.7,55.4,51.5,63.4,124.8,92.4,97.8,41.4,44.8,20.4,9.6,5.7,6.4,6.0,32.2,97.8,271.7,390.2,205.1,102.4,103.4,135.2,136.1,116.2,139.5,167.8,316.1,248.0,138.6,95.6,75.7,52.6,41.7,19.5,10.2,9.8,6.3,5.3,12.7,66.4,183.6,313.7,229.6,121.9,137.4,194.4,182.7,181.5,215.4,226.5,232.1,206.4,156.1,90.8,71.6,67.5,58.0,35.7,33.5,23.5,11.6,7.2,6.7,10.1,19.7,67.9,101.2,79.9,59.9,63.2,57.8,147.1,132.4,183.6,143.8,119.7,95.0,80.5,65.8,54.5,59.2,38.5,34.2,27.5,17.8,14.2,12.0,8.8,12.6,39.6,57.8,90.1,139.5,160.6,141.9,149.3,159.2,149.9,120.3,85.0,101.7,50.9,52.2,46.0,27.9,13.7,8.5,5.6,5.0,7.2,13.8,57.3,233.9,403.6,212.2,102.2,118.6,136.1,103.1,93.1,121.4,123.7,251.9,248.5,187.4,114.4,79.8,58.6,43.8],"wd":[1,1,1,1,0,0,0,1,1,1,1,0,0,1,1,1,0,1,0,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1,0,1,1,1,0,0,1],"hol":[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0],"daily":[6883,6784,7347,7605,7148,7865,4549,6530,7006,7375,7765,7582,6053,5255,6917,7040,7697,7713,7350,6140,5810,6034,6864,7112,6203,7504,5976,8227,7525,7767,7870,7804,8009,8714,7333,6869,4073,7591,7720,8167,8395,7907,7436,7538,7733,7393,7415,8555,6889,6778,4639,7572,7328,8156,7965,3510,5478,6392,7691,7570,7282,7109,6639,5875,7534,7461,7509,5424,8090,6824,7058,7466,7693,7359,7444,7852,4459,1229,2372,5566,5986,5847,5138,5107,5259,5686,5035,5323,5992,6536,6852,6269,4094,5495,5445,5698,5629,4669,5499,5634,5146,2425,3910,2277,2424,5087,3959,5260,5330,5668,5191,4649,6234,6606,5729,5375,5008,5582,3228,5170,5501,5319,5532,5611,5047,3786,4585,5557,5267,4128,3623,1749,1787,926,1017,441,2114,3095,1341,1796,2729]};
+const T = { text: '#eef2f7', text2: '#a3adbd', muted: '#5f6a7d', grid: 'rgba(200,220,255,0.08)', coral: '#ff6b8b', teal: '#2ee6c5', peri: '#7c8cff', amber: '#f5a524', lime: '#7ee787' };
+const PAL = [T.teal, T.peri, T.amber, T.coral];
+const MONO = "'IBM Plex Mono', monospace", SANS = "Manrope, sans-serif";
+
+// ── jobs: every animation registers a stopper so leaving a slide stops it
+let jobs = [];
+const stopAll = () => { jobs.forEach(j => j()); jobs = []; };
+const after = (ms, f) => { const t = setTimeout(f, ms); jobs.push(() => clearTimeout(t)); };
+function frames(f) { let id, alive = true; const st = performance.now(); const step = (t) => { if (!alive) return; if (f(t - st) !== false) id = requestAnimationFrame(step); }; id = requestAnimationFrame(step); jobs.push(() => { alive = false; cancelAnimationFrame(id); }); }
+function fit(cv) { const r = cv.getBoundingClientRect(), d = window.devicePixelRatio || 1; cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); const g = cv.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0); return { g, W: r.width, H: r.height }; }
+function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0; while (!u) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); }
+const ease = (x) => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
+const d2 = (a, b) => (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2;
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function svgFit(svg) { svg.innerHTML = ''; const r = svg.getBoundingClientRect(); svg.setAttribute('viewBox', `0 0 ${r.width} ${r.height}`); return { W: r.width, H: r.height }; }
+function diamond(g, x, y, s, c) { g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillStyle = c; g.strokeStyle = '#fff'; g.lineWidth = 2; g.fillRect(-s, -s, 2 * s, 2 * s); g.strokeRect(-s, -s, 2 * s, 2 * s); g.restore(); }
+function label(g, txt, x, y, opt = {}) { g.font = `${opt.w || 400} ${opt.s || 13}px ${opt.f || MONO}`; g.fillStyle = opt.c || T.text2; g.textAlign = opt.a || 'left'; g.fillText(txt, x, y); }
+
+const VIZ = {};
+
+const FMT = (h) => (h % 12 === 0 ? 12 : h % 12) + (h % 24 < 12 ? ' AM' : ' PM');
+function axes(g, W, H, pad, ymax, ylab) { g.strokeStyle = T.grid; g.lineWidth = 1; for (let k = 0; k <= 4; k++) { const y = pad.t + (H - pad.t - pad.b) * k / 4; g.beginPath(); g.moveTo(pad.l, y); g.lineTo(W - pad.r, y); g.stroke(); label(g, String(Math.round(ymax * (1 - k / 4))), pad.l - 8, y + 4, { a: 'right', s: 12, c: T.muted }); } if (ylab) label(g, ylab, pad.l, pad.t - 10, { s: 12 }); }
+function path(g, xs, ys, col, w, dash, upto) { g.strokeStyle = col; g.lineWidth = w; g.setLineDash(dash || []); g.beginPath(); const n = upto == null ? xs.length : Math.max(1, Math.floor(upto)); for (let k = 0; k < n; k++) k ? g.lineTo(xs[k], ys[k]) : g.moveTo(xs[k], ys[k]); g.stroke(); g.setLineDash([]); }
+
+/* title: a real September week drawing itself */
+VIZ.title = (cv) => { const { g, W, H } = fit(cv); const s = D.week, n = s.length, m = Math.max(...s);
+  const xs = s.map((_, k) => W * 0.04 + W * 0.92 * k / (n - 1)), ys = s.map(v => H * 0.88 - H * 0.6 * v / m);
+  frames((t) => { const p = (t % 9000) / 9000; g.clearRect(0, 0, W, H); const up = ease(p / 0.7) * n; g.globalAlpha = p > 0.85 ? 1 - (p - 0.85) / 0.15 : 1; path(g, xs, ys, T.teal, 2.2, null, up); g.globalAlpha = 1; }); };
+
+/* rhythms: year, week, day */
+VIZ.rhythms = (cv) => { const { g, W, H } = fit(cv); const gap = 30, w = (W - 2 * gap) / 3, pad = { l: 44, r: 10, t: 40, b: 34 };
+  const panels = [
+    { s: [D.weekly], cols: [T.peri], title: 'two years: weekly average per hour', xl: ['Jan 2011', 'Jan 2012', 'Dec 2012'] },
+    { s: [D.week], cols: [T.teal], title: 'one week, Sept 10 to 16, 2012', xl: ['Mon', 'Thu', 'Sun'] },
+    { s: [D.wkday, D.wkend], cols: [T.peri, T.amber], title: 'the average day', xl: ['midnight', 'noon', '11 PM'], leg: ['weekday', 'weekend'] } ];
+  frames((t) => { g.clearRect(0, 0, W, H); panels.forEach((P, k) => { const x0 = k * (w + gap), e = ease((t - k * 900) / 1400); if (e <= 0) return; const m = Math.max(...P.s.flat()) * 1.05;
+      const sub = { l: x0 + pad.l, r: W - (x0 + w) + pad.r }; label(g, P.title, x0 + pad.l, 18, { s: 13, c: T.text });
+      g.strokeStyle = T.grid; for (let j = 0; j <= 3; j++) { const y = pad.t + (H - pad.t - pad.b) * j / 3; g.beginPath(); g.moveTo(x0 + pad.l, y); g.lineTo(x0 + w - pad.r, y); g.stroke(); label(g, String(Math.round(m * (1 - j / 3))), x0 + pad.l - 6, y + 4, { a: 'right', s: 11, c: T.muted }); }
+      P.s.forEach((s, j) => { const xs = s.map((_, i) => x0 + pad.l + (w - pad.l - pad.r) * i / (s.length - 1)), ys = s.map(v => H - pad.b - (H - pad.t - pad.b) * v / m); path(g, xs, ys, P.cols[j], 2, null, e * s.length); });
+      P.xl.forEach((txt, j) => label(g, txt, x0 + pad.l + (w - pad.l - pad.r) * j / 2, H - 10, { s: 11, a: j === 0 ? 'left' : j === 1 ? 'center' : 'right', c: T.muted }));
+      if (P.leg) P.leg.forEach((txt, j) => label(g, '— ' + txt, x0 + w - pad.r, pad.t + 14 + j * 18, { s: 12, a: 'right', c: P.cols[j] })); });
+    return t < 4500; }); };
+
+/* splits: random vs time on real days */
+VIZ.splits = (cv) => { const { g, W, H } = fit(cv); const s = D.daily, n = s.length, m = Math.max(...s); const pad = { l: 20, r: 20, t: 70, b: 40 }; const bw = (W - pad.l - pad.r) / n;
+  const r = rng(11); const rand = s.map(() => r() < 0.2); const cut = n - 56; const time = s.map((_, i) => i >= cut);
+  function nb(test, i) { const c = []; for (let j = 0; j < n; j++) if (!test[j]) c.push(j); c.sort((a, b) => Math.abs(a - i) - Math.abs(b - i)); return c.slice(0, 2); }
+  frames((t) => { const phase = Math.floor(t / 6000) % 2, local = t % 6000; const test = phase === 0 ? rand : time; g.clearRect(0, 0, W, H);
+    label(g, phase === 0 ? 'RANDOM SPLIT: test days are scattered' : 'TIME SPLIT: the test days are the future', W / 2, 26, { s: 16, a: 'center', c: phase === 0 ? T.peri : T.amber, w: 700 });
+    const picks = []; for (let i = 0; i < n; i++) if (test[i]) picks.push(i); const focus = picks[Math.floor(picks.length * (phase === 0 ? 0.55 : 0.4))]; const near = nb(test, focus);
+    for (let i = 0; i < n; i++) { const h = (H - pad.t - pad.b) * s[i] / m * ease(local / 700); g.fillStyle = test[i] ? T.amber : T.peri; if (local > 1800 && near.includes(i)) g.fillStyle = T.teal; if (local > 1800 && i === focus) g.fillStyle = '#fff';
+      g.globalAlpha = test[i] ? 0.95 : 0.55; g.fillRect(pad.l + i * bw + 0.5, H - pad.b - h, Math.max(1, bw - 1), h); } g.globalAlpha = 1;
+    if (local > 1800) { const fx = pad.l + focus * bw + bw / 2; near.forEach(j => { const jx = pad.l + j * bw + bw / 2; g.strokeStyle = T.teal; g.lineWidth = 2; g.beginPath(); g.moveTo(fx, pad.t - 6); g.quadraticCurveTo((fx + jx) / 2, pad.t - 36, jx, pad.t - 6); g.stroke(); });
+      const dist = near.map(j => Math.abs(j - focus)); const dd = (v) => v === 1 ? '1 day' : v + ' days'; label(g, `the white test day copies the teal days, ${dd(dist[0])} and ${dd(dist[1])} away` + (phase === 0 ? ', on both sides' : ', all in the past'), W / 2, H - 12, { s: 14, a: 'center', c: T.text }); } }); };
+
+/* lags: the hour we forecast and where its columns come from */
+VIZ.lags = (cv) => { const { g, W, H } = fit(cv); const N = 24 * 9, pad = { l: 30, r: 30 }; const cw = (W - pad.l - pad.r) / N; const top = H * 0.35, h = H * 0.2; const tgt = N - 24 + 8, mid = N - 24;
+  const series = D.week.concat(D.week).slice(0, N); const m = Math.max(...series);
+  frames((t) => { g.clearRect(0, 0, W, H);
+    for (let k = 0; k < N; k++) { const known = k < mid; g.fillStyle = k === tgt ? T.amber : known ? 'rgba(126,231,135,0.25)' : 'rgba(124,140,255,0.10)'; const bh = h * 0.25 + h * 0.75 * series[k] / m; g.fillRect(pad.l + k * cw, top + h - bh, Math.max(1, cw - 0.6), bh); }
+    g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.moveTo(pad.l + mid * cw, top - 40); g.lineTo(pad.l + mid * cw, top + h + 10); g.stroke();
+    label(g, 'midnight: we forecast now', pad.l + mid * cw - 6, top - 46, { s: 13, a: 'right', c: T.text }); label(g, 'the past: already known', pad.l, top - 46, { s: 13, c: T.lime }); label(g, '8 AM tomorrow', pad.l + tgt * cw, top + h + 26, { s: 13, a: 'center', c: T.amber, w: 700 });
+    const arrows = [[24, T.coral, 'same hour yesterday → column lag_24'], [168, T.peri, 'same hour last week → column lag_168']];
+    arrows.forEach(([lag, col, txt], j) => { const e = ease((t - 600 - j * 1300) / 1100); if (e <= 0) return; const a = pad.l + tgt * cw + cw / 2, b = pad.l + (tgt - lag) * cw + cw / 2; const x = a + (b - a) * e; const dy = 40 + j * 46;
+      g.strokeStyle = col; g.lineWidth = 2.5; g.beginPath(); g.moveTo(a, top + h + 34); g.quadraticCurveTo((a + x) / 2, top + h + 34 + dy, x, top + h + 34); g.stroke();
+      if (e >= 1) { g.fillStyle = col; g.fillRect(pad.l + (tgt - lag) * cw, top, Math.max(2, cw), h); label(g, txt, pad.l, top + h + 120 + j * 24, { s: 15, c: col, w: 700 }); } });
+    const e3 = ease((t - 3400) / 600); if (e3 > 0) { g.globalAlpha = e3; label(g, 'one row:  hour 8 · weekday · holiday · weather · lag_24 · lag_168 · 7 day average   →   rentals', W / 2, 30, { s: 15, a: 'center', c: T.text, w: 700 }); g.globalAlpha = 1; }
+    return t < 4200; }); };
+
+/* by hour: average miss by hour of day */
+VIZ.byhour = (cv) => { const { g, W, H } = fit(cv); const pad = { l: 56, r: 30, t: 40, b: 40 }; const mm = new Array(24).fill(0), my = new Array(24).fill(0), cnt = new Array(24).fill(0);
+  D.act.forEach((a, k) => { const h = k % 24; mm[h] += Math.abs(a - D.model[k]); my[h] += Math.abs(a - D.yest[k]); cnt[h]++; }); for (let h = 0; h < 24; h++) { mm[h] /= cnt[h]; my[h] /= cnt[h]; }
+  const ymax = 200; const X = (h) => pad.l + (W - pad.l - pad.r) * h / 23, Y = (v) => H - pad.b - (H - pad.t - pad.b) * v / ymax;
+  frames((t) => { g.clearRect(0, 0, W, H); axes(g, W, H, pad, ymax, 'average miss, rentals per hour'); [0, 4, 8, 12, 16, 20, 23].forEach(h => label(g, FMT(h), X(h), H - 12, { s: 12, a: 'center', c: T.muted }));
+    const e = ease(t / 1600) * 24; path(g, [...Array(24).keys()].map(X), my.map(Y), T.coral, 2.5, null, e); path(g, [...Array(24).keys()].map(X), mm.map(Y), T.teal, 2.5, null, e);
+    label(g, '— yesterday', W - pad.r, pad.t + 4, { s: 13, a: 'right', c: T.coral }); label(g, '— boosted model', W - pad.r, pad.t + 24, { s: 13, a: 'right', c: T.teal });
+    if (t > 1800) { [[my, T.coral], [mm, T.teal]].forEach(([s, c]) => { g.fillStyle = c; g.beginPath(); g.arc(X(8), Y(s[8]), 6, 0, 7); g.fill(); label(g, Math.round(s[8]) + ' at 8 AM', X(8) + 12, Y(s[8]) + 5, { s: 15, c, w: 700 }); }); }
+    return t < 2400; }); };
+
+/* Thanksgiving week */
+VIZ.tgiving = (cv) => { const { g, W, H } = fit(cv); const pad = { l: 56, r: 20, t: 40, b: 40 }; const a0 = 13 * 24, n = 168; const sl = (s) => s.slice(a0, a0 + n);
+  const A = sl(D.act), Yd = sl(D.yest), M = sl(D.model); const ymax = 700; const X = (k) => pad.l + (W - pad.l - pad.r) * k / (n - 1), Y = (v) => H - pad.b - (H - pad.t - pad.b) * Math.min(v, ymax) / ymax;
+  const days = ['Mon 19', 'Tue 20', 'Wed 21', 'Thu 22 · Thanksgiving', 'Fri 23', 'Sat 24', 'Sun 25'];
+  frames((t) => { g.clearRect(0, 0, W, H); g.fillStyle = 'rgba(245,165,36,0.08)'; g.fillRect(X(72), pad.t, X(96) - X(72), H - pad.t - pad.b); axes(g, W, H, pad, ymax, 'rentals per hour');
+    days.forEach((d, j) => label(g, d, X(j * 24 + 12), H - 12, { s: 12, a: 'center', c: j === 3 ? T.amber : T.muted }));
+    const xs = [...Array(n).keys()].map(X); const e = ease(t / 2200) * n; path(g, xs, Yd.map(Y), T.coral, 1.4, [5, 4], e); path(g, xs, M.map(Y), T.teal, 2, null, e); path(g, xs, A.map(Y), T.text, 2.4, null, e);
+    label(g, '— what happened', W - pad.r, pad.t + 4, { s: 13, a: 'right', c: T.text }); label(g, '- - yesterday', W - pad.r, pad.t + 24, { s: 13, a: 'right', c: T.coral }); label(g, '— boosted model', W - pad.r, pad.t + 44, { s: 13, a: 'right', c: T.teal });
+    if (t > 2500) { const k = 72 + 8; label(g, `8 AM: yesterday ${Yd[k]} · model ${M[k]} · real ${A[k]}`, X(k) + 10, Y(Math.max(Yd[k], M[k])) - 14, { s: 14, c: T.amber, w: 700 }); }
+    return t < 3200; }); };
+
+/* buffer: 37 mornings with a growing buffer */
+VIZ.buffer = (cv) => { const { g, W, H } = fit(cv); const pad = { l: 56, r: 220, t: 40, b: 36 }; const M = [];
+  D.act.forEach((a, k) => { const d = Math.floor(k / 24); if (k % 24 === 8 && D.wd[d] === 1) M.push([a, D.model[k]]); });
+  const n = M.length, ymax = 1000, bw = (W - pad.l - pad.r) / n; const Y = (v) => H - pad.b - (H - pad.t - pad.b) * Math.min(v, ymax) / ymax; const steps = [0, 50, 100, 150];
+  frames((t) => { const st = Math.min(3, Math.floor(t / 2200)), buf = steps[st]; g.clearRect(0, 0, W, H); axes(g, W, H, pad, ymax, 'rentals at 8 AM, 37 working day mornings');
+    let short = 0; M.forEach(([a, f], i) => { const s = a > f + buf; if (s) short++; g.fillStyle = s ? T.coral : 'rgba(46,230,197,0.7)'; g.fillRect(pad.l + i * bw + 2, Y(a), bw - 4, H - pad.b - Y(a)); g.strokeStyle = '#fff'; g.lineWidth = 2.5; g.beginPath(); g.moveTo(pad.l + i * bw, Y(f + buf)); g.lineTo(pad.l + (i + 1) * bw, Y(f + buf)); g.stroke(); });
+    const bx = W - pad.r + 30; label(g, 'buffer', bx, pad.t + 20, { s: 13, c: T.muted }); label(g, `+${buf} bikes`, bx, pad.t + 56, { s: 30, c: T.text, w: 700 });
+    label(g, 'short mornings', bx, pad.t + 110, { s: 13, c: T.muted }); label(g, `${short} of ${n}`, bx, pad.t + 150, { s: 40, c: short > 10 ? T.coral : T.lime, w: 700 });
+    label(g, 'white line: staged', bx, H - pad.b - 24, { s: 12, c: T.text2 }); label(g, 'red bar: ran short', bx, H - pad.b - 4, { s: 12, c: T.coral });
+    return t < 9500; }); };
+
+// ── navigation (same keys as every deck in this course)
+const slides = [...document.querySelectorAll('.slide')]; let i = 0;
+function activate(s) {
+  s.querySelectorAll('[data-v]').forEach(node => VIZ[node.dataset.v] && VIZ[node.dataset.v](node));
+  s.querySelectorAll('[data-w]').forEach(b => { b.style.width = '0'; after(80, () => { b.style.width = b.dataset.w; }); });
+}
+function show(n) {
+  i = Math.max(0, Math.min(slides.length - 1, n));
+  slides.forEach((s, k) => s.classList.toggle('active', k === i));
+  document.getElementById('hud').textContent = (i + 1) + ' / ' + slides.length + '  ·  ← → navigate · F fullscreen · N notes';
+  document.getElementById('bar').style.width = ((i + 1) / slides.length * 100) + '%';
+  document.getElementById('notes').textContent = slides[i].dataset.notes || '';
+  history.replaceState(null, '', '#' + (i + 1));
+  stopAll(); const s = slides[i]; setTimeout(() => { if (slides[i] === s) activate(s); }, 60);
+}
+addEventListener('keydown', (e) => {
+  if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+  else if (e.key === 'Home') show(0);
+  else if (e.key === 'End') show(slides.length - 1);
+  else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  else if (e.key.toLowerCase() === 'n') document.body.classList.toggle('shownotes');
+});
+addEventListener('click', (e) => { if (e.target.closest('a')) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => show(i), 200); });
+show(parseInt(location.hash.slice(1) || '1', 10) - 1);
+
+
+</script>
+</body>
+</html>
