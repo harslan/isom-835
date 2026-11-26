@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Forecasting Explorer · ISOM 835</title>
-<meta name="description" content="Four small games on real Capital Bikeshare data: split the timeline and watch a random split flatter the model, beat yesterday week by week, find which past numbers you are allowed to use at midnight, and choose a safety buffer for the 8 AM rush.">
+<meta name="description" content="A warm up and four small games on real Capital Bikeshare data: beat the machine on three real mornings, split the timeline and watch a random split flatter the model, beat yesterday week by week, find which past numbers you are allowed to use at midnight, and choose a safety buffer for the 8 AM rush.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/explore/_shared.css">
@@ -47,9 +47,36 @@
   <h1>The Forecasting <span class="grad">Explorer</span></h1>
   <p class="sub">
     You run operations for a bike share. Every night at midnight you forecast <b>tomorrow, hour by hour</b>, and the vans get the bikes ready for the <b>8 AM rush</b>.
-    Four small games, one before each idea of the night. Every number here is a real hour from August to December 2012. Works on your phone.
+    A warm up, then four small games, one before each idea of the night. Every number here is a real hour from August to December 2012. Works on your phone.
   </p>
-  <div class="stations"><a href="#s1"><b>1</b>Split the timeline</a><a href="#s2"><b>2</b>Beat yesterday</a><a href="#s3"><b>3</b>The 24 hour rule</a><a href="#s4"><b>4</b>How big a buffer?</a></div>
+  <div class="stations"><a href="#s0"><b>0</b>Beat the machine</a><a href="#s1"><b>1</b>Split the timeline</a><a href="#s2"><b>2</b>Beat yesterday</a><a href="#s3"><b>3</b>The 24 hour rule</a><a href="#s4"><b>4</b>How big a buffer?</a></div>
+
+  <!-- ───────────── STATION 0 ───────────── -->
+  <section class="station" id="s0">
+    <div class="st-head"><span class="st-num">WARM UP</span><h2>Beat the machine</h2><span class="st-q">"You are the forecaster tonight."</span></div>
+    <p class="prompt">Three real mornings from November 2012. It is midnight, and you get the same clues the computer gets: the day, tomorrow's weather forecast, and the past.
+      <b>Drag the slider to your guess</b> for rentals between 8 and 9 AM, then press <b>Reveal</b>. Can you beat "same hour yesterday"? Can you beat the model?</p>
+    <div class="layout">
+      <div class="panel">
+        <div id="g-card"></div>
+        <canvas id="c0" width="820" height="230" style="margin-top:10px"></canvas>
+      </div>
+      <div>
+        <div class="panel controls">
+          <div class="row"><label>Your guess for 8 AM: <b id="v-guess">400</b> rentals</label><input type="range" id="guess" min="0" max="900" step="10" value="400"></div>
+          <div class="btnrow"><button class="btn primary" id="g-reveal">Reveal</button><button class="btn" id="g-next">Next morning →</button></div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="panel readout">
+          <div class="kicker" style="margin-bottom:6px">Your scoreboard: total miss so far</div>
+          <div class="stat"><span>You</span><b id="g-you">–</b></div>
+          <div class="stat"><span>Same hour yesterday</span><b id="g-yest">–</b></div>
+          <div class="stat"><span>The boosted model</span><b id="g-model">–</b></div>
+          <div class="verdict" id="v0">Morning 1 of 3. Make your guess.</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ───────────── STATION 1 ───────────── -->
   <section class="station" id="s1">
@@ -186,6 +213,30 @@ const dayTotal = (i) => F.slice(i * 24, i * 24 + 24).reduce((a, b) => a + b, 0);
 const COL = { blue: '#7c8cff', amber: '#f5a524', teal: '#2ee6c5', coral: '#ff6b8b', text: '#eef2f7', muted: '#5f6a7d', grid: 'rgba(200,220,255,0.08)' };
 function ctx(id) { const c = $(id), x = c.getContext('2d'); return [c, x]; }
 function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+
+/* ── Station 0: beat the machine ── */
+(() => {
+  const G = [
+    { day: 'Nov 19, 2012, a Monday', clues: ['A normal working Monday', 'Forecast: misty, 48°F', 'Yesterday (Sunday) at 8 AM: <b>119</b> rentals', 'Last Monday at 8 AM: <b>540</b> (it was Veterans Day)'], actual: 663, yest: 119, model: 557,
+      lesson: 'Yesterday was a <b>Sunday</b>, so "same hour yesterday" was way off. The model knows Monday is a workday and guessed 557. The truth: <b>663</b>.' },
+    { day: 'Nov 13, 2012, a Tuesday', clues: ['A normal working Tuesday', 'Forecast: <b>light rain</b>, 45°F', 'Yesterday at 8 AM: <b>540</b> rentals (dry)', 'Last Tuesday at 8 AM: <b>588</b>'], actual: 211, yest: 540, model: 196,
+      lesson: '<b>Rain</b>. Most commuters took the bus. The model saw the rain in the forecast and guessed 196. The truth: <b>211</b>. Yesterday was dry, so it guessed 540.' },
+    { day: 'Nov 23, 2012, a Friday', clues: ['A working day in the data', 'Forecast: clear, 38°F', 'Yesterday (<b>Thanksgiving</b>) at 8 AM: <b>97</b>', 'Last Friday at 8 AM: <b>711</b>'], actual: 94, yest: 97, model: 484,
+      lesson: 'The <b>day after Thanksgiving</b>. Many people took the day off, but the data calls it a normal working day. The model guessed 484. Yesterday, the holiday, guessed 97. The truth: <b>94</b>. Here the lazy guess wins.' } ];
+  let k = 0, revealed = false; const tot = { you: 0, yest: 0, model: 0 }; const [c, x] = ctx('c0');
+  function card() { const g = G[k]; $('g-card').innerHTML = `<div class="kicker" style="margin-bottom:8px">Morning ${k + 1} of 3 · 8 to 9 AM</div><div style="font-size:1.25rem;font-weight:800;margin-bottom:10px">${g.day}</div>` + g.clues.map(t => `<div class="prompt" style="margin:0 0 6px">• ${t}</div>`).join(''); }
+  function draw() { x.clearRect(0, 0, c.width, c.height); const g = G[k], you = +$('guess').value; const rows = [['you', you, '#f5a524'], ['same hour yesterday', g.yest, COL.coral], ['the model', g.model, COL.teal]]; if (revealed) rows.push(['what really happened', g.actual, '#eef2f7']);
+    const L = 190, R = 70, h = 34, m = 900; x.font = '13px IBM Plex Mono';
+    rows.forEach(([n, v, col], i) => { const yy = 18 + i * (h + 12); x.fillStyle = '#a3adbd'; x.textAlign = 'right'; x.fillText(n, L - 12, yy + h / 2 + 4); x.textAlign = 'left';
+      const hide = !revealed && i > 0; x.fillStyle = hide ? 'rgba(255,255,255,0.06)' : col; x.fillRect(L, yy, hide ? (c.width - L - R) : (c.width - L - R) * v / m, h);
+      x.fillStyle = hide ? '#5f6a7d' : '#eef2f7'; x.fillText(hide ? '?' : String(v), hide ? L + 10 : L + (c.width - L - R) * v / m + 8, yy + h / 2 + 4); }); }
+  $('guess').oninput = () => { $('v-guess').textContent = $('guess').value; if (!revealed) draw(); };
+  $('g-reveal').onclick = () => { if (revealed) return; revealed = true; const g = G[k], you = +$('guess').value; tot.you += Math.abs(you - g.actual); tot.yest += Math.abs(g.yest - g.actual); tot.model += Math.abs(g.model - g.actual);
+    $('g-you').textContent = tot.you; $('g-yest').textContent = tot.yest; $('g-model').textContent = tot.model; const miss = Math.abs(you - g.actual);
+    $('v0').innerHTML = `You missed by <b>${miss}</b>. ` + g.lesson + (k === 2 ? `<br><br><b>Final:</b> you ${tot.you}, yesterday ${tot.yest}, the model ${tot.model}. ` + (tot.you < tot.model ? 'You beat the model. You used things it can\'t see, like knowing what Black Friday is.' : 'The model wins overall, but notice what it missed: the calendar.') + ' Tonight we build that model, and learn when not to trust it.' : ''); draw(); };
+  $('g-next').onclick = () => { if (!revealed) { $('v0').innerHTML = 'Press <b>Reveal</b> first.'; return; } if (k === 2) { k = 0; tot.you = tot.yest = tot.model = 0; ['g-you', 'g-yest', 'g-model'].forEach(id => $(id).textContent = '–'); } else k++; revealed = false; $('v0').innerHTML = `Morning ${k + 1} of 3. Make your guess.`; card(); draw(); };
+  card(); draw();
+})();
 
 /* ── Station 1 ── */
 (() => {

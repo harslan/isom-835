@@ -36,6 +36,7 @@
       "description": "Capital Bikeshare in Washington, DC: every night the vans get bikes ready for the 8 AM rush. Meet the data, 17,379 hours of real rentals with weather and calendar, the 165 missing hours (Hurricane Sandy), and three rhythms: daily, weekly, yearly.",
       "bulletPoints": [
         "The rule of the game: forecast at midnight, for the next 24 hours",
+        "Warm up: guess 8 AM on three real mornings, then try to beat the machine",
         "Milestone 2 due tonight; Milestone 3 Thursday"
       ],
       "isBreak": false
@@ -117,7 +118,7 @@
     {
       "title": "The Forecasting Explorer",
       "url": "/explore/forecast/",
-      "description": "Four small games on real bike share data, one before each idea. Split the timeline and watch a random split flatter a tiny model, beat yesterday week by week and find the week the lazy guess wins, find which past numbers you may use at midnight, and choose a safety buffer for the 8 AM rush by pricing the two mistakes. Works on your phone.",
+      "description": "A warm up and four small games on real bike share data. Beat the machine on three real mornings, then split the timeline and watch a random split flatter a tiny model, beat yesterday week by week and find the week the lazy guess wins, find which past numbers you may use at midnight, and choose a safety buffer for the 8 AM rush by pricing the two mistakes. Works on your phone.",
       "icon": "zap",
       "badge": "Play",
       "badgeType": "interactive",

@@ -170,7 +170,18 @@
   </div>
 </section>
 
-<section class="slide" data-notes="Tonight's map. Four games in the Forecasting Explorer, one before each idea: play first, then name it. Break around 6:05. The notebook follows the same order, steps 1 to 11.">
+<section class="slide" data-notes="Warm up, 3 minutes, before any code. Everyone writes three numbers: rentals between 8 and 9 AM on these three real mornings. Same clues the computer gets at midnight. Or play Station 0, Beat the machine, in the Explorer and keep score. Ask two or three people for their numbers and write them on the board. We reveal the answers after the break, in step 8.">
+<div class="kicker">Warm up · you are the forecaster</div>
+  <h2>Guess <span class="grad">8 AM</span> on three real mornings</h2>
+  <div class="cards">
+    <div class="card"><div class="label">Nov 19, 2012 · Monday</div><div class="title">Normal workday</div><p>Misty, 48°F.<br>Yesterday (a <b>Sunday</b>) at 8 AM: <b>119</b><br>Last Monday at 8 AM: <b>540</b></p></div>
+    <div class="card"><div class="label">Nov 13, 2012 · Tuesday</div><div class="title">Normal workday</div><p><b>Light rain</b>, 45°F.<br>Yesterday at 8 AM: <b>540</b> (dry)<br>Last Tuesday at 8 AM: <b>588</b></p></div>
+    <div class="card"><div class="label">Nov 23, 2012 · Friday</div><div class="title">Day after Thanksgiving</div><p>Clear, 38°F.<br>Yesterday (<b>Thanksgiving</b>): <b>97</b><br>Last Friday at 8 AM: <b>711</b></p></div>
+  </div>
+  <p class="sub">Write down three numbers. Or play <b>Station 0: Beat the machine</b>. We reveal them after the break.</p>
+</section>
+
+<section class="slide" data-notes="Tonight's map. A warm up and four games in the Forecasting Explorer, one before each idea: play first, then name it. Break around 6:05. The notebook follows the same order, steps 1 to 11.">
 <div class="kicker">Tonight's map · play first, then name it</div>
   <h2>Four games, <span class="grad">three rules</span></h2>
   <div class="steps">
@@ -343,6 +354,17 @@
   <p class="sub">Christmas Eve is <b>not marked as a holiday</b> in the data. The model is only as good as its calendar.</p>
 </section>
 
+<section class="slide" data-notes="The reveal. Ask who wrote what. Monday: yesterday was a Sunday, so the lazy guess said 119; the model knows Monday is a workday, 557; truth 663. Tuesday: rain; the model saw it in the weather columns, 196; truth 211. Friday: the day after Thanksgiving is a normal workday in the data, so the model said 484; truth 94; yesterday, the holiday, said 97 and wins. Most of you guessed Friday low. You knew something the data didn't. That knowledge can become a column.">
+<div class="kicker">Remember your three guesses?</div>
+  <h2>The reveal</h2>
+  <div class="cards">
+    <div class="card"><div class="label">Nov 19 · Mon</div><div class="title">Truth: 663</div><p>Yesterday said 119 (it was Sunday).<br>The model said <b>557</b>. Model wins.</p></div>
+    <div class="card"><div class="label">Nov 13 · Tue</div><div class="title">Truth: 211</div><p>Yesterday said 540 (it was dry).<br>The model saw the rain: <b>196</b>. Model wins.</p></div>
+    <div class="card"><div class="label">Nov 23 · Fri</div><div class="title">Truth: 94</div><p>The model said 484 (a "normal workday").<br>Yesterday said <b>97</b>. Lazy guess wins.</p></div>
+  </div>
+  <p class="sub">If you guessed Friday low, you beat the model. <b>What you know about the calendar can become a column.</b></p>
+</section>
+
 <section class="slide" data-notes="Station 4, 3 minutes. 37 working day mornings at 8 AM. Slide the buffer. Then the mission: a short morning costs 2,000 dollars, an extra bike costs 5: find the cheapest buffer (140). Change the prices and watch the best buffer move.">
 <div class="kicker">Play first · 3 minutes</div>
   <div class="play">🎮</div>
@@ -469,8 +491,8 @@ function path(g, xs, ys, col, w, dash, upto) { g.strokeStyle = col; g.lineWidth 
 
 /* title: a real September week drawing itself */
 VIZ.title = (cv) => { const { g, W, H } = fit(cv); const s = D.week, n = s.length, m = Math.max(...s);
-  const xs = s.map((_, k) => W * 0.04 + W * 0.92 * k / (n - 1)), ys = s.map(v => H * 0.88 - H * 0.6 * v / m);
-  frames((t) => { const p = (t % 9000) / 9000; g.clearRect(0, 0, W, H); const up = ease(p / 0.7) * n; g.globalAlpha = p > 0.85 ? 1 - (p - 0.85) / 0.15 : 1; path(g, xs, ys, T.teal, 2.2, null, up); g.globalAlpha = 1; }); };
+  const xs = s.map((_, k) => W * 0.04 + W * 0.92 * k / (n - 1)), ys = s.map(v => H * 0.97 - H * 0.24 * v / m);
+  frames((t) => { const p = (t % 9000) / 9000; g.clearRect(0, 0, W, H); const up = ease(p / 0.7) * n; g.globalAlpha = 0.6 * (p > 0.85 ? 1 - (p - 0.85) / 0.15 : 1); path(g, xs, ys, T.teal, 2.2, null, up); g.globalAlpha = 1; }); };
 
 /* rhythms: year, week, day */
 VIZ.rhythms = (cv) => { const { g, W, H } = fit(cv); const gap = 30, w = (W - 2 * gap) / 3, pad = { l: 44, r: 10, t: 40, b: 34 };
